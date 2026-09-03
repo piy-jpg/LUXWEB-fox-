@@ -575,25 +575,112 @@
     }
 
     /* RIGHT PANE — Haute Obsidian & Champagne Gold Card */
+    /* ===================================================
+       CRAZY 3D RIGHT AUTH PANE ENHANCEMENTS
+       =================================================== */
     .sudathi-auth-pane {
       flex: 1;
       padding: 3rem 2.8rem;
-      background: rgba(14, 10, 12, 0.6);
+      background: 
+        radial-gradient(circle at 80% 20%, rgba(212, 175, 55, 0.12) 0%, transparent 60%),
+        radial-gradient(circle at 10% 90%, rgba(184, 134, 11, 0.08) 0%, transparent 60%),
+        rgba(14, 10, 12, 0.65);
       display: flex;
       flex-direction: column;
       justify-content: center;
       position: relative;
+      perspective: 1200px;
+      transform-style: preserve-3d;
+      overflow: hidden;
     }
 
+    /* Ambient Backlight Orbs */
+    .auth-ambient-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(55px);
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+    .auth-ambient-orb.orb-1 {
+      width: 260px;
+      height: 260px;
+      top: -40px;
+      right: -40px;
+      background: radial-gradient(circle, rgba(223, 177, 91, 0.3) 0%, transparent 70%);
+      animation: driftAuthOrb1 10s ease-in-out infinite alternate;
+    }
+    .auth-ambient-orb.orb-2 {
+      width: 240px;
+      height: 240px;
+      bottom: -40px;
+      left: -30px;
+      background: radial-gradient(circle, rgba(212, 175, 55, 0.25) 0%, transparent 70%);
+      animation: driftAuthOrb2 12s ease-in-out infinite alternate;
+    }
+    @keyframes driftAuthOrb1 {
+      0% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+      100% { transform: translate(-30px, 30px) scale(1.15); opacity: 0.55; }
+    }
+    @keyframes driftAuthOrb2 {
+      0% { transform: translate(0, 0) scale(1); opacity: 0.25; }
+      100% { transform: translate(25px, -25px) scale(1.2); opacity: 0.5; }
+    }
+
+    /* 3D Glass Obsidian Card */
     .auth-inner-card {
-      background: linear-gradient(160deg, rgba(28, 20, 25, 0.96) 0%, rgba(15, 11, 13, 0.98) 100%);
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(160deg, rgba(28, 20, 25, 0.94) 0%, rgba(15, 11, 13, 0.98) 100%);
       color: #FAF7F2;
-      border: 1px solid rgba(201, 169, 110, 0.35);
-      border-radius: 18px;
+      border: 1px solid rgba(223, 177, 91, 0.4);
+      border-radius: 20px;
       padding: 2.4rem 2.2rem;
       box-shadow: 
-        0 20px 50px rgba(0, 0, 0, 0.7),
-        inset 0 1px 0 rgba(201, 169, 110, 0.35);
+        0 25px 60px rgba(0, 0, 0, 0.75),
+        0 0 35px rgba(212, 175, 55, 0.18),
+        inset 0 1px 1px rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(20px);
+      transform-style: preserve-3d;
+      transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease, border-color 0.3s ease;
+      animation: authCardFloat 8s ease-in-out infinite alternate;
+      overflow: hidden;
+    }
+
+    @keyframes authCardFloat {
+      0% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+      50% { transform: translateY(-4px) rotateX(1.5deg) rotateY(-1.5deg); }
+      100% { transform: translateY(0px) rotateX(0deg) rotateY(0deg); }
+    }
+
+    .auth-inner-card:hover {
+      border-color: rgba(223, 177, 91, 0.65);
+      box-shadow: 
+        0 30px 75px rgba(0, 0, 0, 0.85),
+        0 0 45px rgba(212, 175, 55, 0.3),
+        inset 0 1px 2px rgba(255, 255, 255, 0.4);
+    }
+
+    /* Specular light glare overlay */
+    .auth-card-shine {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18), transparent 70%);
+      pointer-events: none;
+      border-radius: 20px;
+      z-index: 2;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+    }
+    .auth-card-top-beam {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), rgba(223,177,91,0.9), transparent);
+      z-index: 3;
     }
 
     /* Auth Header & Tabs */
@@ -602,17 +689,27 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 1.45rem;
-      border-bottom: 1px solid rgba(201, 169, 110, 0.18);
+      border-bottom: 1px solid rgba(201, 169, 110, 0.22);
       padding-bottom: 0.85rem;
+      transform: translateZ(22px);
     }
 
     .auth-main-title {
-      font-size: 1.65rem;
+      font-size: 1.68rem;
       font-weight: 400;
       font-family: var(--font-serif);
       font-style: italic;
-      color: #FAF7F2;
       letter-spacing: 0.02em;
+      background: linear-gradient(125deg, #FFFFFF 0%, #F5E6C8 25%, #DFB15B 50%, #FFFFFF 75%, #C5A059 90%, #FFD700 100%);
+      background-size: 240% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shimmerAuthTitle 6s linear infinite;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.8));
+    }
+    @keyframes shimmerAuthTitle {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 240% 50%; }
     }
 
     .auth-tab-toggle {
@@ -621,27 +718,30 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--color-gold);
-      background: rgba(201, 169, 110, 0.1);
-      border: 1px solid rgba(201, 169, 110, 0.35);
-      padding: 0.35rem 0.85rem;
+      background: rgba(201, 169, 110, 0.12);
+      border: 1px solid rgba(201, 169, 110, 0.4);
+      padding: 0.38rem 0.9rem;
       border-radius: 20px;
       cursor: pointer;
       transition: all 0.25s ease;
+      backdrop-filter: blur(8px);
+      transform: translateZ(18px);
     }
     .auth-tab-toggle:hover {
       background: var(--color-gold);
       color: #120D0F;
       border-color: var(--color-gold);
-      box-shadow: 0 0 15px rgba(201, 169, 110, 0.4);
+      box-shadow: 0 0 18px rgba(201, 169, 110, 0.5);
+      transform: translateZ(24px) scale(1.05);
     }
 
     /* Continue with Google button */
     .btn-google-sudathi {
       width: 100%;
-      padding: 0.82rem 1.1rem;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(201, 169, 110, 0.35);
-      border-radius: 10px;
+      padding: 0.85rem 1.15rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(223, 177, 91, 0.4);
+      border-radius: 12px;
       color: #FAF7F2;
       font-family: var(--font-sans);
       font-size: 0.78rem;
@@ -653,57 +753,90 @@
       align-items: center;
       justify-content: center;
       gap: 0.85rem;
-      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+      transform: translateZ(16px);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-google-sudathi::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -120%;
+      width: 80%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.6s ease;
     }
 
     .btn-google-sudathi:hover {
-      background: rgba(201, 169, 110, 0.15);
-      border-color: var(--color-gold);
+      background: rgba(223, 177, 91, 0.16);
+      border-color: #dfb15b;
       color: #FFFFFF;
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(201, 169, 110, 0.25);
+      transform: translateY(-2px) translateZ(24px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(223, 177, 91, 0.35);
+    }
+    .btn-google-sudathi:hover::after {
+      left: 140%;
     }
 
-    /* Divider */
+    /* Divider with 3D depth */
     .sudathi-divider {
       display: flex;
       align-items: center;
       text-align: center;
       margin: 1.45rem 0;
-      color: rgba(201, 169, 110, 0.65);
+      color: rgba(223, 177, 91, 0.75);
       font-size: 0.64rem;
       font-weight: 600;
-      letter-spacing: 0.16em;
+      letter-spacing: 0.18em;
       text-transform: uppercase;
+      transform: translateZ(14px);
     }
 
     .sudathi-divider::before,
     .sudathi-divider::after {
       content: '';
       flex: 1;
-      border-bottom: 1px solid rgba(201, 169, 110, 0.2);
+      border-bottom: 1px solid rgba(223, 177, 91, 0.28);
     }
 
     .sudathi-divider span {
       padding: 0 0.95rem;
+      text-shadow: 0 0 10px rgba(223, 177, 91, 0.4);
     }
 
-    /* Combined Phone/Email Input Group */
+    /* Channel switcher buttons 3D tactile elevation */
+    #tabChannelPhone, #tabChannelEmail {
+      transform: translateZ(14px);
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #tabChannelPhone:hover, #tabChannelEmail:hover {
+      transform: translateY(-2px) translateZ(20px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 15px rgba(212, 175, 55, 0.25);
+    }
+
+    /* Combined Phone/Email Input Group with 3D Layering */
     .input-wrapper-sudathi {
       display: flex;
-      background: rgba(11, 8, 9, 0.75);
-      border: 1px solid rgba(201, 169, 110, 0.3);
-      border-radius: 10px;
+      background: rgba(11, 8, 9, 0.85);
+      border: 1px solid rgba(201, 169, 110, 0.35);
+      border-radius: 12px;
       overflow: hidden;
       margin-bottom: 1.1rem;
       transition: all 0.25s ease;
+      transform: translateZ(15px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.06);
     }
 
     .input-wrapper-sudathi:focus-within {
-      border-color: var(--color-gold);
-      box-shadow: 0 0 16px rgba(201, 169, 110, 0.3);
-      background: rgba(18, 13, 15, 0.9);
+      border-color: #dfb15b;
+      box-shadow: 0 0 24px rgba(223, 177, 91, 0.4), 0 8px 25px rgba(0,0,0,0.5);
+      background: rgba(18, 13, 16, 0.95);
+      transform: translateY(-1px) translateZ(22px);
     }
 
     .country-code-select {
@@ -716,6 +849,10 @@
       color: var(--color-cream);
       cursor: pointer;
       outline: none;
+      transition: background 0.2s ease;
+    }
+    .country-code-select:hover {
+      background: rgba(201, 169, 110, 0.16);
     }
     .country-code-select option {
       background: #1A1217;
@@ -737,25 +874,28 @@
       color: rgba(250, 247, 242, 0.38);
     }
 
-    /* Regular inputs for name/password */
+    /* Regular inputs with 3D Depth */
     .sudathi-field {
       width: 100%;
-      background: rgba(11, 8, 9, 0.75);
-      border: 1px solid rgba(201, 169, 110, 0.3);
-      border-radius: 10px;
-      padding: 0.8rem 1rem;
+      background: rgba(11, 8, 9, 0.85);
+      border: 1px solid rgba(201, 169, 110, 0.35);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
       font-size: 0.86rem;
       color: #FAF7F2;
       font-family: var(--font-sans);
       outline: none;
       margin-bottom: 1.1rem;
       transition: all 0.25s ease;
+      transform: translateZ(15px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3), inset 0 1px 2px rgba(255,255,255,0.06);
     }
 
     .sudathi-field:focus {
-      border-color: var(--color-gold);
-      box-shadow: 0 0 16px rgba(201, 169, 110, 0.3);
-      background: rgba(18, 13, 15, 0.9);
+      border-color: #dfb15b;
+      box-shadow: 0 0 24px rgba(223, 177, 91, 0.4), 0 8px 25px rgba(0,0,0,0.5);
+      background: rgba(18, 13, 16, 0.95);
+      transform: translateY(-1px) translateZ(22px);
     }
 
     .sudathi-field::placeholder {
@@ -769,6 +909,11 @@
       gap: 0.65rem;
       margin-bottom: 1.35rem;
       cursor: pointer;
+      transform: translateZ(12px);
+      transition: transform 0.2s ease;
+    }
+    .sudathi-checkbox-row:hover {
+      transform: translateZ(16px);
     }
 
     .sudathi-checkbox {
@@ -785,35 +930,66 @@
       line-height: 1.3;
     }
 
-    /* Haute Gold Submit Button */
+    /* Haute Gold Submit Button with Continuous 3D Light Shimmer */
     .btn-sudathi-submit {
       width: 100%;
-      padding: 0.9rem 1.25rem;
-      background: linear-gradient(135deg, #C9A96E 0%, #EAD8BA 50%, #C9A96E 100%);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 10px;
-      color: #120D0F;
+      padding: 0.95rem 1.25rem;
+      background: linear-gradient(135deg, #C9A96E 0%, #FFF3D6 45%, #C9A96E 85%, #EAD8BA 100%);
+      background-size: 220% auto;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+      color: #0f0a0d;
       font-family: var(--font-sans);
       font-size: 0.82rem;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      box-shadow: 0 8px 25px rgba(201, 169, 110, 0.35);
+      transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 30px rgba(201, 169, 110, 0.4), 0 0 15px rgba(201, 169, 110, 0.2);
       position: relative;
       overflow: hidden;
+      transform: translateZ(18px);
+      animation: btnGoldGlint 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes btnGoldGlint {
+      0% { background-position: 0% 50%; box-shadow: 0 8px 25px rgba(201, 169, 110, 0.35); }
+      100% { background-position: 100% 50%; box-shadow: 0 10px 35px rgba(201, 169, 110, 0.55); }
+    }
+
+    .btn-sudathi-submit::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -130%;
+      width: 80%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.45), transparent);
+      transform: skewX(-22deg);
+      animation: sweepButtonRay 4.5s ease-in-out infinite;
+    }
+
+    @keyframes sweepButtonRay {
+      0%, 40% { left: -130%; }
+      70%, 100% { left: 160%; }
     }
 
     .btn-sudathi-submit:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 35px rgba(201, 169, 110, 0.5);
-      filter: brightness(1.06);
+      transform: translateY(-3px) translateZ(26px);
+      box-shadow: 0 16px 45px rgba(201, 169, 110, 0.6), 0 0 30px rgba(223, 177, 91, 0.4);
+      filter: brightness(1.08);
+    }
+
+    .btn-sudathi-submit:active {
+      transform: translateY(1px) translateZ(12px) scale(0.99);
     }
 
     .btn-sudathi-submit:disabled {
       opacity: 0.6;
       cursor: not-allowed;
+      transform: none !important;
+      box-shadow: none !important;
     }
 
     /* Legal disclaimer footer */
@@ -1339,8 +1515,15 @@
     </div>
 
     <!-- RIGHT PANE: Haute Obsidian & Champagne Gold Card -->
-    <div class="sudathi-auth-pane">
-      <div class="auth-inner-card">
+    <div class="sudathi-auth-pane" id="authPane">
+      <!-- Ambient Backlight Orbs -->
+      <div class="auth-ambient-orb orb-1"></div>
+      <div class="auth-ambient-orb orb-2"></div>
+
+      <div class="auth-inner-card" id="authInnerCard">
+        <!-- Specular Light Glare Layer -->
+        <div class="auth-card-shine" id="authCardShine"></div>
+        <div class="auth-card-top-beam"></div>
 
         <!-- Title Header -->
         <div class="auth-tab-header">
@@ -2680,6 +2863,39 @@
       }
 
       requestAnimationFrame(renderParticles);
+
+      // 3D Tilt and Specular Reflection for Right Auth Pane
+      const authPane = document.getElementById('authPane');
+      const authInnerCard = document.getElementById('authInnerCard');
+      const authCardShine = document.getElementById('authCardShine');
+
+      if (authPane && authInnerCard) {
+        authPane.addEventListener('mousemove', (e) => {
+          const rect = authPane.getBoundingClientRect();
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+          const tiltX = (e.clientY - rect.top - centerY) / centerY;
+          const tiltY = (e.clientX - rect.left - centerX) / centerX;
+
+          authInnerCard.style.animation = 'none';
+          authInnerCard.style.transform = `perspective(1000px) rotateX(${(-tiltX * 8).toFixed(2)}deg) rotateY(${(tiltY * 10).toFixed(2)}deg) translateZ(16px)`;
+
+          if (authCardShine) {
+            const cardRect = authInnerCard.getBoundingClientRect();
+            const mouseX = e.clientX - cardRect.left;
+            const mouseY = e.clientY - cardRect.top;
+            authCardShine.style.background = `radial-gradient(circle at ${mouseX}px ${mouseY}px, rgba(255,255,255,0.22), transparent 60%)`;
+          }
+        });
+
+        authPane.addEventListener('mouseleave', () => {
+          authInnerCard.style.transform = '';
+          authInnerCard.style.animation = 'authCardFloat 8s ease-in-out infinite alternate';
+          if (authCardShine) {
+            authCardShine.style.background = 'radial-gradient(circle at 50% 0%, rgba(255,255,255,0.18), transparent 70%)';
+          }
+        });
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
