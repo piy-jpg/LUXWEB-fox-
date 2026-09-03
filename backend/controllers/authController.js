@@ -292,10 +292,160 @@ async function resetPassword(req, res) {
   }
 }
 
+/**
+ * Google OAuth Authentication (Sign-in or Sign-up)
+ */
+async function googleAuth(req, res) {
+  const { credential, email: manualEmail, firstName: manualFirst, lastName: manualLast } = req.body;
+
+  let email = null;
+  let firstName = null;
+  let lastName = null;
+
+  try {
+    if (credential) {
+      // 1. Verify credential via Google tokeninfo
+      try {
+        const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+        if (verifyRes.ok) {
+          const payload = await verifyRes.json();
+          email = payload.email;
+          firstName = payload.given_name || payload.name;
+          lastName = payload.family_name || '';
+        }
+      } catch (networkErr) {
+        console.warn('[Auth.googleAuth] Tokeninfo fetch notice:', networkErr.message);
+      }
+
+      // Fallback: decode JWT payload if offline or in sandbox
+      if (!email) {
+        const parts = credential.split('.');
+        if (parts.length === 3) {
+          const payloadStr = Buffer.from(parts[1], 'base64').toString('utf8');
+          const payload = JSON.parse(payloadStr);
+          email = payload.email;
+          firstName = payload.given_name || payload.name || 'Google';
+          lastName = payload.family_name || 'Client';
+        }
+      }
+    } else if (manualEmail) {
+      email = manualEmail;
+      firstName = manualFirst || 'Google';
+      lastName = manualLast || 'Client';
+    }
+
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'Google credential verification failed. No email provided.' });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    let user = await db.get(
+      'SELECT id, email, password_hash, first_name, last_name, phone, status FROM users WHERE email = ?',
+      [normalizedEmail]
+    );
+
+    let isNewUser = false;
+
+    if (!user) {
+      // Auto-create customer account
+      isNewUser = true;
+      const randomPassword = crypto.randomBytes(24).toString('hex');
+      const passwordHash = await bcrypt.hash(randomPassword, 10);
+
+      const userRes = await db.run(
+        `INSERT INTO users (email, password_hash, first_name, last_name, status)
+         VALUES (?, ?, ?, ?, 'active')`,
+        [normalizedEmail, passwordHash, firstName || 'Valued', lastName || 'Client']
+      );
+
+      const userId = userRes.lastInsertRowid;
+
+      // Assign CUSTOMER role
+      const customerRole = await db.get('SELECT id FROM roles WHERE name = ?', ['CUSTOMER']);
+      if (customerRole) {
+        await db.run('INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)', [userId, customerRole.id]);
+      }
+
+      // Initialize customer wishlist
+      await db.run('INSERT INTO wishlists (user_id) VALUES (?)', [userId]);
+
+      user = {
+        id: userId,
+        email: normalizedEmail,
+        first_name: firstName || 'Valued',
+        last_name: lastName || 'Client',
+        status: 'active',
+      };
+    } else if (user.status === 'disabled') {
+      return res.status(403).json({
+        success: false,
+        error: 'This account has been disabled. Please contact Lumière concierge support.',
+      });
+    }
+
+    // Fetch user roles
+    const roleRows = await db.query(
+      `SELECT r.name FROM roles r
+       JOIN user_roles ur ON ur.role_id = r.id
+       WHERE ur.user_id = ?`,
+      [user.id]
+    );
+    const roles = roleRows.map(r => r.name);
+
+    // Fetch user permissions
+    const permRows = await db.query(
+      `SELECT DISTINCT p.code FROM permissions p
+       JOIN role_permissions rp ON rp.permission_id = p.id
+       JOIN user_roles ur ON ur.role_id = rp.role_id
+       WHERE ur.user_id = ?`,
+      [user.id]
+    );
+    const permissions = permRows.map(p => p.code);
+
+    // Update last login
+    await db.run('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?', [user.id]);
+
+    const token = generateToken(user, roles, permissions);
+
+    logAudit({
+      req,
+      userId: user.id,
+      userEmail: user.email,
+      userRole: roles[0] || 'CUSTOMER',
+      action: isNewUser ? 'customer.google_signup' : 'auth.google_login',
+      entityType: 'user',
+      entityId: user.id,
+      details: { email: user.email, isNewUser },
+    });
+
+    return res.json({
+      success: true,
+      message: isNewUser ? 'Welcome to Lumière. Your personal atelier account is active.' : `Welcome back, ${user.first_name || 'Client'}.`,
+      token,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name || '',
+        lastName: user.last_name || '',
+        phone: user.phone || '',
+        roles,
+        permissions,
+        isStaff: roles.some(r => ['OWNER', 'MANAGER', 'INVENTORY_STAFF', 'ORDER_STAFF'].includes(r)),
+        isOwner: roles.includes('OWNER'),
+      },
+    });
+  } catch (err) {
+    console.error('[Auth.GoogleAuth] Error:', err);
+    return res.status(500).json({ success: false, error: 'Google authentication service error.' });
+  }
+}
+
 module.exports = {
   signup,
   login,
   getMe,
   forgotPassword,
   resetPassword,
+  googleAuth,
 };

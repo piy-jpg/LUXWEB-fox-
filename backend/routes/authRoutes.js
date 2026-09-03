@@ -12,5 +12,6 @@ router.post('/login', authLimiter, authController.login);
 router.get('/me', authenticateToken, authController.getMe);
 router.post('/forgot-password', authLimiter, authController.forgotPassword);
 router.post('/reset-password', authLimiter, authController.resetPassword);
+router.post('/google', authLimiter, authController.googleAuth);
 
 module.exports = router;
