@@ -8,6 +8,7 @@ const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const { generateToken } = require('../middleware/auth');
 const { logAudit } = require('../middleware/auditLogger');
+const { sendRealSms } = require('../services/smsService');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'lumiere_luxury_secret_jwt_key_2026';
 
@@ -613,11 +614,17 @@ async function sendOtp(req, res) {
     // Generate stateless OTP token (valid for 5 mins across serverless containers)
     const otpToken = jwt.sign({ phone: last10, otp }, JWT_SECRET, { expiresIn: '5m' });
 
+    // Dispatch authentic SMS to physical handset
+    const smsDispatch = await sendRealSms({ phone: normalizedPhone, otp });
+
     return res.json({
       success: true,
-      message: `OTP sent successfully to ${normalizedPhone}`,
+      message: smsDispatch.success 
+        ? `✦ Real SMS dispatched to your mobile phone ${normalizedPhone}. Check your Messages app.`
+        : `✦ OTP generated for ${normalizedPhone}. Enter the code to continue.`,
       phone: normalizedPhone,
-      otp, // Reflected directly on same number for testing & convenience
+      realSmsSent: smsDispatch.success,
+      provider: smsDispatch.provider,
       otpToken,
       expiresInSeconds: 300,
     });

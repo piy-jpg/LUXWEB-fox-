@@ -1021,17 +1021,15 @@
             Enter the 6-digit verification code sent to <strong id="displayOtpPhone" style="color:var(--color-gold);"></strong>
           </div>
 
-          <!-- Haute SMS Reflection Card -->
-          <div class="sms-reflection-card" id="smsReflectionCard">
-            <div class="sms-badge">
-              <span>✦</span> SMS DISPATCH (Instant Reflection) <span>✦</span>
+          <!-- Authentic Telecom SMS Status Banner -->
+          <div style="background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.22); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem; text-align: left;">
+            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span style="font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #d4af37; font-weight: 600;">AUTHENTIC SMS DISPATCHED</span>
             </div>
-            <div class="sms-message">
-              Lumière Atelier OTP: <span id="smsOtpCode" class="sms-code-highlight">------</span>
-            </div>
-            <button type="button" class="btn-sms-apply" onclick="autoApplyOtp()">
-              <span>Tap to Auto-Apply</span> &rarr;
-            </button>
+            <p style="font-size: 0.78rem; color: rgba(250,247,242,0.85); margin: 0; line-height: 1.45;">
+              A 6-digit verification code has been dispatched to your mobile phone <strong id="displayOtpPhone" style="color: #fff;"></strong>. Please check your SMS Messages inbox and enter the code below.
+            </p>
           </div>
 
           <form id="otpVerifyForm" onsubmit="handleVerifyOtp(event)">
@@ -1239,7 +1237,6 @@
     // State management: 'phone', 'otp', 'profile', 'password'
     let activeStage = 'phone';
     let currentPhone = '';
-    let currentReflectedOtp = '';
     let currentOtpToken = '';
     let currentVerificationToken = '';
     let resendCountdownTimer = null;
@@ -1337,31 +1334,20 @@
       try {
         const data = await safeApiFetch('/api/auth/otp/send', { phone: fullPhone });
         currentPhone = data.phone || fullPhone;
-        currentReflectedOtp = data.otp || '';
         currentOtpToken = data.otpToken || '';
 
         document.getElementById('displayOtpPhone').innerText = currentPhone;
-        document.getElementById('smsOtpCode').innerText = currentReflectedOtp;
         document.getElementById('otpCodeInput').value = '';
 
         switchStage('otp');
         startResendTimer(30);
-        showAlert(`✦ OTP successfully sent to ${currentPhone}.`, false);
+        showAlert(`✦ Verification SMS dispatched to ${currentPhone}. Please check your phone.`, false);
       } catch (err) {
         showAlert(err.message);
       } finally {
         btn.disabled = false;
         btn.innerText = 'GET ATELIER OTP →';
       }
-    }
-
-    // Auto-apply reflected OTP
-    function autoApplyOtp() {
-      if (!currentReflectedOtp) return;
-      const input = document.getElementById('otpCodeInput');
-      input.value = currentReflectedOtp;
-      showAlert(`✦ Applied code: ${currentReflectedOtp}`, false);
-      document.getElementById('btnVerifyOtp').click();
     }
 
     // STAGE 2: Verify OTP
@@ -1466,11 +1452,9 @@
 
       try {
         const data = await safeApiFetch('/api/auth/otp/send', { phone: currentPhone });
-        currentReflectedOtp = data.otp || '';
         currentOtpToken = data.otpToken || '';
-        document.getElementById('smsOtpCode').innerText = currentReflectedOtp;
         startResendTimer(30);
-        showAlert(`✦ New code sent to ${currentPhone}. Code: ${currentReflectedOtp}`, false);
+        showAlert(`✦ New verification SMS dispatched to ${currentPhone}. Please check your phone.`, false);
       } catch (err) {
         showAlert(err.message);
         resendBtn.disabled = false;
