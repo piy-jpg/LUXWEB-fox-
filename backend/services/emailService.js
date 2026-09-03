@@ -114,56 +114,38 @@ async function sendEmailOtp(email, otp) {
     const cleanEmail = (email || '').trim().toLowerCase();
 
     const mailOptions = {
-      from: `"Lumiere Atelier" <${senderEmail}>`,
+      from: `"Piyush Verma (Lumière)" <${senderEmail}>`,
       to: cleanEmail,
       replyTo: senderEmail,
-      subject: `${otp} is your Lumiere verification code`,
-      text: `Your Lumière Atelier verification code is: ${otp}\n\nThis code expires in 5 minutes.\n\nEnter this code on the Lumière Atelier sign-in page to access your private account.\n\nIf you did not request this verification code, you can safely ignore this email.\n\nLumière Atelier Privé · Jaipur`,
+      subject: `${otp} is your Lumière verification code`,
+      text: `Hello,\n\nYour Lumière Atelier verification code is: ${otp}\n\nThis code is valid for 5 minutes. Enter this code on the screen to access your private account.\n\nIf you did not request this verification code, you can safely ignore this email.\n\nWarm regards,\nPiyush Verma\nLumière Atelier Privé · Jaipur`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Verification Code: ${otp}</title>
+          <title>${otp} is your Lumière verification code</title>
         </head>
-        <body style="margin: 0; padding: 0; background-color: #f6f7f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
-          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f6f7f9; padding: 32px 16px;">
-            <tr>
-              <td align="center">
-                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 460px; background-color: #ffffff; border: 1px solid #e2e5e9; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
-                  <tr>
-                    <td style="background-color: #0f0a0d; padding: 24px 20px; text-align: center; border-bottom: 2px solid #d4af37;">
-                      <div style="font-size: 11px; letter-spacing: 3px; color: #d4af37; text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">✦ LUMIÈRE ATELIER PRIVÉ ✦</div>
-                      <div style="font-family: Georgia, serif; font-size: 20px; color: #ffffff; font-weight: 300;">Client Verification Code</div>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="padding: 28px 24px; text-align: center;">
-                      <p style="font-size: 14px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
-                        Enter the following 6-digit code to complete your verification and access your personal atelier account:
-                      </p>
-                      <div style="background-color: #fcf9f2; border: 1px dashed #d4af37; border-radius: 8px; padding: 16px; margin: 0 0 20px;">
-                        <span style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #0f0a0d;">${otp}</span>
-                      </div>
-                      <p style="font-size: 12px; color: #666666; line-height: 1.5; margin: 0 0 8px;">
-                        This code is valid for <strong>5 minutes</strong>.
-                      </p>
-                      <p style="font-size: 11px; color: #888888; line-height: 1.5; margin: 0;">
-                        If you did not request this verification code, you can safely ignore this email.
-                      </p>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td style="background-color: #fafafa; padding: 16px 20px; text-align: center; border-top: 1px solid #eeeeee; font-size: 11px; color: #999999; line-height: 1.4;">
-                      Lumière Haute Parfumerie &amp; Skincare Atelier · Jaipur<br>
-                      Security Notice: Lumière will never ask for this code.
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-          </table>
+        <body style="margin: 0; padding: 0; background-color: #ffffff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #222222; -webkit-font-smoothing: antialiased;">
+          <div style="max-width: 520px; margin: 0 auto; padding: 28px 20px;">
+            <div style="font-size: 11px; letter-spacing: 3px; color: #b8860b; text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">✦ LUMIÈRE ATELIER PRIVÉ ✦</div>
+            <h2 style="font-size: 20px; font-weight: 600; color: #111111; margin: 0 0 16px;">Your verification code</h2>
+            <p style="font-size: 14px; color: #444444; line-height: 1.6; margin: 0 0 20px;">
+              Enter the 6-digit code below to verify your email (<strong>${cleanEmail}</strong>) and access your atelier privileges:
+            </p>
+            <div style="background-color: #fbf9f5; border: 1px solid #e8dfc8; border-radius: 8px; padding: 18px 24px; text-align: center; margin: 0 0 20px;">
+              <span style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #111111;">${otp}</span>
+            </div>
+            <p style="font-size: 13px; color: #666666; line-height: 1.5; margin: 0 0 16px;">
+              This code will expire in <strong>5 minutes</strong>. If you did not make this request, you can safely ignore this email.
+            </p>
+            <hr style="border: none; border-top: 1px solid #eeeeee; margin: 24px 0 16px;">
+            <p style="font-size: 11px; color: #888888; line-height: 1.5; margin: 0;">
+              Lumière Haute Parfumerie &amp; Skincare Atelier · Vardhman Swarn Lok, Jaipur<br>
+              Security note: Never share your verification code with anyone.
+            </p>
+          </div>
         </body>
         </html>
       `
