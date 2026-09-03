@@ -1492,9 +1492,9 @@
           showAlert(`✦ ${data.message}`, false);
           setTimeout(() => {
             if (data.user && (data.user.isStaff || data.user.isOwner)) {
-              window.location.href = 'admin/index.html';
+              window.location.href = '/admin/index.html';
             } else {
-              window.location.href = 'account.html';
+              window.location.href = '/account.html';
             }
           }, 600);
         }
@@ -1538,9 +1538,9 @@
 
         setTimeout(() => {
           if (data.user && (data.user.isStaff || data.user.isOwner)) {
-            window.location.href = 'admin/index.html';
+            window.location.href = '/admin/index.html';
           } else {
-            window.location.href = 'account.html';
+            window.location.href = '/account.html';
           }
         }, 600);
       } catch (err) {
@@ -1617,9 +1617,9 @@
 
         setTimeout(() => {
           if (data.user && (data.user.isStaff || data.user.isOwner)) {
-            window.location.href = 'admin/index.html';
+            window.location.href = '/admin/index.html';
           } else {
-            window.location.href = 'account.html';
+            window.location.href = '/account.html';
           }
         }, 600);
       } catch (err) {
@@ -1827,10 +1827,34 @@
         showAlert(`✦ ${data.message}`, false);
 
         setTimeout(() => {
-          if (data.user && data.user.isStaff) {
-            window.location.href = 'admin/index.html';
+          if (data.user && (data.user.isStaff || data.user.isOwner)) {
+            window.location.href = '/admin/index.html';
           } else {
-            window.location.href = 'account.html';
+            window.location.href = '/account.html';
+          }
+        }, 600);
+      } catch (err) {
+        showAlert(err.message);
+      }
+    }
+
+    // Direct Google Profile Handler (for Credential response)
+    async function handleGoogleProfileDirect(email, firstName, lastName) {
+      try {
+        const data = await safeApiFetch('/api/auth/google', {
+          email,
+          firstName,
+          lastName,
+        });
+
+        Auth.setSession(data.token, data.user);
+        showAlert(`✦ ${data.message}`, false);
+
+        setTimeout(() => {
+          if (data.user && (data.user.isStaff || data.user.isOwner)) {
+            window.location.href = '/admin/index.html';
+          } else {
+            window.location.href = '/account.html';
           }
         }, 600);
       } catch (err) {
@@ -1842,10 +1866,10 @@
       initGoogleAuth();
       if (Auth.isLoggedIn()) {
         const user = Auth.getUser();
-        if (user && user.roles && user.roles.some(r => ['OWNER', 'MANAGER', 'INVENTORY_STAFF', 'ORDER_STAFF'].includes(r))) {
-          showAlert(`You are logged in as <strong>${user.email}</strong>. <a href="admin/index.html">Enter Admin Portal &rarr;</a>`, false);
+        if (user && (user.isStaff || user.isOwner || (user.roles && user.roles.some(r => ['OWNER', 'MANAGER', 'INVENTORY_STAFF', 'ORDER_STAFF'].includes(r))))) {
+          showAlert(`You are logged in as <strong>${user.email}</strong>. <a href="/admin/index.html">Enter Admin Portal &rarr;</a>`, false);
         } else {
-          showAlert(`You are signed in as <strong>${user.email}</strong>. <a href="account.html">View Account &rarr;</a>`, false);
+          showAlert(`You are signed in as <strong>${user.email}</strong>. <a href="/account.html">View Account &rarr;</a>`, false);
         }
       }
     });

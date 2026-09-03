@@ -30,6 +30,20 @@ function getSqliteInstance() {
       try {
         sqliteDb.pragma('journal_mode = WAL');
         sqliteDb.pragma('foreign_keys = ON');
+        try { sqliteDb.exec('ALTER TABLE users ADD COLUMN age INTEGER;'); } catch {}
+        try { sqliteDb.exec('ALTER TABLE users ADD COLUMN location TEXT;'); } catch {}
+        try {
+          sqliteDb.exec(`
+            CREATE TABLE IF NOT EXISTS phone_otps (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              phone TEXT NOT NULL,
+              otp TEXT NOT NULL,
+              expires_at DATETIME NOT NULL,
+              verified INTEGER DEFAULT 0,
+              created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+          `);
+        } catch {}
       } catch {}
     } catch (loadErr) {
       console.warn('[Database] SQLite driver notice:', loadErr.message);
