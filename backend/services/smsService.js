@@ -11,7 +11,7 @@ async function sendRealSms({ phone, otp }) {
   const last10 = rawDigits.slice(-10);
   const fullPhone = phone.startsWith('+') ? phone : `+91${last10}`;
 
-  const fast2smsKey = process.env.FAST2SMS_API_KEY;
+  const fast2smsKey = process.env.FAST2SMS_API_KEY || 'Aim3HE7cHJXLDVBKyycjY438KWiMrGG7bbiapw0yCqEPRckC7Auz7yc1VbzM';
   const twilioSid = process.env.TWILIO_ACCOUNT_SID;
   const twilioAuth = process.env.TWILIO_AUTH_TOKEN;
   const twilioPhone = process.env.TWILIO_PHONE_NUMBER;
