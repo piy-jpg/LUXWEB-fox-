@@ -4,9 +4,12 @@
  */
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 const db = require('../config/db');
 const { generateToken } = require('../middleware/auth');
 const { logAudit } = require('../middleware/auditLogger');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'lumiere_luxury_secret_jwt_key_2026';
 
 /**
  * Customer Registration
@@ -565,66 +568,74 @@ const otpStore = new Map();
  * Send OTP to phone number
  */
 async function sendOtp(req, res) {
-  const { phone } = req.body;
-  if (!phone) {
-    return res.status(400).json({ success: false, error: 'Mobile phone number is required.' });
-  }
-
-  const rawDigits = phone.replace(/\D/g, '');
-  if (rawDigits.length < 10) {
-    return res.status(400).json({ success: false, error: 'Please enter a valid 10-digit mobile number.' });
-  }
-
-  const last10 = rawDigits.slice(-10);
-  const normalizedPhone = phone.startsWith('+') ? phone.trim() : `+91 ${last10}`;
-
-  // Generate 6-digit OTP
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
-
-  // Store in memory
-  otpStore.set(last10, { otp, expiresAt, verified: false, fullPhone: normalizedPhone });
-
-  // Store in database if table exists
   try {
-    await db.run(
-      `INSERT INTO phone_otps (phone, otp, expires_at, verified)
-       VALUES (?, ?, ?, 0)
-       ON CONFLICT(phone) DO UPDATE SET otp = excluded.otp, expires_at = excluded.expires_at, verified = 0`,
-      [last10, otp, new Date(expiresAt).toISOString()]
-    );
-  } catch (dbErr) {
-    console.warn('[OTP] DB store notice:', dbErr.message);
+    const { phone } = req.body;
+    if (!phone) {
+      return res.status(400).json({ success: false, error: 'Mobile phone number is required.' });
+    }
+
+    const rawDigits = phone.replace(/\D/g, '');
+    if (rawDigits.length < 10) {
+      return res.status(400).json({ success: false, error: 'Please enter a valid 10-digit mobile number.' });
+    }
+
+    const last10 = rawDigits.slice(-10);
+    const normalizedPhone = phone.startsWith('+') ? phone.trim() : `+91 ${last10}`;
+
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+
+    // Store in memory
+    otpStore.set(last10, { otp, expiresAt, verified: false, fullPhone: normalizedPhone });
+
+    // Store in database if table exists
+    try {
+      await db.run(
+        `INSERT INTO phone_otps (phone, otp, expires_at, verified)
+         VALUES (?, ?, ?, 0)
+         ON CONFLICT(phone) DO UPDATE SET otp = excluded.otp, expires_at = excluded.expires_at, verified = 0`,
+        [last10, otp, new Date(expiresAt).toISOString()]
+      );
+    } catch (dbErr) {
+      console.warn('[OTP] DB store notice:', dbErr.message);
+    }
+
+    try {
+      logAudit({
+        req,
+        action: 'auth.otp_sent',
+        entityType: 'phone',
+        details: { phone: normalizedPhone },
+      });
+    } catch {}
+
+    // Generate stateless OTP token (valid for 5 mins across serverless containers)
+    const otpToken = jwt.sign({ phone: last10, otp }, JWT_SECRET, { expiresIn: '5m' });
+
+    return res.json({
+      success: true,
+      message: `OTP sent successfully to ${normalizedPhone}`,
+      phone: normalizedPhone,
+      otp, // Reflected directly on same number for testing & convenience
+      otpToken,
+      expiresInSeconds: 300,
+    });
+  } catch (err) {
+    console.error('[sendOtp] Error:', err);
+    return res.status(500).json({ success: false, error: 'OTP service error. Please try again.' });
   }
-
-  logAudit({
-    req,
-    action: 'auth.otp_sent',
-    entityType: 'phone',
-    details: { phone: normalizedPhone },
-  });
-
-  // Generate stateless OTP token (valid for 5 mins across serverless containers)
-  const otpToken = jwt.sign({ phone: last10, otp }, JWT_SECRET, { expiresIn: '5m' });
-
-  return res.json({
-    success: true,
-    message: `OTP sent successfully to ${normalizedPhone}`,
-    phone: normalizedPhone,
-    otp, // Reflected directly on same number for testing & convenience
-    otpToken,
-    expiresInSeconds: 300,
-  });
 }
 
 /**
  * Verify OTP
  */
 async function verifyOtp(req, res) {
-  const { phone, otp, otpToken } = req.body;
-  if (!phone || !otp) {
-    return res.status(400).json({ success: false, error: 'Phone number and OTP code are required.' });
-  }
+  try {
+    const { phone, otp, otpToken } = req.body;
+    if (!phone || !otp) {
+      return res.status(400).json({ success: false, error: 'Phone number and OTP code are required.' });
+    }
 
   const rawDigits = phone.replace(/\D/g, '');
   const last10 = rawDigits.slice(-10);
@@ -727,16 +738,21 @@ async function verifyOtp(req, res) {
     verificationToken,
     existingName: user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : '',
   });
+  } catch (err) {
+    console.error('[verifyOtp] Error:', err);
+    return res.status(500).json({ success: false, error: 'Failed to verify OTP code. Please try again.' });
+  }
 }
 
 /**
  * Complete Client Profile (Name, Age, Location)
  */
 async function completeProfile(req, res) {
-  const { phone, name, age, location, verificationToken } = req.body;
-  if (!phone || !name || !age || !location) {
-    return res.status(400).json({ success: false, error: 'Phone, Full Name, Age, and Location are all required.' });
-  }
+  try {
+    const { phone, name, age, location, verificationToken } = req.body;
+    if (!phone || !name || !age || !location) {
+      return res.status(400).json({ success: false, error: 'Phone, Full Name, Age, and Location are all required.' });
+    }
 
   const rawDigits = phone.replace(/\D/g, '');
   const last10 = rawDigits.slice(-10);
@@ -873,6 +889,10 @@ async function completeProfile(req, res) {
       isOwner,
     },
   });
+  } catch (err) {
+    console.error('[completeProfile] Error:', err);
+    return res.status(500).json({ success: false, error: 'Failed to complete profile. Please try again.' });
+  }
 }
 
 module.exports = {
