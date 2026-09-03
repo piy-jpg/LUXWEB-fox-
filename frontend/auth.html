@@ -1076,10 +1076,19 @@
       }
     }
 
-    // Google Identity Services (GIS) & Sign-In Handler
+    let googleTokenClient = null;
+
+    function getGoogleClientId() {
+      return localStorage.getItem('lumiere_google_client_id') || window.GOOGLE_CLIENT_ID || '';
+    }
+
+    // Google Identity Services (GIS) & Real-Time OAuth2 Popup Handler
     function initGoogleAuth() {
-      const clientId = window.GOOGLE_CLIENT_ID || 'your_google_client_id_here.apps.googleusercontent.com';
-      if (window.google && window.google.accounts && window.google.accounts.id && clientId && !clientId.includes('your_google_client_id')) {
+      const clientId = getGoogleClientId();
+      if (!clientId || clientId.includes('your_google_client_id')) return;
+
+      if (window.google && window.google.accounts) {
+        // 1. One Tap / Credential Client
         try {
           google.accounts.id.initialize({
             client_id: clientId,
@@ -1088,44 +1097,91 @@
         } catch (e) {
           console.warn('[GoogleAuth] Init warning:', e.message);
         }
-      }
-    }
 
-    async function handleGoogleCredentialResponse(response) {
-      if (!response || !response.credential) {
-        showAlert('Google authentication token was not received.');
-        return;
-      }
-      showAlert('✦ Verifying Google authorization...', false);
-      try {
-        const data = await safeApiFetch('/api/auth/google', {
-          credential: response.credential
-        });
-        Auth.setSession(data.token, data.user);
-        showAlert(`✦ ${data.message}`, false);
-        setTimeout(() => {
-          if (data.user && data.user.isStaff) {
-            window.location.href = 'admin/index.html';
-          } else {
-            window.location.href = 'account.html';
+        // 2. Real-Time OAuth2 Popup Window Client (Like on major websites)
+        try {
+          if (google.accounts.oauth2) {
+            googleTokenClient = google.accounts.oauth2.initTokenClient({
+              client_id: clientId,
+              scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email openid',
+              callback: async (tokenResponse) => {
+                if (tokenResponse && tokenResponse.access_token) {
+                  showAlert('✦ Fetching Google profile...', false);
+                  try {
+                    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                      headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+                    });
+                    const profile = await res.json();
+                    const data = await safeApiFetch('/api/auth/google', {
+                      email: profile.email,
+                      firstName: profile.given_name || profile.name,
+                      lastName: profile.family_name || '',
+                    });
+                    Auth.setSession(data.token, data.user);
+                    showAlert(`✦ ${data.message}`, false);
+                    setTimeout(() => {
+                      if (data.user && data.user.isStaff) {
+                        window.location.href = 'admin/index.html';
+                      } else {
+                        window.location.href = 'account.html';
+                      }
+                    }, 600);
+                  } catch (err) {
+                    showAlert(err.message);
+                  }
+                }
+              },
+            });
           }
-        }, 600);
-      } catch (err) {
-        showAlert(err.message);
+        } catch (e) {
+          console.warn('[Google OAuth2] Init:', e.message);
+        }
       }
     }
 
     function triggerGoogleSignIn() {
-      const clientId = window.GOOGLE_CLIENT_ID || 'your_google_client_id_here.apps.googleusercontent.com';
-      if (window.google && window.google.accounts && window.google.accounts.id && clientId && !clientId.includes('your_google_client_id')) {
-        try {
-          google.accounts.id.prompt();
+      const clientId = getGoogleClientId();
+      if (clientId && !clientId.includes('your_google_client_id')) {
+        if (!googleTokenClient) {
+          initGoogleAuth();
+        }
+        if (googleTokenClient) {
+          // Open real Google OAuth popup window directly to accounts.google.com!
+          googleTokenClient.requestAccessToken({ prompt: 'select_account' });
           return;
-        } catch (err) {
-          console.warn('[Google] Native prompt not ready, opening Account Chooser modal');
         }
       }
-      openGoogleModal();
+
+      // If Client ID is not yet configured, guide user to connect to real-time Google!
+      promptGoogleClientIdSetup();
+    }
+
+    function promptGoogleClientIdSetup() {
+      const input = prompt(
+        '✦ Connect Real-Time Google Login (accounts.google.com)\n\n' +
+        'To launch the real Google OAuth popup directly from Google servers, please enter your Google Cloud OAuth Client ID:\n\n' +
+        '(Format: XXXXX-XXXXX.apps.googleusercontent.com)\n\n' +
+        'Click OK to connect, or Cancel to open the Account Chooser:',
+        ''
+      );
+
+      if (input && input.includes('.apps.googleusercontent.com')) {
+        localStorage.setItem('lumiere_google_client_id', input.trim());
+        showAlert('✦ Google Client ID saved. Initializing Google live authentication...', false);
+        initGoogleAuth();
+        setTimeout(() => {
+          if (googleTokenClient) {
+            googleTokenClient.requestAccessToken({ prompt: 'select_account' });
+          } else {
+            openGoogleModal();
+          }
+        }, 600);
+      } else if (input) {
+        alert('Invalid Client ID format. A Google Client ID must end with ".apps.googleusercontent.com".');
+        openGoogleModal();
+      } else {
+        openGoogleModal();
+      }
     }
 
     function openGoogleModal() {
