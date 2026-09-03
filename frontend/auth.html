@@ -8,439 +8,717 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
   
   <link rel="stylesheet" href="css/lumiere-cinematic.css" />
   <!-- Google Identity Services SDK -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   
   <style>
-    .btn-google-oauth {
-      width: 100%;
-      padding: 0.85rem 1rem;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(201, 169, 110, 0.35);
-      border-radius: 2px;
-      color: var(--color-cream);
+    :root {
+      --color-gold: #C9A96E;
+      --color-cream: #FAF7F2;
+      --color-dark: #120D0F;
+      --color-dark-card: #181216;
+      --font-serif: 'Cormorant Garamond', serif;
+      --font-sans: 'Montserrat', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body.auth-page-wrap {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at 50% 20%, rgba(201, 169, 110, 0.12) 0%, rgba(18, 13, 15, 0.98) 70%), #120D0F;
       font-family: var(--font-sans);
-      font-size: 0.78rem;
-      font-weight: 500;
-      letter-spacing: 0.08em;
+      color: var(--color-cream);
+      padding: 2rem 1rem;
+      position: relative;
+    }
+
+    /* Ambient background ornamentation */
+    .ambient-glow {
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(201, 169, 110, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Sudathi Split Card Modal Container */
+    .sudathi-split-modal {
+      width: 100%;
+      max-width: 980px;
+      min-height: 560px;
+      background: linear-gradient(135deg, #1A1217 0%, #100A0D 100%);
+      border: 1px solid rgba(201, 169, 110, 0.35);
+      border-radius: 18px;
+      box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.9), 0 0 40px rgba(201, 169, 110, 0.15);
+      display: flex;
+      overflow: hidden;
+      position: relative;
+      z-index: 10;
+      backdrop-filter: blur(25px);
+    }
+
+    /* Top Close / Return link */
+    .modal-return-btn {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      color: rgba(250, 247, 242, 0.6);
+      text-decoration: none;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      z-index: 20;
+      transition: color 0.2s ease;
+    }
+    .modal-return-btn:hover {
+      color: var(--color-gold);
+    }
+
+    /* LEFT PANE — Haute Brand Showcase & 3 Value Badges */
+    .sudathi-brand-pane {
+      flex: 1.15;
+      padding: 3rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      background: radial-gradient(circle at 20% 30%, rgba(201, 169, 110, 0.12) 0%, transparent 60%);
+      border-right: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .brand-top-row {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+
+    .brand-logo-text {
+      font-family: var(--font-serif);
+      font-size: 2.2rem;
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: 0.06em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .brand-logo-text span.gold-star {
+      color: var(--color-gold);
+      font-size: 1.5rem;
+      animation: pulseStar 3s ease-in-out infinite;
+    }
+
+    @keyframes pulseStar {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.15); filter: drop-shadow(0 0 8px #C9A96E); }
+    }
+
+    .brand-power-badge {
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.65rem;
+      background: rgba(201, 169, 110, 0.15);
+      border: 1px solid rgba(201, 169, 110, 0.35);
+      color: var(--color-gold);
+      border-radius: 12px;
+      margin-left: auto;
+    }
+
+    .brand-welcome-title {
+      font-family: var(--font-serif);
+      font-size: 1.85rem;
+      font-weight: 400;
+      line-height: 1.25;
+      color: var(--color-cream);
+      margin-bottom: 0.75rem;
+    }
+
+    .brand-welcome-desc {
+      font-size: 0.84rem;
+      line-height: 1.55;
+      color: rgba(250, 247, 242, 0.7);
+      margin-bottom: 2.5rem;
+    }
+
+    /* 3 Value Proposition Badges (Matching Sudathi.com layout) */
+    .sudathi-value-cards {
+      display: flex;
+      gap: 0.75rem;
+      margin-top: auto;
+    }
+
+    .value-card {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(201, 169, 110, 0.25);
+      border-radius: 12px;
+      padding: 1.1rem 0.85rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+    }
+
+    .value-card:hover {
+      background: rgba(201, 169, 110, 0.1);
+      border-color: var(--color-gold);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .value-card-icon {
+      width: 42px;
+      height: 42px;
+      background: #FFFFFF;
+      color: #120D0F;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .value-card-title {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--color-cream);
+      letter-spacing: 0.03em;
+      line-height: 1.3;
+    }
+
+    /* RIGHT PANE — High-Converting Auth Card */
+    .sudathi-auth-pane {
+      flex: 1;
+      padding: 2.5rem;
+      background: rgba(24, 18, 22, 0.7);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .auth-inner-card {
+      background: #FFFFFF;
+      color: #120D0F;
+      border-radius: 14px;
+      padding: 2.2rem 2rem;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Auth Header & Tabs */
+    .auth-tab-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1.35rem;
+    }
+
+    .auth-main-title {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #120D0F;
+      letter-spacing: -0.01em;
+      font-family: var(--font-sans);
+    }
+
+    .auth-tab-toggle {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #8C6D37;
+      text-decoration: underline;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    /* Continue with Google button */
+    .btn-google-sudathi {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: #FFFFFF;
+      border: 1px solid #D1D5DB;
+      border-radius: 8px;
+      color: #374151;
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      font-weight: 600;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 0.75rem;
-      transition: all 0.25s ease;
-      margin-bottom: 1.25rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
-    .btn-google-oauth:hover {
-      background: rgba(201, 169, 110, 0.12);
-      border-color: var(--color-gold);
-      color: #fff;
+    .btn-google-sudathi:hover {
+      background: #F9FAFB;
+      border-color: #9CA3AF;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
       transform: translateY(-1px);
-      box-shadow: 0 4px 15px rgba(201, 169, 110, 0.2);
     }
 
-    .auth-divider {
+    /* Divider */
+    .sudathi-divider {
       display: flex;
       align-items: center;
       text-align: center;
-      margin: 1.25rem 0;
-      color: rgba(250, 247, 242, 0.4);
-      font-size: 0.68rem;
-      letter-spacing: 0.12em;
+      margin: 1.1rem 0;
+      color: #9CA3AF;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
       text-transform: uppercase;
     }
 
-    .auth-divider::before,
-    .auth-divider::after {
+    .sudathi-divider::before,
+    .sudathi-divider::after {
       content: '';
       flex: 1;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid #E5E7EB;
     }
 
-    .auth-divider span {
-      padding: 0 0.85rem;
+    .sudathi-divider span {
+      padding: 0 0.75rem;
     }
-    .auth-page-wrap {
-      min-height: 100vh;
+
+    /* Combined Phone/Email Input Group */
+    .input-wrapper-sudathi {
       display: flex;
-      flex-direction: column;
-      background: radial-gradient(circle at 50% 15%, rgba(201, 169, 110, 0.08) 0%, rgba(18, 13, 15, 0) 65%), #120D0F;
-      position: relative;
+      border: 1px solid #D1D5DB;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      background: #FFFFFF;
     }
 
-    .auth-container {
-      max-width: 480px;
-      width: 100%;
-      margin: 4rem auto 5rem;
-      padding: 2.5rem;
-      background: rgba(24, 19, 21, 0.85);
-      border: 1px solid rgba(201, 169, 110, 0.25);
-      border-radius: 4px;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-      position: relative;
-      z-index: 10;
+    .input-wrapper-sudathi:focus-within {
+      border-color: #120D0F;
+      box-shadow: 0 0 0 2px rgba(18, 13, 15, 0.15);
     }
 
-    .auth-tabs {
-      display: flex;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      margin-bottom: 2rem;
-    }
-
-    .auth-tab-btn {
-      flex: 1;
-      padding: 0.85rem 0;
-      background: transparent;
+    .country-code-select {
       border: none;
-      font-family: var(--font-serif);
-      font-size: 1.15rem;
-      color: rgba(250, 247, 242, 0.5);
+      background: #F9FAFB;
+      border-right: 1px solid #E5E7EB;
+      padding: 0.75rem 0.65rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #374151;
       cursor: pointer;
-      position: relative;
-      transition: all 0.3s ease;
-      text-align: center;
+      outline: none;
     }
 
-    .auth-tab-btn.active {
-      color: var(--color-gold);
-      font-weight: 500;
+    .sudathi-text-input {
+      flex: 1;
+      border: none;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: #111827;
+      font-family: var(--font-sans);
+      outline: none;
     }
 
-    .auth-tab-btn.active::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
+    .sudathi-text-input::placeholder {
+      color: #9CA3AF;
+    }
+
+    /* Regular inputs for name/password */
+    .sudathi-field {
       width: 100%;
-      height: 2px;
-      background: var(--color-gold);
-      box-shadow: 0 0 12px rgba(201, 169, 110, 0.6);
+      border: 1px solid #D1D5DB;
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.85rem;
+      color: #111827;
+      font-family: var(--font-sans);
+      outline: none;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s ease;
     }
 
-    .form-group {
-      margin-bottom: 1.35rem;
-      text-align: left;
+    .sudathi-field:focus {
+      border-color: #120D0F;
+      box-shadow: 0 0 0 2px rgba(18, 13, 15, 0.15);
     }
 
-    .form-label {
-      display: block;
-      font-size: 0.72rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: rgba(250, 247, 242, 0.75);
-      margin-bottom: 0.45rem;
+    /* Notification Checkbox (Matching Sudathi.com) */
+    .sudathi-checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+      cursor: pointer;
     }
 
-    .form-input {
+    .sudathi-checkbox {
+      accent-color: #120D0F;
+      width: 15px;
+      height: 15px;
+      cursor: pointer;
+    }
+
+    .sudathi-checkbox-label {
+      font-size: 0.74rem;
+      color: #4B5563;
+      user-select: none;
+    }
+
+    /* Submit Button (Matching the bold black button in Sudathi) */
+    .btn-sudathi-submit {
       width: 100%;
       padding: 0.85rem 1rem;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 2px;
-      color: var(--color-cream);
+      background: #120D0F;
+      border: 1px solid #120D0F;
+      border-radius: 8px;
+      color: #FFFFFF;
       font-family: var(--font-sans);
-      font-size: 0.88rem;
-      transition: all 0.3s ease;
-      box-sizing: border-box;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--color-gold);
-      background: rgba(255, 255, 255, 0.06);
-      box-shadow: 0 0 15px rgba(201, 169, 110, 0.2);
-    }
-
-    .auth-btn-primary {
-      width: 100%;
-      padding: 0.95rem;
-      background: var(--color-gold);
-      color: #120D0F;
-      border: 1px solid var(--color-gold);
-      font-family: var(--font-sans);
-      font-size: 0.78rem;
-      font-weight: 600;
-      letter-spacing: 0.14em;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
       text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 1rem;
-      box-shadow: 0 4px 15px rgba(201, 169, 110, 0.25);
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(18, 13, 15, 0.25);
     }
 
-    .auth-btn-primary:hover {
-      background: #E0C79B;
-      border-color: #E0C79B;
+    .btn-sudathi-submit:hover {
+      background: #251B20;
       transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(201, 169, 110, 0.4);
+      box-shadow: 0 6px 20px rgba(18, 13, 15, 0.35);
     }
 
-    .auth-footer-link {
-      margin-top: 1.25rem;
+    .btn-sudathi-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* Legal disclaimer footer */
+    .sudathi-terms-footer {
+      margin-top: 1.1rem;
       text-align: center;
-      font-size: 0.78rem;
-      color: rgba(250, 247, 242, 0.6);
+      font-size: 0.66rem;
+      color: #6B7280;
+      line-height: 1.45;
     }
 
-    .auth-footer-link a {
-      color: var(--color-gold);
-      text-decoration: none;
-      cursor: pointer;
-      transition: color 0.2s;
-    }
-
-    .auth-footer-link a:hover {
+    .sudathi-terms-footer a {
+      color: #8C6D37;
       text-decoration: underline;
     }
 
-    .demo-accounts-card {
-      margin-top: 2rem;
-      padding: 1.25rem;
-      background: rgba(201, 169, 110, 0.04);
-      border: 1px dashed rgba(201, 169, 110, 0.25);
-      border-radius: 4px;
-      font-size: 0.78rem;
-      color: rgba(250, 247, 242, 0.7);
-    }
-
-    .demo-btn-group {
+    /* Demo switcher pills inside the card */
+    .demo-pill-group {
       display: flex;
-      gap: 0.5rem;
-      margin-top: 0.75rem;
+      gap: 0.4rem;
+      margin-top: 1rem;
+      padding-top: 0.85rem;
+      border-top: 1px dashed #E5E7EB;
     }
 
-    .demo-btn {
+    .demo-pill {
       flex: 1;
-      padding: 0.4rem 0.6rem;
-      font-size: 0.7rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: rgba(250, 247, 242, 0.85);
+      padding: 0.35rem 0.5rem;
+      background: #F3F4F6;
+      border: 1px solid #E5E7EB;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: #374151;
       cursor: pointer;
-      border-radius: 2px;
+      text-align: center;
       transition: all 0.2s ease;
     }
 
-    .demo-btn:hover {
-      background: rgba(201, 169, 110, 0.15);
-      border-color: var(--color-gold);
-      color: var(--color-gold);
+    .demo-pill:hover {
+      background: #FEF3C7;
+      border-color: #D97706;
+      color: #92400E;
+    }
+
+    /* Alert Message */
+    .sudathi-alert {
+      padding: 0.65rem 0.85rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      margin-bottom: 1rem;
+      display: none;
+      line-height: 1.4;
+    }
+
+    .sudathi-alert.error {
+      background: #FEE2E2;
+      color: #B91C1C;
+      border: 1px solid #FCA5A5;
+    }
+
+    .sudathi-alert.success {
+      background: #ECFDF5;
+      color: #047857;
+      border: 1px solid #A7F3D0;
+    }
+
+    /* Responsive Breakdown for mobile */
+    @media (max-width: 860px) {
+      .sudathi-split-modal {
+        flex-direction: column;
+        max-width: 480px;
+        min-height: auto;
+      }
+
+      .sudathi-brand-pane {
+        padding: 2rem 1.5rem;
+        border-right: none;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .brand-welcome-desc {
+        margin-bottom: 1.5rem;
+      }
+
+      .sudathi-value-cards {
+        gap: 0.5rem;
+      }
+
+      .value-card {
+        padding: 0.75rem 0.5rem;
+      }
+
+      .value-card-icon {
+        width: 34px;
+        height: 34px;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .sudathi-auth-pane {
+        padding: 1.5rem 1rem 2rem;
+      }
+
+      .auth-inner-card {
+        padding: 1.5rem 1.25rem;
+      }
     }
   </style>
 </head>
 <body class="auth-page-wrap">
 
-  <!-- Minimal Brand Header -->
-  <header style="padding: 2rem; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06);">
-    <a href="index.html" class="nav-brand" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
-      <span style="color: var(--color-gold);">✦</span>
-      <span style="font-family: var(--font-serif); font-size: 1.4rem; color: #fff; letter-spacing: 0.05em;">Lumière</span>
-    </a>
-    <a href="index.html" style="font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(250,247,242,0.6); text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
-      <span>&larr;</span>
-      <span>Back to Boutique</span>
-    </a>
-  </header>
+  <div class="ambient-glow"></div>
 
-  <!-- Auth Form Container -->
-  <main class="auth-container">
+  <!-- The Sudathi-Style Split Modal -->
+  <div class="sudathi-split-modal">
     
-    <!-- Tab Controls -->
-    <div class="auth-tabs">
-      <button class="auth-tab-btn active" id="tabSignIn" onclick="switchAuthTab('signin')">Sign In</button>
-      <button class="auth-tab-btn" id="tabRegister" onclick="switchAuthTab('register')">Create Account</button>
+    <!-- Return to Boutique Link -->
+    <a href="index.html" class="modal-return-btn" title="Back to Store">
+      <span>&larr;</span>
+      <span>Boutique</span>
+    </a>
+
+    <!-- LEFT PANE: Brand Identity & 3 Value Cards -->
+    <div class="sudathi-brand-pane">
+      <div>
+        <div class="brand-top-row">
+          <div class="brand-logo-text">
+            <span>Lumière</span>
+            <span class="gold-star">✦</span>
+          </div>
+          <span class="brand-power-badge">Haute Atelier</span>
+        </div>
+
+        <h1 class="brand-welcome-title">Welcome! Sign in to unlock private atelier privileges</h1>
+        <p class="brand-welcome-desc">
+          Enjoy personal client care, private vault product drops, seamless dispatch tracking, and complimentary white-glove delivery.
+        </p>
+      </div>
+
+      <!-- 3 Feature Cards (Matching Sudathi.com layout) -->
+      <div class="sudathi-value-cards">
+        <div class="value-card">
+          <div class="value-card-icon">✦</div>
+          <div class="value-card-title">100% Haute Formulations</div>
+        </div>
+        <div class="value-card">
+          <div class="value-card-icon">👑</div>
+          <div class="value-card-title">Private Atelier Concierge</div>
+        </div>
+        <div class="value-card">
+          <div class="value-card-icon">🎁</div>
+          <div class="value-card-title">Complimentary Delivery</div>
+        </div>
+      </div>
     </div>
 
-    <!-- Alert Banner -->
-    <div id="authAlert" style="display: none; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.8rem; border-radius: 2px;"></div>
+    <!-- RIGHT PANE: Clean, High-Converting Auth Card -->
+    <div class="sudathi-auth-pane">
+      <div class="auth-inner-card">
 
-    <!-- 1. SIGN IN FORM -->
-    <form id="signInForm" onsubmit="handleSignIn(event)">
-      <!-- Google Sign In Button -->
-      <button type="button" class="btn-google-oauth" onclick="triggerGoogleSignIn()">
-        <svg width="18" height="18" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-        </svg>
-        <span>CONTINUE WITH GOOGLE</span>
-      </button>
-
-      <div class="auth-divider">
-        <span>OR WITH EMAIL</span>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="loginEmail">Email Address</label>
-        <input type="email" id="loginEmail" class="form-input" placeholder="e.g. eleonore@lumiere.com" required autocomplete="email" />
-      </div>
-
-      <div class="form-group">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.45rem;">
-          <label class="form-label" for="loginPassword" style="margin-bottom: 0;">Password</label>
-          <a onclick="switchAuthTab('forgot')" style="font-size: 0.72rem; color: var(--color-gold); cursor: pointer;">Forgot Password?</a>
+        <!-- Title & Tab Toggle -->
+        <div class="auth-tab-header">
+          <div class="auth-main-title" id="authTitleText">Login Now!</div>
+          <button type="button" class="auth-tab-toggle" id="authToggleBtn" onclick="toggleAuthMode()">
+            Create Account
+          </button>
         </div>
-        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••••••" required autocomplete="current-password" />
-      </div>
 
-      <button type="submit" class="auth-btn-primary" id="loginSubmitBtn">
-        SIGN IN &rarr;
-      </button>
+        <!-- Alert Notification -->
+        <div id="sudathiAlert" class="sudathi-alert"></div>
 
-      <!-- Preloaded Demo Switcher -->
-      <div class="demo-accounts-card">
-        <div style="font-weight: 500; color: var(--color-gold);">Quick Test Credentials:</div>
-        <div class="demo-btn-group">
-          <button type="button" class="demo-btn" onclick="fillDemo('customer@lumiere.com', 'Lumiere2026!')">
+        <!-- Google One-Click Auth -->
+        <button type="button" class="btn-google-sudathi" onclick="triggerGoogleSignIn()">
+          <svg width="18" height="18" viewBox="0 0 24 24">
+            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <div class="sudathi-divider">
+          <span>OR WITH MOBILE / EMAIL</span>
+        </div>
+
+        <form id="sudathiAuthForm" onsubmit="handleAuthSubmit(event)">
+          
+          <!-- Name inputs (shown only when mode is register) -->
+          <div id="registerNameGroup" style="display: none; gap: 0.5rem; margin-bottom: 1rem;">
+            <input type="text" id="regFirstName" class="sudathi-field" placeholder="First Name" style="margin-bottom: 0;" />
+            <input type="text" id="regLastName" class="sudathi-field" placeholder="Last Name" style="margin-bottom: 0;" />
+          </div>
+
+          <!-- Phone / Email Combined Input with Country Code Selector -->
+          <div class="input-wrapper-sudathi">
+            <select class="country-code-select" id="countryCodeSelect" aria-label="Country Code">
+              <option value="+91">🇮🇳 +91</option>
+              <option value="+1">🇺🇸 +1</option>
+              <option value="+44">🇬🇧 +44</option>
+              <option value="+971">🇦🇪 +971</option>
+              <option value="+33">🇫🇷 +33</option>
+            </select>
+            <input 
+              type="text" 
+              id="identifierInput" 
+              class="sudathi-text-input" 
+              placeholder="Enter Mobile Number or Email" 
+              required 
+              autocomplete="username" 
+            />
+          </div>
+
+          <!-- Password field -->
+          <div style="position: relative;">
+            <input 
+              type="password" 
+              id="passwordInput" 
+              class="sudathi-field" 
+              placeholder="Password (8+ chars)" 
+              required 
+              autocomplete="current-password" 
+            />
+          </div>
+
+          <!-- Notification Checkbox (Matching Sudathi.com) -->
+          <label class="sudathi-checkbox-row">
+            <input type="checkbox" id="notifyCheckbox" class="sudathi-checkbox" checked />
+            <span class="sudathi-checkbox-label">Notify me with offers &amp; updates</span>
+          </label>
+
+          <!-- Primary Submit Button -->
+          <button type="submit" class="btn-sudathi-submit" id="submitBtn">
+            Submit
+          </button>
+        </form>
+
+        <!-- Preloaded Demo Accounts Quick Pills -->
+        <div class="demo-pill-group">
+          <button type="button" class="demo-pill" onclick="fillDemo('customer@lumiere.com', 'Lumiere2026!')">
             Customer Demo
           </button>
-          <button type="button" class="demo-btn" onclick="fillDemo('owner@lumiere.com', 'LumiereOwner2026!')">
-            Owner / Admin
+          <button type="button" class="demo-pill" onclick="fillDemo('owner@lumiere.com', 'LumiereOwner2026!')">
+            Owner Admin
           </button>
         </div>
-      </div>
-    </form>
 
-    <!-- 2. REGISTER FORM -->
-    <form id="registerForm" onsubmit="handleRegister(event)" style="display: none;">
-      <!-- Google Sign Up Button -->
-      <button type="button" class="btn-google-oauth" onclick="triggerGoogleSignIn()">
-        <svg width="18" height="18" viewBox="0 0 24 24">
-          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-        </svg>
-        <span>CONTINUE WITH GOOGLE</span>
-      </button>
-
-      <div class="auth-divider">
-        <span>OR WITH EMAIL</span>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
-        <div class="form-group">
-          <label class="form-label" for="regFirstName">First Name</label>
-          <input type="text" id="regFirstName" class="form-input" placeholder="Camille" required />
+        <!-- Terms Footer Note -->
+        <div class="sudathi-terms-footer">
+          I accept that I have read &amp; understood your <a href="#">Privacy Policy</a> and <a href="#">T&amp;Cs</a>.
         </div>
-        <div class="form-group">
-          <label class="form-label" for="regLastName">Last Name</label>
-          <input type="text" id="regLastName" class="form-input" placeholder="Rousseau" required />
-        </div>
+
       </div>
+    </div>
 
-      <div class="form-group">
-        <label class="form-label" for="regEmail">Email Address</label>
-        <input type="email" id="regEmail" class="form-input" placeholder="camille@example.com" required autocomplete="email" />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="regPhone">Phone (Optional)</label>
-        <input type="tel" id="regPhone" class="form-input" placeholder="+1 (555) 000-0000" />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="regPassword">Password (8+ chars)</label>
-        <input type="password" id="regPassword" class="form-input" placeholder="••••••••••••" required minlength="8" />
-      </div>
-
-      <button type="submit" class="auth-btn-primary" id="registerSubmitBtn">
-        CREATE ACCOUNT &rarr;
-      </button>
-
-      <div class="auth-footer-link">
-        By registering, you agree to Lumière’s <a href="#">Terms of Service</a> &amp; <a href="#">Privacy Policy</a>.
-      </div>
-    </form>
-
-    <!-- 3. FORGOT PASSWORD FORM -->
-    <form id="forgotForm" onsubmit="handleForgot(event)" style="display: none;">
-      <p style="font-size: 0.82rem; color: rgba(250,247,242,0.7); line-height: 1.5; margin-bottom: 1.5rem;">
-        Enter your registered email address and we will generate a secure reset token for your account.
-      </p>
-
-      <div class="form-group">
-        <label class="form-label" for="forgotEmail">Email Address</label>
-        <input type="email" id="forgotEmail" class="form-input" placeholder="yourname@domain.com" required />
-      </div>
-
-      <button type="submit" class="auth-btn-primary">
-        SEND RESET CODE &rarr;
-      </button>
-
-      <div class="auth-footer-link">
-        Remembered password? <a onclick="switchAuthTab('signin')">Sign In</a>
-      </div>
-    </form>
-
-    <!-- 4. RESET PASSWORD FORM -->
-    <form id="resetForm" onsubmit="handleReset(event)" style="display: none;">
-      <div class="form-group">
-        <label class="form-label" for="resetToken">Reset Token</label>
-        <input type="text" id="resetToken" class="form-input" placeholder="Paste 64-char token" required />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="resetNewPassword">New Password (8+ chars)</label>
-        <input type="password" id="resetNewPassword" class="form-input" placeholder="••••••••••••" required minlength="8" />
-      </div>
-
-      <button type="submit" class="auth-btn-primary">
-        SET NEW PASSWORD &rarr;
-      </button>
-
-      <div class="auth-footer-link">
-        <a onclick="switchAuthTab('signin')">&larr; Return to Sign In</a>
-      </div>
-    </form>
-
-  </main>
-
-  <!-- Toast Element -->
-  <div class="lumiere-toast" id="lumiereToast">
-    <span style="color: var(--color-gold);">✦</span>
-    <span id="toastMessage"></span>
   </div>
 
+  <!-- Scripts -->
   <script src="js/auth.js"></script>
   <script>
-    // Tab switcher logic
-    function switchAuthTab(tab) {
-      document.getElementById('signInForm').style.display = tab === 'signin' ? 'block' : 'none';
-      document.getElementById('registerForm').style.display = tab === 'register' ? 'block' : 'none';
-      document.getElementById('forgotForm').style.display = tab === 'forgot' ? 'block' : 'none';
-      document.getElementById('resetForm').style.display = tab === 'reset' ? 'block' : 'none';
+    let currentMode = 'login'; // 'login' or 'register'
 
-      document.getElementById('tabSignIn').classList.toggle('active', tab === 'signin');
-      document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+    function toggleAuthMode() {
+      currentMode = currentMode === 'login' ? 'register' : 'login';
+      const titleEl = document.getElementById('authTitleText');
+      const toggleBtn = document.getElementById('authToggleBtn');
+      const nameGroup = document.getElementById('registerNameGroup');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (currentMode === 'register') {
+        titleEl.innerText = 'Create Account';
+        toggleBtn.innerText = 'Login Now!';
+        nameGroup.style.display = 'flex';
+        submitBtn.innerText = 'CREATE ACCOUNT →';
+        document.getElementById('regFirstName').required = true;
+        document.getElementById('regLastName').required = true;
+      } else {
+        titleEl.innerText = 'Login Now!';
+        toggleBtn.innerText = 'Create Account';
+        nameGroup.style.display = 'none';
+        submitBtn.innerText = 'Submit';
+        document.getElementById('regFirstName').required = false;
+        document.getElementById('regLastName').required = false;
+      }
       clearAlert();
     }
 
     function showAlert(msg, isError = true) {
-      const el = document.getElementById('authAlert');
+      const el = document.getElementById('sudathiAlert');
       el.style.display = 'block';
-      el.style.backgroundColor = isError ? 'rgba(226, 85, 110, 0.12)' : 'rgba(46, 204, 113, 0.12)';
-      el.style.color = isError ? '#FF8A9E' : '#7bed9f';
-      el.style.border = `1px solid ${isError ? 'rgba(226, 85, 110, 0.3)' : 'rgba(46, 204, 113, 0.3)'}`;
+      el.className = `sudathi-alert ${isError ? 'error' : 'success'}`;
       el.innerHTML = msg;
     }
 
     function clearAlert() {
-      const el = document.getElementById('authAlert');
+      const el = document.getElementById('sudathiAlert');
       el.style.display = 'none';
     }
 
-    function fillDemo(email, pass) {
-      switchAuthTab('signin');
-      document.getElementById('loginEmail').value = email;
-      document.getElementById('loginPassword').value = pass;
+    function fillDemo(identifier, pass) {
+      if (currentMode === 'register') toggleAuthMode();
+      document.getElementById('identifierInput').value = identifier;
+      document.getElementById('passwordInput').value = pass;
+      clearAlert();
     }
 
     function getApiBase() {
@@ -459,7 +737,7 @@
           body: JSON.stringify(body),
         });
       } catch (networkErr) {
-        throw new Error('Cannot connect to Lumière backend service. Please verify the server is running on port 5000.');
+        throw new Error('Unable to connect to Lumière backend service. Please verify the server is running on port 5000.');
       }
 
       const contentType = res.headers.get('content-type') || '';
@@ -489,103 +767,68 @@
       return data;
     }
 
-    // Sign in handler
-    async function handleSignIn(e) {
+    // Submit handler
+    async function handleAuthSubmit(e) {
       e.preventDefault();
       clearAlert();
-      const email = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      const btn = document.getElementById('loginSubmitBtn');
-      btn.disabled = true;
-      btn.innerText = 'AUTHENTICATING...';
 
-      try {
-        const data = await safeApiFetch('/api/auth/login', { email, password });
+      const rawId = document.getElementById('identifierInput').value.trim();
+      const code = document.getElementById('countryCodeSelect').value;
+      const password = document.getElementById('passwordInput').value;
+      const btn = document.getElementById('submitBtn');
 
-        Auth.setSession(data.token, data.user);
-        showAlert(`✦ ${data.message}`, false);
-
-        setTimeout(() => {
-          if (data.user && data.user.isStaff) {
-            window.location.href = 'admin/index.html';
-          } else {
-            window.location.href = 'account.html';
-          }
-        }, 600);
-      } catch (err) {
-        showAlert(err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'SIGN IN →';
+      let identifier = rawId;
+      // If purely numeric digits, attach country code if not already present
+      if (/^\d+$/.test(rawId) && !rawId.startsWith('+')) {
+        identifier = code + ' ' + rawId;
       }
-    }
 
-    // Register handler
-    async function handleRegister(e) {
-      e.preventDefault();
-      clearAlert();
-      const firstName = document.getElementById('regFirstName').value.trim();
-      const lastName = document.getElementById('regLastName').value.trim();
-      const email = document.getElementById('regEmail').value.trim();
-      const phone = document.getElementById('regPhone').value.trim();
-      const password = document.getElementById('regPassword').value;
-
-      const btn = document.getElementById('registerSubmitBtn');
       btn.disabled = true;
-      btn.innerText = 'CREATING ACCOUNT...';
+      btn.innerText = 'PROCESSING...';
 
       try {
-        const data = await safeApiFetch('/api/auth/signup', { firstName, lastName, email, phone, password });
+        if (currentMode === 'login') {
+          const data = await safeApiFetch('/api/auth/login', {
+            identifier,
+            password
+          });
 
-        Auth.setSession(data.token, data.user);
-        showAlert(`✦ ${data.message}`, false);
+          Auth.setSession(data.token, data.user);
+          showAlert(`✦ ${data.message}`, false);
 
-        setTimeout(() => {
-          window.location.href = 'account.html';
-        }, 600);
-      } catch (err) {
-        showAlert(err.message);
-      } finally {
-        btn.disabled = false;
-        btn.innerText = 'CREATE ACCOUNT →';
-      }
-    }
-
-    // Forgot password handler
-    async function handleForgot(e) {
-      e.preventDefault();
-      clearAlert();
-      const email = document.getElementById('forgotEmail').value.trim();
-
-      try {
-        const data = await safeApiFetch('/api/auth/forgot-password', { email });
-
-        if (data.resetToken) {
-          showAlert(`Reset token generated: <code>${data.resetToken}</code>`, false);
-          document.getElementById('resetToken').value = data.resetToken;
-          setTimeout(() => switchAuthTab('reset'), 2500);
+          setTimeout(() => {
+            if (data.user && data.user.isStaff) {
+              window.location.href = 'admin/index.html';
+            } else {
+              window.location.href = 'account.html';
+            }
+          }, 600);
         } else {
-          showAlert(data.message, false);
+          const firstName = document.getElementById('regFirstName').value.trim();
+          const lastName = document.getElementById('regLastName').value.trim();
+          const email = rawId.includes('@') ? rawId : `${rawId.replace(/\D/g, '')}@client.lumiere.com`;
+          const phone = rawId.includes('@') ? '' : identifier;
+
+          const data = await safeApiFetch('/api/auth/signup', {
+            firstName,
+            lastName,
+            email,
+            phone,
+            password
+          });
+
+          Auth.setSession(data.token, data.user);
+          showAlert(`✦ ${data.message}`, false);
+
+          setTimeout(() => {
+            window.location.href = 'account.html';
+          }, 600);
         }
       } catch (err) {
         showAlert(err.message);
-      }
-    }
-
-    // Reset password handler
-    async function handleReset(e) {
-      e.preventDefault();
-      clearAlert();
-      const token = document.getElementById('resetToken').value.trim();
-      const newPassword = document.getElementById('resetNewPassword').value;
-
-      try {
-        const data = await safeApiFetch('/api/auth/reset-password', { token, newPassword });
-
-        showAlert(data.message, false);
-        setTimeout(() => switchAuthTab('signin'), 1500);
-      } catch (err) {
-        showAlert(err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = currentMode === 'login' ? 'Submit' : 'CREATE ACCOUNT →';
       }
     }
 
@@ -609,7 +852,7 @@
         showAlert('Google authentication token was not received.');
         return;
       }
-      showAlert('✦ Verifying Google authorization with Lumière concierge...', false);
+      showAlert('✦ Verifying Google authorization...', false);
       try {
         const data = await safeApiFetch('/api/auth/google', {
           credential: response.credential
@@ -672,7 +915,6 @@
       }
     }
 
-    // Auto check if already logged in
     document.addEventListener('DOMContentLoaded', () => {
       initGoogleAuth();
       if (Auth.isLoggedIn()) {

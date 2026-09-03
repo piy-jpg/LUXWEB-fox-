@@ -92,22 +92,33 @@ async function signup(req, res) {
  * User Login (Customers, Staff & Owners)
  */
 async function login(req, res) {
-  const { email, password } = req.body;
+  const { email, phone, identifier: rawId, password } = req.body;
+  const identifier = (rawId || email || phone || '').trim();
 
-  if (!email || !password) {
-    return res.status(400).json({ success: false, error: 'Email and password are required.' });
+  if (!identifier || !password) {
+    return res.status(400).json({ success: false, error: 'Mobile number/email and password are required.' });
   }
 
-  const normalizedEmail = email.trim().toLowerCase();
+  const normalizedEmail = identifier.toLowerCase();
+  const digitsOnly = identifier.replace(/\D/g, '');
 
   try {
-    const user = await db.get(
-      'SELECT id, email, password_hash, first_name, last_name, phone, status FROM users WHERE email = ?',
-      [normalizedEmail]
+    let user = await db.get(
+      'SELECT id, email, password_hash, first_name, last_name, phone, status FROM users WHERE email = ? OR phone = ?',
+      [normalizedEmail, identifier]
     );
 
+    // If not found directly, try matching phone by last 10 digits
+    if (!user && digitsOnly.length >= 10) {
+      const last10 = digitsOnly.slice(-10);
+      user = await db.get(
+        'SELECT id, email, password_hash, first_name, last_name, phone, status FROM users WHERE phone LIKE ?',
+        [`%${last10}`]
+      );
+    }
+
     if (!user) {
-      return res.status(401).json({ success: false, error: 'Invalid email or password.' });
+      return res.status(401).json({ success: false, error: 'Invalid login credentials. Please check your mobile/email or password.' });
     }
 
     if (user.status === 'disabled') {
