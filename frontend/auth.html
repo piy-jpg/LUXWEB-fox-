@@ -53,67 +53,79 @@
       z-index: 1;
     }
 
-    /* Sudathi Split Card Modal Container */
+    /* Sudathi Split Card Modal Container - Haute Couture Edition */
     .sudathi-split-modal {
       width: 100%;
-      max-width: 980px;
-      min-height: 560px;
-      background: linear-gradient(135deg, #1A1217 0%, #100A0D 100%);
+      max-width: 1040px;
+      min-height: 600px;
+      background: linear-gradient(145deg, rgba(22, 16, 20, 0.96) 0%, rgba(11, 8, 10, 0.99) 100%);
       border: 1px solid rgba(201, 169, 110, 0.35);
-      border-radius: 18px;
-      box-shadow: 0 35px 80px -15px rgba(0, 0, 0, 0.9), 0 0 40px rgba(201, 169, 110, 0.15);
+      border-radius: 24px;
+      box-shadow: 
+        0 35px 90px -10px rgba(0, 0, 0, 0.95),
+        0 0 50px rgba(201, 169, 110, 0.15),
+        inset 0 1px 0 rgba(201, 169, 110, 0.4);
       display: flex;
       overflow: hidden;
       position: relative;
       z-index: 10;
-      backdrop-filter: blur(25px);
+      backdrop-filter: blur(30px);
     }
 
     /* Top Close / Return link */
     .modal-return-btn {
       position: absolute;
-      top: 1.25rem;
-      right: 1.25rem;
+      top: 1.4rem;
+      right: 1.5rem;
       color: rgba(250, 247, 242, 0.6);
       text-decoration: none;
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
       text-transform: uppercase;
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.45rem;
       z-index: 20;
-      transition: color 0.2s ease;
+      transition: all 0.25s ease;
+      padding: 0.4rem 0.85rem;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(201, 169, 110, 0.2);
     }
     .modal-return-btn:hover {
       color: var(--color-gold);
+      border-color: var(--color-gold);
+      background: rgba(201, 169, 110, 0.1);
+      transform: translateX(-2px);
     }
 
     /* LEFT PANE — Haute Brand Showcase & 3 Value Badges */
     .sudathi-brand-pane {
       flex: 1.15;
-      padding: 3rem 2.5rem;
+      padding: 3.5rem 3rem;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      background: radial-gradient(circle at 20% 30%, rgba(201, 169, 110, 0.12) 0%, transparent 60%);
-      border-right: 1px solid rgba(255, 255, 255, 0.08);
+      background: 
+        radial-gradient(circle at 15% 25%, rgba(201, 169, 110, 0.16) 0%, transparent 55%),
+        radial-gradient(circle at 80% 80%, rgba(201, 169, 110, 0.08) 0%, transparent 60%);
+      border-right: 1px solid rgba(201, 169, 110, 0.2);
     }
 
     .brand-top-row {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.85rem;
       margin-bottom: 2rem;
     }
 
     .brand-logo-text {
       font-family: var(--font-serif);
-      font-size: 2.2rem;
-      font-weight: 500;
-      color: #fff;
-      letter-spacing: 0.06em;
+      font-size: 2.35rem;
+      font-weight: 400;
+      color: #FFFFFF;
+      letter-spacing: 0.05em;
       display: flex;
       align-items: center;
       gap: 0.5rem;
@@ -121,7 +133,7 @@
 
     .brand-logo-text span.gold-star {
       color: var(--color-gold);
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       animation: pulseStar 3s ease-in-out infinite;
     }
 
@@ -131,88 +143,100 @@
     }
 
     .brand-power-badge {
-      font-size: 0.65rem;
-      letter-spacing: 0.12em;
+      font-size: 0.62rem;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
-      padding: 0.3rem 0.65rem;
-      background: rgba(201, 169, 110, 0.15);
-      border: 1px solid rgba(201, 169, 110, 0.35);
+      font-weight: 600;
+      padding: 0.35rem 0.8rem;
+      background: linear-gradient(135deg, rgba(201, 169, 110, 0.18), rgba(201, 169, 110, 0.05));
+      border: 1px solid rgba(201, 169, 110, 0.45);
       color: var(--color-gold);
-      border-radius: 12px;
+      border-radius: 20px;
       margin-left: auto;
+      box-shadow: 0 2px 10px rgba(201, 169, 110, 0.15);
     }
 
     .brand-welcome-title {
       font-family: var(--font-serif);
-      font-size: 1.85rem;
+      font-size: 2.1rem;
       font-weight: 400;
-      line-height: 1.25;
+      line-height: 1.22;
       color: var(--color-cream);
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.85rem;
+      letter-spacing: -0.01em;
     }
 
     .brand-welcome-desc {
-      font-size: 0.84rem;
-      line-height: 1.55;
-      color: rgba(250, 247, 242, 0.7);
-      margin-bottom: 2.5rem;
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: rgba(250, 247, 242, 0.72);
+      margin-bottom: 2.8rem;
+      max-width: 90%;
     }
 
     /* 3 Value Proposition Badges (Matching Sudathi.com layout) */
     .sudathi-value-cards {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.85rem;
       margin-top: auto;
     }
 
     .value-card {
       flex: 1;
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid rgba(201, 169, 110, 0.25);
-      border-radius: 12px;
-      padding: 1.1rem 0.85rem;
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.04) 0%, rgba(201, 169, 110, 0.02) 100%);
+      border: 1px solid rgba(201, 169, 110, 0.28);
+      border-radius: 16px;
+      padding: 1.25rem 0.95rem;
       display: flex;
       flex-direction: column;
       align-items: center;
       text-align: center;
-      backdrop-filter: blur(10px);
-      transition: all 0.3s ease;
+      backdrop-filter: blur(12px);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     .value-card:hover {
-      background: rgba(201, 169, 110, 0.1);
+      background: linear-gradient(145deg, rgba(201, 169, 110, 0.12) 0%, rgba(201, 169, 110, 0.04) 100%);
       border-color: var(--color-gold);
-      transform: translateY(-3px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(201, 169, 110, 0.2);
     }
 
     .value-card-icon {
-      width: 42px;
-      height: 42px;
-      background: #FFFFFF;
-      color: #120D0F;
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, rgba(201, 169, 110, 0.25) 0%, rgba(20, 14, 17, 0.9) 100%);
+      border: 1px solid rgba(201, 169, 110, 0.55);
+      color: var(--color-gold);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.2rem;
-      margin-bottom: 0.75rem;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      font-size: 1.25rem;
+      margin-bottom: 0.85rem;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(201, 169, 110, 0.4);
     }
 
     .value-card-title {
-      font-size: 0.72rem;
+      font-size: 0.74rem;
       font-weight: 600;
       color: var(--color-cream);
-      letter-spacing: 0.03em;
-      line-height: 1.3;
+      letter-spacing: 0.04em;
+      line-height: 1.35;
+      margin-bottom: 0.25rem;
     }
 
-    /* RIGHT PANE — High-Converting Auth Card */
+    .value-card-sub {
+      font-size: 0.64rem;
+      color: rgba(250, 247, 242, 0.55);
+      line-height: 1.25;
+    }
+
+    /* RIGHT PANE — Haute Obsidian & Champagne Gold Card */
     .sudathi-auth-pane {
       flex: 1;
-      padding: 2.5rem;
-      background: rgba(24, 18, 22, 0.7);
+      padding: 3rem 2.8rem;
+      background: rgba(14, 10, 12, 0.6);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -220,11 +244,14 @@
     }
 
     .auth-inner-card {
-      background: #FFFFFF;
-      color: #120D0F;
-      border-radius: 14px;
-      padding: 2.2rem 2rem;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+      background: linear-gradient(160deg, rgba(28, 20, 25, 0.96) 0%, rgba(15, 11, 13, 0.98) 100%);
+      color: #FAF7F2;
+      border: 1px solid rgba(201, 169, 110, 0.35);
+      border-radius: 18px;
+      padding: 2.4rem 2.2rem;
+      box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.7),
+        inset 0 1px 0 rgba(201, 169, 110, 0.35);
     }
 
     /* Auth Header & Tabs */
@@ -232,52 +259,68 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 1.35rem;
+      margin-bottom: 1.45rem;
+      border-bottom: 1px solid rgba(201, 169, 110, 0.18);
+      padding-bottom: 0.85rem;
     }
 
     .auth-main-title {
-      font-size: 1.35rem;
-      font-weight: 700;
-      color: #120D0F;
-      letter-spacing: -0.01em;
-      font-family: var(--font-sans);
+      font-size: 1.65rem;
+      font-weight: 400;
+      font-family: var(--font-serif);
+      font-style: italic;
+      color: #FAF7F2;
+      letter-spacing: 0.02em;
     }
 
     .auth-tab-toggle {
-      font-size: 0.75rem;
+      font-size: 0.68rem;
       font-weight: 600;
-      color: #8C6D37;
-      text-decoration: underline;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-gold);
+      background: rgba(201, 169, 110, 0.1);
+      border: 1px solid rgba(201, 169, 110, 0.35);
+      padding: 0.35rem 0.85rem;
+      border-radius: 20px;
       cursor: pointer;
-      background: none;
-      border: none;
+      transition: all 0.25s ease;
+    }
+    .auth-tab-toggle:hover {
+      background: var(--color-gold);
+      color: #120D0F;
+      border-color: var(--color-gold);
+      box-shadow: 0 0 15px rgba(201, 169, 110, 0.4);
     }
 
     /* Continue with Google button */
     .btn-google-sudathi {
       width: 100%;
-      padding: 0.75rem 1rem;
-      background: #FFFFFF;
-      border: 1px solid #D1D5DB;
-      border-radius: 8px;
-      color: #374151;
+      padding: 0.82rem 1.1rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(201, 169, 110, 0.35);
+      border-radius: 10px;
+      color: #FAF7F2;
       font-family: var(--font-sans);
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.75rem;
-      transition: all 0.2s ease;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      gap: 0.85rem;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
 
     .btn-google-sudathi:hover {
-      background: #F9FAFB;
-      border-color: #9CA3AF;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      transform: translateY(-1px);
+      background: rgba(201, 169, 110, 0.15);
+      border-color: var(--color-gold);
+      color: #FFFFFF;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(201, 169, 110, 0.25);
     }
 
     /* Divider */
@@ -285,11 +328,11 @@
       display: flex;
       align-items: center;
       text-align: center;
-      margin: 1.1rem 0;
-      color: #9CA3AF;
-      font-size: 0.65rem;
+      margin: 1.45rem 0;
+      color: rgba(201, 169, 110, 0.65);
+      font-size: 0.64rem;
       font-weight: 600;
-      letter-spacing: 0.1em;
+      letter-spacing: 0.16em;
       text-transform: uppercase;
     }
 
@@ -297,118 +340,133 @@
     .sudathi-divider::after {
       content: '';
       flex: 1;
-      border-bottom: 1px solid #E5E7EB;
+      border-bottom: 1px solid rgba(201, 169, 110, 0.2);
     }
 
     .sudathi-divider span {
-      padding: 0 0.75rem;
+      padding: 0 0.95rem;
     }
 
     /* Combined Phone/Email Input Group */
     .input-wrapper-sudathi {
       display: flex;
-      border: 1px solid #D1D5DB;
-      border-radius: 8px;
+      background: rgba(11, 8, 9, 0.75);
+      border: 1px solid rgba(201, 169, 110, 0.3);
+      border-radius: 10px;
       overflow: hidden;
-      margin-bottom: 1rem;
-      transition: border-color 0.2s ease, box-shadow 0.2s ease;
-      background: #FFFFFF;
+      margin-bottom: 1.1rem;
+      transition: all 0.25s ease;
     }
 
     .input-wrapper-sudathi:focus-within {
-      border-color: #120D0F;
-      box-shadow: 0 0 0 2px rgba(18, 13, 15, 0.15);
+      border-color: var(--color-gold);
+      box-shadow: 0 0 16px rgba(201, 169, 110, 0.3);
+      background: rgba(18, 13, 15, 0.9);
     }
 
     .country-code-select {
       border: none;
-      background: #F9FAFB;
-      border-right: 1px solid #E5E7EB;
-      padding: 0.75rem 0.65rem;
+      background: rgba(201, 169, 110, 0.08);
+      border-right: 1px solid rgba(201, 169, 110, 0.25);
+      padding: 0.8rem 0.75rem;
       font-size: 0.82rem;
       font-weight: 600;
-      color: #374151;
+      color: var(--color-cream);
       cursor: pointer;
       outline: none;
+    }
+    .country-code-select option {
+      background: #1A1217;
+      color: #FAF7F2;
     }
 
     .sudathi-text-input {
       flex: 1;
       border: none;
-      padding: 0.75rem 1rem;
-      font-size: 0.85rem;
-      color: #111827;
+      background: transparent;
+      padding: 0.8rem 1rem;
+      font-size: 0.86rem;
+      color: #FAF7F2;
       font-family: var(--font-sans);
       outline: none;
     }
 
     .sudathi-text-input::placeholder {
-      color: #9CA3AF;
+      color: rgba(250, 247, 242, 0.38);
     }
 
     /* Regular inputs for name/password */
     .sudathi-field {
       width: 100%;
-      border: 1px solid #D1D5DB;
-      border-radius: 8px;
-      padding: 0.75rem 1rem;
-      font-size: 0.85rem;
-      color: #111827;
+      background: rgba(11, 8, 9, 0.75);
+      border: 1px solid rgba(201, 169, 110, 0.3);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
+      font-size: 0.86rem;
+      color: #FAF7F2;
       font-family: var(--font-sans);
       outline: none;
-      margin-bottom: 1rem;
-      transition: border-color 0.2s ease;
+      margin-bottom: 1.1rem;
+      transition: all 0.25s ease;
     }
 
     .sudathi-field:focus {
-      border-color: #120D0F;
-      box-shadow: 0 0 0 2px rgba(18, 13, 15, 0.15);
+      border-color: var(--color-gold);
+      box-shadow: 0 0 16px rgba(201, 169, 110, 0.3);
+      background: rgba(18, 13, 15, 0.9);
     }
 
-    /* Notification Checkbox (Matching Sudathi.com) */
+    .sudathi-field::placeholder {
+      color: rgba(250, 247, 242, 0.38);
+    }
+
+    /* Notification Checkbox */
     .sudathi-checkbox-row {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      margin-bottom: 1.25rem;
+      gap: 0.65rem;
+      margin-bottom: 1.35rem;
       cursor: pointer;
     }
 
     .sudathi-checkbox {
-      accent-color: #120D0F;
-      width: 15px;
-      height: 15px;
+      accent-color: var(--color-gold);
+      width: 16px;
+      height: 16px;
       cursor: pointer;
     }
 
     .sudathi-checkbox-label {
-      font-size: 0.74rem;
-      color: #4B5563;
+      font-size: 0.76rem;
+      color: rgba(250, 247, 242, 0.75);
       user-select: none;
+      line-height: 1.3;
     }
 
-    /* Submit Button (Matching the bold black button in Sudathi) */
+    /* Haute Gold Submit Button */
     .btn-sudathi-submit {
       width: 100%;
-      padding: 0.85rem 1rem;
-      background: #120D0F;
-      border: 1px solid #120D0F;
-      border-radius: 8px;
-      color: #FFFFFF;
+      padding: 0.9rem 1.25rem;
+      background: linear-gradient(135deg, #C9A96E 0%, #EAD8BA 50%, #C9A96E 100%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      color: #120D0F;
       font-family: var(--font-sans);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       font-weight: 700;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 14px rgba(18, 13, 15, 0.25);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 8px 25px rgba(201, 169, 110, 0.35);
+      position: relative;
+      overflow: hidden;
     }
 
     .btn-sudathi-submit:hover {
-      background: #251B20;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 20px rgba(18, 13, 15, 0.35);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 35px rgba(201, 169, 110, 0.5);
+      filter: brightness(1.06);
     }
 
     .btn-sudathi-submit:disabled {
@@ -418,67 +476,75 @@
 
     /* Legal disclaimer footer */
     .sudathi-terms-footer {
-      margin-top: 1.1rem;
+      margin-top: 1.25rem;
       text-align: center;
-      font-size: 0.66rem;
-      color: #6B7280;
-      line-height: 1.45;
+      font-size: 0.68rem;
+      color: rgba(250, 247, 242, 0.5);
+      line-height: 1.5;
     }
 
     .sudathi-terms-footer a {
-      color: #8C6D37;
-      text-decoration: underline;
+      color: var(--color-gold);
+      text-decoration: none;
+      border-bottom: 1px dotted rgba(201, 169, 110, 0.6);
+      transition: color 0.2s ease;
+    }
+    .sudathi-terms-footer a:hover {
+      color: #FAF7F2;
+      border-bottom-color: #FAF7F2;
     }
 
     /* Demo switcher pills inside the card */
     .demo-pill-group {
       display: flex;
-      gap: 0.4rem;
-      margin-top: 1rem;
-      padding-top: 0.85rem;
-      border-top: 1px dashed #E5E7EB;
+      gap: 0.5rem;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
+      border-top: 1px dashed rgba(201, 169, 110, 0.22);
     }
 
     .demo-pill {
       flex: 1;
-      padding: 0.35rem 0.5rem;
-      background: #F3F4F6;
-      border: 1px solid #E5E7EB;
-      border-radius: 6px;
-      font-size: 0.68rem;
+      padding: 0.45rem 0.65rem;
+      background: rgba(201, 169, 110, 0.08);
+      border: 1px solid rgba(201, 169, 110, 0.3);
+      border-radius: 8px;
+      font-size: 0.7rem;
       font-weight: 600;
-      color: #374151;
+      letter-spacing: 0.05em;
+      color: var(--color-gold);
       cursor: pointer;
       text-align: center;
       transition: all 0.2s ease;
     }
 
     .demo-pill:hover {
-      background: #FEF3C7;
-      border-color: #D97706;
-      color: #92400E;
+      background: rgba(201, 169, 110, 0.2);
+      border-color: var(--color-gold);
+      color: #FAF7F2;
+      transform: translateY(-1px);
     }
 
     /* Alert Message */
     .sudathi-alert {
-      padding: 0.65rem 0.85rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      margin-bottom: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      margin-bottom: 1.1rem;
       display: none;
-      line-height: 1.4;
+      line-height: 1.45;
     }
 
     .sudathi-alert.error {
-      background: #FEE2E2;
-      color: #B91C1C;
-      border: 1px solid #FCA5A5;
+      background: rgba(220, 38, 38, 0.15);
+      color: #FCA5A5;
+      border: 1px solid rgba(239, 68, 68, 0.4);
     }
 
     .sudathi-alert.success {
-      background: #ECFDF5;
-      color: #047857;
-      border: 1px solid #A7F3D0;
+      background: rgba(16, 185, 129, 0.15);
+      color: #6EE7B7;
+      border: 1px solid rgba(16, 185, 129, 0.4);
     }
 
     /* Responsive Breakdown for mobile */
@@ -739,19 +805,22 @@
         <div class="value-card">
           <div class="value-card-icon">✦</div>
           <div class="value-card-title">100% Haute Formulations</div>
+          <div class="value-card-sub">French Botanical Actives</div>
         </div>
         <div class="value-card">
           <div class="value-card-icon">👑</div>
           <div class="value-card-title">Private Atelier Concierge</div>
+          <div class="value-card-sub">Vault Drops &amp; Priority Care</div>
         </div>
         <div class="value-card">
           <div class="value-card-icon">🎁</div>
           <div class="value-card-title">Complimentary Delivery</div>
+          <div class="value-card-sub">White-Glove Courier &amp; Gifts</div>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT PANE: Clean, High-Converting Auth Card -->
+    <!-- RIGHT PANE: Haute Obsidian & Champagne Gold Card -->
     <div class="sudathi-auth-pane">
       <div class="auth-inner-card">
 
@@ -784,7 +853,7 @@
         <form id="sudathiAuthForm" onsubmit="handleAuthSubmit(event)">
           
           <!-- Name inputs (shown only when mode is register) -->
-          <div id="registerNameGroup" style="display: none; gap: 0.5rem; margin-bottom: 1rem;">
+          <div id="registerNameGroup" style="display: none; gap: 0.65rem; margin-bottom: 1.1rem;">
             <input type="text" id="regFirstName" class="sudathi-field" placeholder="First Name" style="margin-bottom: 0;" />
             <input type="text" id="regLastName" class="sudathi-field" placeholder="Last Name" style="margin-bottom: 0;" />
           </div>
@@ -808,8 +877,8 @@
             />
           </div>
 
-          <!-- Password field -->
-          <div style="position: relative;">
+          <!-- Password field with Show/Hide toggle -->
+          <div style="position: relative; margin-bottom: 1.1rem;">
             <input 
               type="password" 
               id="passwordInput" 
@@ -817,34 +886,38 @@
               placeholder="Password (8+ chars)" 
               required 
               autocomplete="current-password" 
+              style="margin-bottom: 0; padding-right: 2.8rem;"
             />
+            <button type="button" onclick="togglePasswordVisibility()" title="Toggle visibility" style="position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--color-gold); cursor: pointer; display: flex; align-items: center; opacity: 0.75; transition: opacity 0.2s;">
+              <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
           </div>
 
           <!-- Notification Checkbox (Matching Sudathi.com) -->
           <label class="sudathi-checkbox-row">
             <input type="checkbox" id="notifyCheckbox" class="sudathi-checkbox" checked />
-            <span class="sudathi-checkbox-label">Notify me with offers &amp; updates</span>
+            <span class="sudathi-checkbox-label">Notify me with private atelier offers &amp; product drops</span>
           </label>
 
           <!-- Primary Submit Button -->
           <button type="submit" class="btn-sudathi-submit" id="submitBtn">
-            Submit
+            ENTER THE ATELIER &rarr;
           </button>
         </form>
 
         <!-- Preloaded Demo Accounts Quick Pills -->
         <div class="demo-pill-group">
           <button type="button" class="demo-pill" onclick="fillDemo('customer@lumiere.com', 'Lumiere2026!')">
-            Customer Demo
+            ✦ Customer Demo
           </button>
           <button type="button" class="demo-pill" onclick="fillDemo('owner@lumiere.com', 'LumiereOwner2026!')">
-            Owner Admin
+            👑 Owner Admin
           </button>
         </div>
 
         <!-- Terms Footer Note -->
         <div class="sudathi-terms-footer">
-          I accept that I have read &amp; understood your <a href="#">Privacy Policy</a> and <a href="#">T&amp;Cs</a>.
+          By proceeding, you agree to Lumière's <a href="#">Privacy Policy</a> and <a href="#">Atelier Terms</a>.
         </div>
 
       </div>
@@ -939,11 +1012,24 @@
         titleEl.innerText = 'Login Now!';
         toggleBtn.innerText = 'Create Account';
         nameGroup.style.display = 'none';
-        submitBtn.innerText = 'Submit';
+        submitBtn.innerText = 'ENTER THE ATELIER →';
         document.getElementById('regFirstName').required = false;
         document.getElementById('regLastName').required = false;
       }
       clearAlert();
+    }
+
+    function togglePasswordVisibility() {
+      const pass = document.getElementById('passwordInput');
+      const icon = document.getElementById('eyeIcon');
+      if (!pass || !icon) return;
+      if (pass.type === 'password') {
+        pass.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+      } else {
+        pass.type = 'password';
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      }
     }
 
     function showAlert(msg, isError = true) {
@@ -1072,7 +1158,7 @@
         showAlert(err.message);
       } finally {
         btn.disabled = false;
-        btn.innerText = currentMode === 'login' ? 'Submit' : 'CREATE ACCOUNT →';
+        btn.innerText = currentMode === 'login' ? 'ENTER THE ATELIER →' : 'CREATE ACCOUNT →';
       }
     }
 
