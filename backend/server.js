@@ -24,7 +24,9 @@ const PORT = process.env.PORT || 5000;
 
 // Connect to Database & Auto-verify Schema
 connectDB();
-initDatabase().catch(err => console.error('[Server] DB Init error:', err.message));
+if (!process.env.VERCEL) {
+  initDatabase().catch(err => console.error('[Server] DB Init error:', err.message));
+}
 
 // Core Middleware
 app.use(cors());
@@ -80,8 +82,8 @@ app.get('/admin/:page', (req, res, next) => {
 // Error Handling Middleware
 app.use(errorHandler);
 
-// Start Server
-if (process.env.NODE_ENV !== 'test') {
+// Start Server (only when not running on Vercel serverless or test)
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   app.listen(PORT, () => {
     console.log(`[Lumière Luxury Engine] Server running at http://localhost:${PORT}`);
     console.log(`[Lumière Storefront]    http://localhost:${PORT}`);
