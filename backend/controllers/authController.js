@@ -624,12 +624,10 @@ async function sendOtp(req, res) {
       return res.json({
         success: true,
         channel: 'email',
-        message: emailResult.success
-          ? `✦ 6-digit verification code dispatched to ${targetEmail}. Please check your Inbox / Spam folder or apply code below.`
-          : `✦ 6-digit verification code generated for ${targetEmail}. Enter code below to continue.`,
+        message: `✦ 6-digit verification code dispatched to ${targetEmail}. Please check your email inbox.`,
         email: targetEmail,
         realEmailSent: emailResult.success,
-        reflectedOtp: otp,
+        reflectedOtp: null,
         otpToken,
         expiresInSeconds: 300,
       });

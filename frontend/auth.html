@@ -1546,16 +1546,9 @@
           switchStage('otp');
           startResendTimer(30);
 
-          // Enable on-screen reflection card as fail-safe alongside real inbox email delivery
-          if (backendData.reflectedOtp) {
-            currentReflectedOtp = backendData.reflectedOtp;
-            document.getElementById('reflectionPhoneText').innerText = emailVal;
-            document.getElementById('reflectionOtpCode').innerText = backendData.reflectedOtp;
-            document.getElementById('otpReflectionCard').style.display = 'block';
-          } else {
-            currentReflectedOtp = '';
-            document.getElementById('otpReflectionCard').style.display = 'none';
-          }
+          // For Email: Strictly hide OTP on screen - delivered exclusively to client's email inbox!
+          currentReflectedOtp = '';
+          document.getElementById('otpReflectionCard').style.display = 'none';
 
           document.getElementById('smsStatusBanner').style.display = 'block';
           const smsPhoneEl = document.getElementById('displayOtpPhoneSMS');
@@ -1565,8 +1558,8 @@
           const bannerTitle = document.getElementById('smsStatusBanner').querySelector('span');
           if (bannerTitle) bannerTitle.innerText = 'VERIFICATION EMAIL DISPATCHED';
           const bannerDesc = document.getElementById('smsStatusBanner').querySelector('p');
-          if (bannerDesc) bannerDesc.innerHTML = `A 6-digit verification code has been dispatched to <strong style="color:#fff;">${emailVal}</strong>. Please check your Inbox.`;
-          showAlert(`✦ 6-digit verification code dispatched to ${emailVal}. Check Inbox / Spam or apply code!`, false);
+          if (bannerDesc) bannerDesc.innerHTML = `A 6-digit verification code has been dispatched to <strong style="color:#fff;">${emailVal}</strong>. Please check your email inbox and enter the code below.`;
+          showAlert(`✦ 6-digit verification code sent to ${emailVal}. Check your inbox!`, false);
         } catch (err) {
           showAlert(err.message);
         } finally {
@@ -1834,14 +1827,10 @@
         if (currentEmail) {
           const data = await safeApiFetch('/api/auth/otp/send', { email: currentEmail });
           currentOtpToken = data.otpToken || currentOtpToken;
-          if (data.reflectedOtp) {
-            currentReflectedOtp = data.reflectedOtp;
-            document.getElementById('reflectionPhoneText').innerText = currentEmail;
-            document.getElementById('reflectionOtpCode').innerText = data.reflectedOtp;
-            document.getElementById('otpReflectionCard').style.display = 'block';
-          }
+          currentReflectedOtp = '';
+          document.getElementById('otpReflectionCard').style.display = 'none';
           startResendTimer(30);
-          showAlert(`✦ New verification code dispatched to ${currentEmail}. Check Inbox / Spam or apply code!`, false);
+          showAlert(`✦ New verification code sent to ${currentEmail}. Check your inbox!`, false);
         } else {
           if (firebaseAuth && currentPhone) {
             try {
