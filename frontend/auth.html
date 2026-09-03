@@ -1389,9 +1389,31 @@
             realSmsSent = true;
           }
         } catch (fbErr) {
-          console.warn('[Firebase SMS dispatch]:', fbErr.message);
+          console.error('[Firebase SMS dispatch error]:', fbErr);
           if (recaptchaVerifier) {
             try { recaptchaVerifier.clear(); recaptchaVerifier = null; } catch {}
+          }
+
+          if (fbErr.code === 'auth/unauthorized-domain') {
+            showAlert('✦ Google Security: Domain not authorized yet. Please add luxweb-fox.vercel.app in Firebase Console > Authentication > Settings > Authorized domains.');
+            btn.disabled = false;
+            btn.innerText = 'GET ATELIER OTP →';
+            return;
+          } else if (fbErr.code === 'auth/quota-exceeded') {
+            showAlert('✦ Google Notice: Daily SMS quota of 10 reached on free tier.');
+            btn.disabled = false;
+            btn.innerText = 'GET ATELIER OTP →';
+            return;
+          } else if (fbErr.code === 'auth/invalid-phone-number') {
+            showAlert('✦ Invalid mobile number format. Please ensure 10 digits.');
+            btn.disabled = false;
+            btn.innerText = 'GET ATELIER OTP →';
+            return;
+          } else {
+            showAlert(`✦ Google SMS Notice: ${fbErr.message || 'SMS dispatch failed. Check console.'}`);
+            btn.disabled = false;
+            btn.innerText = 'GET ATELIER OTP →';
+            return;
           }
         }
       }
