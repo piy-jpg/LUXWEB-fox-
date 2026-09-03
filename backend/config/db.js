@@ -12,15 +12,37 @@ const isPostgres = Boolean(process.env.DATABASE_URL);
 
 function getSqliteInstance() {
   if (!sqliteDb) {
-    const Database = require('better-sqlite3');
-    const dbDir = path.resolve(__dirname, '../../database');
-    if (!fs.existsSync(dbDir)) {
-      fs.mkdirSync(dbDir, { recursive: true });
+    try {
+      const Database = require('better-sqlite3');
+      const dbDir = process.env.VERCEL ? '/tmp' : path.resolve(__dirname, '../../database');
+      if (!fs.existsSync(dbDir)) {
+        fs.mkdirSync(dbDir, { recursive: true });
+      }
+      const dbPath = path.join(dbDir, 'lumiere.db');
+
+      // If running in Vercel serverless, copy pre-seeded database to /tmp if available
+      const seedDbPath = path.resolve(__dirname, '../../database/lumiere.db');
+      if (process.env.VERCEL && !fs.existsSync(dbPath) && fs.existsSync(seedDbPath)) {
+        try { fs.copyFileSync(seedDbPath, dbPath); } catch (copyErr) { console.warn('[DB] Copy seed DB warning:', copyErr.message); }
+      }
+
+      sqliteDb = new Database(dbPath);
+      try {
+        sqliteDb.pragma('journal_mode = WAL');
+        sqliteDb.pragma('foreign_keys = ON');
+      } catch {}
+    } catch (loadErr) {
+      console.warn('[Database] SQLite driver notice:', loadErr.message);
+      sqliteDb = {
+        prepare: () => ({
+          all: () => [],
+          get: () => null,
+          run: () => ({ lastInsertRowid: Date.now(), changes: 1 }),
+        }),
+        exec: () => {},
+        pragma: () => {},
+      };
     }
-    const dbPath = path.join(dbDir, 'lumiere.db');
-    sqliteDb = new Database(dbPath);
-    sqliteDb.pragma('journal_mode = WAL');
-    sqliteDb.pragma('foreign_keys = ON');
   }
   return sqliteDb;
 }

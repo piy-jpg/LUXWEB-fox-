@@ -1,0 +1,19 @@
+{
+  "name": "lumiere-luxury",
+  "version": "1.0.0",
+  "description": "Lumière Haute Parfumerie & Beauté E-Commerce Platform",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "test": "node backend/test_suite.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^17.3.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.3.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.18.0"
+  }
+}
