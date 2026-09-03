@@ -1,0 +1,7 @@
+backend/
+database/
+other/
+preview_*.html
+test_*.html
+compare_options.html
+scratch_arch.svg
