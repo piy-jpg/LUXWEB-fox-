@@ -20,7 +20,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const inquiryRoutes = require('./routes/inquiryRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5000;
 
 // Connect to Database & Auto-verify Schema
 connectDB();

@@ -361,6 +361,52 @@
       document.getElementById('loginPassword').value = pass;
     }
 
+    function getApiBase() {
+      if (window.location.protocol === 'file:') return 'http://localhost:5000';
+      if (window.location.port === '5000' || window.location.hostname.includes('vercel.app')) return '';
+      return 'http://localhost:5000';
+    }
+
+    async function safeApiFetch(endpoint, body) {
+      const fullUrl = getApiBase() + endpoint;
+      let res;
+      try {
+        res = await fetch(fullUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+      } catch (networkErr) {
+        throw new Error('Cannot connect to Lumière backend service. Please verify the server is running on port 5000.');
+      }
+
+      const contentType = res.headers.get('content-type') || '';
+      let data = null;
+
+      if (contentType.includes('application/json')) {
+        try {
+          data = await res.json();
+        } catch {
+          data = null;
+        }
+      } else {
+        const text = await res.text();
+        if (!res.ok) {
+          throw new Error(`Server returned HTTP ${res.status}: ${text || res.statusText}`);
+        }
+      }
+
+      if (!data) {
+        throw new Error('Server returned an unexpected response format. Please try again.');
+      }
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || data.message || 'Operation failed');
+      }
+
+      return data;
+    }
+
     // Sign in handler
     async function handleSignIn(e) {
       e.preventDefault();
@@ -372,23 +418,13 @@
       btn.innerText = 'AUTHENTICATING...';
 
       try {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password }),
-        });
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          throw new Error(data.error || 'Authentication failed');
-        }
+        const data = await safeApiFetch('/api/auth/login', { email, password });
 
         Auth.setSession(data.token, data.user);
-
         showAlert(`✦ ${data.message}`, false);
 
         setTimeout(() => {
-          if (data.user.isStaff) {
+          if (data.user && data.user.isStaff) {
             window.location.href = 'admin/index.html';
           } else {
             window.location.href = 'account.html';
@@ -417,16 +453,7 @@
       btn.innerText = 'CREATING ACCOUNT...';
 
       try {
-        const res = await fetch('/api/auth/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ firstName, lastName, email, phone, password }),
-        });
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          throw new Error(data.error || 'Registration failed');
-        }
+        const data = await safeApiFetch('/api/auth/signup', { firstName, lastName, email, phone, password });
 
         Auth.setSession(data.token, data.user);
         showAlert(`✦ ${data.message}`, false);
@@ -449,12 +476,7 @@
       const email = document.getElementById('forgotEmail').value.trim();
 
       try {
-        const res = await fetch('/api/auth/forgot-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-        const data = await res.json();
+        const data = await safeApiFetch('/api/auth/forgot-password', { email });
 
         if (data.resetToken) {
           showAlert(`Reset token generated: <code>${data.resetToken}</code>`, false);
@@ -476,16 +498,7 @@
       const newPassword = document.getElementById('resetNewPassword').value;
 
       try {
-        const res = await fetch('/api/auth/reset-password', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, newPassword }),
-        });
-        const data = await res.json();
-
-        if (!res.ok || !data.success) {
-          throw new Error(data.error || 'Password reset failed');
-        }
+        const data = await safeApiFetch('/api/auth/reset-password', { token, newPassword });
 
         showAlert(data.message, false);
         setTimeout(() => switchAuthTab('signin'), 1500);

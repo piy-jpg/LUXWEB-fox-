@@ -54,6 +54,12 @@ const Auth = {
     return Boolean(user.permissions && user.permissions.includes(permCode));
   },
 
+  getBaseUrl() {
+    if (window.location.protocol === 'file:') return 'http://localhost:5000';
+    if (window.location.port === '5000' || window.location.hostname.includes('vercel.app')) return '';
+    return 'http://localhost:5000';
+  },
+
   async apiFetch(url, options = {}) {
     const token = this.getToken();
     const headers = {
@@ -65,7 +71,14 @@ const Auth = {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const res = await fetch(url, { ...options, headers });
+    const fullUrl = url.startsWith('http') ? url : (this.getBaseUrl() + url);
+    let res;
+    try {
+      res = await fetch(fullUrl, { ...options, headers });
+    } catch (networkErr) {
+      console.warn('[Auth.apiFetch] Network error:', networkErr.message);
+      throw new Error('Unable to connect to Lumière server. Please ensure the backend is running.');
+    }
 
     if (res.status === 401) {
       // Token expired or invalid
