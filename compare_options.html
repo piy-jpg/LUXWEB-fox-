@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<style>
+  body {
+    background: #0B080A;
+    color: #FAF7F2;
+    font-family: 'Outfit', sans-serif;
+    padding: 50px 20px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+  }
+  .card-col {
+    width: 260px;
+    text-align: center;
+  }
+  .card-title {
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: #C8A97E;
+  }
+  .cyl-card {
+    width: 260px;
+    height: 380px;
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.4s ease;
+  }
+  .cyl-card:hover {
+    transform: translateY(-8px);
+  }
+  svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 14px 34px rgba(0,0,0,0.65));
+    transition: filter 0.4s ease;
+  }
+  .cyl-card:hover svg {
+    filter: drop-shadow(0 20px 44px rgba(0,0,0,0.85)) drop-shadow(0 0 16px rgba(200,169,126,0.4));
+  }
+</style>
+</head>
+<body>
+
+  <!-- Option A: Full Cylindrical Capsule (Stadium) -->
+  <div class="card-col">
+    <div class="card-title">Option A: Cylindrical Capsule (Stadium)</div>
+    <div class="cyl-card">
+      <svg viewBox="0 0 260 380">
+        <defs>
+          <linearGradient id="goldGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#FAF7F2"/>
+            <stop offset="30%" stop-color="#E5CCA3"/>
+            <stop offset="70%" stop-color="#C8A97E"/>
+            <stop offset="100%" stop-color="#8E6E40"/>
+          </linearGradient>
+          <linearGradient id="sheenA" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="rgba(0,0,0,0.45)"/>
+            <stop offset="25%" stop-color="rgba(255,255,255,0.04)"/>
+            <stop offset="50%" stop-color="rgba(255,255,255,0.18)"/>
+            <stop offset="75%" stop-color="rgba(255,255,255,0.03)"/>
+            <stop offset="100%" stop-color="rgba(0,0,0,0.55)"/>
+          </linearGradient>
+          <linearGradient id="vignetteA" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="transparent"/>
+            <stop offset="45%" stop-color="rgba(11,8,10,0.2)"/>
+            <stop offset="75%" stop-color="rgba(11,8,10,0.85)"/>
+            <stop offset="100%" stop-color="rgba(11,8,10,0.98)"/>
+          </linearGradient>
+          <clipPath id="clipA">
+            <rect x="12" y="12" width="236" height="356" rx="118" ry="118"/>
+          </clipPath>
+          <clipPath id="clipA_inner">
+            <rect x="16" y="16" width="228" height="348" rx="114" ry="114"/>
+          </clipPath>
+        </defs>
+        <!-- Clipped Image -->
+        <image href="frontend/images/category_1_skincare_34.jpg" width="260" height="380" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipA_inner)"/>
+        <!-- 3D Cylindrical Light Sheen -->
+        <rect x="16" y="16" width="228" height="348" rx="114" ry="114" fill="url(#sheenA)"/>
+        <!-- Bottom Vignette -->
+        <rect x="16" y="16" width="228" height="348" rx="114" ry="114" fill="url(#vignetteA)"/>
+        <!-- Outer Gold Border -->
+        <rect x="12" y="12" width="236" height="356" rx="118" ry="118" fill="none" stroke="url(#goldGradA)" stroke-width="2.2"/>
+        <!-- Inner Hairline Border -->
+        <rect x="16" y="16" width="228" height="348" rx="114" ry="114" fill="none" stroke="rgba(200,169,126,0.55)" stroke-width="1.2"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Option B: Elliptical Cylinder (Soft Arch Top, Soft Curve Bottom) -->
+  <div class="card-col">
+    <div class="card-title">Option B: Elliptical Cylinder (rx=118, ry=60)</div>
+    <div class="cyl-card">
+      <svg viewBox="0 0 260 380">
+        <defs>
+          <clipPath id="clipB_inner">
+            <rect x="16" y="16" width="228" height="348" rx="114" ry="54"/>
+          </clipPath>
+        </defs>
+        <image href="frontend/images/category_1_skincare_34.jpg" width="260" height="380" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipB_inner)"/>
+        <rect x="16" y="16" width="228" height="348" rx="114" ry="54" fill="url(#sheenA)"/>
+        <rect x="16" y="16" width="228" height="348" rx="114" ry="54" fill="url(#vignetteA)"/>
+        <rect x="12" y="12" width="236" height="356" rx="118" ry="58" fill="none" stroke="url(#goldGradA)" stroke-width="2.2"/>
+        <rect x="16" y="16" width="228" height="348" rx="114" ry="54" fill="none" stroke="rgba(200,169,126,0.55)" stroke-width="1.2"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Option C: 3D Flacon Cylinder (Convex Top Lid & Convex Bottom Base) -->
+  <div class="card-col">
+    <div class="card-title">Option C: 3D Flacon Cylinder (Curved Rims)</div>
+    <div class="cyl-card">
+      <svg viewBox="0 0 260 380">
+        <defs>
+          <clipPath id="clipC_inner">
+            <path d="M 16,42 A 114,26 0 0,1 244,42 L 244,342 A 114,26 0 0,1 16,342 Z"/>
+          </clipPath>
+        </defs>
+        <image href="frontend/images/category_1_skincare_34.jpg" width="260" height="380" preserveAspectRatio="xMidYMid slice" clip-path="url(#clipC_inner)"/>
+        <path d="M 16,42 A 114,26 0 0,1 244,42 L 244,342 A 114,26 0 0,1 16,342 Z" fill="url(#sheenA)"/>
+        <path d="M 16,42 A 114,26 0 0,1 244,42 L 244,342 A 114,26 0 0,1 16,342 Z" fill="url(#vignetteA)"/>
+        <!-- 3D Outer Cylinder Silhouette -->
+        <path d="M 12,38 A 118,28 0 0,1 248,38 L 248,346 A 118,28 0 0,1 12,346 Z" fill="none" stroke="url(#goldGradA)" stroke-width="2.2"/>
+        <path d="M 16,42 A 114,26 0 0,1 244,42 L 244,342 A 114,26 0 0,1 16,342 Z" fill="none" stroke="rgba(200,169,126,0.55)" stroke-width="1.2"/>
+        <!-- Top Ellipse Lid -->
+        <ellipse cx="130" cy="38" rx="118" ry="22" fill="rgba(200,169,126,0.08)" stroke="url(#goldGradA)" stroke-width="2"/>
+      </svg>
+    </div>
+  </div>
+
+</body>
+</html>

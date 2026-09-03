@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Reviews | Lumière Beauty</title>
+  <meta name="description" content="Read genuine customer reviews of Lumière Beauty products. See why 50,000+ customers rate us 4.9 stars for luxury skincare, makeup and fragrance." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/lumiere-cinematic.css" />
+  <link rel="stylesheet" href="css/shared.css" /><link rel="stylesheet" href="css/reviews.css" />
+</head>
+<body>
+    <!-- NAVBAR (same as home) -->
+  <header class="lumiere-navbar" id="lumiereNavbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand" aria-label="Lumière Home">
+        <span class="nav-star">✦</span>
+        <span>Lumière</span>
+      </a>
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links-center">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="shop.html" class="nav-link">Shop</a></li>
+          <li><a href="new-arrivals.html" class="nav-link">New Arrivals</a></li>
+          <li><a href="collections.html" class="nav-link">Collections</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="reviews.html" class="nav-link active">Reviews</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions-right">
+        <button class="nav-icon-btn" onclick="openSearchModal()" aria-label="Search Catalog">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button class="nav-icon-btn" onclick="openWishlistDrawer()" aria-label="Wishlist Items">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="nav-badge-count" id="navWishlistCount">0</span>
+        </button>
+        <button class="nav-icon-btn" onclick="openCartDrawer()" aria-label="Shopping Bag">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="nav-badge-count" id="navCartCount">0</span>
+        </button>
+        <button class="nav-hamburger" id="navHamburger" aria-label="Toggle Mobile Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close Mobile Menu">&times;</button>
+    <ul class="mobile-nav-links">
+      <li><a href="index.html" class="mobile-nav-link" onclick="closeMobileNav()">Home</a></li>
+      <li><a href="shop.html" class="mobile-nav-link" onclick="closeMobileNav()">Shop</a></li>
+      <li><a href="new-arrivals.html" class="mobile-nav-link" onclick="closeMobileNav()">New Arrivals</a></li>
+      <li><a href="collections.html" class="mobile-nav-link" onclick="closeMobileNav()">Collections</a></li>
+      <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About</a></li>
+      <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews</a></li>
+    </ul>
+  </div>
+
+<!-- HERO -->
+  <header class="rev-hero">
+    <div class="rev-hero-bg">
+      <img src="images/reviews_hero.jpg" alt="Happy Customers" />
+      <div class="rev-hero-overlay"></div>
+    </div>
+    <div class="rev-hero-content">
+      <span class="section-label">Real Stories</span>
+      <h1>Loved by Thousands</h1>
+      <p>Honest reviews from our glowing community of 50,000+ beauty lovers.</p>
+    </div>
+    <div class="rev-hero-stats">
+      <div class="rev-hero-stat">
+        <span class="rhs-num">4.9</span>
+        <span class="rhs-label">Avg. Rating</span>
+      </div>
+      <div class="rev-hero-divider"></div>
+      <div class="rev-hero-stat">
+        <span class="rhs-num">50K+</span>
+        <span class="rhs-label">Happy Customers</span>
+      </div>
+      <div class="rev-hero-divider"></div>
+      <div class="rev-hero-stat">
+        <span class="rhs-num">2,847</span>
+        <span class="rhs-label">Verified Reviews</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- OVERALL RATING PANEL -->
+  <section class="rating-panel" id="ratingPanel">
+    <div class="container">
+      <div class="rating-panel-inner">
+        <div class="rp-overall reveal">
+          <div class="rp-score-wrap">
+            <div class="rp-score">4.9</div>
+            <div class="rp-score-label">out of 5</div>
+          </div>
+          <div class="rp-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <div class="rp-count">Based on 2,847 verified reviews</div>
+          <div class="rp-verified-badge">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+            All reviews are verified purchases
+          </div>
+        </div>
+        <div class="rp-breakdown reveal" style="transition-delay:.12s">
+          <div class="rp-breakdown-title">Rating Breakdown</div>
+          <div class="rp-bar-row"><span class="rp-bar-label">5 &#9733;</span><div class="rp-bar-track"><div class="rp-bar-fill" style="--w:89%"></div></div><span class="rp-bar-pct">89%</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">4 &#9733;</span><div class="rp-bar-track"><div class="rp-bar-fill" style="--w:8%"></div></div><span class="rp-bar-pct">8%</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">3 &#9733;</span><div class="rp-bar-track"><div class="rp-bar-fill rp-bar-dim" style="--w:2%"></div></div><span class="rp-bar-pct">2%</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">2 &#9733;</span><div class="rp-bar-track"><div class="rp-bar-fill rp-bar-dim" style="--w:1%"></div></div><span class="rp-bar-pct">1%</span></div>
+          <div class="rp-bar-row"><span class="rp-bar-label">1 &#9733;</span><div class="rp-bar-track"><div class="rp-bar-fill rp-bar-dim" style="--w:0%"></div></div><span class="rp-bar-pct">0%</span></div>
+        </div>
+        <div class="rp-tags reveal" style="transition-delay:.24s">
+          <div class="rp-breakdown-title">Most Mentioned</div>
+          <div class="rp-tag-cloud">
+            <span class="rp-tag rp-tag-lg">&#10022; Glowing Skin</span>
+            <span class="rp-tag">Long-lasting</span>
+            <span class="rp-tag rp-tag-lg">Worth Every Penny</span>
+            <span class="rp-tag">Luxury Feel</span>
+            <span class="rp-tag">Clean Formula</span>
+            <span class="rp-tag rp-tag-sm">Fast Results</span>
+            <span class="rp-tag">Beautiful Packaging</span>
+            <span class="rp-tag rp-tag-sm">Cruelty-Free</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- REVIEWS MAIN -->
+  <section class="reviews-main" id="reviewsMain">
+    <div class="container">
+      <div class="rev-filters reveal">
+        <div class="rev-filter-tabs" id="revFilterTabs">
+          <button class="rev-tab active" data-cat="all" onclick="filterReviews('all',this)" id="revTabAll">All Reviews</button>
+          <button class="rev-tab" data-cat="skincare" onclick="filterReviews('skincare',this)" id="revTabSkincare">Skincare</button>
+          <button class="rev-tab" data-cat="makeup" onclick="filterReviews('makeup',this)" id="revTabMakeup">Makeup</button>
+          <button class="rev-tab" data-cat="fragrance" onclick="filterReviews('fragrance',this)" id="revTabFragrance">Fragrance</button>
+        </div>
+        <div class="rev-sort">
+          <select id="revSort" onchange="renderReviews()" aria-label="Sort reviews">
+            <option value="newest">Newest First</option>
+            <option value="highest">Highest Rated</option>
+            <option value="helpful">Most Helpful</option>
+          </select>
+        </div>
+      </div>
+      <div class="featured-review reveal" id="featuredReview"></div>
+      <div class="reviews-grid" id="reviewsGrid"></div>
+      <div class="load-more-wrap">
+        <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">
+          <span>Load More Reviews</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLOATING TESTIMONIAL STRIP -->
+  <div class="testimonial-strip">
+    <div class="ts-track">
+      <span class="ts-item"><em>"The Radiance Serum is a miracle."</em> &mdash; Sophia C., New York</span>
+      <span class="ts-sep">&#10022;</span>
+      <span class="ts-item"><em>"Noir d'Or is my new signature scent."</em> &mdash; Marie D., Paris</span>
+      <span class="ts-sep">&#10022;</span>
+      <span class="ts-item"><em>"Lumi&egrave;re changed my skincare routine forever."</em> &mdash; Priya S., Mumbai</span>
+      <span class="ts-sep">&#10022;</span>
+      <span class="ts-item"><em>"The most beautiful highlighter I own."</em> &mdash; Isabella T., Barcelona</span>
+      <span class="ts-sep">&#10022;</span>
+      <span class="ts-item"><em>"Worth every single penny."</em> &mdash; Amelia R., London</span>
+      <span class="ts-sep">&#10022;</span>
+      <span class="ts-item"><em>"The Radiance Serum is a miracle."</em> &mdash; Sophia C., New York</span>
+      <span class="ts-sep">&#10022;</span>
+      <span class="ts-item"><em>"Noir d'Or is my new signature scent."</em> &mdash; Marie D., Paris</span>
+      <span class="ts-sep">&#10022;</span>
+      <span class="ts-item"><em>"Lumi&egrave;re changed my skincare routine forever."</em> &mdash; Priya S., Mumbai</span>
+      <span class="ts-sep">&#10022;</span>
+      <span class="ts-item"><em>"The most beautiful highlighter I own."</em> &mdash; Isabella T., Barcelona</span>
+      <span class="ts-sep">&#10022;</span>
+      <span class="ts-item"><em>"Worth every single penny."</em> &mdash; Amelia R., London</span>
+      <span class="ts-sep">&#10022;</span>
+    </div>
+  </div>
+
+  <!-- WRITE A REVIEW -->
+  <section class="write-review-section" id="writeReview">
+    <div class="wr-bg-accent"></div>
+    <div class="container">
+      <div class="wr-layout">
+        <div class="wr-left reveal-left">
+          <span class="section-label">Share Your Experience</span>
+          <h2 class="wr-title">Write a<br/><em>Review</em></h2>
+          <p class="wr-desc">Your feedback helps thousands of beauty lovers find their perfect ritual. Every honest voice matters.</p>
+          <div class="wr-trust">
+            <div class="wr-trust-item"><span class="wr-trust-icon">&#128274;</span><span>Verified purchases only</span></div>
+            <div class="wr-trust-item"><span class="wr-trust-icon">&#10022;</span><span>Published within 24 hours</span></div>
+            <div class="wr-trust-item"><span class="wr-trust-icon">&#128155;</span><span>Helps our community</span></div>
+          </div>
+        </div>
+        <div class="wr-right reveal-right">
+          <form class="wr-form" id="wrForm" onsubmit="submitReview(event)">
+            <div class="wr-row">
+              <div class="wr-field">
+                <label for="wrName">Your Name</label>
+                <input type="text" id="wrName" placeholder="e.g. Sofia C." required />
+              </div>
+              <div class="wr-field">
+                <label for="wrProduct">Product</label>
+                <select id="wrProduct" required>
+                  <option value="">Select a product&hellip;</option>
+                  <option>Radiance Glow Serum</option>
+                  <option>Velvet Lip Collection</option>
+                  <option>Noir d'Or Eau de Parfum</option>
+                  <option>Restorative Night Cream</option>
+                  <option>Pro Eyeshadow Palette</option>
+                  <option>Rose Bloom Eau de Toilette</option>
+                  <option>Rosehip Facial Oil</option>
+                  <option>Gold Highlighter</option>
+                </select>
+              </div>
+            </div>
+            <div class="wr-field">
+              <label>Your Rating</label>
+              <div class="star-picker" id="starPicker" role="radiogroup" aria-label="Rating">
+                <button type="button" class="sp-star" data-val="1" onclick="setRating(1)" aria-label="1 star">&#9733;</button>
+                <button type="button" class="sp-star" data-val="2" onclick="setRating(2)" aria-label="2 stars">&#9733;</button>
+                <button type="button" class="sp-star" data-val="3" onclick="setRating(3)" aria-label="3 stars">&#9733;</button>
+                <button type="button" class="sp-star" data-val="4" onclick="setRating(4)" aria-label="4 stars">&#9733;</button>
+                <button type="button" class="sp-star" data-val="5" onclick="setRating(5)" aria-label="5 stars">&#9733;</button>
+              </div>
+            </div>
+            <div class="wr-field">
+              <label for="wrTitle">Review Title</label>
+              <input type="text" id="wrTitle" placeholder="Summarise your experience&hellip;" required />
+            </div>
+            <div class="wr-field">
+              <label for="wrBody">Your Review</label>
+              <textarea id="wrBody" rows="5" placeholder="Tell us what you loved (or didn't)&hellip;" required></textarea>
+            </div>
+            <button type="submit" class="btn-primary wr-submit" id="wrSubmitBtn">Submit Review <span class="btn-arrow">&rarr;</span></button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="rev-cta">
+    <div class="rev-cta-inner reveal">
+      <div class="rev-cta-eyebrow">&#10022; Join 50,000+ believers &#10022;</div>
+      <h2>Ready to Start Your Ritual?</h2>
+      <p>Experience the products that thousands are raving about.</p>
+      <div class="rev-cta-btns">
+        <a href="shop.html" class="btn-primary" id="revShopBtn">Shop Now</a>
+        <a href="new-arrivals.html" class="btn-ghost" id="revNewBtn">New Arrivals</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="lumiere-editorial-footer" id="lumiereFooter">
+    <div class="footer-main-container">
+      <div class="footer-columns-grid">
+        <div class="footer-col footer-col-brand">
+          <a href="index.html" class="footer-brand-logo" aria-label="Lumi&egrave;re Home"><span class="brand-sparkle">&#10022;</span><span class="brand-text">LUMI&Egrave;RE</span></a>
+          <p class="footer-brand-bio">High-performance luxury beauty crafted with botanical integrity. Born in Paris, curated for the discerning individual who treats beauty as an elevated art form.</p>
+          <div class="footer-social-row">
+            <a href="https://instagram.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+            <a href="https://pinterest.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Pinterest"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="20"></line><path d="M8 20l4-9 4 9"></path><circle cx="12" cy="9" r="5"></circle></svg></a>
+            <a href="https://facebook.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+            <a href="https://tiktok.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="TikTok"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path></svg></a>
+          </div>
+        </div>
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false"><span>SHOP</span><span class="accordion-icon">+</span></button>
+          <div class="footer-nav-content"><ul class="footer-nav-list">
+            <li><a href="new-arrivals.html" class="footer-nav-link"><span>New Arrivals</span><span class="link-arrow">&rarr;</span></a></li>
+            <li><a href="shop.html?filter=bestseller" class="footer-nav-link"><span>Best Sellers</span><span class="link-arrow">&rarr;</span></a></li>
+            <li><a href="shop.html?cat=skincare" class="footer-nav-link"><span>Skincare</span><span class="link-arrow">&rarr;</span></a></li>
+            <li><a href="shop.html?cat=makeup" class="footer-nav-link"><span>Makeup</span><span class="link-arrow">&rarr;</span></a></li>
+            <li><a href="shop.html?cat=fragrance" class="footer-nav-link"><span>Fragrance</span><span class="link-arrow">&rarr;</span></a></li>
+            <li><a href="shop.html?cat=haircare" class="footer-nav-link"><span>Hair Care</span><span class="link-arrow">&rarr;</span></a></li>
+          </ul></div>
+        </div>
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false"><span>ABOUT</span><span class="accordion-icon">+</span></button>
+          <div class="footer-nav-content"><ul class="footer-nav-list">
+            <li><a href="about.html" class="footer-nav-link"><span>Our Story</span><span class="link-arrow">&rarr;</span></a></li>
+            <li><a href="about.html#philosophy" class="footer-nav-link"><span>Our Philosophy</span><span class="link-arrow">&rarr;</span></a></li>
+            <li><a href="collections.html" class="footer-nav-link"><span>Journal</span><span class="link-arrow">&rarr;</span></a></li>
+            <li><a href="reviews.html" class="footer-nav-link"><span>Reviews</span><span class="link-arrow">&rarr;</span></a></li>
+          </ul></div>
+        </div>
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false"><span>HELP</span><span class="accordion-icon">+</span></button>
+          <div class="footer-nav-content"><ul class="footer-nav-list">
+            <li><a href="about.html#contact" class="footer-nav-link"><span>Contact</span><span class="link-arrow">&rarr;</span></a></li>
+            <li><a href="about.html#shipping" class="footer-nav-link"><span>Shipping</span><span class="link-arrow">&rarr;</span></a></li>
+            <li><a href="about.html#returns" class="footer-nav-link"><span>Returns</span><span class="link-arrow">&rarr;</span></a></li>
+            <li><a href="about.html#faq" class="footer-nav-link"><span>FAQ</span><span class="link-arrow">&rarr;</span></a></li>
+          </ul></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-divider-line"></div>
+    <div class="footer-bottom-container">
+      <div class="footer-bottom-bar">
+        <div class="footer-copyright">&copy; 2026 Lumi&egrave;re. All rights reserved.</div>
+        <div class="footer-legal-links"><a href="#" class="legal-link">Privacy</a><span class="legal-dot">&middot;</span><a href="#" class="legal-link">Terms</a><span class="legal-dot">&middot;</span><a href="#" class="legal-link">Cookies</a></div>
+        <div class="footer-currency-picker"><span class="currency-star">&#10022;</span><span>International / USD ($)</span></div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Backdrop -->
+  <div class="lumiere-backdrop" id="lumiereBackdrop"></div>
+
+  <!-- Cart Drawer -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Bag">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Bag</h3>
+      <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
+    </div>
+    <div class="shipping-meter-wrap">
+      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>$100.00</strong> more for complimentary delivery.</div>
+      <div class="shipping-meter-bar"><div class="shipping-meter-fill" id="shippingMeterFill"></div></div>
+    </div>
+    <div class="cart-items-container" id="cartItemsList"></div>
+    <div class="cart-empty-state" id="cartEmptyState">
+      <div class="cart-empty-icon">🛍️</div>
+      <p>Your shopping bag is empty.</p>
+      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Discover our luxury edits to get started.</span>
+    </div>
+    <div class="cart-drawer-footer">
+      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span></div>
+      <button class="btn-luxury-primary" style="width:100%;margin-bottom:0.75rem;" onclick="showToast('Proceeding to luxury checkout...')">CHECKOUT &rarr;</button>
+      <button class="btn-luxury-outline" style="width:100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Wishlist Drawer -->
+  <aside class="wishlist-drawer" id="wishlistDrawer" aria-label="Your Wishlist">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Wishlist <span id="wishlistHeaderCount" style="font-size:1rem;color:var(--color-gold,#C9A96E);font-family:sans-serif;">(0)</span></h3>
+      <button class="drawer-close-btn" onclick="closeWishlistDrawer()" aria-label="Close Wishlist">&times;</button>
+    </div>
+    <div class="cart-items-container" id="wishlistItemsList"></div>
+    <div class="cart-empty-state" id="wishlistEmptyState">
+      <div class="cart-empty-icon">♡</div>
+      <p>Your wishlist is empty.</p>
+      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Save items you love to curate your personal beauty edit.</span>
+    </div>
+    <div class="cart-drawer-footer">
+      <button class="btn-luxury-primary" id="wishlistAddAllBtn" style="width:100%;margin-bottom:0.75rem;display:none;" onclick="addAllWishlistToCart()">MOVE ALL TO BAG &rarr;</button>
+      <button class="btn-luxury-outline" style="width:100%;" onclick="closeWishlistDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Search Modal -->
+  <div class="search-modal" id="searchModal" role="dialog" aria-modal="true">
+    <button class="modal-close-btn" id="searchModalCloseBtn" aria-label="Close Search">&times;</button>
+    <div class="search-header-wrap">
+      <input type="text" class="search-input-field" id="searchModalInput" placeholder="Search the collection..." autocomplete="off" />
+    </div>
+    <div class="search-results-grid" id="searchResultsGrid">
+      <p style="grid-column:span 3;color:rgba(250,247,242,0.5);text-align:center;">Type to search luxury cosmetics, fragrances &amp; skincare...</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="lumiere-toast" id="lumiereToast">
+    <span style="color:var(--color-gold,#C9A96E);">✦</span>
+    <span id="toastMessage">Product added to your bag.</span>
+  </div>
+
+  <script src="js/lumiere-cinematic.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/reviews.js"></script>
+
+  <script>
+    (function forceReveal() {
+      function revealVisible() {
+        var els = document.querySelectorAll('.reveal:not(.revealed),.reveal-left:not(.revealed),.reveal-right:not(.revealed)');
+        var vp = window.innerHeight || document.documentElement.clientHeight;
+        els.forEach(function(el) {
+          if (el.getBoundingClientRect().top < vp + 100) el.classList.add('revealed');
+        });
+      }
+      document.addEventListener('DOMContentLoaded', function() { revealVisible(); setTimeout(revealVisible, 120); setTimeout(revealVisible, 400); });
+      window.addEventListener('scroll', revealVisible, { passive: true });
+    })();
+  </script>
+</body>
+</html>

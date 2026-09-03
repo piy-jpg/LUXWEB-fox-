@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Collections | Lumière Beauty</title>
+  <meta name="description" content="Explore Lumière's curated seasonal collections — from the Autumn Golden Hour to the Spring Bloom edit. Each one a story in beauty." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/lumiere-cinematic.css" />
+  <link rel="stylesheet" href="css/shared.css" /><link rel="stylesheet" href="css/collections.css" />
+  <style>
+    .coll-hero-bg img { transform: scale(1.08); }
+    @keyframes heroZoom {
+      from { transform: scale(1.08); }
+      to   { transform: scale(1); }
+    }
+    .reveal, .reveal-left, .reveal-right {
+      transition: opacity 0.75s cubic-bezier(0.4,0,0.2,1), transform 0.75s cubic-bezier(0.4,0,0.2,1);
+    }
+  </style>
+</head>
+<body>
+    <!-- NAVBAR (same as home) -->
+  <header class="lumiere-navbar" id="lumiereNavbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand" aria-label="Lumière Home">
+        <span class="nav-star">✦</span>
+        <span>Lumière</span>
+      </a>
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links-center">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="shop.html" class="nav-link">Shop</a></li>
+          <li><a href="new-arrivals.html" class="nav-link">New Arrivals</a></li>
+          <li><a href="collections.html" class="nav-link active">Collections</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="reviews.html" class="nav-link">Reviews</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions-right">
+        <button class="nav-icon-btn" onclick="openSearchModal()" aria-label="Search Catalog">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button class="nav-icon-btn" onclick="openWishlistDrawer()" aria-label="Wishlist Items">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="nav-badge-count" id="navWishlistCount">0</span>
+        </button>
+        <button class="nav-icon-btn" onclick="openCartDrawer()" aria-label="Shopping Bag">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="nav-badge-count" id="navCartCount">0</span>
+        </button>
+        <button class="nav-hamburger" id="navHamburger" aria-label="Toggle Mobile Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close Mobile Menu">&times;</button>
+    <ul class="mobile-nav-links">
+      <li><a href="index.html" class="mobile-nav-link" onclick="closeMobileNav()">Home</a></li>
+      <li><a href="shop.html" class="mobile-nav-link" onclick="closeMobileNav()">Shop</a></li>
+      <li><a href="new-arrivals.html" class="mobile-nav-link" onclick="closeMobileNav()">New Arrivals</a></li>
+      <li><a href="collections.html" class="mobile-nav-link" onclick="closeMobileNav()">Collections</a></li>
+      <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About</a></li>
+      <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews</a></li>
+    </ul>
+  </div>
+
+<!-- CINEMATIC HERO -->
+  <header class="coll-hero">
+    <div class="coll-hero-bg">
+      <img src="images/collections_hero.jpg" alt="Lumière Collections" />
+      <div class="coll-hero-overlay"></div>
+    </div>
+    <div class="coll-hero-content">
+      <div class="coll-hero-eyebrow">Autumn / Winter 2026</div>
+      <h1 class="coll-hero-title">The Collections</h1>
+      <p class="coll-hero-subtitle">
+        Four seasons. Four stories. One house of beauty.
+      </p>
+      <a href="#featured-collection" class="btn-primary coll-hero-cta" id="collHeroBtn">View Featured</a>
+    </div>
+    <div class="coll-hero-tab-nav">
+      <button class="coll-tab active" data-coll="golden" onclick="switchColl('golden',this)" id="tabGolden">Golden Hour</button>
+      <button class="coll-tab" data-coll="bloom" onclick="switchColl('bloom',this)" id="tabBloom">Spring Bloom</button>
+      <button class="coll-tab" data-coll="noir" onclick="switchColl('noir',this)" id="tabNoir">Noir Edition</button>
+      <button class="coll-tab" data-coll="crystal" onclick="switchColl('crystal',this)" id="tabCrystal">Crystal Clear</button>
+    </div>
+  </header>
+
+  <!-- MARQUEE -->
+  <div class="marquee-strip">
+    <div class="marquee-inner">
+      <span>✦ Golden Hour Collection</span><span>✦ Spring Bloom Edit</span><span>✦ Noir Edition</span>
+      <span>✦ Crystal Clear</span><span>✦ Limited Editions</span><span>✦ Paris Crafted</span>
+      <span>✦ Golden Hour Collection</span><span>✦ Spring Bloom Edit</span><span>✦ Noir Edition</span>
+      <span>✦ Crystal Clear</span><span>✦ Limited Editions</span><span>✦ Paris Crafted</span>
+    </div>
+  </div>
+
+  <!-- FEATURED COLLECTION -->
+  <section class="feat-coll" id="featured-collection">
+    <div class="feat-coll-inner" id="featCollInner">
+      <!-- Injected by JS -->
+    </div>
+  </section>
+
+  <!-- COLLECTION LOOKBOOK GRID -->
+  <section class="lookbook">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Lookbook</span>
+        <h2 class="section-title">Campaign Moments</h2>
+        <p class="section-desc">Behind the lens — editorial beauty captured in light and texture.</p>
+      </div>
+      <div class="lookbook-masonry">
+        <div class="lb-item lb-tall reveal">
+          <img src="images/model_portrait_1788328392448.jpg" alt="Model" />
+          <div class="lb-caption"><span>The Muse</span><p>Golden Hour Campaign</p></div>
+        </div>
+        <div class="lb-item reveal" style="transition-delay:.1s">
+          <img src="images/skincare_products_1788328338930.jpg" alt="Skincare" />
+          <div class="lb-caption"><span>Ritual</span><p>Skincare Edit</p></div>
+        </div>
+        <div class="lb-item reveal" style="transition-delay:.15s">
+          <img src="images/makeup_products_1788328354838.jpg" alt="Makeup" />
+          <div class="lb-caption"><span>Drama</span><p>Makeup Collection</p></div>
+        </div>
+        <div class="lb-item lb-wide reveal" style="transition-delay:.2s">
+          <img src="images/collections_hero.jpg" alt="Campaign" />
+          <div class="lb-caption"><span>The House</span><p>Autumn / Winter 2026</p></div>
+        </div>
+        <div class="lb-item reveal" style="transition-delay:.25s">
+          <img src="images/perfume_collection_1788328378783.jpg" alt="Fragrance" />
+          <div class="lb-caption"><span>Signature</span><p>Fragrance Edit</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ALL COLLECTIONS GRID -->
+  <section class="all-colls">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">All Seasons</span>
+        <h2 class="section-title">Every Collection</h2>
+      </div>
+      <div class="all-colls-grid">
+        <div class="ac-card reveal" id="acGolden">
+          <div class="ac-img-wrap"><img src="images/hero_banner_1788328324240.jpg" alt="Golden Hour" /></div>
+          <div class="ac-info">
+            <span class="ac-season">AW 2026</span>
+            <h3 class="ac-title">Golden Hour</h3>
+            <p class="ac-desc">Warm amber tones, candlelit skin, and the magic of twilight — bottled.</p>
+            <a href="shop.html" class="btn-outline-gold" id="acGoldenBtn">Shop Collection →</a>
+          </div>
+        </div>
+        <div class="ac-card reveal" style="transition-delay:.1s" id="acBloom">
+          <div class="ac-img-wrap"><img src="images/skincare_products_1788328338930.jpg" alt="Spring Bloom" /></div>
+          <div class="ac-info">
+            <span class="ac-season">SS 2026</span>
+            <h3 class="ac-title">Spring Bloom</h3>
+            <p class="ac-desc">Fresh botanicals, dewy finishes, and the lightest touch of colour.</p>
+            <a href="shop.html?cat=skincare" class="btn-outline-gold" id="acBloomBtn">Shop Collection →</a>
+          </div>
+        </div>
+        <div class="ac-card reveal" style="transition-delay:.2s" id="acNoir">
+          <div class="ac-img-wrap"><img src="images/makeup_products_1788328354838.jpg" alt="Noir Edition" /></div>
+          <div class="ac-info">
+            <span class="ac-season">AW 2025</span>
+            <h3 class="ac-title">Noir Edition</h3>
+            <p class="ac-desc">Bold jewel tones, dramatic eyes, and midnight luxury at its finest.</p>
+            <a href="shop.html?cat=makeup" class="btn-outline-gold" id="acNoirBtn">Shop Collection →</a>
+          </div>
+        </div>
+        <div class="ac-card reveal" style="transition-delay:.3s" id="acCrystal">
+          <div class="ac-img-wrap"><img src="images/perfume_collection_1788328378783.jpg" alt="Crystal Clear" /></div>
+          <div class="ac-info">
+            <span class="ac-season">SS 2025</span>
+            <h3 class="ac-title">Crystal Clear</h3>
+            <p class="ac-desc">Clean scents, glass-skin formulas, and pure transparency in beauty.</p>
+            <a href="shop.html?cat=fragrance" class="btn-outline-gold" id="acCrystalBtn">Shop Collection →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER IN COLLECTIONS -->
+  <section class="coll-newsletter">
+    <div class="cn-inner">
+      <div class="reveal">
+        <span class="section-label">Stay in the Know</span>
+        <h2 class="cn-title">Be First for Every Launch</h2>
+        <p class="cn-desc">Join the inner circle and receive exclusive collection previews before anyone else.</p>
+        <form class="cn-form" onsubmit="handleCollNL(event)" id="cnForm">
+          <input type="email" class="cn-input" id="cnEmail" placeholder="Your email address" required aria-label="Email" />
+          <button type="submit" class="btn-primary" id="cnSubmit">Notify Me</button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDITORIAL LUXURY FOOTER -->
+  <footer class="lumiere-editorial-footer" id="lumiereFooter">
+    <!-- Main 4-Column Horizontal Layout (Brand 40%, Shop 20%, About 20%, Help 20%) -->
+    <div class="footer-main-container">
+      <div class="footer-columns-grid">
+        <!-- COLUMN 1: BRAND (40%) -->
+        <div class="footer-col footer-col-brand">
+          <a href="index.html" class="footer-brand-logo" aria-label="Lumière Home">
+            <span class="brand-sparkle">✦</span>
+            <span class="brand-text">LUMIÈRE</span>
+          </a>
+          <p class="footer-brand-bio">
+            High-performance luxury beauty crafted with botanical integrity. Born in Paris, curated for the discerning individual who treats beauty as an elevated art form.
+          </p>
+          <div class="footer-social-row">
+            <a href="https://instagram.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+            <a href="https://pinterest.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Pinterest">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="4" x2="12" y2="20"></line>
+                <path d="M8 20l4-9 4 9"></path>
+                <circle cx="12" cy="9" r="5"></circle>
+              </svg>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg>
+            </a>
+            <a href="https://tiktok.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="TikTok">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- COLUMN 2: SHOP (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>SHOP</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="new-arrivals.html" class="footer-nav-link"><span>New Arrivals</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?filter=bestseller" class="footer-nav-link"><span>Best Sellers</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=skincare" class="footer-nav-link"><span>Skincare</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=makeup" class="footer-nav-link"><span>Makeup</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=fragrance" class="footer-nav-link"><span>Fragrance</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=haircare" class="footer-nav-link"><span>Hair Care</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COLUMN 3: ABOUT (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>ABOUT</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="about.html" class="footer-nav-link"><span>Our Story</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#philosophy" class="footer-nav-link"><span>Our Philosophy</span><span class="link-arrow">→</span></a></li>
+              <li><a href="collections.html" class="footer-nav-link"><span>Journal</span><span class="link-arrow">→</span></a></li>
+              <li><a href="reviews.html" class="footer-nav-link"><span>Reviews</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COLUMN 4: HELP (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>HELP</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="about.html#contact" class="footer-nav-link"><span>Contact</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#shipping" class="footer-nav-link"><span>Shipping</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#returns" class="footer-nav-link"><span>Returns</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#faq" class="footer-nav-link"><span>FAQ</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thin Horizontal Divider -->
+    <div class="footer-divider-line"></div>
+
+    <!-- 3. Clean Bottom / Legal Bar -->
+    <div class="footer-bottom-container">
+      <div class="footer-bottom-bar">
+        <div class="footer-copyright">
+          &copy; 2026 Lumière. All rights reserved.
+        </div>
+        <div class="footer-legal-links">
+          <a href="#" class="legal-link">Privacy</a>
+          <span class="legal-dot">·</span>
+          <a href="#" class="legal-link">Terms</a>
+          <span class="legal-dot">·</span>
+          <a href="#" class="legal-link">Cookies</a>
+        </div>
+        <div class="footer-currency-picker">
+          <span class="currency-star">✦</span>
+          <span>International / USD ($)</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Backdrop -->
+  <div class="lumiere-backdrop" id="lumiereBackdrop"></div>
+
+  <!-- Cart Drawer -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Bag">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Bag</h3>
+      <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
+    </div>
+    <div class="shipping-meter-wrap">
+      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>$100.00</strong> more for complimentary delivery.</div>
+      <div class="shipping-meter-bar"><div class="shipping-meter-fill" id="shippingMeterFill"></div></div>
+    </div>
+    <div class="cart-items-container" id="cartItemsList"></div>
+    <div class="cart-empty-state" id="cartEmptyState">
+      <div class="cart-empty-icon">🛍️</div>
+      <p>Your shopping bag is empty.</p>
+      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Discover our luxury edits to get started.</span>
+    </div>
+    <div class="cart-drawer-footer">
+      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span></div>
+      <button class="btn-luxury-primary" style="width:100%;margin-bottom:0.75rem;" onclick="showToast('Proceeding to luxury checkout...')">CHECKOUT &rarr;</button>
+      <button class="btn-luxury-outline" style="width:100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Wishlist Drawer -->
+  <aside class="wishlist-drawer" id="wishlistDrawer" aria-label="Your Wishlist">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Wishlist <span id="wishlistHeaderCount" style="font-size:1rem;color:var(--color-gold,#C9A96E);font-family:sans-serif;">(0)</span></h3>
+      <button class="drawer-close-btn" onclick="closeWishlistDrawer()" aria-label="Close Wishlist">&times;</button>
+    </div>
+    <div class="cart-items-container" id="wishlistItemsList"></div>
+    <div class="cart-empty-state" id="wishlistEmptyState">
+      <div class="cart-empty-icon">♡</div>
+      <p>Your wishlist is empty.</p>
+      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Save items you love to curate your personal beauty edit.</span>
+    </div>
+    <div class="cart-drawer-footer">
+      <button class="btn-luxury-primary" id="wishlistAddAllBtn" style="width:100%;margin-bottom:0.75rem;display:none;" onclick="addAllWishlistToCart()">MOVE ALL TO BAG &rarr;</button>
+      <button class="btn-luxury-outline" style="width:100%;" onclick="closeWishlistDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Search Modal -->
+  <div class="search-modal" id="searchModal" role="dialog" aria-modal="true">
+    <button class="modal-close-btn" id="searchModalCloseBtn" aria-label="Close Search">&times;</button>
+    <div class="search-header-wrap">
+      <input type="text" class="search-input-field" id="searchModalInput" placeholder="Search the collection..." autocomplete="off" />
+    </div>
+    <div class="search-results-grid" id="searchResultsGrid">
+      <p style="grid-column:span 3;color:rgba(250,247,242,0.5);text-align:center;">Type to search luxury cosmetics, fragrances &amp; skincare...</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="lumiere-toast" id="lumiereToast">
+    <span style="color:var(--color-gold,#C9A96E);">✦</span>
+    <span id="toastMessage">Product added to your bag.</span>
+  </div>
+
+  <script src="js/lumiere-cinematic.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/collections.js"></script>
+
+  <script>
+    (function forceReveal() {
+      function revealVisible() {
+        var els = document.querySelectorAll('.reveal:not(.revealed),.reveal-left:not(.revealed),.reveal-right:not(.revealed)');
+        var vp = window.innerHeight || document.documentElement.clientHeight;
+        els.forEach(function(el) {
+          if (el.getBoundingClientRect().top < vp + 100) el.classList.add('revealed');
+        });
+      }
+      document.addEventListener('DOMContentLoaded', function() { revealVisible(); setTimeout(revealVisible, 120); setTimeout(revealVisible, 400); });
+      window.addEventListener('scroll', revealVisible, { passive: true });
+    })();
+  </script>
+</body>
+</html>

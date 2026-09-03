@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop All Beauty | Lumière Luxury Cosmetics</title>
+  <meta name="description" content="Discover Lumière's editorial collection of high-performance luxury skincare, haute makeup, artisanal fragrances, and botanical hair elixirs." />
+
+  <!-- Google Fonts: Cormorant Garamond & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/lumiere-cinematic.css" />
+  <link rel="stylesheet" href="css/shop.css" />
+</head>
+<body class="shop-page">
+
+  <!-- =========================================================
+       1. STICKY LUXURY NAVBAR (EXACT REFERENCE MATCH)
+  ========================================================= -->
+  <header class="lumiere-navbar scrolled" id="lumiereNavbar">
+    <div class="nav-container">
+      <!-- Left: Brand Logo -->
+      <a href="index.html" class="nav-brand" aria-label="Lumière Home">
+        <span class="nav-star">✦</span>
+        <span>Lumière</span>
+      </a>
+
+      <!-- Center: Navigation Links -->
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links-center">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="shop.html" class="nav-link active">Shop</a></li>
+          <li><a href="new-arrivals.html" class="nav-link">New Arrivals</a></li>
+          <li><a href="collections.html" class="nav-link">Collections</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="reviews.html" class="nav-link">Reviews</a></li>
+        </ul>
+      </nav>
+
+      <!-- Right: Action Icons -->
+      <div class="nav-actions-right">
+        <!-- Search Icon -->
+        <button class="nav-icon-btn" onclick="openSearchModal()" aria-label="Search Catalog">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </button>
+
+        <!-- Wishlist Icon with badge 0 -->
+        <button class="nav-icon-btn" onclick="openWishlistDrawer()" aria-label="Wishlist Items">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          <span class="nav-badge-count" id="navWishlistCount">0</span>
+        </button>
+
+        <!-- Bag Icon with badge 0 -->
+        <button class="nav-icon-btn" onclick="openCartDrawer()" aria-label="Shopping Bag">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+          <span class="nav-badge-count" id="navCartCount">0</span>
+        </button>
+
+        <!-- Mobile Hamburger Toggle -->
+        <button class="nav-hamburger" id="navHamburger" onclick="openMobileNav()" aria-label="Toggle Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Side Navigation Drawer -->
+  <aside class="mobile-nav-drawer" id="mobileNavDrawer" aria-label="Mobile Navigation">
+    <div class="mobile-nav-drawer-header">
+      <a href="index.html" class="mobile-nav-brand">
+        <span style="color: var(--color-gold);">✦</span>
+        <span>LUMIÈRE</span>
+      </a>
+      <button class="mobile-nav-close" id="mobileNavClose" onclick="closeMobileNav()" aria-label="Close Mobile Menu">&times;</button>
+    </div>
+    <ul class="mobile-nav-links">
+      <li><a href="index.html" class="mobile-nav-link" onclick="closeMobileNav()">Home <span>&rarr;</span></a></li>
+      <li><a href="shop.html" class="mobile-nav-link active" onclick="closeMobileNav()">Shop <span>&rarr;</span></a></li>
+      <li><a href="new-arrivals.html" class="mobile-nav-link" onclick="closeMobileNav()">New Arrivals <span>&rarr;</span></a></li>
+      <li><a href="collections.html" class="mobile-nav-link" onclick="closeMobileNav()">Collections <span>&rarr;</span></a></li>
+      <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About <span>&rarr;</span></a></li>
+      <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews <span>&rarr;</span></a></li>
+    </ul>
+  </aside>
+
+  <main>
+    <!-- =========================================================
+         2. MOBILE STICKY CONTROL BAR (FILTERS | SORT BY)
+    ========================================================= -->
+    <div class="mobile-filter-bar">
+      <button class="mobile-filter-open-btn" onclick="openMobileFilterDrawer()" aria-label="Open filter panel">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+          <line x1="4" y1="6" x2="20" y2="6"/>
+          <line x1="7" y1="12" x2="17" y2="12"/>
+          <line x1="10" y1="18" x2="14" y2="18"/>
+        </svg>
+        <span>FILTERS</span>
+      </button>
+
+      <div style="display:flex; align-items:center; gap:0.5rem;">
+        <span style="font-size:0.72rem; color:rgba(250,247,242,0.6);">SORT BY:</span>
+        <select id="mSortSelect" class="sort-select-pill" aria-label="Mobile sort products">
+          <option value="default">Featured ▾</option>
+          <option value="newest">Newest</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="rating">Top Rated</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         3. MAIN SHOP EDITORIAL LAYOUT (SIDEBAR + 4-COL GRID)
+    ========================================================= -->
+    <div class="shop-page-wrapper">
+      <!-- Left Filter Sidebar (Exact Reference Match) -->
+      <aside class="shop-filter-sidebar" aria-label="Product Filters">
+        <div class="filter-sidebar-header">
+          <span class="filter-sidebar-title">FILTERS</span>
+          <button class="filter-clear-all-btn" onclick="clearAllFilters()">CLEAR ALL</button>
+        </div>
+
+        <!-- 1. CATEGORY -->
+        <div class="filter-section">
+          <div class="filter-section-title" onclick="toggleFilterGroup(this)">
+            <span>CATEGORY</span>
+            <span class="filter-toggle-icon">&#9650;</span>
+          </div>
+          <div class="filter-section-content">
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="cat" value="all" id="catAll" checked class="filter-checkbox-input" />
+                <span>All Products</span>
+              </div>
+              <span class="filter-count-num" id="countAll">(150)</span>
+            </label>
+
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="cat" value="skincare" id="catSkincare" class="filter-checkbox-input" />
+                <span>Skincare</span>
+              </div>
+              <span class="filter-count-num" id="countSkincare">(45)</span>
+            </label>
+
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="cat" value="makeup" id="catMakeup" class="filter-checkbox-input" />
+                <span>Makeup</span>
+              </div>
+              <span class="filter-count-num" id="countMakeup">(43)</span>
+            </label>
+
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="cat" value="fragrance" id="catFragrance" class="filter-checkbox-input" />
+                <span>Fragrance</span>
+              </div>
+              <span class="filter-count-num" id="countFragrance">(32)</span>
+            </label>
+
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="cat" value="haircare" id="catHaircare" class="filter-checkbox-input" />
+                <span>Hair Care</span>
+              </div>
+              <span class="filter-count-num" id="countHaircare">(30)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- 2. PRICE RANGE -->
+        <div class="filter-section">
+          <div class="filter-section-title" onclick="toggleFilterGroup(this)">
+            <span>PRICE RANGE</span>
+            <span class="filter-toggle-icon">&#9650;</span>
+          </div>
+          <div class="filter-section-content price-slider-wrap">
+            <div class="price-values-row">
+              <span>$0</span>
+              <span>$<span id="priceMax">300</span></span>
+            </div>
+            <input type="range" id="priceSlider" min="0" max="300" value="300" class="custom-price-slider" aria-label="Price range filter" />
+          </div>
+        </div>
+
+        <!-- 3. RATING -->
+        <div class="filter-section">
+          <div class="filter-section-title" onclick="toggleFilterGroup(this)">
+            <span>RATING</span>
+            <span class="filter-toggle-icon">&#9650;</span>
+          </div>
+          <div class="filter-section-content">
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="radio" name="stars" value="0" id="starsAll" checked class="filter-radio-input" />
+                <span>All Ratings</span>
+              </div>
+            </label>
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="radio" name="stars" value="5" id="stars5" class="filter-radio-input" />
+                <span style="color:var(--color-gold);">★★★★★ only</span>
+              </div>
+            </label>
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="radio" name="stars" value="4" id="stars4" class="filter-radio-input" />
+                <span style="color:var(--color-gold);">★★★★ &amp; up</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- 4. HIGHLIGHTS -->
+        <div class="filter-section">
+          <div class="filter-section-title" onclick="toggleFilterGroup(this)">
+            <span>HIGHLIGHTS</span>
+            <span class="filter-toggle-icon">&#9650;</span>
+          </div>
+          <div class="filter-section-content">
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="highlight" value="New" id="hlNew" class="filter-checkbox-input" />
+                <span>New</span>
+              </div>
+              <span class="filter-count-num" id="countHlNew">(14)</span>
+            </label>
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="highlight" value="Bestseller" id="hlBestseller" class="filter-checkbox-input" />
+                <span>Bestseller</span>
+              </div>
+              <span class="filter-count-num" id="countHlBest">(17)</span>
+            </label>
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="highlight" value="Sale" id="hlSale" class="filter-checkbox-input" />
+                <span>Sale</span>
+              </div>
+              <span class="filter-count-num" id="countHlSale">(09)</span>
+            </label>
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="highlight" value="Vegan" id="hlVegan" class="filter-checkbox-input" />
+                <span>Vegan</span>
+              </div>
+              <span class="filter-count-num" id="countHlVegan">(12)</span>
+            </label>
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="highlight" value="Cruelty-Free" id="hlCruelty" class="filter-checkbox-input" />
+                <span>Cruelty-Free</span>
+              </div>
+              <span class="filter-count-num" id="countHlCruelty">(16)</span>
+            </label>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Product Area (Exact Reference Header + 4-Column Grid) -->
+      <section class="shop-main-content" aria-label="Product Catalog">
+        <!-- Top Editorial Header Bar matching Reference -->
+        <div class="shop-top-header">
+          <div>
+            <h1 class="shop-headline-title">ALL BEAUTY</h1>
+            <p class="shop-headline-subtitle">Curated beauty essentials for your everyday ritual.</p>
+            <span class="shop-products-count"><span id="resultCount">150</span> PRODUCTS</span>
+          </div>
+
+          <div class="shop-top-controls">
+            <div class="sort-group-wrap">
+              <span class="sort-label-text">SORT BY</span>
+              <select id="sortSelect" class="sort-select-pill" aria-label="Sort products">
+                <option value="default">Featured ▾</option>
+                <option value="newest">Newest</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="rating">Top Rated</option>
+              </select>
+            </div>
+
+            <div class="view-mode-group">
+              <button class="view-mode-btn active" id="viewModeGrid" onclick="setViewMode('grid')" title="Grid View" aria-label="Grid view">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" />
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" />
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" />
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" />
+                </svg>
+              </button>
+              <button class="view-mode-btn" id="viewModeList" onclick="setViewMode('list')" title="List View" aria-label="List view">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+                  <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                  <line x1="4" y1="18" x2="20" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Filter Chips -->
+        <div class="shop-active-chips-wrap" id="activeFilters"></div>
+
+        <!-- 4-Column Product Grid -->
+        <div class="editorial-products-grid" id="shopProductsGrid">
+          <!-- Dynamically populated by shop.js -->
+        </div>
+
+        <!-- Empty State -->
+        <div class="shop-empty-editorial" id="shopEmpty" style="display:none">
+          <div class="empty-star-glyph">✦</div>
+          <h3 class="empty-heading">No Rituals Found</h3>
+          <p class="empty-subtext">No products match your active criteria. Adjust your filters or reset to discover the collection.</p>
+          <button class="btn-luxury-primary" onclick="clearAllFilters()">RESET FILTERS &rarr;</button>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- =========================================================
+       4. MOBILE SLIDE-OUT FILTER DRAWER
+  ========================================================= -->
+  <aside class="mobile-filter-drawer" id="mobileFilterDrawer" aria-label="Mobile filters">
+    <div class="mobile-filter-drawer-header">
+      <h3 style="font-family:var(--font-serif); font-size:1.35rem; color:var(--color-cream); margin:0;">Filters</h3>
+      <button class="drawer-close-btn" onclick="closeMobileFilterDrawer()" aria-label="Close filters">&times;</button>
+    </div>
+
+    <div class="mobile-filter-drawer-body">
+      <!-- Mobile Category -->
+      <div class="filter-section">
+        <div class="filter-section-title">
+          <span>CATEGORY</span>
+        </div>
+        <div class="filter-section-content">
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="cat" value="all" id="mCatAll" checked class="filter-checkbox-input" />
+              <span>All Products</span>
+            </div>
+            <span class="filter-count-num" id="mCountAll">(150)</span>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="cat" value="skincare" id="mCatSkincare" class="filter-checkbox-input" />
+              <span>Skincare</span>
+            </div>
+            <span class="filter-count-num" id="mCountSkincare">(45)</span>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="cat" value="makeup" id="mCatMakeup" class="filter-checkbox-input" />
+              <span>Makeup</span>
+            </div>
+            <span class="filter-count-num" id="mCountMakeup">(43)</span>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="cat" value="fragrance" id="mCatFragrance" class="filter-checkbox-input" />
+              <span>Fragrance</span>
+            </div>
+            <span class="filter-count-num" id="mCountFragrance">(32)</span>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="cat" value="haircare" id="mCatHaircare" class="filter-checkbox-input" />
+              <span>Hair Care</span>
+            </div>
+            <span class="filter-count-num" id="mCountHaircare">(30)</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Mobile Price Range -->
+      <div class="filter-section">
+        <div class="filter-section-title">
+          <span>PRICE RANGE</span>
+        </div>
+        <div class="filter-section-content price-slider-wrap">
+          <div class="price-values-row">
+            <span>$0</span>
+            <span>$<span id="mPriceMax">300</span></span>
+          </div>
+          <input type="range" id="mPriceSlider" min="0" max="300" value="300" class="custom-price-slider" aria-label="Mobile price range filter" />
+        </div>
+      </div>
+
+      <!-- Mobile Rating -->
+      <div class="filter-section">
+        <div class="filter-section-title">
+          <span>RATING</span>
+        </div>
+        <div class="filter-section-content">
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="radio" name="stars" value="0" id="mStarsAll" checked class="filter-radio-input" />
+              <span>All Ratings</span>
+            </div>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="radio" name="stars" value="5" id="mStars5" class="filter-radio-input" />
+              <span style="color:var(--color-gold);">★★★★★ only</span>
+            </div>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="radio" name="stars" value="4" id="mStars4" class="filter-radio-input" />
+              <span style="color:var(--color-gold);">★★★★ &amp; up</span>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Mobile Highlights -->
+      <div class="filter-section">
+        <div class="filter-section-title">
+          <span>HIGHLIGHTS</span>
+        </div>
+        <div class="filter-section-content">
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="highlight" value="New" id="mMHighlightNew" class="filter-checkbox-input" />
+              <span>New</span>
+            </div>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="highlight" value="Bestseller" id="mMHighlightBest" class="filter-checkbox-input" />
+              <span>Bestseller</span>
+            </div>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="highlight" value="Sale" id="mMHighlightSale" class="filter-checkbox-input" />
+              <span>Sale</span>
+            </div>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="highlight" value="Vegan" id="mMHighlightVegan" class="filter-checkbox-input" />
+              <span>Vegan</span>
+            </div>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="highlight" value="Cruelty-Free" id="mMHighlightCruelty" class="filter-checkbox-input" />
+              <span>Cruelty-Free</span>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="mobile-filter-drawer-footer">
+      <button class="btn-luxury-outline" style="flex:1;" onclick="clearAllFilters()">RESET</button>
+      <button class="btn-luxury-primary" style="flex:1;" onclick="closeMobileFilterDrawer()">APPLY</button>
+    </div>
+  </aside>
+
+  <!-- =========================================================
+       5. EDITORIAL LUXURY FOOTER
+  ========================================================= -->
+  <footer class="lumiere-editorial-footer" id="lumiereFooter">
+    <!-- Main 4-Column Horizontal Layout (Brand 40%, Shop 20%, About 20%, Help 20%) -->
+    <div class="footer-main-container">
+      <div class="footer-columns-grid">
+        <!-- COLUMN 1: BRAND (40%) -->
+        <div class="footer-col footer-col-brand">
+          <a href="index.html" class="footer-brand-logo" aria-label="Lumière Home">
+            <span class="brand-sparkle">✦</span>
+            <span class="brand-text">LUMIÈRE</span>
+          </a>
+          <p class="footer-brand-bio">
+            High-performance luxury beauty crafted with botanical integrity. Born in Paris, curated for the discerning individual who treats beauty as an elevated art form.
+          </p>
+          <div class="footer-social-row">
+            <a href="https://instagram.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+            <a href="https://pinterest.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Pinterest">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="4" x2="12" y2="20"></line>
+                <path d="M8 20l4-9 4 9"></path>
+                <circle cx="12" cy="9" r="5"></circle>
+              </svg>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg>
+            </a>
+            <a href="https://tiktok.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="TikTok">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- COLUMN 2: SHOP (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>SHOP</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="new-arrivals.html" class="footer-nav-link"><span>New Arrivals</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?filter=bestseller" class="footer-nav-link"><span>Best Sellers</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=skincare" class="footer-nav-link"><span>Skincare</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=makeup" class="footer-nav-link"><span>Makeup</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=fragrance" class="footer-nav-link"><span>Fragrance</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=haircare" class="footer-nav-link"><span>Hair Care</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COLUMN 3: ABOUT (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>ABOUT</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="about.html" class="footer-nav-link"><span>Our Story</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#philosophy" class="footer-nav-link"><span>Our Philosophy</span><span class="link-arrow">→</span></a></li>
+              <li><a href="collections.html" class="footer-nav-link"><span>Journal</span><span class="link-arrow">→</span></a></li>
+              <li><a href="reviews.html" class="footer-nav-link"><span>Reviews</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COLUMN 4: HELP (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>HELP</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="about.html#contact" class="footer-nav-link"><span>Contact</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#shipping" class="footer-nav-link"><span>Shipping</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#returns" class="footer-nav-link"><span>Returns</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#faq" class="footer-nav-link"><span>FAQ</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thin Horizontal Divider -->
+    <div class="footer-divider-line"></div>
+
+    <!-- 3. Clean Bottom / Legal Bar -->
+    <div class="footer-bottom-container">
+      <div class="footer-bottom-bar">
+        <div class="footer-copyright">
+          &copy; 2026 Lumière. All rights reserved.
+        </div>
+        <div class="footer-legal-links">
+          <a href="#" class="legal-link">Privacy</a>
+          <span class="legal-dot">·</span>
+          <a href="#" class="legal-link">Terms</a>
+          <span class="legal-dot">·</span>
+          <a href="#" class="legal-link">Cookies</a>
+        </div>
+        <div class="footer-currency-picker">
+          <span class="currency-star">✦</span>
+          <span>International / USD ($)</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       6. DRAWERS & MODALS (CART, WISHLIST, SEARCH, QUICK VIEW)
+  ========================================================= -->
+  <div class="lumiere-backdrop" id="lumiereBackdrop"></div>
+
+  <!-- Cart Drawer -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Bag">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Bag</h3>
+      <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
+    </div>
+
+    <div class="shipping-meter-wrap">
+      <div class="shipping-meter-text" id="shippingMeterText">
+        Add <strong>$100.00</strong> more for complimentary delivery.
+      </div>
+      <div class="shipping-meter-bar">
+        <div class="shipping-meter-fill" id="shippingMeterFill"></div>
+      </div>
+    </div>
+
+    <div class="cart-items-container" id="cartItemsList"></div>
+
+    <div class="cart-empty-state" id="cartEmptyState">
+      <div class="cart-empty-icon">🛍️</div>
+      <p>Your shopping bag is empty.</p>
+      <span style="font-size: 0.8rem; margin-top: 0.5rem; display: block;">Discover our luxury edits to get started.</span>
+    </div>
+
+    <div class="cart-drawer-footer">
+      <div class="cart-subtotal-row">
+        <span>Subtotal</span>
+        <span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span>
+      </div>
+      <button class="btn-luxury-primary" style="width: 100%; margin-bottom: 0.75rem;" onclick="showToast('Proceeding to luxury checkout...')">CHECKOUT &rarr;</button>
+      <button class="btn-luxury-outline" style="width: 100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Wishlist Drawer -->
+  <aside class="wishlist-drawer" id="wishlistDrawer" aria-label="Your Wishlist">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Wishlist <span id="wishlistHeaderCount" style="font-size: 0.95rem; color: var(--color-gold); font-family: var(--font-sans);">(0)</span></h3>
+      <button class="drawer-close-btn" onclick="closeWishlistDrawer()" aria-label="Close Wishlist">&times;</button>
+    </div>
+
+    <div class="cart-items-container" id="wishlistItemsList"></div>
+
+    <div class="cart-empty-state" id="wishlistEmptyState">
+      <div class="cart-empty-icon">♡</div>
+      <p>Your wishlist is empty.</p>
+      <span style="font-size: 0.8rem; margin-top: 0.5rem; display: block;">Save items you love to curate your personal beauty edit.</span>
+    </div>
+
+    <div class="cart-drawer-footer">
+      <button class="btn-luxury-primary" id="wishlistAddAllBtn" style="width: 100%; margin-bottom: 0.75rem; display: none;" onclick="addAllWishlistToCart()">MOVE ALL TO BAG &rarr;</button>
+      <button class="btn-luxury-outline" style="width: 100%;" onclick="closeWishlistDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Quick View Modal -->
+  <div class="quick-view-modal" id="quickViewModal" role="dialog" aria-modal="true">
+    <button class="modal-close-btn" id="quickModalCloseBtn" aria-label="Close modal">&times;</button>
+    <div class="quick-modal-grid">
+      <div class="quick-modal-img-wrap">
+        <img src="images/skincare_products_1788328338930.jpg" alt="Product" id="quickModalImg" class="quick-modal-img" />
+      </div>
+      <div class="quick-modal-details">
+        <span class="quick-modal-brand" id="quickModalBrand">LUMIÈRE</span>
+        <h2 class="quick-modal-title" id="quickModalTitle">Radiance Glow Serum</h2>
+        <div class="quick-modal-price" id="quickModalPrice">$128.00</div>
+        <p class="quick-modal-desc" id="quickModalDesc">Description</p>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <span style="font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-gold); display: block; margin-bottom: 0.5rem;">SELECTION</span>
+          <div id="quickModalShades"></div>
+        </div>
+
+        <button class="btn-luxury-primary" onclick="addCurrentQuickViewToCart()" style="width: 100%;">ADD TO BAG &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Search Modal -->
+  <div class="search-modal" id="searchModal" role="dialog" aria-modal="true">
+    <button class="modal-close-btn" id="searchModalCloseBtn" aria-label="Close Search">&times;</button>
+    <div class="search-header-wrap">
+      <input type="text" class="search-input-field" id="searchModalInput" placeholder="Search the collection..." autocomplete="off" />
+    </div>
+    <div class="search-results-grid" id="searchResultsGrid">
+      <p style="grid-column: span 3; color: rgba(250, 247, 242, 0.5); text-align: center;">
+        Type to search luxury cosmetics, fragrances &amp; skincare...
+      </p>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="lumiere-toast" id="lumiereToast">
+    <span style="color: var(--color-gold);">✦</span>
+    <span id="toastMessage">Product added to your bag.</span>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/lumiere-cinematic.js"></script>
+
+  <!-- Backdrop -->
+  <div class="lumiere-backdrop" id="lumiereBackdrop"></div>
+
+  <!-- Cart Drawer -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Bag">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Bag</h3>
+      <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
+    </div>
+    <div class="shipping-meter-wrap">
+      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>$100.00</strong> more for complimentary delivery.</div>
+      <div class="shipping-meter-bar"><div class="shipping-meter-fill" id="shippingMeterFill"></div></div>
+    </div>
+    <div class="cart-items-container" id="cartItemsList"></div>
+    <div class="cart-empty-state" id="cartEmptyState">
+      <div class="cart-empty-icon">🛍️</div>
+      <p>Your shopping bag is empty.</p>
+      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Discover our luxury edits to get started.</span>
+    </div>
+    <div class="cart-drawer-footer">
+      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span></div>
+      <button class="btn-luxury-primary" style="width:100%;margin-bottom:0.75rem;" onclick="showToast('Proceeding to luxury checkout...')">CHECKOUT &rarr;</button>
+      <button class="btn-luxury-outline" style="width:100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Wishlist Drawer -->
+  <aside class="wishlist-drawer" id="wishlistDrawer" aria-label="Your Wishlist">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Wishlist <span id="wishlistHeaderCount" style="font-size:1rem;color:var(--color-gold,#C9A96E);font-family:sans-serif;">(0)</span></h3>
+      <button class="drawer-close-btn" onclick="closeWishlistDrawer()" aria-label="Close Wishlist">&times;</button>
+    </div>
+    <div class="cart-items-container" id="wishlistItemsList"></div>
+    <div class="cart-empty-state" id="wishlistEmptyState">
+      <div class="cart-empty-icon">♡</div>
+      <p>Your wishlist is empty.</p>
+      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Save items you love to curate your personal beauty edit.</span>
+    </div>
+    <div class="cart-drawer-footer">
+      <button class="btn-luxury-primary" id="wishlistAddAllBtn" style="width:100%;margin-bottom:0.75rem;display:none;" onclick="addAllWishlistToCart()">MOVE ALL TO BAG &rarr;</button>
+      <button class="btn-luxury-outline" style="width:100%;" onclick="closeWishlistDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Search Modal -->
+  <div class="search-modal" id="searchModal" role="dialog" aria-modal="true">
+    <button class="modal-close-btn" id="searchModalCloseBtn" aria-label="Close Search">&times;</button>
+    <div class="search-header-wrap">
+      <input type="text" class="search-input-field" id="searchModalInput" placeholder="Search the collection..." autocomplete="off" />
+    </div>
+    <div class="search-results-grid" id="searchResultsGrid">
+      <p style="grid-column:span 3;color:rgba(250,247,242,0.5);text-align:center;">Type to search luxury cosmetics, fragrances &amp; skincare...</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="lumiere-toast" id="lumiereToast">
+    <span style="color:var(--color-gold,#C9A96E);">✦</span>
+    <span id="toastMessage">Product added to your bag.</span>
+  </div>
+
+  <script src="js/lumiere-cinematic.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/shop.js"></script>
+
+  <script>
+    (function forceReveal() {
+      function revealVisible() {
+        var els = document.querySelectorAll('.reveal:not(.revealed),.reveal-left:not(.revealed),.reveal-right:not(.revealed)');
+        var vp = window.innerHeight || document.documentElement.clientHeight;
+        els.forEach(function(el) {
+          if (el.getBoundingClientRect().top < vp + 100) el.classList.add('revealed');
+        });
+      }
+      document.addEventListener('DOMContentLoaded', function() { revealVisible(); setTimeout(revealVisible, 120); setTimeout(revealVisible, 400); });
+      window.addEventListener('scroll', revealVisible, { passive: true });
+    })();
+  </script>
+</body>
+</html>

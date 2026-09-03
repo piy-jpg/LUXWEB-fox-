@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<style>
+  body { background: #0B080A; color: #FAF7F2; font-family: sans-serif; padding: 40px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 1200px; margin: 0 auto; }
+  
+  /* Cylindrical Card */
+  .cyl-card {
+    position: relative;
+    aspect-ratio: 3 / 4.4;
+    border-radius: 999px; /* Complete cylindrical capsule */
+    overflow: hidden;
+    border: 2px solid rgba(200, 169, 126, 0.45);
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.65), inset 0 0 20px rgba(200, 169, 126, 0.1);
+    transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+  }
+  .cyl-card:hover {
+    transform: translateY(-10px);
+    border-color: #E5CCA3;
+    box-shadow: 0 22px 46px rgba(0, 0, 0, 0.8), 0 0 20px rgba(200, 169, 126, 0.4);
+  }
+  .cyl-card-inner-border {
+    position: absolute;
+    inset: 5px;
+    border-radius: 999px;
+    border: 1px solid rgba(200, 169, 126, 0.35);
+    pointer-events: none;
+    z-index: 4;
+    transition: border-color 0.4s ease;
+  }
+  .cyl-card:hover .cyl-card-inner-border {
+    border-color: rgba(250, 247, 242, 0.7);
+  }
+  .cyl-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .cyl-card:hover .cyl-img {
+    transform: scale(1.08);
+  }
+  /* 3D Cylindrical Specular Light Sheen */
+  .cyl-sheen {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, 
+      rgba(0, 0, 0, 0.4) 0%, 
+      rgba(255, 255, 255, 0.04) 25%, 
+      rgba(255, 255, 255, 0.18) 48%, 
+      rgba(255, 255, 255, 0.03) 70%, 
+      rgba(0, 0, 0, 0.5) 100%);
+    pointer-events: none;
+    z-index: 2;
+  }
+  /* Vignette for text legibility */
+  .cyl-vignette {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, 
+      rgba(11,8,10,0.1) 0%, 
+      transparent 35%, 
+      rgba(11,8,10,0.4) 60%, 
+      rgba(11,8,10,0.95) 100%);
+    pointer-events: none;
+    z-index: 3;
+  }
+  .cyl-content {
+    position: absolute;
+    bottom: 28px;
+    left: 10px;
+    right: 10px;
+    text-align: center;
+    z-index: 5;
+    pointer-events: none;
+    transition: transform 0.4s ease;
+  }
+  .cyl-card:hover .cyl-content {
+    transform: translateY(-4px);
+  }
+  .cyl-title {
+    font-family: Georgia, serif;
+    font-size: 1.45rem;
+    font-weight: 500;
+    color: #FAF7F2;
+    margin: 0;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.95);
+  }
+  .cyl-badge {
+    display: inline-block;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #C8A97E;
+    background: rgba(18, 13, 16, 0.7);
+    border: 1px solid rgba(200, 169, 126, 0.3);
+    backdrop-filter: blur(8px);
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+  <div class="grid">
+    <a href="#" class="cyl-card">
+      <div class="cyl-card-inner-border"></div>
+      <img src="frontend/images/category_1_skincare_34.jpg" class="cyl-img"/>
+      <div class="cyl-sheen"></div>
+      <div class="cyl-vignette"></div>
+      <div class="cyl-content">
+        <h3 class="cyl-title">Skincare</h3>
+        <span class="cyl-badge">01 &mdash; 16 Essentials</span>
+      </div>
+    </a>
+    <a href="#" class="cyl-card">
+      <div class="cyl-card-inner-border"></div>
+      <img src="frontend/images/category_2_makeup_34.jpg" class="cyl-img"/>
+      <div class="cyl-sheen"></div>
+      <div class="cyl-vignette"></div>
+      <div class="cyl-content">
+        <h3 class="cyl-title">Makeup</h3>
+        <span class="cyl-badge">02 &mdash; 18 Shades</span>
+      </div>
+    </a>
+    <a href="#" class="cyl-card">
+      <div class="cyl-card-inner-border"></div>
+      <img src="frontend/images/category_3_fragrance_34.jpg" class="cyl-img"/>
+      <div class="cyl-sheen"></div>
+      <div class="cyl-vignette"></div>
+      <div class="cyl-content">
+        <h3 class="cyl-title">Fragrance</h3>
+        <span class="cyl-badge">03 &mdash; 9 Editions</span>
+      </div>
+    </a>
+    <a href="#" class="cyl-card">
+      <div class="cyl-card-inner-border"></div>
+      <img src="frontend/images/category_4_haircare_34.jpg" class="cyl-img"/>
+      <div class="cyl-sheen"></div>
+      <div class="cyl-vignette"></div>
+      <div class="cyl-content">
+        <h3 class="cyl-title">Hair Care</h3>
+        <span class="cyl-badge">04 &mdash; 7 Treatments</span>
+      </div>
+    </a>
+  </div>
+</body>
+</html>

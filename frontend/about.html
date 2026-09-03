@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About Us | Lumière Beauty</title>
+  <meta name="description" content="The Lumière story — born in Paris, built on passion. Discover our founders, our philosophy, and our commitment to clean luxury beauty." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/lumiere-cinematic.css" />
+  <link rel="stylesheet" href="css/shared.css" /><link rel="stylesheet" href="css/about.css" />
+  <style>
+    /* Fix heroZoom: ensure image starts scaled up so the zoom-out is visible */
+    .about-open-bg img { transform: scale(1.08); }
+    @keyframes heroZoom {
+      from { transform: scale(1.08); }
+      to   { transform: scale(1); }
+    }
+    /* Guarantee reveal works even if IntersectionObserver misses elements */
+    .reveal, .reveal-left, .reveal-right {
+      transition: opacity 0.75s cubic-bezier(0.4,0,0.2,1), transform 0.75s cubic-bezier(0.4,0,0.2,1);
+    }
+  </style>
+</head>
+<body>
+    <!-- NAVBAR (same as home) -->
+  <header class="lumiere-navbar" id="lumiereNavbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand" aria-label="Lumière Home">
+        <span class="nav-star">✦</span>
+        <span>Lumière</span>
+      </a>
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links-center">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="shop.html" class="nav-link">Shop</a></li>
+          <li><a href="new-arrivals.html" class="nav-link">New Arrivals</a></li>
+          <li><a href="collections.html" class="nav-link">Collections</a></li>
+          <li><a href="about.html" class="nav-link active">About</a></li>
+          <li><a href="reviews.html" class="nav-link">Reviews</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions-right">
+        <button class="nav-icon-btn" onclick="openSearchModal()" aria-label="Search Catalog">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button class="nav-icon-btn" onclick="openWishlistDrawer()" aria-label="Wishlist Items">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="nav-badge-count" id="navWishlistCount">0</span>
+        </button>
+        <button class="nav-icon-btn" onclick="openCartDrawer()" aria-label="Shopping Bag">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="nav-badge-count" id="navCartCount">0</span>
+        </button>
+        <button class="nav-hamburger" id="navHamburger" aria-label="Toggle Mobile Menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close Mobile Menu">&times;</button>
+    <ul class="mobile-nav-links">
+      <li><a href="index.html" class="mobile-nav-link" onclick="closeMobileNav()">Home</a></li>
+      <li><a href="shop.html" class="mobile-nav-link" onclick="closeMobileNav()">Shop</a></li>
+      <li><a href="new-arrivals.html" class="mobile-nav-link" onclick="closeMobileNav()">New Arrivals</a></li>
+      <li><a href="collections.html" class="mobile-nav-link" onclick="closeMobileNav()">Collections</a></li>
+      <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About</a></li>
+      <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews</a></li>
+    </ul>
+  </div>
+
+<!-- CINEMATIC OPEN -->
+  <header class="about-open">
+    <div class="about-open-bg">
+      <img src="images/about_hero.jpg" alt="Lumière Lab" />
+      <div class="about-open-overlay"></div>
+    </div>
+    <div class="about-open-content">
+      <div class="about-open-eyebrow">Est. Paris, 2014</div>
+      <h1 class="about-open-title">Born from<br/><em>Passion &amp;<br/>Purpose</em></h1>
+    </div>
+    <div class="about-open-scroll">
+      <div class="about-open-line"></div>
+    </div>
+  </header>
+
+  <!-- PULL-QUOTE -->
+  <section class="pull-quote">
+    <div class="container">
+      <blockquote class="reveal">
+        <p>"Beauty should feel like an act of self-love, not a mask to wear. Every formula we create begins with that belief."</p>
+        <cite>— Isabelle Moreau, Founder &amp; Chief Formulator</cite>
+      </blockquote>
+    </div>
+  </section>
+
+  <!-- BRAND STORY -->
+  <section class="brand-story" id="story">
+    <div class="brand-story-inner">
+      <div class="bs-img-col reveal-left">
+        <div class="bs-img-stack">
+          <img src="images/model_portrait_1788328392448.jpg" alt="Lumière" class="bs-main-img" />
+          <div class="bs-img-accent">
+            <img src="images/skincare_products_1788328338930.jpg" alt="Products" />
+          </div>
+        </div>
+      </div>
+      <div class="bs-text-col reveal-right">
+        <span class="section-label">The Beginning</span>
+        <h2 class="bs-title">A Dream in a<br/>Parisian Laboratory</h2>
+        <p class="bs-text">Lumière was founded in 2014 by Isabelle Moreau, a biochemist and lifelong beauty obsessive who refused to believe that luxury and ethics were mutually exclusive.</p>
+        <p class="bs-text">Working from a small atelier in the 6th arrondissement, she spent three years developing formulations that were powerful enough to please a dermatologist, gentle enough for sensitive skin, and beautiful enough for the most discerning collector.</p>
+        <p class="bs-text">Today, Lumière is distributed in 42 countries, recognised by Vogue, Allure, and the British Beauty Council — but the same Parisian atelier where it all began still crafts every formula by hand.</p>
+        <div class="bs-signature">Isabelle Moreau <span>Founder & CEO</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PILLARS -->
+  <section class="pillars-section">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">What We Stand For</span>
+        <h2 class="section-title">Our Philosophy</h2>
+      </div>
+      <div class="pillars-grid">
+        <div class="pillar-big reveal">
+          <div class="pillar-num">01</div>
+          <div class="pillar-icon-lg">🌿</div>
+          <h3>Clean Science</h3>
+          <p>Every ingredient is rigorously screened. We never use parabens, sulfates, mineral oils, or synthetic fragrances. Our formulas are clinically proven to deliver visible results.</p>
+        </div>
+        <div class="pillar-big reveal" style="transition-delay:.1s">
+          <div class="pillar-num">02</div>
+          <div class="pillar-icon-lg">🐰</div>
+          <h3>Cruelty-Free Always</h3>
+          <p>Leaping Bunny certified since day one. No animal testing at any stage of production, anywhere in the world. Beauty without compromise.</p>
+        </div>
+        <div class="pillar-big reveal" style="transition-delay:.2s">
+          <div class="pillar-num">03</div>
+          <div class="pillar-icon-lg">♻️</div>
+          <h3>Responsible Luxury</h3>
+          <p>Our packaging uses 80% recycled glass and FSC-certified paper. We offset our carbon footprint and source ingredients from certified ethical suppliers.</p>
+        </div>
+        <div class="pillar-big reveal" style="transition-delay:.3s">
+          <div class="pillar-num">04</div>
+          <div class="pillar-icon-lg">🤝</div>
+          <h3>Inclusive Beauty</h3>
+          <p>Beauty has no single face. Our product range is designed and tested across all skin tones, types, and ages — because everyone deserves to feel luminous.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="timeline-section" id="timeline">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">Our Journey</span>
+        <h2 class="section-title">12 Years of Luminosity</h2>
+      </div>
+      <div class="timeline">
+        <div class="tl-item reveal">
+          <div class="tl-year">2014</div>
+          <div class="tl-dot"></div>
+          <div class="tl-content"><h4>The Atelier Opens</h4><p>Isabelle Moreau launches Lumière from a small Paris lab with 8 products and a big dream.</p></div>
+        </div>
+        <div class="tl-item tl-right reveal" style="transition-delay:.1s">
+          <div class="tl-year">2016</div>
+          <div class="tl-dot"></div>
+          <div class="tl-content"><h4>Vogue Paris Feature</h4><p>Our Radiance Serum is named "the only serum you'll ever need" — overnight fame and a 3-month waitlist.</p></div>
+        </div>
+        <div class="tl-item reveal" style="transition-delay:.2s">
+          <div class="tl-year">2018</div>
+          <div class="tl-dot"></div>
+          <div class="tl-content"><h4>Global Expansion</h4><p>Lumière launches in 20 countries. We open our first flagship boutique on Rue Saint-Honoré.</p></div>
+        </div>
+        <div class="tl-item tl-right reveal" style="transition-delay:.3s">
+          <div class="tl-year">2020</div>
+          <div class="tl-dot"></div>
+          <div class="tl-content"><h4>Sustainability Pledge</h4><p>100% recyclable packaging, carbon-neutral shipping, and a commitment to 0 virgin plastic by 2025.</p></div>
+        </div>
+        <div class="tl-item reveal" style="transition-delay:.4s">
+          <div class="tl-year">2022</div>
+          <div class="tl-dot"></div>
+          <div class="tl-content"><h4>Fragrance Collection</h4><p>The Lumière Fragrance House launches with 6 signature scents, earning the Fragrance Foundation Award.</p></div>
+        </div>
+        <div class="tl-item tl-right reveal" style="transition-delay:.5s">
+          <div class="tl-year">2026</div>
+          <div class="tl-dot tl-dot-current"></div>
+          <div class="tl-content tl-content-current"><h4>Golden Hour Collection</h4><p>Our most ambitious collection yet — 30 products, one vision. Beauty as art, science as the medium.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUSTAINABILITY DEEP DIVE -->
+  <section class="sustain-section" id="sustainability">
+    <div class="sustain-inner">
+      <div class="sustain-content reveal-left">
+        <span class="section-label">Planet First</span>
+        <h2 class="sustain-title">Beauty with<br/><em>a Conscience</em></h2>
+        <p class="sustain-text">We believe the most beautiful skin is one that lives on a beautiful planet. Our sustainability commitments are not a marketing tactic — they are the core of how we operate.</p>
+        <div class="sustain-stats">
+          <div class="ss-stat reveal">
+            <span class="ss-num">80%</span>
+            <span class="ss-label">Recycled packaging materials</span>
+          </div>
+          <div class="ss-stat reveal" style="transition-delay:.1s">
+            <span class="ss-num">100%</span>
+            <span class="ss-label">Renewable energy in production</span>
+          </div>
+          <div class="ss-stat reveal" style="transition-delay:.2s">
+            <span class="ss-num">0</span>
+            <span class="ss-label">Virgin plastic since 2024</span>
+          </div>
+        </div>
+      </div>
+      <div class="sustain-img-col reveal-right">
+        <img src="images/about_hero.jpg" alt="Sustainability" class="sustain-img" />
+        <div class="sustain-cert">
+          <div class="cert-badge"><span class="cert-icon">🐰</span><span>Leaping Bunny</span></div>
+          <div class="cert-badge"><span class="cert-icon">🌱</span><span>B-Corp Pending</span></div>
+          <div class="cert-badge"><span class="cert-icon">♻️</span><span>Carbon Neutral</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <section class="about-cta-banner">
+    <div class="acb-content reveal">
+      <h2>Ready to Experience Lumière?</h2>
+      <p>Explore our full collection or take our beauty quiz to find your perfect ritual.</p>
+      <div class="acb-btns">
+        <a href="shop.html" class="btn-primary" id="aboutShopBtn">Shop Now</a>
+        <a href="reviews.html" class="btn-ghost" id="aboutReviewsBtn">Read Reviews</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRESS & AWARDS -->
+  <section class="press-section" id="press">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="section-label">As Seen In</span>
+        <h2 class="section-title">The World Is Watching</h2>
+        <p class="press-subtitle">Lumière has been celebrated by the world's most discerning voices in beauty, wellness, and luxury lifestyle.</p>
+      </div>
+
+      <!-- Featured Quote Ticker -->
+      <div class="press-ticker-wrap reveal">
+        <div class="press-ticker">
+          <span class="ticker-item">🏆 Fragrance Foundation Award 2022</span>
+          <span class="ticker-sep">✦</span>
+          <span class="ticker-item">🌿 Best Clean Beauty Brand — Allure 2024</span>
+          <span class="ticker-sep">✦</span>
+          <span class="ticker-item">💎 Editor's Choice — Harper's Bazaar 2023</span>
+          <span class="ticker-sep">✦</span>
+          <span class="ticker-item">🐰 Leaping Bunny Certified Since 2014</span>
+          <span class="ticker-sep">✦</span>
+          <span class="ticker-item">🏆 Fragrance Foundation Award 2022</span>
+          <span class="ticker-sep">✦</span>
+          <span class="ticker-item">🌿 Best Clean Beauty Brand — Allure 2024</span>
+          <span class="ticker-sep">✦</span>
+          <span class="ticker-item">💎 Editor's Choice — Harper's Bazaar 2023</span>
+          <span class="ticker-sep">✦</span>
+          <span class="ticker-item">🐰 Leaping Bunny Certified Since 2014</span>
+          <span class="ticker-sep">✦</span>
+        </div>
+      </div>
+
+      <!-- Publication Logo Row -->
+      <div class="press-logos reveal">
+        <div class="press-logo-item">VOGUE</div>
+        <div class="press-logo-item">ALLURE</div>
+        <div class="press-logo-item">HARPER'S<br/>BAZAAR</div>
+        <div class="press-logo-item">ELLE</div>
+        <div class="press-logo-item">THE TIMES</div>
+        <div class="press-logo-item">WWD</div>
+      </div>
+
+      <!-- Editorial Quote Cards -->
+      <div class="press-quotes">
+        <div class="press-quote-card reveal">
+          <div class="pqc-top">
+            <div class="pqc-pub">VOGUE PARIS</div>
+            <div class="pqc-stars">★★★★★</div>
+          </div>
+          <blockquote class="pqc-quote">"The only skincare brand that makes you feel like you're standing in a Parisian atelier. Lumière is the gold standard of clean luxury."</blockquote>
+          <div class="pqc-meta">Beauty Director, March 2024</div>
+        </div>
+        <div class="press-quote-card reveal" style="transition-delay:.12s">
+          <div class="pqc-top">
+            <div class="pqc-pub">ALLURE</div>
+            <div class="pqc-stars">★★★★★</div>
+          </div>
+          <blockquote class="pqc-quote">"The Radiance Serum is the only serum you'll ever need. Best in Beauty — five years running. We're not exaggerating."</blockquote>
+          <div class="pqc-meta">Best of Beauty Awards, 2024</div>
+        </div>
+        <div class="press-quote-card reveal" style="transition-delay:.24s">
+          <div class="pqc-top">
+            <div class="pqc-pub">HARPER'S BAZAAR</div>
+            <div class="pqc-stars">★★★★★</div>
+          </div>
+          <blockquote class="pqc-quote">"Isabelle Moreau has redefined what it means to be ethical and exquisite. Lumière is the future of conscious beauty."</blockquote>
+          <div class="pqc-meta">Editor's Choice, Summer 2023</div>
+        </div>
+        <div class="press-quote-card reveal" style="transition-delay:.36s">
+          <div class="pqc-top">
+            <div class="pqc-pub">ELLE</div>
+            <div class="pqc-stars">★★★★★</div>
+          </div>
+          <blockquote class="pqc-quote">"From the Parisian atelier to your vanity — Lumière's attention to detail is extraordinary. A ritual that is nothing short of art."</blockquote>
+          <div class="pqc-meta">Beauty Insider, January 2025</div>
+        </div>
+      </div>
+
+      <!-- Award Badges Row -->
+      <div class="award-badges reveal">
+        <div class="award-badge">
+          <div class="award-badge-icon">🏆</div>
+          <div class="award-badge-name">Fragrance Foundation</div>
+          <div class="award-badge-year">2022</div>
+        </div>
+        <div class="award-badge">
+          <div class="award-badge-icon">🌿</div>
+          <div class="award-badge-name">Best Clean Brand</div>
+          <div class="award-badge-year">Allure 2024</div>
+        </div>
+        <div class="award-badge">
+          <div class="award-badge-icon">💎</div>
+          <div class="award-badge-name">Editor's Choice</div>
+          <div class="award-badge-year">Harper's Bazaar</div>
+        </div>
+        <div class="award-badge">
+          <div class="award-badge-icon">⭐</div>
+          <div class="award-badge-name">Luxury Brand of the Year</div>
+          <div class="award-badge-year">WWD 2023</div>
+        </div>
+        <div class="award-badge">
+          <div class="award-badge-icon">🐰</div>
+          <div class="award-badge-name">Leaping Bunny Certified</div>
+          <div class="award-badge-year">Since 2014</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EDITORIAL LUXURY FOOTER -->
+  <footer class="lumiere-editorial-footer" id="lumiereFooter">
+    <!-- Main 4-Column Horizontal Layout (Brand 40%, Shop 20%, About 20%, Help 20%) -->
+    <div class="footer-main-container">
+      <div class="footer-columns-grid">
+        <!-- COLUMN 1: BRAND (40%) -->
+        <div class="footer-col footer-col-brand">
+          <a href="index.html" class="footer-brand-logo" aria-label="Lumière Home">
+            <span class="brand-sparkle">✦</span>
+            <span class="brand-text">LUMIÈRE</span>
+          </a>
+          <p class="footer-brand-bio">
+            High-performance luxury beauty crafted with botanical integrity. Born in Paris, curated for the discerning individual who treats beauty as an elevated art form.
+          </p>
+          <div class="footer-social-row">
+            <a href="https://instagram.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+            <a href="https://pinterest.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Pinterest">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="4" x2="12" y2="20"></line>
+                <path d="M8 20l4-9 4 9"></path>
+                <circle cx="12" cy="9" r="5"></circle>
+              </svg>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg>
+            </a>
+            <a href="https://tiktok.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="TikTok">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- COLUMN 2: SHOP (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>SHOP</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="new-arrivals.html" class="footer-nav-link"><span>New Arrivals</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?filter=bestseller" class="footer-nav-link"><span>Best Sellers</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=skincare" class="footer-nav-link"><span>Skincare</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=makeup" class="footer-nav-link"><span>Makeup</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=fragrance" class="footer-nav-link"><span>Fragrance</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=haircare" class="footer-nav-link"><span>Hair Care</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COLUMN 3: ABOUT (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>ABOUT</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="about.html" class="footer-nav-link"><span>Our Story</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#philosophy" class="footer-nav-link"><span>Our Philosophy</span><span class="link-arrow">→</span></a></li>
+              <li><a href="collections.html" class="footer-nav-link"><span>Journal</span><span class="link-arrow">→</span></a></li>
+              <li><a href="reviews.html" class="footer-nav-link"><span>Reviews</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COLUMN 4: HELP (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>HELP</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="about.html#contact" class="footer-nav-link"><span>Contact</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#shipping" class="footer-nav-link"><span>Shipping</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#returns" class="footer-nav-link"><span>Returns</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#faq" class="footer-nav-link"><span>FAQ</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thin Horizontal Divider -->
+    <div class="footer-divider-line"></div>
+
+    <!-- 3. Clean Bottom / Legal Bar -->
+    <div class="footer-bottom-container">
+      <div class="footer-bottom-bar">
+        <div class="footer-copyright">
+          &copy; 2026 Lumière. All rights reserved.
+        </div>
+        <div class="footer-legal-links">
+          <a href="#" class="legal-link">Privacy</a>
+          <span class="legal-dot">·</span>
+          <a href="#" class="legal-link">Terms</a>
+          <span class="legal-dot">·</span>
+          <a href="#" class="legal-link">Cookies</a>
+        </div>
+        <div class="footer-currency-picker">
+          <span class="currency-star">✦</span>
+          <span>International / USD ($)</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script>
+    // Force-reveal all elements already visible in viewport on load
+    // This fixes IntersectionObserver not firing for above-fold elements
+    (function forceReveal() {
+      function revealVisible() {
+        var els = document.querySelectorAll('.reveal:not(.revealed), .reveal-left:not(.revealed), .reveal-right:not(.revealed)');
+        var vp = window.innerHeight || document.documentElement.clientHeight;
+        els.forEach(function(el) {
+          var r = el.getBoundingClientRect();
+          // Reveal if element top is within viewport (with generous margin)
+          if (r.top < vp + 100) {
+            el.classList.add('revealed');
+          }
+        });
+      }
+      // Run immediately, after short delay, and on first scroll
+      document.addEventListener('DOMContentLoaded', function() {
+        revealVisible();
+        setTimeout(revealVisible, 120);
+        setTimeout(revealVisible, 400);
+      });
+      window.addEventListener('scroll', revealVisible, { passive: true });
+    })();
+  </script>
+
+  <!-- Backdrop -->
+  <div class="lumiere-backdrop" id="lumiereBackdrop"></div>
+
+  <!-- Cart Drawer -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Bag">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Bag</h3>
+      <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
+    </div>
+    <div class="shipping-meter-wrap">
+      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>$100.00</strong> more for complimentary delivery.</div>
+      <div class="shipping-meter-bar"><div class="shipping-meter-fill" id="shippingMeterFill"></div></div>
+    </div>
+    <div class="cart-items-container" id="cartItemsList"></div>
+    <div class="cart-empty-state" id="cartEmptyState">
+      <div class="cart-empty-icon">🛍️</div>
+      <p>Your shopping bag is empty.</p>
+      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Discover our luxury edits to get started.</span>
+    </div>
+    <div class="cart-drawer-footer">
+      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span></div>
+      <button class="btn-luxury-primary" style="width:100%;margin-bottom:0.75rem;" onclick="showToast('Proceeding to luxury checkout...')">CHECKOUT &rarr;</button>
+      <button class="btn-luxury-outline" style="width:100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Wishlist Drawer -->
+  <aside class="wishlist-drawer" id="wishlistDrawer" aria-label="Your Wishlist">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Wishlist <span id="wishlistHeaderCount" style="font-size:1rem;color:var(--color-gold,#C9A96E);font-family:sans-serif;">(0)</span></h3>
+      <button class="drawer-close-btn" onclick="closeWishlistDrawer()" aria-label="Close Wishlist">&times;</button>
+    </div>
+    <div class="cart-items-container" id="wishlistItemsList"></div>
+    <div class="cart-empty-state" id="wishlistEmptyState">
+      <div class="cart-empty-icon">♡</div>
+      <p>Your wishlist is empty.</p>
+      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Save items you love to curate your personal beauty edit.</span>
+    </div>
+    <div class="cart-drawer-footer">
+      <button class="btn-luxury-primary" id="wishlistAddAllBtn" style="width:100%;margin-bottom:0.75rem;display:none;" onclick="addAllWishlistToCart()">MOVE ALL TO BAG &rarr;</button>
+      <button class="btn-luxury-outline" style="width:100%;" onclick="closeWishlistDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Search Modal -->
+  <div class="search-modal" id="searchModal" role="dialog" aria-modal="true">
+    <button class="modal-close-btn" id="searchModalCloseBtn" aria-label="Close Search">&times;</button>
+    <div class="search-header-wrap">
+      <input type="text" class="search-input-field" id="searchModalInput" placeholder="Search the collection..." autocomplete="off" />
+    </div>
+    <div class="search-results-grid" id="searchResultsGrid">
+      <p style="grid-column:span 3;color:rgba(250,247,242,0.5);text-align:center;">Type to search luxury cosmetics, fragrances &amp; skincare...</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="lumiere-toast" id="lumiereToast">
+    <span style="color:var(--color-gold,#C9A96E);">✦</span>
+    <span id="toastMessage">Product added to your bag.</span>
+  </div>
+
+  <script src="js/lumiere-cinematic.js"></script>
+  <script src="js/shared.js"></script>
+
+  <script>
+    (function forceReveal() {
+      function revealVisible() {
+        var els = document.querySelectorAll('.reveal:not(.revealed),.reveal-left:not(.revealed),.reveal-right:not(.revealed)');
+        var vp = window.innerHeight || document.documentElement.clientHeight;
+        els.forEach(function(el) {
+          if (el.getBoundingClientRect().top < vp + 100) el.classList.add('revealed');
+        });
+      }
+      document.addEventListener('DOMContentLoaded', function() { revealVisible(); setTimeout(revealVisible, 120); setTimeout(revealVisible, 400); });
+      window.addEventListener('scroll', revealVisible, { passive: true });
+    })();
+  </script>
+</body>
+</html>

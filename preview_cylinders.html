@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { background: #0B080A; color: #fff; font-family: sans-serif; padding: 40px; display: flex; justify-content: center; gap: 30px; }
+  .card-wrap { width: 240px; height: 360px; position: relative; }
+  svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 14px 30px rgba(0,0,0,0.7)); }
+</style>
+</head>
+<body>
+  <!-- V1: True 3D Cylinder -->
+  <div class="card-wrap">
+    <h4>1. True 3D Cylinder Plinth</h4>
+    <svg viewBox="0 0 240 360">
+      <defs>
+        <linearGradient id="goldCyl" x1="0" y1="0" x2="100%" y2="0">
+          <stop offset="0%" stop-color="#8E6E40"/>
+          <stop offset="25%" stop-color="#FAF7F2"/>
+          <stop offset="50%" stop-color="#E5CCA3"/>
+          <stop offset="75%" stop-color="#C8A97E"/>
+          <stop offset="100%" stop-color="#6A4E24"/>
+        </linearGradient>
+        <linearGradient id="cylLight" x1="0" y1="0" x2="100%" y2="0">
+          <stop offset="0%" stop-color="rgba(0,0,0,0.5)"/>
+          <stop offset="30%" stop-color="rgba(255,255,255,0.06)"/>
+          <stop offset="48%" stop-color="rgba(255,255,255,0.22)"/>
+          <stop offset="65%" stop-color="rgba(255,255,255,0.04)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0.6)"/>
+        </linearGradient>
+        <linearGradient id="vignette" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="transparent"/>
+          <stop offset="60%" stop-color="rgba(11,8,10,0.4)"/>
+          <stop offset="100%" stop-color="rgba(11,8,10,0.95)"/>
+        </linearGradient>
+        <clipPath id="cyl3dClip">
+          <!-- Body of cylinder: from top ellipse curve to bottom ellipse curve -->
+          <path d="
+            M 12,38
+            A 108,24 0 0,1 228,38
+            L 228,322
+            A 108,24 0 0,1 12,322
+            Z
+          "/>
+        </clipPath>
+      </defs>
+      <!-- Image inside cylinder -->
+      <image href="frontend/images/category_1_skincare_34.jpg" width="240" height="360" preserveAspectRatio="xMidYMid slice" clip-path="url(#cyl3dClip)"/>
+      <!-- Cylindrical Light Sheen -->
+      <path d="M 12,38 A 108,24 0 0,1 228,38 L 228,322 A 108,24 0 0,1 12,322 Z" fill="url(#cylLight)"/>
+      <!-- Vignette -->
+      <rect x="0" y="160" width="240" height="200" fill="url(#vignette)" clip-path="url(#cyl3dClip)"/>
+      <!-- Top Ellipse Rim Cap -->
+      <ellipse cx="120" cy="38" rx="108" ry="24" fill="rgba(200,169,126,0.12)" stroke="url(#goldCyl)" stroke-width="2.5"/>
+      <!-- Bottom Ellipse Rim Base & Vertical Sides -->
+      <path d="M 12,38 L 12,322 A 108,24 0 0,0 228,322 L 228,38" fill="none" stroke="url(#goldCyl)" stroke-width="2.5"/>
+    </svg>
+  </div>
+
+  <!-- V2: Tall Cylindrical Capsule / Stadium -->
+  <div class="card-wrap">
+    <h4>2. Cylindrical Capsule</h4>
+    <svg viewBox="0 0 240 360">
+      <defs>
+        <clipPath id="capsuleClip">
+          <rect x="12" y="12" width="216" height="336" rx="108" ry="108"/>
+        </clipPath>
+      </defs>
+      <image href="frontend/images/category_1_skincare_34.jpg" width="240" height="360" preserveAspectRatio="xMidYMid slice" clip-path="url(#capsuleClip)"/>
+      <rect x="12" y="12" width="216" height="336" rx="108" ry="108" fill="url(#cylLight)"/>
+      <rect x="0" y="160" width="240" height="200" fill="url(#vignette)" clip-path="url(#capsuleClip)"/>
+      <rect x="12" y="12" width="216" height="336" rx="108" ry="108" fill="none" stroke="url(#goldCyl)" stroke-width="2.5"/>
+    </svg>
+  </div>
+</body>
+</html>

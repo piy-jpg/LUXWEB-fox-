@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lumière | Cinematic Luxury Cosmetics & Skincare</title>
+  <meta name="description" content="Discover Lumière — luxury cosmetics, high-performance skincare, and artisanal fragrance crafted where exceptional formulas meet timeless elegance." />
+
+  <!-- Google Fonts: Bodoni Moda, Cormorant Garamond & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,300;0,6..96,400;0,6..96,500;1,6..96,300;1,6..96,400;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Main Luxury Stylesheet -->
+  <link rel="stylesheet" href="css/lumiere-cinematic.css?v=27.0" />
+</head>
+<body>
+
+  <!-- =========================================================
+       1. STICKY PREMIUM NAVBAR
+  ========================================================= -->
+  <header class="lumiere-navbar" id="lumiereNavbar">
+    <div class="nav-container">
+      <!-- Left: Logo -->
+      <a href="index.html" class="nav-brand" aria-label="Lumière Home">
+        <span class="nav-star">✦</span>
+        <span>Lumière</span>
+      </a>
+
+      <!-- Center: Navigation Links -->
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links-center">
+          <li><a href="index.html" class="nav-link active">Home</a></li>
+          <li><a href="shop.html" class="nav-link">Shop</a></li>
+          <li><a href="new-arrivals.html" class="nav-link">New Arrivals</a></li>
+          <li><a href="collections.html" class="nav-link">Collections</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+        </ul>
+      </nav>
+
+      <!-- Right: Action Icons -->
+      <div class="nav-actions-right">
+        <!-- Search Icon -->
+        <button class="nav-icon-btn" onclick="openSearchModal()" aria-label="Search Catalog">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </button>
+
+        <!-- Wishlist Icon -->
+        <button class="nav-icon-btn" onclick="openWishlistDrawer()" aria-label="Wishlist Items">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          <span class="nav-badge-count" id="navWishlistCount">0</span>
+        </button>
+
+        <!-- Shopping Bag Icon -->
+        <button class="nav-icon-btn" onclick="openCartDrawer()" aria-label="Shopping Bag">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+          <span class="nav-badge-count" id="navCartCount">0</span>
+        </button>
+
+        <!-- Mobile Hamburger Toggle -->
+        <button class="nav-hamburger" id="navHamburger" aria-label="Toggle Mobile Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close Mobile Menu">&times;</button>
+    <ul class="mobile-nav-links">
+      <li><a href="index.html" class="mobile-nav-link" onclick="closeMobileNav()">Home</a></li>
+      <li><a href="shop.html" class="mobile-nav-link" onclick="closeMobileNav()">Shop</a></li>
+      <li><a href="new-arrivals.html" class="mobile-nav-link" onclick="closeMobileNav()">New Arrivals</a></li>
+      <li><a href="collections.html" class="mobile-nav-link" onclick="closeMobileNav()">Collections</a></li>
+      <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About</a></li>
+      <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews</a></li>
+    </ul>
+  </div>
+
+  <main>
+    <!-- =========================================================
+         2. CINEMATIC FULL-SCREEN HERO
+    ========================================================= -->
+    <section class="cinema-hero" id="heroSection" aria-label="Hero Showcase">
+      <!-- Background Luxury Photography Slider (Auto-scrolling 4 similar images) -->
+      <div class="hero-bg-wrapper" id="heroSlider">
+        <div class="hero-slides-track" id="heroSlidesTrack">
+          <!-- Slide 1: Rose Gold Elixir & Atelier Essentials -->
+          <div class="hero-slide active" data-index="0">
+            <img src="images/hero_slide_1.jpg" alt="Lumière Rose Gold Elixirs & Atelier Essentials" class="hero-bg-img" />
+          </div>
+          <!-- Slide 2: Morning Radiance Atelier & Golden Elixirs -->
+          <div class="hero-slide" data-index="1">
+            <img src="images/hero_slide_2.jpg" alt="Lumière Morning Radiance Atelier & Golden Elixirs" class="hero-bg-img" />
+          </div>
+          <!-- Slide 3: Aura Glow Crème & Gilded Compact Powder -->
+          <div class="hero-slide" data-index="2">
+            <img src="images/hero_slide_3.jpg" alt="Lumière Aura Glow Crème & Gilded Compact Powder" class="hero-bg-img" />
+          </div>
+          <!-- Slide 4: Haute Beauty Palette & Signature Lipsticks -->
+          <div class="hero-slide" data-index="3">
+            <img src="images/hero_slide_4.jpg" alt="Lumière Haute Beauty Palette & Signature Lipsticks" class="hero-bg-img" />
+          </div>
+        </div>
+
+        <!-- Luxury Vignette Overlay -->
+        <div class="hero-vignette loaded" id="heroVignette"></div>
+
+      </div>
+
+      <!-- Hero Typography & CTAs (Exact Haute Editorial Campaign Match) -->
+      <div class="hero-content" id="heroContent">
+        <!-- Eyebrow: ✦ THE LUMIÈRE EDIT ✦ with hairlines -->
+        <div class="hero-editorial-eyebrow">
+          <span class="eyebrow-line"></span>
+          <span class="eyebrow-star">✦</span>
+          <span class="eyebrow-title">THE LUMIÈRE EDIT</span>
+          <span class="eyebrow-star">✦</span>
+          <span class="eyebrow-line"></span>
+        </div>
+
+        <!-- Main Heading: TIMELESS BEAUTY REIMAGINED. -->
+        <h1 class="hero-editorial-title">
+          <span class="title-row-white">TIMELESS BEAUTY</span>
+          <span class="title-row-gold">REIMAGINED<span class="title-gold-dot">.</span></span>
+        </h1>
+
+        <!-- Decorative Divider with Diamond Star -->
+        <div class="hero-editorial-divider" aria-hidden="true">
+          <span class="divider-hairline"></span>
+          <span class="divider-gem">✦</span>
+          <span class="divider-hairline"></span>
+        </div>
+
+        <!-- Narrative Description -->
+        <p class="hero-editorial-desc">
+          Exceptional formulas, exquisite textures,<br />
+          and rituals designed to elevate every moment.
+        </p>
+
+        <!-- CTA Buttons: SHOP NOW → & DISCOVER THE EDIT -->
+        <div class="hero-editorial-ctas">
+          <a href="shop.html" class="hero-btn-gold-pill">
+            <span>SHOP NOW</span>
+            <span class="btn-arrow">&rarr;</span>
+          </a>
+          <a href="collections.html" class="hero-btn-outline-pill">
+            <span>DISCOVER THE EDIT</span>
+          </a>
+        </div>
+
+        <!-- Trust Badges Capsule Bar: ✦ CRUELTY-FREE · CONSCIOUS BEAUTY · PREMIUM FORMULAS ✦ -->
+        <div class="hero-editorial-capsule-bar">
+          <span class="capsule-star">✦</span>
+          <span class="capsule-label">CRUELTY-FREE</span>
+          <span class="capsule-sep" aria-hidden="true">&middot;</span>
+          <span class="capsule-label">CONSCIOUS BEAUTY</span>
+          <span class="capsule-sep" aria-hidden="true">&middot;</span>
+          <span class="capsule-label">PREMIUM FORMULAS</span>
+          <span class="capsule-star">✦</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         3. TRUST / BRAND METRICS STRIP & CONTINUOUS MARQUEE
+    ========================================================= -->
+    <section class="brand-metrics-section" id="brandMetricsSection">
+      <!-- Crazy Cosmic Aurora & Light Streaks -->
+      <div class="metrics-aurora-glow" aria-hidden="true"></div>
+      <div class="metrics-particles-wrap" aria-hidden="true">
+        <span class="metric-particle p1">✦</span>
+        <span class="metric-particle p2">✧</span>
+        <span class="metric-particle p3">✦</span>
+        <span class="metric-particle p4">✧</span>
+      </div>
+
+      <div class="container">
+        <div class="metrics-grid">
+          <!-- Metric 1: Luxury Products -->
+          <div class="metric-card metric-card--1">
+            <div class="metric-card-glow" aria-hidden="true"></div>
+            <div class="metric-comet-streak" aria-hidden="true"></div>
+            <span class="metric-tag"><span class="metric-tag-star">✦</span> ATELIER CATALOG</span>
+            <div class="metric-value" id="metricProducts">250+</div>
+            <div class="metric-label">LUXURY PRODUCTS</div>
+            <p class="metric-subtext">Handcrafted Formulations</p>
+            <div class="metric-card-accent"></div>
+          </div>
+          <!-- Metric 2: Curated Beauty -->
+          <div class="metric-card metric-card--2">
+            <div class="metric-card-glow" aria-hidden="true"></div>
+            <div class="metric-comet-streak" aria-hidden="true"></div>
+            <span class="metric-tag"><span class="metric-tag-star">✦</span> CLINICAL INTEGRITY</span>
+            <div class="metric-value" id="metricCurated">98%</div>
+            <div class="metric-label">CURATED BEAUTY</div>
+            <p class="metric-subtext">Pure Botanical Alchemy</p>
+            <div class="metric-card-accent"></div>
+          </div>
+          <!-- Metric 3: Happy Clients -->
+          <div class="metric-card metric-card--3">
+            <div class="metric-card-glow" aria-hidden="true"></div>
+            <div class="metric-comet-streak" aria-hidden="true"></div>
+            <span class="metric-tag"><span class="metric-tag-star">✦</span> GLOBAL COMMUNITY</span>
+            <div class="metric-value" id="metricClients">50K+</div>
+            <div class="metric-label">HAPPY CLIENTS</div>
+            <p class="metric-subtext">Across 42 Countries</p>
+            <div class="metric-card-accent"></div>
+          </div>
+          <!-- Metric 4: Global Awards -->
+          <div class="metric-card metric-card--4">
+            <div class="metric-card-glow" aria-hidden="true"></div>
+            <div class="metric-comet-streak" aria-hidden="true"></div>
+            <span class="metric-tag"><span class="metric-tag-star">✦</span> PRESTIGE HONORS</span>
+            <div class="metric-value" id="metricAwards">12</div>
+            <div class="metric-label">GLOBAL AWARDS</div>
+            <p class="metric-subtext">Paris & London Accolades</p>
+            <div class="metric-card-accent"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         3B. CONTINUOUS LEFT-TO-RIGHT TRUST / VALUE STRIP (INFINITE MARQUEE)
+    ========================================================= -->
+    <section class="lumiere-trust-marquee-strip" id="trustMarqueeStrip" aria-label="Lumière Trust and Atelier Values">
+      <div class="trust-marquee-wrapper" id="trustMarqueeWrapper">
+        <div class="trust-marquee-track" id="trustMarqueeTrack">
+          <!-- Marquee Block 1 -->
+          <div class="trust-marquee-content">
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+              </span>
+              <span class="trust-text">FREE DELIVERY</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-gem" aria-hidden="true">✦</span>
+              <span class="trust-text">AUTHENTIC PRODUCTS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✧</span>
+
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+              </span>
+              <span class="trust-text">EASY RETURNS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </span>
+              <span class="trust-text">SECURE CHECKOUT</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✧</span>
+
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-star" aria-hidden="true">✧</span>
+              <span class="trust-text">PREMIUM FORMULAS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+
+            <!-- Repeat 5 items inside block for wide screens -->
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+              </span>
+              <span class="trust-text">FREE DELIVERY</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-gem" aria-hidden="true">✦</span>
+              <span class="trust-text">AUTHENTIC PRODUCTS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✧</span>
+
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+              </span>
+              <span class="trust-text">EASY RETURNS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </span>
+              <span class="trust-text">SECURE CHECKOUT</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✧</span>
+
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-star" aria-hidden="true">✧</span>
+              <span class="trust-text">PREMIUM FORMULAS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+          </div>
+
+          <!-- Marquee Block 2 (Identical Clone for 100% Seamless Infinite Loop) -->
+          <div class="trust-marquee-content" aria-hidden="true">
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+              </span>
+              <span class="trust-text">FREE DELIVERY</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-gem" aria-hidden="true">✦</span>
+              <span class="trust-text">AUTHENTIC PRODUCTS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✧</span>
+
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+              </span>
+              <span class="trust-text">EASY RETURNS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </span>
+              <span class="trust-text">SECURE CHECKOUT</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✧</span>
+
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-star" aria-hidden="true">✧</span>
+              <span class="trust-text">PREMIUM FORMULAS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+
+            <!-- Repeat 5 items inside block for wide screens -->
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>
+              </span>
+              <span class="trust-text">FREE DELIVERY</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-gem" aria-hidden="true">✦</span>
+              <span class="trust-text">AUTHENTIC PRODUCTS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✧</span>
+
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg>
+              </span>
+              <span class="trust-text">EASY RETURNS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+
+            <div class="trust-item">
+              <span class="trust-icon" aria-hidden="true">
+                <svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </span>
+              <span class="trust-text">SECURE CHECKOUT</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✧</span>
+
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-star" aria-hidden="true">✧</span>
+              <span class="trust-text">PREMIUM FORMULAS</span>
+            </div>
+            <span class="trust-sep" aria-hidden="true">✦</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         4. SHOP BY CATEGORY (CYLINDRICAL COUTURE SILHOUETTES)
+    ========================================================= -->
+    <section class="categories-section" id="categoriesSection">
+      <div class="container">
+        <div class="section-header">
+          <div class="section-eyebrow-wrap">
+            <span class="eyebrow-line"></span>
+            <span class="section-eyebrow">✦ &nbsp; ATELIER DISCIPLINES · HAUTE BEAUTÉ &nbsp; ✦</span>
+            <span class="eyebrow-line"></span>
+          </div>
+          <h2 class="section-title">SHOP BY <span class="title-gold-italic">Category</span></h2>
+          <p class="section-subtitle">Discover Parisian bespoke disciplines, formulated with exceptional botanical actives.</p>
+        </div>
+
+        <div class="cylindrical-grid" id="cylindricalGrid">
+          <!-- Card 1: Skincare -->
+          <a href="shop.html?cat=skincare" class="cylindrical-card" id="catCardSkincare">
+            <div class="cylindrical-wrap">
+              <div class="cylindrical-cap-rim" aria-hidden="true"></div>
+              <div class="cylindrical-base-rim" aria-hidden="true"></div>
+              <div class="cylindrical-inner-border"></div>
+              <img src="images/category_1_skincare_34.jpg" alt="Skincare" class="cylindrical-img" />
+              <!-- 3D Cylindrical Light Sheen -->
+              <div class="cylindrical-sheen" aria-hidden="true"></div>
+              <!-- Dark Vignette for Text Legibility -->
+              <div class="cylindrical-vignette" aria-hidden="true"></div>
+              <div class="cylindrical-content">
+                <h3 class="cylindrical-title">Skincare</h3>
+                <span class="cylindrical-subtitle">16 Essentials</span>
+                <span class="cylindrical-explore">EXPLORE <span>&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card 2: Makeup -->
+          <a href="shop.html?cat=makeup" class="cylindrical-card" id="catCardMakeup">
+            <div class="cylindrical-wrap">
+              <div class="cylindrical-cap-rim" aria-hidden="true"></div>
+              <div class="cylindrical-base-rim" aria-hidden="true"></div>
+              <div class="cylindrical-inner-border"></div>
+              <img src="images/category_2_makeup_34.jpg" alt="Makeup" class="cylindrical-img" />
+              <!-- 3D Cylindrical Light Sheen -->
+              <div class="cylindrical-sheen" aria-hidden="true"></div>
+              <!-- Dark Vignette for Text Legibility -->
+              <div class="cylindrical-vignette" aria-hidden="true"></div>
+              <div class="cylindrical-content">
+                <h3 class="cylindrical-title">Makeup</h3>
+                <span class="cylindrical-subtitle">18 Shades</span>
+                <span class="cylindrical-explore">EXPLORE <span>&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card 3: Fragrance -->
+          <a href="shop.html?cat=fragrance" class="cylindrical-card" id="catCardFragrance">
+            <div class="cylindrical-wrap">
+              <div class="cylindrical-cap-rim" aria-hidden="true"></div>
+              <div class="cylindrical-base-rim" aria-hidden="true"></div>
+              <div class="cylindrical-inner-border"></div>
+              <img src="images/category_3_fragrance_34.jpg" alt="Fragrance" class="cylindrical-img" />
+              <!-- 3D Cylindrical Light Sheen -->
+              <div class="cylindrical-sheen" aria-hidden="true"></div>
+              <!-- Dark Vignette for Text Legibility -->
+              <div class="cylindrical-vignette" aria-hidden="true"></div>
+              <div class="cylindrical-content">
+                <h3 class="cylindrical-title">Fragrance</h3>
+                <span class="cylindrical-subtitle">9 Editions</span>
+                <span class="cylindrical-explore">EXPLORE <span>&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card 4: Hair Care -->
+          <a href="shop.html?cat=haircare" class="cylindrical-card" id="catCardHaircare">
+            <div class="cylindrical-wrap">
+              <div class="cylindrical-cap-rim" aria-hidden="true"></div>
+              <div class="cylindrical-base-rim" aria-hidden="true"></div>
+              <div class="cylindrical-inner-border"></div>
+              <img src="images/category_4_haircare_34.jpg" alt="Hair Care" class="cylindrical-img" />
+              <!-- 3D Cylindrical Light Sheen -->
+              <div class="cylindrical-sheen" aria-hidden="true"></div>
+              <!-- Dark Vignette for Text Legibility -->
+              <div class="cylindrical-vignette" aria-hidden="true"></div>
+              <div class="cylindrical-content">
+                <h3 class="cylindrical-title">Hair Care</h3>
+                <span class="cylindrical-subtitle">7 Treatments</span>
+                <span class="cylindrical-explore">EXPLORE <span>&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card 5: Bath & Body -->
+          <a href="shop.html" class="cylindrical-card" id="catCardBathBody">
+            <div class="cylindrical-wrap">
+              <div class="cylindrical-cap-rim" aria-hidden="true"></div>
+              <div class="cylindrical-base-rim" aria-hidden="true"></div>
+              <div class="cylindrical-inner-border"></div>
+              <img src="images/category_5_bath_34.jpg" alt="Bath &amp; Body" class="cylindrical-img" />
+              <!-- 3D Cylindrical Light Sheen -->
+              <div class="cylindrical-sheen" aria-hidden="true"></div>
+              <!-- Dark Vignette for Text Legibility -->
+              <div class="cylindrical-vignette" aria-hidden="true"></div>
+              <div class="cylindrical-content">
+                <h3 class="cylindrical-title">Bath &amp; Body</h3>
+                <span class="cylindrical-subtitle">8 Rituals</span>
+                <span class="cylindrical-explore">EXPLORE <span>&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+
+          <!-- Card 6: Sets & Gifts -->
+          <a href="collections.html" class="cylindrical-card" id="catCardSetsGifts">
+            <div class="cylindrical-wrap">
+              <div class="cylindrical-cap-rim" aria-hidden="true"></div>
+              <div class="cylindrical-base-rim" aria-hidden="true"></div>
+              <div class="cylindrical-inner-border"></div>
+              <img src="images/category_6_sets_34.jpg" alt="Sets &amp; Gifts" class="cylindrical-img" />
+              <!-- 3D Cylindrical Light Sheen -->
+              <div class="cylindrical-sheen" aria-hidden="true"></div>
+              <!-- Dark Vignette for Text Legibility -->
+              <div class="cylindrical-vignette" aria-hidden="true"></div>
+              <div class="cylindrical-content">
+                <h3 class="cylindrical-title">Sets &amp; Gifts</h3>
+                <span class="cylindrical-subtitle">12 Curations</span>
+                <span class="cylindrical-explore">EXPLORE <span>&rarr;</span></span>
+              </div>
+            </div>
+          </a>
+        </div>
+
+        <!-- Haute Luxury Discipline Guarantee Strip -->
+        <div class="categories-luxury-strip">
+          <span class="luxury-strip-item"><span class="strip-star">✦</span> BOTANICAL CELLULOSE FORMULAS</span>
+          <span class="luxury-strip-item"><span class="strip-star">✦</span> ARTISANAL FRENCH BLENDING</span>
+          <span class="luxury-strip-item"><span class="strip-star">✦</span> 24K GILDED COUTURE PACKAGING</span>
+          <span class="luxury-strip-item"><span class="strip-star">✦</span> COMPLIMENTARY ATELIER SAMPLING</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         5. BESTSELLERS ("THE EDIT" - COUTURE NOIR THEME)
+    ========================================================= -->
+    <section class="carousel-section bestsellers-section" id="bestsellersSection">
+      <div class="container">
+        <div class="bestsellers-header-wrap">
+          <div class="bestsellers-title-col">
+            <div class="section-eyebrow-wrap">
+              <span class="eyebrow-line"></span>
+              <span class="section-eyebrow">✦ &nbsp; MOST LOVED · CULT ICONS &nbsp; ✦</span>
+              <span class="eyebrow-line"></span>
+            </div>
+            <h2 class="bestsellers-title">THE <span class="title-gold-italic">Edit</span><span class="bestsellers-dot">.</span></h2>
+            <p class="bestsellers-subtitle">Best-loved beauty essentials, celebrated by Parisian estheticians and clients worldwide.</p>
+          </div>
+          <div class="bestsellers-actions-col">
+            <a href="shop.html" class="bestsellers-view-all">
+              <span>EXPLORE THE EDIT</span>
+              <span class="bestsellers-arrow">&rarr;</span>
+            </a>
+            <div class="bestsellers-controls">
+              <button class="bestsellers-arrow-btn" id="bestsellerPrevBtn" aria-label="Previous Slide">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button class="bestsellers-arrow-btn" id="bestsellerNextBtn" aria-label="Next Slide">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Draggable Carousel Track with Subtle Edge Fades -->
+        <div class="carousel-track-container bestsellers-track-container" id="bestsellersContainer">
+          <div class="product-cards-track" id="bestsellersTrack">
+            <!-- Dynamically populated by lumiere-cinematic.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         6. FEATURED COLLECTION ("THE GLOW EDIT")
+    ========================================================= -->
+    <section class="featured-glow-section" id="featuredGlowSection" aria-label="Autumn Winter 2026 The Glow Edit">
+      <!-- Parallax Cinematic Background with 5 Vertical Auto-Scrolling Slides (Bottom-to-Top Fast Track) -->
+      <div class="glow-bg-parallax" id="glowBgParallax">
+        <div class="glow-slider-viewport" id="glowSliderViewport">
+          <div class="glow-slider-track" id="glowSliderTrack">
+            <div class="glow-slide" data-slide-index="0">
+              <img src="images/glow_edit_campaign.jpg" alt="The Glow Edit Campaign 1" class="glow-bg-img" loading="eager" />
+            </div>
+            <div class="glow-slide" data-slide-index="1">
+              <img src="images/glow_edit_slide2.jpg" alt="The Glow Edit Campaign 2" class="glow-bg-img" loading="eager" />
+            </div>
+            <div class="glow-slide" data-slide-index="2">
+              <img src="images/glow_edit_slide3.jpg" alt="The Glow Edit Campaign 3" class="glow-bg-img" loading="eager" />
+            </div>
+            <div class="glow-slide" data-slide-index="3">
+              <img src="images/glow_edit_slide4.jpg" alt="The Glow Edit Campaign 4" class="glow-bg-img" loading="eager" />
+            </div>
+            <div class="glow-slide" data-slide-index="4">
+              <img src="images/glow_edit_slide5.jpg" alt="The Glow Edit Campaign 5" class="glow-bg-img" loading="eager" />
+            </div>
+            <!-- Seamless clone of slide 0 for infinite upward loop -->
+            <div class="glow-slide glow-slide--clone" data-slide-index="5" aria-hidden="true">
+              <img src="images/glow_edit_campaign.jpg" alt="" class="glow-bg-img" loading="eager" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="glow-overlay"></div>
+      <div class="glow-radial-lighting" aria-hidden="true"></div>
+
+      <div class="container glow-container">
+        <div class="glow-content">
+          <div class="glow-eyebrow-wrap">
+            <span class="glow-eyebrow">✦ &nbsp; AUTUMN / WINTER 2026 &nbsp; ✦</span>
+          </div>
+          <h2 class="glow-title">
+            THE GLOW <span class="glow-title-gold">EDIT</span><span class="glow-dot">.</span>
+          </h2>
+          <p class="glow-desc">
+            Everything you need for luminous, beautifully cared-for skin. Experience moisture-binding botanicals and molten gold highlighter pigments formulated for sheer elegance.
+          </p>
+          <div class="glow-btn-wrap">
+            <a href="collections.html" class="glow-btn-primary">
+              <span>EXPLORE THE COLLECTION</span>
+              <span class="glow-btn-arrow" aria-hidden="true">&rarr;</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Vertical Bottom-to-Top Navigation Indicators -->
+        <div class="glow-slider-indicators" id="glowSliderIndicators" aria-label="Slide navigation">
+          <button type="button" class="glow-indicator-dash is-active" data-slide-to="0" aria-label="Go to slide 1"></button>
+          <button type="button" class="glow-indicator-dash" data-slide-to="1" aria-label="Go to slide 2"></button>
+          <button type="button" class="glow-indicator-dash" data-slide-to="2" aria-label="Go to slide 3"></button>
+          <button type="button" class="glow-indicator-dash" data-slide-to="3" aria-label="Go to slide 4"></button>
+          <button type="button" class="glow-indicator-dash" data-slide-to="4" aria-label="Go to slide 5"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         7. THE LUMIÈRE STANDARD (EDITORIAL 4-PILLAR PHILOSOPHY)
+    ========================================================= -->
+    <section class="standard-section" id="standardSection">
+      <div class="container">
+        <!-- Section Header -->
+        <div class="standard-header-center">
+          <div class="section-eyebrow-wrap">
+            <span class="eyebrow-line"></span>
+            <span class="section-eyebrow">✦ &nbsp; OUR PHILOSOPHY · HAUTE INTEGRITY &nbsp; ✦</span>
+            <span class="eyebrow-line"></span>
+          </div>
+          <h2 class="standard-main-title">THE LUMIÈRE <span class="title-gold-italic">Standard</span><span class="standard-dot">.</span></h2>
+          <p class="standard-subtitle">Four foundational principles guiding our formulations, Parisian atelier craft, and timeless client rituals.</p>
+        </div>
+
+        <!-- 4 Editorial Pillar Cards with Architectural Vitrine Lenses -->
+        <div class="standard-pillars-grid">
+          <!-- Pillar 01: CAREFULLY CURATED -->
+          <article class="standard-pillar-card value-item" data-pillar="01">
+            <div class="pillar-visual-wrap">
+              <div class="pillar-lens-frame">
+                <div class="pillar-lens-inner">
+                  <img src="images/serum_dropper.jpg" alt="Carefully Curated Ingredients" class="pillar-lens-img" loading="lazy" />
+                  <div class="pillar-lens-sheen" aria-hidden="true"></div>
+                </div>
+              </div>
+              <span class="pillar-num-badge">01</span>
+            </div>
+            <div class="pillar-card-content">
+              <div class="pillar-tag-pill">
+                <span class="pillar-sparkle">✦</span>
+                <span class="pillar-tag">CLINICAL INTEGRITY</span>
+              </div>
+              <h3 class="pillar-title">Carefully Curated</h3>
+              <p class="pillar-desc">Active botanicals selected for clinically proven potency and cellular biocompatibility.</p>
+            </div>
+            <div class="pillar-card-accent"></div>
+          </article>
+
+          <!-- Pillar 02: BEAUTY WITHOUT COMPROMISE -->
+          <article class="standard-pillar-card value-item" data-pillar="02">
+            <div class="pillar-visual-wrap">
+              <div class="pillar-lens-frame">
+                <div class="pillar-lens-inner">
+                  <img src="images/makeup_products_1788328354838.jpg" alt="Beauty Without Compromise" class="pillar-lens-img" loading="lazy" />
+                  <div class="pillar-lens-sheen" aria-hidden="true"></div>
+                </div>
+              </div>
+              <span class="pillar-num-badge">02</span>
+            </div>
+            <div class="pillar-card-content">
+              <div class="pillar-tag-pill">
+                <span class="pillar-sparkle">✦</span>
+                <span class="pillar-tag">PURE FORMULATION</span>
+              </div>
+              <h3 class="pillar-title">Purity Without Compromise</h3>
+              <p class="pillar-desc">Clean, biocompatible formulations tested by French dermatologists. Zero parabens or silicones.</p>
+            </div>
+            <div class="pillar-card-accent"></div>
+          </article>
+
+          <!-- Pillar 03: CONSCIOUS BEAUTY -->
+          <article class="standard-pillar-card value-item" data-pillar="03">
+            <div class="pillar-visual-wrap">
+              <div class="pillar-lens-frame">
+                <div class="pillar-lens-inner">
+                  <img src="images/skincare_products_1788328338930.jpg" alt="Conscious Botanical Alchemy" class="pillar-lens-img" loading="lazy" />
+                  <div class="pillar-lens-sheen" aria-hidden="true"></div>
+                </div>
+              </div>
+              <span class="pillar-num-badge">03</span>
+            </div>
+            <div class="pillar-card-content">
+              <div class="pillar-tag-pill">
+                <span class="pillar-sparkle">✦</span>
+                <span class="pillar-tag">SUSTAINABLE CRAFT</span>
+              </div>
+              <h3 class="pillar-title">Conscious Botanicals</h3>
+              <p class="pillar-desc">Ethically wild-harvested flora, refillable flacons, and 100% recyclable Parisian packaging.</p>
+            </div>
+            <div class="pillar-card-accent"></div>
+          </article>
+
+          <!-- Pillar 04: EXCEPTIONAL EXPERIENCE -->
+          <article class="standard-pillar-card value-item" data-pillar="04">
+            <div class="pillar-visual-wrap">
+              <div class="pillar-lens-frame">
+                <div class="pillar-lens-inner">
+                  <img src="images/editorial_flatlay.jpg" alt="Exceptional Atelier Experience" class="pillar-lens-img" loading="lazy" />
+                  <div class="pillar-lens-sheen" aria-hidden="true"></div>
+                </div>
+              </div>
+              <span class="pillar-num-badge">04</span>
+            </div>
+            <div class="pillar-card-content">
+              <div class="pillar-tag-pill">
+                <span class="pillar-sparkle">✦</span>
+                <span class="pillar-tag">ATELIER SERVICE</span>
+              </div>
+              <h3 class="pillar-title">Exceptional Experience</h3>
+              <p class="pillar-desc">From bespoke diagnostic concierge to hand-tied gilded coffrets, luxury in every detail.</p>
+            </div>
+            <div class="pillar-card-accent"></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         8. NEW ARRIVALS (BEAUTIFUL EDITORIAL PRODUCT CAROUSEL)
+    ========================================================= -->
+    <section class="carousel-section new-arrivals-section" id="newArrivalsSection">
+      <div class="container">
+        <!-- Editorial Section Header -->
+        <div class="new-arrivals-header-wrap">
+          <div class="new-arrivals-title-col">
+            <span class="new-arrivals-eyebrow">✦ HAUTE FORMULATION · JUST ARRIVED</span>
+            <h2 class="new-arrivals-title">NEW ARRIVALS<span class="new-arrivals-dot">.</span></h2>
+            <p class="new-arrivals-subtitle">Meet the latest seasonal creations from our Parisian beauty laboratories.</p>
+          </div>
+          <div class="new-arrivals-actions-col">
+            <a href="new-arrivals.html" class="new-arrivals-view-all">
+              <span>EXPLORE ALL NEW</span>
+              <span class="new-arrivals-arrow">&rarr;</span>
+            </a>
+            <div class="new-arrivals-controls">
+              <button class="new-arrivals-arrow-btn" id="newArrivalsPrevBtn" aria-label="Previous Slide">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <button class="new-arrivals-arrow-btn" id="newArrivalsNextBtn" aria-label="Next Slide">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Draggable Carousel Track with Subtle Edge Fades -->
+        <div class="carousel-track-container new-arrivals-track-container" id="newArrivalsContainer">
+          <div class="product-cards-track" id="newArrivalsTrack">
+            <!-- Dynamically populated by lumiere-cinematic.js -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- =========================================================
+         10. TESTIMONIALS & CLIENT VOICES (CONTINUOUS AUTO-SLIDING MARQUEE)
+    ========================================================= -->
+    <section class="testimonials-section" id="testimonialsSection">
+      <div class="test-marquee-container">
+        <!-- 1. Section Intro -->
+        <div class="section-header test-header-editorial">
+          <div class="section-eyebrow-wrap">
+            <span class="eyebrow-line"></span>
+            <span class="section-eyebrow">✦ &nbsp; TESTIMONIALS · VERIFIED VOICES &nbsp; ✦</span>
+            <span class="eyebrow-line"></span>
+          </div>
+          <h2 class="section-title test-section-heading">WHAT OUR CLIENTS <span class="title-gold-italic">Say</span><span class="test-dot">.</span></h2>
+          <p class="section-subtitle">Real experiences and transformative rituals from our discerning global community.</p>
+          
+          <!-- 2. Refined Rating Summary Pill -->
+          <div class="test-trust-pill">
+            <span class="test-trust-stars">★★★★★</span>
+            <span class="test-trust-score">4.98 / 5.0</span>
+            <span class="test-trust-dot">·</span>
+            <span class="test-trust-text">4,800+ Verified Global Reviews</span>
+          </div>
+        </div>
+
+        <!-- 3. Continuous Horizontal Marquee Carousel with Subtle Edge Fades -->
+        <div class="test-marquee-wrapper" id="testMarqueeWrapper" aria-label="Customer Reviews Marquee">
+          <div class="test-marquee-track" id="testMarqueeTrack">
+            <!-- 15 original + 15 cloned luxury customer reviews rendered by JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         11. LET'S CONNECT (HAUTE LUXURY ATELIER SUITE & BESPOKE RESERVATIONS)
+    ========================================================= -->
+    <section class="concierge-section salon-section" id="conciergeSection" aria-label="Let's Connect · Private Concierge">
+      <!-- Huge Subtle Blurred Luxury Beauty Asset Background with Animated Stardust, Astrolabe & Comets -->
+      <div class="salon-ambient-backdrop" aria-hidden="true">
+        <img src="images/perfume_collection_1788328378783.jpg" alt="" class="salon-ambient-img" loading="lazy" />
+        <div class="salon-ambient-radial"></div>
+        <div class="salon-ambient-vignette"></div>
+
+        <!-- Golden Shooting Comets -->
+        <div class="salon-comets-field">
+          <span class="comet-streak c1"></span>
+          <span class="comet-streak c2"></span>
+        </div>
+        <!-- Floating Golden Stardust Spores -->
+        <div class="salon-stardust-field">
+          <span class="stardust-particle p1">✦</span>
+          <span class="stardust-particle p2">✦</span>
+          <span class="stardust-particle p3">✦</span>
+          <span class="stardust-particle p4">✦</span>
+          <span class="stardust-particle p5">✦</span>
+          <span class="stardust-particle p6">✦</span>
+        </div>
+      </div>
+
+      <div class="container salon-content-container">
+        <!-- Editorial Section Header -->
+        <div class="salon-editorial-header">
+          <div class="section-eyebrow-wrap">
+            <span class="eyebrow-line eyebrow-line--jewel"></span>
+            <span class="section-eyebrow section-eyebrow--jewel"><span class="section-eyebrow-star">✦</span> &nbsp; PRIVATE CONCIERGE · LET’S CONNECT &nbsp; <span class="section-eyebrow-star">✦</span></span>
+            <span class="eyebrow-line eyebrow-line--jewel"></span>
+          </div>
+          <h2 class="salon-editorial-title">
+            LET’S <span class="salon-title-jewel">Connect</span><span class="salon-dot">.</span>
+          </h2>
+          <p class="salon-editorial-subtext">
+            “Personal recommendations, skincare guidance and discreet assistance — curated around you.”
+          </p>
+        </div>
+
+        <!-- Grand Two-Wing Haute Minimalist Architecture -->
+        <div class="salon-architecture-grid">
+          
+          <!-- WING 1: Direct Concierge Suite (3 Luxury Channel Bars) -->
+          <div class="salon-wing salon-wing--suite">
+            <div class="salon-wing-surface">
+              <div class="salon-wing-top">
+                <span class="salon-wing-eyebrow">ATELIER PRIVÉ · JAIPUR</span>
+                <h3 class="salon-wing-title">The Concierge Suite</h3>
+                <p class="salon-wing-intro">Discreet assistance and bespoke guidance from our beauty advisors.</p>
+              </div>
+
+              <div class="salon-channels-stack">
+                <!-- Channel 1: Private Concierge Phone & WhatsApp (Amber Citrine Jewel) -->
+                <div class="salon-channel-card salon-channel-card--amber">
+                  <div class="salon-channel-icon-wrap salon-channel-icon-wrap--amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                  </div>
+                  <div class="salon-channel-details">
+                    <span class="salon-channel-kicker salon-channel-kicker--amber">01 · DIRECT CONCIERGE &amp; WHATSAPP</span>
+                    <a href="tel:+917300212948" class="salon-channel-val salon-channel-val--amber">+91 73002 12948</a>
+                    <p class="salon-channel-note">“Direct voice &amp; WhatsApp assistance” · Available 7 days a week</p>
+                  </div>
+                  <div class="salon-actions-row">
+                    <a href="tel:+917300212948" class="salon-channel-action salon-channel-action--call" aria-label="Call concierge directly">
+                      <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                      </svg>
+                      <span>CALL</span>
+                      <span class="salon-arrow">&rarr;</span>
+                    </a>
+                    <a href="https://wa.me/917300212948?text=Hello%20Lumi%C3%A8re%20Atelier,%20I%20would%20like%20to%20inquire%20about%20a%20bespoke%20beauty%20consultation." target="_blank" rel="noopener noreferrer" class="salon-channel-action salon-channel-action--whatsapp" aria-label="WhatsApp concierge">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" aria-hidden="true">
+                        <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.79 14.07c-.24.68-1.2 1.26-1.68 1.32-.45.06-1.04.09-3.05-.74-2.43-1-3.99-3.48-4.11-3.64-.12-.16-.99-1.31-.99-2.5 0-1.19.62-1.78.85-2.02.22-.24.49-.3.65-.3.16 0 .33.01.47.01.16 0 .37-.06.57.43.22.51.74 1.8.8 1.93.06.13.11.28.02.44-.08.17-.13.27-.25.41-.13.14-.27.31-.38.42-.13.13-.26.27-.11.53.15.26.67 1.1 1.44 1.78.99.88 1.82 1.15 2.08 1.28.26.13.41.11.56-.06.16-.18.66-.77.83-1.03.18-.26.35-.22.59-.13.24.09 1.52.72 1.78.85.26.13.44.2.5.31.07.12.07.7-.17 1.38z"/>
+                      </svg>
+                      <span>WHATSAPP</span>
+                      <span class="salon-arrow">&rarr;</span>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Channel 2: Vardhman Swarn Lok Jaipur Atelier with Live Map & Cab Apps -->
+                <div class="salon-channel-card salon-channel-card--location">
+                  <div class="salon-location-header">
+                    <div class="salon-channel-icon-wrap salon-channel-icon-wrap--emerald">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"></path>
+                        <circle cx="12" cy="9" r="2.5"></circle>
+                      </svg>
+                    </div>
+                    <div class="salon-channel-details">
+                      <span class="salon-channel-kicker salon-channel-kicker--emerald">02 · ATELIER LOCATION &amp; APPOINTMENT SALON</span>
+                      <span class="salon-channel-val salon-channel-val--emerald">Vardhman Swarn Lok, Jaipur</span>
+                      <p class="salon-channel-note">Jaipur, Rajasthan · Private consultation salon by appointment</p>
+                    </div>
+                  </div>
+
+                  <!-- Live Google Map Preview -->
+                  <div class="salon-atelier-map-container">
+                    <div class="salon-map-topbar">
+                      <div class="map-location-tag">
+                        <span class="map-status-dot"></span>
+                        <span>VARDHMAN SWARN LOK · JAIPUR ATELIER</span>
+                      </div>
+                      <a href="https://www.google.com/maps/search/?api=1&query=Vardhman+Swarn+Lok+Jaipur" target="_blank" rel="noopener noreferrer" class="map-external-link">OPEN MAP ↗</a>
+                    </div>
+                    <div class="salon-map-frame-wrap">
+                      <iframe src="https://maps.google.com/maps?q=Vardhman%20Swarn%20Lok%2C%20Jaipur&t=&z=14&ie=UTF8&iwloc=&output=embed" class="salon-map-iframe" loading="lazy" title="Lumière Atelier Jaipur Location Map" allowfullscreen></iframe>
+                    </div>
+                  </div>
+
+                  <!-- Quick Ride-Hailing Cab Apps Strip (Rapido, Uber, Ola, Directions) -->
+                  <div class="salon-transit-bar">
+                    <span class="salon-transit-title">Book Ride to Atelier:</span>
+                    <div class="salon-transit-actions">
+                      <a href="https://rapido.bike/" target="_blank" rel="noopener noreferrer" class="salon-cab-btn salon-cab-btn--rapido" title="Book Rapido Auto/Bike to Jaipur Atelier">
+                        <span class="cab-brand-badge cab-brand-badge--rapido">
+                          <span class="brand-dot brand-dot--rapido">●</span> RAPIDO
+                        </span>
+                        <span class="cab-sub">Auto · Bike</span>
+                      </a>
+                      <a href="https://m.uber.com/ul/?action=setPickup&pickup=my_location&dropoff[formatted_address]=Vardhman%20Swarn%20Lok%2C%20Jaipur" target="_blank" rel="noopener noreferrer" class="salon-cab-btn salon-cab-btn--uber" title="Book Uber Premier to Jaipur Atelier">
+                        <span class="cab-brand-badge cab-brand-badge--uber">
+                          UBER
+                        </span>
+                        <span class="cab-sub">Premier · Go</span>
+                      </a>
+                      <a href="https://book.olacabs.com/" target="_blank" rel="noopener noreferrer" class="salon-cab-btn salon-cab-btn--ola" title="Book Ola Cab to Jaipur Atelier">
+                        <span class="cab-brand-badge cab-brand-badge--ola">
+                          <span class="brand-dot brand-dot--ola">●</span> OLA
+                        </span>
+                        <span class="cab-sub">Cab · Auto</span>
+                      </a>
+                      <a href="https://www.google.com/maps/dir/?api=1&destination=Vardhman+Swarn+Lok+Jaipur" target="_blank" rel="noopener noreferrer" class="salon-cab-btn salon-cab-btn--directions" title="Turn-by-Turn Navigation">
+                        <span class="cab-brand-badge cab-brand-badge--map">
+                          <svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                          MAP ↗
+                        </span>
+                        <span class="cab-sub">Directions</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- WING 2: Visible, Immediate Bespoke Appointment & Consultation Salon -->
+          <div class="salon-wing salon-wing--booking">
+            <div class="salon-wing-surface salon-wing-surface--hero">
+              <div class="salon-hero-glow" aria-hidden="true"></div>
+              
+              <div class="salon-wing-top">
+                <div class="salon-booking-pill-wrap">
+                  <span class="salon-booking-pill">✦ &nbsp; BESPOKE CONSULTATION &nbsp; ✦</span>
+                </div>
+                <h3 class="salon-wing-title">Reserve Your Private Consultation</h3>
+                <p class="salon-wing-intro">“Your ritual, personally curated.” Experience a one-on-one session with our master aesthetician.</p>
+              </div>
+
+              <!-- Luxury Direct Email Confirmation Banner -->
+              <div class="salon-booking-confirm-banner" id="salonBookingConfirmBanner" style="display: none;">
+                <div class="confirm-head">
+                  <span class="confirm-gem">✦</span>
+                  <span class="confirm-title">REQUEST ROUTED TO ATELIER CONCIERGE</span>
+                  <button type="button" class="confirm-close-btn" onclick="closeBookingConfirm()" aria-label="Close confirmation">&times;</button>
+                </div>
+                <p class="confirm-msg" id="confirmMsgText">
+                  Your consultation request has been dispatched to <strong>piyushverma730929@gmail.com</strong>. Our senior aesthetician will confirm your private session within 2 hours.
+                </p>
+                <div class="confirm-action-row">
+                  <a href="#" id="confirmMailtoBtn" class="confirm-mail-btn" target="_blank" rel="noopener noreferrer">
+                    <span>OPEN IN GMAIL / EMAIL APP ↗</span>
+                  </a>
+                  <button type="button" class="confirm-new-btn" onclick="closeBookingConfirm()">
+                    <span>NEW REQUEST</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Immediate Form with Direct Email Routing to piyushverma730929@gmail.com -->
+              <form class="salon-booking-form" id="salonConsultationForm" onsubmit="handleSalonConsultationSubmit(event)">
+                <input type="hidden" name="_subject" value="✦ New Private Atelier Consultation Request - Lumière" />
+                <input type="hidden" name="_captcha" value="false" />
+                <input type="hidden" name="_template" value="table" />
+                <input type="hidden" name="Atelier_Recipient" value="piyushverma730929@gmail.com" />
+
+                <div class="salon-form-grid">
+                  <!-- Row 1: Client Name & Email -->
+                  <div class="salon-form-group">
+                    <label class="salon-form-label" for="salonFullName">FULL NAME</label>
+                    <input type="text" name="Client_Full_Name" class="salon-form-input" id="salonFullName" placeholder="e.g. Lady Genevieve Vance" required />
+                  </div>
+
+                  <div class="salon-form-group">
+                    <label class="salon-form-label" for="salonEmail">EMAIL ADDRESS</label>
+                    <input type="email" name="Client_Email_Address" class="salon-form-input" id="salonEmail" placeholder="yourname@domain.com" required />
+                  </div>
+
+                  <!-- Row 2: Preferred Date & Time Window -->
+                  <div class="salon-form-group">
+                    <label class="salon-form-label" for="salonDate">PREFERRED DATE</label>
+                    <input type="date" name="Preferred_Appointment_Date" class="salon-form-input salon-form-date" id="salonDate" required />
+                  </div>
+
+                  <div class="salon-form-group">
+                    <label class="salon-form-label" for="salonTime">TIME WINDOW</label>
+                    <select name="Preferred_Time_Window" class="salon-form-input salon-form-select" id="salonTime" required>
+                      <option value="Morning Atelier (10:00 AM – 1:00 PM)">Morning Atelier · 10:00 AM – 1:00 PM</option>
+                      <option value="Afternoon Salon (2:00 PM – 5:00 PM)" selected>Afternoon Salon · 2:00 PM – 5:00 PM</option>
+                      <option value="Evening Private (6:00 PM – 8:30 PM)">Evening Private · 6:00 PM – 8:30 PM</option>
+                    </select>
+                  </div>
+
+                  <!-- Row 3: Consultation Format -->
+                  <div class="salon-form-group salon-form-group--full">
+                    <label class="salon-form-label" for="salonService">CONSULTATION FORMAT</label>
+                    <select name="Consultation_Format" class="salon-form-input salon-form-select" id="salonService" required>
+                      <option value="Virtual Video Atelier (45 min)">Virtual Video Atelier · 45 min</option>
+                      <option value="Jaipur Atelier Appointment (60 min)">Jaipur Atelier Appointment · 60 min</option>
+                      <option value="Custom Botanical Formulation Diagnostic">Custom Botanical Formulation Diagnostic · 30 min</option>
+                    </select>
+                  </div>
+
+                  <!-- Row 4: Ritual Focus Selection Chips & Inquiry Note -->
+                  <div class="salon-form-group salon-form-group--full">
+                    <div class="salon-focus-header">
+                      <label class="salon-form-label" for="salonNotes">DESIRED RITUAL FOCUS</label>
+                      <span class="salon-focus-hint">Quick-select ritual:</span>
+                    </div>
+                    <div class="salon-focus-chips" id="salonFocusChips">
+                      <button type="button" class="focus-chip" onclick="selectFocusChip(this, 'Bespoke Hydration &amp; Barrier Ritual')">Hydration &amp; Barrier</button>
+                      <button type="button" class="focus-chip" onclick="selectFocusChip(this, 'Botanical Fragrance Layering')">Fragrance Layering</button>
+                      <button type="button" class="focus-chip" onclick="selectFocusChip(this, 'Anti-Aging &amp; Cellular Radiance')">Cellular Radiance</button>
+                      <button type="button" class="focus-chip" onclick="selectFocusChip(this, 'Private Atelier Gifting Curation')">Atelier Gifting</button>
+                    </div>
+                    <input type="text" name="Desired_Ritual_Focus" class="salon-form-input" id="salonNotes" placeholder="Add specific skin goals or preferences..." />
+                  </div>
+                </div>
+
+                <div class="salon-form-actions">
+                  <button type="submit" class="salon-booking-btn">
+                    <span class="btn-sparkle-star">✦</span>
+                    <span>BOOK A CONSULTATION</span>
+                    <span class="salon-arrow" aria-hidden="true">&rarr;</span>
+                  </button>
+                  <span class="salon-form-discreet">Discreet confirmation sent within 2 hours</span>
+                </div>
+
+                <!-- Atelier Privileges Strip: Fills the card with prestigious luxury guarantees -->
+                <div class="salon-privileges-strip" aria-label="Atelier Consultation Privileges">
+                  <div class="salon-privilege-item">
+                    <span class="salon-privilege-gem">✦</span>
+                    <div class="salon-privilege-info">
+                      <span class="privilege-title">Dedicated Specialist</span>
+                      <span class="privilege-sub">Senior Skin Aesthetician</span>
+                    </div>
+                  </div>
+                  <div class="salon-privilege-sep"></div>
+                  <div class="salon-privilege-item">
+                    <span class="salon-privilege-gem">✦</span>
+                    <div class="salon-privilege-info">
+                      <span class="privilege-title">Complimentary Kit</span>
+                      <span class="privilege-sub">3 Deluxe Discovery Vials</span>
+                    </div>
+                  </div>
+                  <div class="salon-privilege-sep"></div>
+                  <div class="salon-privilege-item">
+                    <span class="salon-privilege-gem">✦</span>
+                    <div class="salon-privilege-info">
+                      <span class="privilege-title">White Glove Service</span>
+                      <span class="privilege-sub">Guaranteed 2-Hour Reply</span>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+
+  </main>
+
+  <!-- =========================================================
+       12. EDITORIAL LUXURY FOOTER
+  ========================================================= -->
+  <footer class="lumiere-editorial-footer" id="lumiereFooter">
+    <!-- Main 4-Column Horizontal Layout (Brand 40%, Shop 20%, About 20%, Help 20%) -->
+    <div class="footer-main-container">
+      <div class="footer-columns-grid">
+        <!-- COLUMN 1: BRAND (40%) -->
+        <div class="footer-col footer-col-brand">
+          <a href="index.html" class="footer-brand-logo" aria-label="Lumière Home">
+            <span class="brand-sparkle">✦</span>
+            <span class="brand-text">LUMIÈRE</span>
+          </a>
+          <p class="footer-brand-bio">
+            High-performance luxury beauty crafted with botanical integrity. Born in Paris, curated for the discerning individual who treats beauty as an elevated art form.
+          </p>
+          <div class="footer-social-row">
+            <a href="https://instagram.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+            <a href="https://pinterest.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Pinterest">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="4" x2="12" y2="20"></line>
+                <path d="M8 20l4-9 4 9"></path>
+                <circle cx="12" cy="9" r="5"></circle>
+              </svg>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg>
+            </a>
+            <a href="https://tiktok.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="TikTok">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- COLUMN 2: SHOP (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>SHOP</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="new-arrivals.html" class="footer-nav-link"><span>New Arrivals</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?filter=bestseller" class="footer-nav-link"><span>Best Sellers</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=skincare" class="footer-nav-link"><span>Skincare</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=makeup" class="footer-nav-link"><span>Makeup</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=fragrance" class="footer-nav-link"><span>Fragrance</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=haircare" class="footer-nav-link"><span>Hair Care</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COLUMN 3: ABOUT (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>ABOUT</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="about.html" class="footer-nav-link"><span>Our Story</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#philosophy" class="footer-nav-link"><span>Our Philosophy</span><span class="link-arrow">→</span></a></li>
+              <li><a href="collections.html" class="footer-nav-link"><span>Journal</span><span class="link-arrow">→</span></a></li>
+              <li><a href="reviews.html" class="footer-nav-link"><span>Reviews</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COLUMN 4: HELP (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>HELP</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="about.html#contact" class="footer-nav-link"><span>Contact</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#shipping" class="footer-nav-link"><span>Shipping</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#returns" class="footer-nav-link"><span>Returns</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#faq" class="footer-nav-link"><span>FAQ</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thin Horizontal Divider -->
+    <div class="footer-divider-line"></div>
+
+    <!-- 3. Clean Bottom / Legal Bar -->
+    <div class="footer-bottom-container">
+      <div class="footer-bottom-bar">
+        <div class="footer-copyright">
+          &copy; 2026 Lumière. All rights reserved.
+        </div>
+        <div class="footer-legal-links">
+          <a href="#" class="legal-link">Privacy</a>
+          <span class="legal-dot">·</span>
+          <a href="#" class="legal-link">Terms</a>
+          <span class="legal-dot">·</span>
+          <a href="#" class="legal-link">Cookies</a>
+        </div>
+        <div class="footer-currency-picker">
+          <span class="currency-star">✦</span>
+          <span>International / USD ($)</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       14. DRAWERS & MODALS (E-COMMERCE INTERACTION)
+  ========================================================= -->
+  <!-- Backdrop -->
+  <div class="lumiere-backdrop" id="lumiereBackdrop"></div>
+
+  <!-- Slide-In Cart Drawer -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Bag">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Bag</h3>
+      <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
+    </div>
+
+    <!-- Free Shipping Meter -->
+    <div class="shipping-meter-wrap">
+      <div class="shipping-meter-text" id="shippingMeterText">
+        Add <strong>$100.00</strong> more for complimentary delivery.
+      </div>
+      <div class="shipping-meter-bar">
+        <div class="shipping-meter-fill" id="shippingMeterFill"></div>
+      </div>
+    </div>
+
+    <!-- Cart Items Container -->
+    <div class="cart-items-container" id="cartItemsList">
+      <!-- Injected by lumiere-cinematic.js -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="cart-empty-state" id="cartEmptyState">
+      <div class="cart-empty-icon">🛍️</div>
+      <p>Your shopping bag is empty.</p>
+      <span style="font-size: 0.8rem; margin-top: 0.5rem; display: block;">Discover our luxury edits to get started.</span>
+    </div>
+
+    <!-- Cart Footer -->
+    <div class="cart-drawer-footer">
+      <div class="cart-subtotal-row">
+        <span>Subtotal</span>
+        <span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span>
+      </div>
+      <button class="btn-luxury-primary" style="width: 100%; margin-bottom: 0.75rem;" onclick="showToast('Proceeding to luxury checkout...')">CHECKOUT &rarr;</button>
+      <button class="btn-luxury-outline" style="width: 100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Slide-In Wishlist Drawer -->
+  <aside class="wishlist-drawer" id="wishlistDrawer" aria-label="Your Wishlist">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Wishlist <span id="wishlistHeaderCount" style="font-size: 1rem; color: var(--color-gold); font-family: var(--font-sans);">(0)</span></h3>
+      <button class="drawer-close-btn" onclick="closeWishlistDrawer()" aria-label="Close Wishlist">&times;</button>
+    </div>
+
+    <!-- Wishlist Items Container -->
+    <div class="cart-items-container" id="wishlistItemsList">
+      <!-- Injected dynamically by lumiere-cinematic.js -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="cart-empty-state" id="wishlistEmptyState">
+      <div class="cart-empty-icon">♡</div>
+      <p>Your wishlist is empty.</p>
+      <span style="font-size: 0.8rem; margin-top: 0.5rem; display: block;">Save items you love to curate your personal beauty edit.</span>
+    </div>
+
+    <!-- Footer -->
+    <div class="cart-drawer-footer">
+      <button class="btn-luxury-primary" id="wishlistAddAllBtn" style="width: 100%; margin-bottom: 0.75rem; display: none;" onclick="addAllWishlistToCart()">MOVE ALL TO BAG &rarr;</button>
+      <button class="btn-luxury-outline" style="width: 100%;" onclick="closeWishlistDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Quick View Modal -->
+  <div class="quick-view-modal" id="quickViewModal" role="dialog" aria-modal="true">
+    <button class="modal-close-btn" id="quickModalCloseBtn" aria-label="Close modal">&times;</button>
+    <div class="quick-modal-grid">
+      <div class="quick-modal-img-wrap">
+        <img src="images/skincare_products_1788328338930.jpg" alt="Product" id="quickModalImg" class="quick-modal-img" />
+      </div>
+      <div class="quick-modal-details">
+        <span class="quick-modal-brand" id="quickModalBrand">LUMIÈRE</span>
+        <h2 class="quick-modal-title" id="quickModalTitle">Radiance Glow Serum</h2>
+        <div class="quick-modal-price" id="quickModalPrice">$128.00</div>
+        <p class="quick-modal-desc" id="quickModalDesc">Description</p>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <span style="font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-gold); display: block; margin-bottom: 0.5rem;">SELECTION</span>
+          <div id="quickModalShades"></div>
+        </div>
+
+        <button class="btn-luxury-primary" onclick="addCurrentQuickViewToCart()" style="width: 100%;">ADD TO BAG &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Search Modal -->
+  <div class="search-modal" id="searchModal" role="dialog" aria-modal="true">
+    <button class="modal-close-btn" id="searchModalCloseBtn" aria-label="Close Search">&times;</button>
+    <div class="search-header-wrap">
+      <input type="text" class="search-input-field" id="searchModalInput" placeholder="Search the collection..." autocomplete="off" />
+    </div>
+    <div class="search-results-grid" id="searchResultsGrid">
+      <p style="grid-column: span 3; color: rgba(250, 247, 242, 0.5); text-align: center;">
+        Type to search luxury cosmetics, fragrances &amp; skincare...
+      </p>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="lumiere-toast" id="lumiereToast">
+    <span style="color: var(--color-gold);">✦</span>
+    <span id="toastMessage">Product added to your bag.</span>
+  </div>
+
+  <!-- Main Luxury JavaScript Engine -->
+  <script src="js/lumiere-cinematic.js?v=26.0"></script>
+  <script>
+    // Failsafe auto-scroll triggers
+    if (typeof initHeroSlider === 'function') {
+      initHeroSlider();
+    }
+    if (typeof initFeaturedGlowAutoScroll === 'function') {
+      initFeaturedGlowAutoScroll();
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<title>Premium Royal Arch Preview</title>
+<style>
+  body {
+    background: #0B080A;
+    color: #FAF7F2;
+    padding: 60px 20px;
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+  .grid-test {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    max-width: 1200px;
+    width: 100%;
+  }
+  .royal-arch-card {
+    position: relative;
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .royal-arch-card:hover {
+    transform: translateY(-8px);
+  }
+  .royal-arch-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+  }
+  .royal-arch-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+    filter: drop-shadow(0 14px 34px rgba(0, 0, 0, 0.65));
+    transition: filter 0.5s ease;
+  }
+  .royal-arch-card:hover .royal-arch-svg {
+    filter: drop-shadow(0 20px 44px rgba(0, 0, 0, 0.85)) drop-shadow(0 0 16px rgba(200, 169, 126, 0.45));
+  }
+  .royal-arch-img {
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    transform-origin: center center;
+  }
+  .royal-arch-card:hover .royal-arch-img {
+    transform: scale(1.06);
+  }
+  .royal-border-outer {
+    transition: stroke 0.4s ease, filter 0.4s ease;
+  }
+  .royal-border-inner {
+    transition: stroke 0.4s ease, opacity 0.4s ease;
+  }
+  .royal-arch-card:hover .royal-border-outer {
+    stroke: url(#goldArchShimmer);
+  }
+  .royal-arch-card:hover .royal-border-inner {
+    opacity: 0.9;
+  }
+  .royal-arch-title-wrap {
+    position: absolute;
+    bottom: 22px;
+    left: 12px;
+    right: 12px;
+    text-align: center;
+    z-index: 5;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .royal-arch-card:hover .royal-arch-title-wrap {
+    transform: translateY(-4px);
+  }
+  .royal-arch-title {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+    font-size: 1.55rem;
+    font-weight: 500;
+    color: #FAF7F2;
+    letter-spacing: 0.04em;
+    margin: 0;
+    line-height: 1.15;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 20px rgba(0, 0, 0, 0.85);
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+  }
+  .royal-arch-card:hover .royal-arch-title {
+    color: #FFFFFF;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, 0.98), 0 0 22px rgba(200, 169, 126, 0.7);
+  }
+  .royal-arch-subtitle {
+    display: inline-block;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #C8A97E;
+    margin-top: 5px;
+    text-shadow: 0 1px 6px rgba(0, 0, 0, 0.9);
+  }
+</style>
+</head>
+<body>
+  <div class="grid-test">
+    <!-- Card 1 -->
+    <a href="#" class="royal-arch-card">
+      <div class="royal-arch-wrap">
+        <svg class="royal-arch-svg" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="goldArchGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FAF7F2" />
+              <stop offset="30%" stop-color="#E5CCA3" />
+              <stop offset="70%" stop-color="#C8A97E" />
+              <stop offset="100%" stop-color="#8E6E40" />
+            </linearGradient>
+            <linearGradient id="goldArchShimmer" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFFFFF" />
+              <stop offset="40%" stop-color="#F3DFC1" />
+              <stop offset="75%" stop-color="#E0B880" />
+              <stop offset="100%" stop-color="#AA8450" />
+            </linearGradient>
+            <linearGradient id="archVignette" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(11,8,10,0)" />
+              <stop offset="40%" stop-color="rgba(11,8,10,0.18)" />
+              <stop offset="72%" stop-color="rgba(11,8,10,0.85)" />
+              <stop offset="100%" stop-color="rgba(11,8,10,0.98)" />
+            </linearGradient>
+            <!-- Clip Path inside inner border -->
+            <clipPath id="archClip_1">
+              <path d="M 150,20 C 157,27 170,43 182,58 L 182,71 L 194,71 A 26,26 0 0,1 226,114 L 226,127 L 238,127 A 30,30 0 0,1 262,173 L 262,189 L 280,189 L 280,360 A 18,18 0 0,1 262,380 L 38,380 A 18,18 0 0,1 20,360 L 20,189 L 38,189 L 38,173 A 30,30 0 0,1 62,127 L 74,127 L 74,114 A 26,26 0 0,1 106,71 L 118,71 L 118,58 C 130,43 143,27 150,20 Z" />
+            </clipPath>
+          </defs>
+
+          <!-- Shadow Base & Background Fill -->
+          <path d="M 150,14 C 158,22 172,40 186,56 L 186,66 L 198,66 A 30,30 0 0,1 232,112 L 232,122 L 244,122 A 34,34 0 0,1 268,174 L 268,184 L 286,184 L 286,364 A 22,22 0 0,1 264,386 L 36,386 A 22,22 0 0,1 14,364 L 14,184 L 32,184 L 32,174 A 34,34 0 0,1 56,122 L 68,122 L 68,112 A 30,30 0 0,1 102,66 L 114,66 L 114,56 C 128,40 142,22 150,14 Z" fill="#161014" />
+
+          <!-- Clipped Image Group -->
+          <g clip-path="url(#archClip_1)">
+            <image class="royal-arch-img" href="frontend/images/category_1_skincare_34.jpg" x="0" y="0" width="300" height="400" preserveAspectRatio="xMidYMid slice" />
+            <rect x="0" y="160" width="300" height="240" fill="url(#archVignette)" />
+          </g>
+
+          <!-- Outer Crisp Gold Contour Border -->
+          <path class="royal-border-outer" d="M 150,14 C 158,22 172,40 186,56 L 186,66 L 198,66 A 30,30 0 0,1 232,112 L 232,122 L 244,122 A 34,34 0 0,1 268,174 L 268,184 L 286,184 L 286,364 A 22,22 0 0,1 264,386 L 36,386 A 22,22 0 0,1 14,364 L 14,184 L 32,184 L 32,174 A 34,34 0 0,1 56,122 L 68,122 L 68,112 A 30,30 0 0,1 102,66 L 114,66 L 114,56 C 128,40 142,22 150,14 Z" fill="none" stroke="url(#goldArchGrad)" stroke-width="2.2" stroke-linejoin="round" />
+
+          <!-- Inner Delicate Hairline Gold Contour Border -->
+          <path class="royal-border-inner" d="M 150,20 C 157,27 170,43 182,58 L 182,71 L 194,71 A 26,26 0 0,1 226,114 L 226,127 L 238,127 A 30,30 0 0,1 262,173 L 262,189 L 280,189 L 280,360 A 18,18 0 0,1 262,380 L 38,380 A 18,18 0 0,1 20,360 L 20,189 L 38,189 L 38,173 A 30,30 0 0,1 62,127 L 74,127 L 74,114 A 26,26 0 0,1 106,71 L 118,71 L 118,58 C 130,43 143,27 150,20 Z" fill="none" stroke="rgba(200, 169, 126, 0.55)" stroke-width="1.2" stroke-linejoin="round" />
+
+          <!-- Finial Crown Ornament at Apex -->
+          <circle cx="150" cy="9" r="2.5" fill="url(#goldArchGrad)" />
+        </svg>
+
+        <div class="royal-arch-title-wrap">
+          <h3 class="royal-arch-title">Skincare</h3>
+          <span class="royal-arch-subtitle">16 Essentials</span>
+        </div>
+      </div>
+    </a>
+  </div>
+</body>
+</html>

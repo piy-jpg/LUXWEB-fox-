@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Arrivals | Lumière Haute Beauté Paris</title>
+  <meta name="description" content="Explore the latest seasonal releases from Lumière — small-batch botanical formulations, cellular actives, and couture fragrances crafted in Paris." />
+
+  <!-- Google Fonts: Bodoni Moda, Cormorant Garamond, Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,300;0,6..96,400;0,6..96,500;1,6..96,300;1,6..96,400;1,6..96,500&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Main Luxury Stylesheet & New Arrivals Stylesheet -->
+  <link rel="stylesheet" href="css/lumiere-cinematic.css?v=27.0" />
+  <link rel="stylesheet" href="css/new-arrivals.css?v=2.0" />
+</head>
+<body class="new-arrivals-page">
+
+  <!-- =========================================================
+       1. STICKY LUXURY NAVBAR
+  ========================================================= -->
+  <header class="lumiere-navbar scrolled" id="lumiereNavbar">
+    <div class="nav-container">
+      <!-- Left: Logo -->
+      <a href="index.html" class="nav-brand" aria-label="Lumière Home">
+        <span class="nav-star">✦</span>
+        <span>Lumière</span>
+      </a>
+
+      <!-- Center: Navigation Links -->
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links-center">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="shop.html" class="nav-link">Shop</a></li>
+          <li><a href="new-arrivals.html" class="nav-link active">New Arrivals</a></li>
+          <li><a href="collections.html" class="nav-link">Collections</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="reviews.html" class="nav-link">Reviews</a></li>
+        </ul>
+      </nav>
+
+      <!-- Right: Action Icons -->
+      <div class="nav-actions-right">
+        <!-- Search Icon -->
+        <button class="nav-icon-btn" onclick="openSearchModal()" aria-label="Search Catalog">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+        </button>
+
+        <!-- Wishlist Icon -->
+        <button class="nav-icon-btn" onclick="openWishlistDrawer()" aria-label="Wishlist Items">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+          </svg>
+          <span class="nav-badge-count" id="navWishlistCount">0</span>
+        </button>
+
+        <!-- Shopping Bag Icon -->
+        <button class="nav-icon-btn" onclick="openCartDrawer()" aria-label="Shopping Bag">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+            <line x1="3" y1="6" x2="21" y2="6" />
+            <path d="M16 10a4 4 0 0 1-8 0" />
+          </svg>
+          <span class="nav-badge-count" id="navCartCount">0</span>
+        </button>
+
+        <!-- Mobile Hamburger Toggle -->
+        <button class="nav-hamburger" id="navHamburger" onclick="openMobileNav()" aria-label="Toggle Mobile Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Navigation Drawer -->
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <button class="mobile-nav-close" id="mobileNavClose" onclick="closeMobileNav()" aria-label="Close Mobile Menu">&times;</button>
+    <ul class="mobile-nav-links">
+      <li><a href="index.html" class="mobile-nav-link" onclick="closeMobileNav()">Home</a></li>
+      <li><a href="shop.html" class="mobile-nav-link" onclick="closeMobileNav()">Shop</a></li>
+      <li><a href="new-arrivals.html" class="mobile-nav-link active" onclick="closeMobileNav()">New Arrivals</a></li>
+      <li><a href="collections.html" class="mobile-nav-link" onclick="closeMobileNav()">Collections</a></li>
+      <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About</a></li>
+      <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews</a></li>
+    </ul>
+  </div>
+
+  <main>
+    <!-- =========================================================
+         2. EDITORIAL HERO BANNER
+    ========================================================= -->
+    <section class="na-hero" id="naHero">
+      <div class="na-hero-bg" aria-hidden="true"></div>
+      <div class="na-hero-container">
+        <span class="na-hero-badge">✦ LA NOUVELLE COLLECTION · 2026 EDITION ✦</span>
+        <h1 class="na-hero-title">NEW <span class="title-gold-italic">Arrivals</span></h1>
+        <p class="na-hero-subtitle">
+          Meet the latest seasonal formulations freshly released from our Parisian beauty laboratories. Handcrafted with rare botanical harvests, bio-identical peptides, and light-refracting micro-crystals.
+        </p>
+        <div class="na-hero-pills">
+          <span>✦ 12 Limited New Releases</span>
+          <span class="na-hero-pill-sep">·</span>
+          <span>✦ Small-Batch Paris Harvest</span>
+          <span class="na-hero-pill-sep">·</span>
+          <span>✦ Complimentary Discovery Kit With Orders $150+</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         3. CONTINUOUS LEFT-TO-RIGHT TRUST MARQUEE STRIP
+    ========================================================= -->
+    <section class="lumiere-trust-marquee-strip" id="trustMarqueeStrip" aria-label="Lumière Trust and Atelier Values">
+      <div class="trust-marquee-wrapper" id="trustMarqueeWrapper">
+        <div class="trust-marquee-track" id="trustMarqueeTrack">
+          <!-- Block 1 -->
+          <div class="trust-marquee-content">
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></span>
+              <span class="trust-text">FREE DELIVERY</span>
+            </div>
+            <span class="trust-sep">✦</span>
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-gem">✦</span>
+              <span class="trust-text">AUTHENTIC PRODUCTS</span>
+            </div>
+            <span class="trust-sep">✧</span>
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg></span>
+              <span class="trust-text">EASY RETURNS</span>
+            </div>
+            <span class="trust-sep">✦</span>
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+              <span class="trust-text">SECURE CHECKOUT</span>
+            </div>
+            <span class="trust-sep">✧</span>
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-star">✧</span>
+              <span class="trust-text">PREMIUM FORMULAS</span>
+            </div>
+            <span class="trust-sep">✦</span>
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></span>
+              <span class="trust-text">FREE DELIVERY</span>
+            </div>
+            <span class="trust-sep">✦</span>
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-gem">✦</span>
+              <span class="trust-text">AUTHENTIC PRODUCTS</span>
+            </div>
+            <span class="trust-sep">✧</span>
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg></span>
+              <span class="trust-text">EASY RETURNS</span>
+            </div>
+            <span class="trust-sep">✦</span>
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+              <span class="trust-text">SECURE CHECKOUT</span>
+            </div>
+            <span class="trust-sep">✧</span>
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-star">✧</span>
+              <span class="trust-text">PREMIUM FORMULAS</span>
+            </div>
+            <span class="trust-sep">✦</span>
+          </div>
+          <!-- Block 2 (Duplicate for Seamless Loop) -->
+          <div class="trust-marquee-content" aria-hidden="true">
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></span>
+              <span class="trust-text">FREE DELIVERY</span>
+            </div>
+            <span class="trust-sep">✦</span>
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-gem">✦</span>
+              <span class="trust-text">AUTHENTIC PRODUCTS</span>
+            </div>
+            <span class="trust-sep">✧</span>
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg></span>
+              <span class="trust-text">EASY RETURNS</span>
+            </div>
+            <span class="trust-sep">✦</span>
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+              <span class="trust-text">SECURE CHECKOUT</span>
+            </div>
+            <span class="trust-sep">✧</span>
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-star">✧</span>
+              <span class="trust-text">PREMIUM FORMULAS</span>
+            </div>
+            <span class="trust-sep">✦</span>
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></span>
+              <span class="trust-text">FREE DELIVERY</span>
+            </div>
+            <span class="trust-sep">✦</span>
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-gem">✦</span>
+              <span class="trust-text">AUTHENTIC PRODUCTS</span>
+            </div>
+            <span class="trust-sep">✧</span>
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"></polyline><path d="M20 20v-7a4 4 0 0 0-4-4H4"></path></svg></span>
+              <span class="trust-text">EASY RETURNS</span>
+            </div>
+            <span class="trust-sep">✦</span>
+            <div class="trust-item">
+              <span class="trust-icon"><svg class="trust-svg-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></span>
+              <span class="trust-text">SECURE CHECKOUT</span>
+            </div>
+            <span class="trust-sep">✧</span>
+            <div class="trust-item">
+              <span class="trust-icon trust-icon-star">✧</span>
+              <span class="trust-text">PREMIUM FORMULAS</span>
+            </div>
+            <span class="trust-sep">✦</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         4. REDESIGNED SPOTLIGHT DEBUT FEATURE (HAUTE COUTURE SHOWCASE)
+    ========================================================= -->
+    <section class="na-spotlight-section" id="spotlightDebutSection">
+      <div class="spotlight-ambient-glow" aria-hidden="true"></div>
+      <div class="container">
+        <!-- Section Header Eyebrow -->
+        <div class="spotlight-header-intro">
+          <div class="section-eyebrow-wrap">
+            <span class="eyebrow-line"></span>
+            <span class="section-eyebrow">✦ &nbsp; ATELIER SPOTLIGHT · THE 2026 DEBUT &nbsp; ✦</span>
+            <span class="eyebrow-line"></span>
+          </div>
+          <h2 class="spotlight-main-heading">THE STAR <span class="title-gold-italic">Debut</span></h2>
+        </div>
+
+        <!-- Master Luxury Spotlight Card -->
+        <div class="na-spotlight-master-card">
+          <!-- Left: Studio Product Showcase -->
+          <div class="spotlight-studio-col">
+            <div class="spotlight-halo-light" aria-hidden="true"></div>
+            <div class="spotlight-badging-top">
+              <span class="spotlight-status-pill">
+                <span class="spotlight-sparkle-gem">✦</span>
+                <span>STAR DEBUT · JUST ARRIVED</span>
+              </span>
+              <span class="spotlight-batch-pill">BATCH N° 01 / 500</span>
+            </div>
+
+            <div class="spotlight-image-stage">
+              <img src="images/editorial_flatlay.jpg" alt="L'Élixir Céleste Multi-Peptide Crème" class="spotlight-hero-img" />
+              <!-- Gilded Reflection Floor -->
+              <div class="spotlight-floor-reflection" aria-hidden="true"></div>
+            </div>
+
+            <div class="spotlight-sensory-bar">
+              <div class="sensory-item">
+                <span class="sensory-label">TEXTURE</span>
+                <span class="sensory-val">Melt-In Velvet Balm</span>
+              </div>
+              <span class="sensory-sep">·</span>
+              <div class="sensory-item">
+                <span class="sensory-label">AROMA</span>
+                <span class="sensory-val">Damask Rose & Santal</span>
+              </div>
+              <span class="sensory-sep">·</span>
+              <div class="sensory-item">
+                <span class="sensory-label">VESSEL</span>
+                <span class="sensory-val">Violet Swiss Glass</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Haute Editorial Dossier -->
+          <div class="spotlight-dossier-col">
+            <div class="spotlight-kicker-bar">
+              <span class="kicker-line"></span>
+              <span class="kicker-text">HAUTE CELLULAR INNOVATION</span>
+              <span class="kicker-line"></span>
+            </div>
+
+            <h3 class="spotlight-product-title">
+              L'Élixir Céleste <span class="spotlight-script-accent">Multi-Peptide Crème</span>
+            </h3>
+
+            <p class="spotlight-lead-desc">
+              Our master aesthetician's most concentrated cellular night repair. Powered by alpine edelweiss stem cells, 24K colloidal gold, and cross-linked hyaluronic spheres that melt overnight for transformational morning radiance.
+            </p>
+
+            <!-- Clinical Transformation Metrics -->
+            <div class="spotlight-clinical-metrics">
+              <div class="clinical-metric-box">
+                <span class="clinical-metric-num">98%</span>
+                <span class="clinical-metric-desc">Instant Barrier Plump</span>
+              </div>
+              <div class="clinical-metric-box">
+                <span class="clinical-metric-num">+94%</span>
+                <span class="clinical-metric-desc">Cellular Elasticity</span>
+              </div>
+              <div class="clinical-metric-box">
+                <span class="clinical-metric-num">72h</span>
+                <span class="clinical-metric-desc">Moisture Retention</span>
+              </div>
+            </div>
+
+            <!-- Key Active Ingredients Grid -->
+            <div class="spotlight-actives-grid">
+              <div class="active-card">
+                <div class="active-head"><span class="active-star">✦</span> <strong>24K Colloidal Gold</strong></div>
+                <span class="active-sub">Stimulates micro-circulation & light reflection</span>
+              </div>
+              <div class="active-card">
+                <div class="active-head"><span class="active-star">✦</span> <strong>Alpine Edelweiss</strong></div>
+                <span class="active-sub">High-altitude bio-antioxidant defense</span>
+              </div>
+              <div class="active-card">
+                <div class="active-head"><span class="active-star">✦</span> <strong>Tri-Peptide Matrix</strong></div>
+                <span class="active-sub">Bio-identical structural collagen synthesis</span>
+              </div>
+              <div class="active-card">
+                <div class="active-head"><span class="active-star">✦</span> <strong>Cold-Pressed Camellia</strong></div>
+                <span class="active-sub">Omega 3-6-9 barrier lipid infusion</span>
+              </div>
+            </div>
+
+            <!-- Volume & Format Selector -->
+            <div class="spotlight-format-wrap">
+              <span class="format-label">ATELIER FORMAT:</span>
+              <div class="format-options">
+                <button class="format-pill active" type="button">50ml / 1.7 fl. oz. · Hand-blown Violet Jar</button>
+                <button class="format-pill" type="button" onclick="showToast('Grand Format (100ml) arriving next seasonal cycle')">100ml Grand Format (Waitlist)</button>
+              </div>
+            </div>
+
+            <!-- Price & Action CTA Row -->
+            <div class="spotlight-actions-block">
+              <div class="spotlight-pricing">
+                <div class="spotlight-price-main">$185.00</div>
+                <div class="spotlight-gift-note">✦ Includes 3 Deluxe Discovery Vials & Presentation Coffret</div>
+              </div>
+
+              <div class="spotlight-cta-btns">
+                <button class="btn-spotlight-primary" onclick="addToCart(7)" id="spotlightAddBagBtn">
+                  <span class="btn-sparkle">✦</span>
+                  <span>ADD TO BAG — $185.00</span>
+                  <span class="btn-arrow">&rarr;</span>
+                </button>
+                <button class="btn-spotlight-quickview" onclick="openQuickView(7)" title="Quick View Product Details">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  <span>VIEW DETAILS</span>
+                </button>
+                <button class="btn-spotlight-wishlist" onclick="toggleWishlist(7, this)" aria-label="Add to Wishlist">
+                  <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                </button>
+              </div>
+
+              <!-- White Glove Guarantee Strip -->
+              <div class="spotlight-guarantee-ribbon">
+                <span>✓ Direct Paris Formulation</span>
+                <span class="guar-sep">·</span>
+                <span>✓ Complimentary Courier Delivery</span>
+                <span class="guar-sep">·</span>
+                <span>✓ Certificate of Atelier Batch Authenticity</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         5. INTERACTIVE CONTROLS: CATEGORY TABS & SORT
+    ========================================================= -->
+    <div class="na-controls-strip">
+      <div class="container na-controls-row">
+        <!-- Category Filter Tabs -->
+        <div class="na-filter-tabs" id="naFilterTabs" role="tablist">
+          <button class="na-tab-btn active" data-cat="all" onclick="filterNewArrivals('all', this)">All New (12)</button>
+          <button class="na-tab-btn" data-cat="skincare" onclick="filterNewArrivals('skincare', this)">Skincare (4)</button>
+          <button class="na-tab-btn" data-cat="fragrance" onclick="filterNewArrivals('fragrance', this)">Fragrance (3)</button>
+          <button class="na-tab-btn" data-cat="makeup" onclick="filterNewArrivals('makeup', this)">Complexion & Lips (3)</button>
+          <button class="na-tab-btn" data-cat="haircare" onclick="filterNewArrivals('haircare', this)">Hair & Body (2)</button>
+        </div>
+
+        <!-- Sort Select -->
+        <div class="na-sort-wrap">
+          <span class="na-sort-label">Sort:</span>
+          <select class="na-sort-select" id="naSortSelect" onchange="sortNewArrivals(this.value)">
+            <option value="newest">Newest First</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Highest Rated</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================
+         6. DEDICATED NEW ARRIVALS PRODUCT GRID
+    ========================================================= -->
+    <section class="na-grid-section">
+      <div class="container">
+        <div class="na-products-grid" id="naProductsGrid">
+          <!-- Dynamically populated by JS from LUMIERE_PRODUCTS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         7. BEHIND THE HARVEST (SCIENCE OF THE NEW)
+    ========================================================= -->
+    <section class="na-craft-section">
+      <div class="container">
+        <div class="section-header" style="text-align: center; margin-bottom: 2.5rem;">
+          <div class="section-eyebrow-wrap">
+            <span class="eyebrow-line"></span>
+            <span class="section-eyebrow">✦ &nbsp; THE FORMULATION PROCESS &nbsp; ✦</span>
+            <span class="eyebrow-line"></span>
+          </div>
+          <h2 class="section-title">BEHIND THE <span class="title-gold-italic">Innovation</span></h2>
+          <p class="section-subtitle">Every new creation is aged and cold-extracted under zero oxygen in our Paris atelier.</p>
+        </div>
+
+        <div class="na-craft-grid">
+          <div class="na-craft-col">
+            <div class="na-craft-num">01</div>
+            <h3 class="na-craft-title">Zero-Oxygen Cold Press</h3>
+            <p class="na-craft-text">Hand-harvested botanicals from Grasse are extracted at 14°C to preserve 99.4% of raw bioactive antioxidants and enzymatic living potency.</p>
+          </div>
+          <div class="na-craft-col">
+            <div class="na-craft-num">02</div>
+            <h3 class="na-craft-title">Cellular Bio-Ferment</h3>
+            <p class="na-craft-text">A 21-day micro-fermentation breaks down active molecules into nano-peptides that penetrate 4x deeper into the epidermal stratum corneum.</p>
+          </div>
+          <div class="na-craft-col">
+            <div class="na-craft-num">03</div>
+            <h3 class="na-craft-title">Biophotonic Swiss Glass</h3>
+            <p class="na-craft-text">Every vial is bottled in authentic Miron violet glass, filtering out destructive visible light while allowing nourishing ultraviolet and infrared rays.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         8. CONCIERGE CONSULTATION BANNER
+    ========================================================= -->
+    <section class="atelier-salon-experience" style="padding: 3.5rem 0; background: #0A0609; border-top: 1px solid rgba(223, 177, 91, 0.2);">
+      <div class="container" style="text-align: center;">
+        <span class="experience-kicker">✦ PRIVATE ATELIER DIAGNOSTIC</span>
+        <h2 class="experience-title" style="font-size: 2.2rem; margin: 0.5rem 0 0.85rem;">Curate Your <span class="title-gold-italic">New Ritual</span></h2>
+        <p class="experience-lead" style="max-width: 580px; margin: 0 auto 1.5rem;">
+          Unsure which new seasonal formulation best matches your unique skin matrix? Experience a one-on-one session with our senior skin aesthetician.
+        </p>
+        <a href="index.html#salonConsultationSection" class="btn-gold-pill" style="display: inline-flex; align-items: center; gap: 8px;">
+          <span>RESERVE PRIVATE CONSULTATION</span>
+          <span>&rarr;</span>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- =========================================================
+       12. EDITORIAL LUXURY FOOTER
+  ========================================================= -->
+  <footer class="lumiere-editorial-footer" id="lumiereFooter">
+    <!-- Main 4-Column Horizontal Layout (Brand 40%, Shop 20%, About 20%, Help 20%) -->
+    <div class="footer-main-container">
+      <div class="footer-columns-grid">
+        <!-- COLUMN 1: BRAND (40%) -->
+        <div class="footer-col footer-col-brand">
+          <a href="index.html" class="footer-brand-logo" aria-label="Lumière Home">
+            <span class="brand-sparkle">✦</span>
+            <span class="brand-text">LUMIÈRE</span>
+          </a>
+          <p class="footer-brand-bio">
+            High-performance luxury beauty crafted with botanical integrity. Born in Paris, curated for the discerning individual who treats beauty as an elevated art form.
+          </p>
+          <div class="footer-social-row">
+            <a href="https://instagram.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Instagram">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+              </svg>
+            </a>
+            <a href="https://pinterest.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Pinterest">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="4" x2="12" y2="20"></line>
+                <path d="M8 20l4-9 4 9"></path>
+                <circle cx="12" cy="9" r="5"></circle>
+              </svg>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="Facebook">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+              </svg>
+            </a>
+            <a href="https://tiktok.com" target="_blank" rel="noopener" class="footer-social-icon" aria-label="TikTok">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- COLUMN 2: SHOP (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>SHOP</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="new-arrivals.html" class="footer-nav-link"><span>New Arrivals</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?filter=bestseller" class="footer-nav-link"><span>Best Sellers</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=skincare" class="footer-nav-link"><span>Skincare</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=makeup" class="footer-nav-link"><span>Makeup</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=fragrance" class="footer-nav-link"><span>Fragrance</span><span class="link-arrow">→</span></a></li>
+              <li><a href="shop.html?cat=haircare" class="footer-nav-link"><span>Hair Care</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COLUMN 3: ABOUT (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>ABOUT</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="about.html" class="footer-nav-link"><span>Our Story</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#philosophy" class="footer-nav-link"><span>Our Philosophy</span><span class="link-arrow">→</span></a></li>
+              <li><a href="collections.html" class="footer-nav-link"><span>Journal</span><span class="link-arrow">→</span></a></li>
+              <li><a href="reviews.html" class="footer-nav-link"><span>Reviews</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COLUMN 4: HELP (20%) -->
+        <div class="footer-col footer-col-nav">
+          <button class="footer-accordion-toggle" onclick="toggleFooterAccordion(this)" aria-expanded="false">
+            <span>HELP</span>
+            <span class="accordion-icon">+</span>
+          </button>
+          <div class="footer-nav-content">
+            <ul class="footer-nav-list">
+              <li><a href="about.html#contact" class="footer-nav-link"><span>Contact</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#shipping" class="footer-nav-link"><span>Shipping</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#returns" class="footer-nav-link"><span>Returns</span><span class="link-arrow">→</span></a></li>
+              <li><a href="about.html#faq" class="footer-nav-link"><span>FAQ</span><span class="link-arrow">→</span></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Thin Horizontal Divider -->
+    <div class="footer-divider-line"></div>
+
+    <!-- 3. Clean Bottom / Legal Bar -->
+    <div class="footer-bottom-container">
+      <div class="footer-bottom-bar">
+        <div class="footer-copyright">
+          &copy; 2026 Lumière. All rights reserved.
+        </div>
+        <div class="footer-legal-links">
+          <a href="#" class="legal-link">Privacy</a>
+          <span class="legal-dot">·</span>
+          <a href="#" class="legal-link">Terms</a>
+          <span class="legal-dot">·</span>
+          <a href="#" class="legal-link">Cookies</a>
+        </div>
+        <div class="footer-currency-picker">
+          <span class="currency-star">✦</span>
+          <span>International / USD ($)</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       14. DRAWERS & MODALS (E-COMMERCE INTERACTION)
+  ========================================================= -->
+  <!-- Backdrop -->
+  <div class="lumiere-backdrop" id="lumiereBackdrop"></div>
+
+  <!-- Slide-In Cart Drawer -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Bag">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Bag</h3>
+      <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
+    </div>
+
+    <!-- Free Shipping Meter -->
+    <div class="shipping-meter-wrap">
+      <div class="shipping-meter-text" id="shippingMeterText">
+        Add <strong>$100.00</strong> more for complimentary delivery.
+      </div>
+      <div class="shipping-meter-bar">
+        <div class="shipping-meter-fill" id="shippingMeterFill"></div>
+      </div>
+    </div>
+
+    <!-- Cart Items Container -->
+    <div class="cart-items-container" id="cartItemsList">
+      <!-- Injected by lumiere-cinematic.js -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="cart-empty-state" id="cartEmptyState">
+      <div class="cart-empty-icon">🛍️</div>
+      <p>Your shopping bag is empty.</p>
+      <span style="font-size: 0.8rem; margin-top: 0.5rem; display: block;">Discover our luxury edits to get started.</span>
+    </div>
+
+    <!-- Cart Footer -->
+    <div class="cart-drawer-footer">
+      <div class="cart-subtotal-row">
+        <span>Subtotal</span>
+        <span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span>
+      </div>
+      <button class="btn-luxury-primary" style="width: 100%; margin-bottom: 0.75rem;" onclick="showToast('Proceeding to luxury checkout...')">CHECKOUT &rarr;</button>
+      <button class="btn-luxury-outline" style="width: 100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Slide-In Wishlist Drawer -->
+  <aside class="wishlist-drawer" id="wishlistDrawer" aria-label="Your Wishlist">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Wishlist <span id="wishlistHeaderCount" style="font-size: 1rem; color: var(--color-gold); font-family: var(--font-sans);">(0)</span></h3>
+      <button class="drawer-close-btn" onclick="closeWishlistDrawer()" aria-label="Close Wishlist">&times;</button>
+    </div>
+
+    <!-- Wishlist Items Container -->
+    <div class="cart-items-container" id="wishlistItemsList">
+      <!-- Injected dynamically by lumiere-cinematic.js -->
+    </div>
+
+    <!-- Empty State -->
+    <div class="cart-empty-state" id="wishlistEmptyState">
+      <div class="cart-empty-icon">♡</div>
+      <p>Your wishlist is empty.</p>
+      <span style="font-size: 0.8rem; margin-top: 0.5rem; display: block;">Save items you love to curate your personal beauty edit.</span>
+    </div>
+
+    <!-- Footer -->
+    <div class="cart-drawer-footer">
+      <button class="btn-luxury-primary" id="wishlistAddAllBtn" style="width: 100%; margin-bottom: 0.75rem; display: none;" onclick="addAllWishlistToCart()">MOVE ALL TO BAG &rarr;</button>
+      <button class="btn-luxury-outline" style="width: 100%;" onclick="closeWishlistDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Quick View Modal -->
+  <div class="quick-view-modal" id="quickViewModal" role="dialog" aria-modal="true">
+    <button class="modal-close-btn" id="quickModalCloseBtn" aria-label="Close modal">&times;</button>
+    <div class="quick-modal-grid">
+      <div class="quick-modal-img-wrap">
+        <img src="images/skincare_products_1788328338930.jpg" alt="Product" id="quickModalImg" class="quick-modal-img" />
+      </div>
+      <div class="quick-modal-details">
+        <span class="quick-modal-brand" id="quickModalBrand">LUMIÈRE</span>
+        <h2 class="quick-modal-title" id="quickModalTitle">Radiance Glow Serum</h2>
+        <div class="quick-modal-price" id="quickModalPrice">$128.00</div>
+        <p class="quick-modal-desc" id="quickModalDesc">Description</p>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <span style="font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--color-gold); display: block; margin-bottom: 0.5rem;">SELECTION</span>
+          <div id="quickModalShades"></div>
+        </div>
+
+        <button class="btn-luxury-primary" onclick="addCurrentQuickViewToCart()" style="width: 100%;">ADD TO BAG &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Live Search Modal -->
+  <div class="search-modal" id="searchModal" role="dialog" aria-modal="true">
+    <button class="modal-close-btn" id="searchModalCloseBtn" aria-label="Close Search">&times;</button>
+    <div class="search-header-wrap">
+      <input type="text" class="search-input-field" id="searchModalInput" placeholder="Search the collection..." autocomplete="off" />
+    </div>
+    <div class="search-results-grid" id="searchResultsGrid">
+      <p style="grid-column: span 3; color: rgba(250, 247, 242, 0.5); text-align: center;">
+        Type to search luxury cosmetics, fragrances &amp; skincare...
+      </p>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="lumiere-toast" id="lumiereToast">
+    <span style="color: var(--color-gold);">✦</span>
+    <span id="toastMessage">Product added to your bag.</span>
+  </div>
+
+  <!-- Main Luxury JavaScript Engine -->
+  <script src="js/lumiere-cinematic.js?v=26.0"></script>
+
+  <!-- New Arrivals Page Controller -->
+  <script>
+    let currentNewArrivalsCat = 'all';
+    let currentNewArrivalsSort = 'newest';
+
+    function renderNewArrivalsPage() {
+      const grid = document.getElementById('naProductsGrid');
+      if (!grid || typeof LUMIERE_PRODUCTS === 'undefined') return;
+
+      let items = LUMIERE_PRODUCTS.filter(p => p.isNewArrival);
+
+      // Filter by category
+      if (currentNewArrivalsCat !== 'all') {
+        items = items.filter(p => p.category === currentNewArrivalsCat);
+      }
+
+      // Sort
+      if (currentNewArrivalsSort === 'price-asc') {
+        items.sort((a, b) => a.price - b.price);
+      } else if (currentNewArrivalsSort === 'price-desc') {
+        items.sort((a, b) => b.price - a.price);
+      } else if (currentNewArrivalsSort === 'rating') {
+        items.sort((a, b) => b.rating - a.rating);
+      } else {
+        // default newest (by ID desc)
+        items.sort((a, b) => b.id - a.id);
+      }
+
+      if (items.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 0; color: rgba(250,247,242,0.6);">
+            <span style="font-size: 1.5rem; color: #DFB15B;">✧</span>
+            <p style="margin-top: 0.5rem; font-family: var(--font-sans); font-size: 0.85rem;">No new arrivals in this discipline at the moment.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = items.map(p => `
+        <article class="na-product-card" id="naCard-${p.id}">
+          <div class="na-card-thumb">
+            <span class="na-card-badge">✦ JUST ARRIVED</span>
+            <button class="na-card-wish-btn ${typeof wishlist !== 'undefined' && wishlist.has(p.id) ? 'active' : ''}" 
+                    onclick="toggleWishlist(${p.id}, this)" 
+                    aria-label="Wishlist ${p.name}">
+              <svg width="15" height="15" fill="${typeof wishlist !== 'undefined' && wishlist.has(p.id) ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+              </svg>
+            </button>
+            <img src="${p.img}" alt="${p.name}" class="na-card-img" loading="lazy" />
+            <div class="na-card-quick-overlay">
+              <button class="na-card-quick-btn" onclick="openQuickView(${p.id})">Quick View</button>
+            </div>
+          </div>
+          <div class="na-card-info">
+            <span class="na-card-category">${p.categoryLabel || p.category}</span>
+            <h3 class="na-card-name">${p.name}</h3>
+            <div class="na-card-rating">
+              <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+              <span class="na-card-rating-count">(${p.reviewsCount})</span>
+            </div>
+            <div class="na-card-bottom">
+              <span class="na-card-price">$${p.price}.00</span>
+              <button class="na-card-add-btn" onclick="addToCart(${p.id})">ADD TO BAG +</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+    }
+
+    function filterNewArrivals(cat, btn) {
+      currentNewArrivalsCat = cat;
+      document.querySelectorAll('#naFilterTabs .na-tab-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      renderNewArrivalsPage();
+    }
+
+    function sortNewArrivals(val) {
+      currentNewArrivalsSort = val;
+      renderNewArrivalsPage();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderNewArrivalsPage();
+    });
+  </script>
+
+  <!-- Backdrop -->
+  <div class="lumiere-backdrop" id="lumiereBackdrop"></div>
+
+  <!-- Cart Drawer -->
+  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Bag">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Bag</h3>
+      <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
+    </div>
+    <div class="shipping-meter-wrap">
+      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>$100.00</strong> more for complimentary delivery.</div>
+      <div class="shipping-meter-bar"><div class="shipping-meter-fill" id="shippingMeterFill"></div></div>
+    </div>
+    <div class="cart-items-container" id="cartItemsList"></div>
+    <div class="cart-empty-state" id="cartEmptyState">
+      <div class="cart-empty-icon">🛍️</div>
+      <p>Your shopping bag is empty.</p>
+      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Discover our luxury edits to get started.</span>
+    </div>
+    <div class="cart-drawer-footer">
+      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span></div>
+      <button class="btn-luxury-primary" style="width:100%;margin-bottom:0.75rem;" onclick="showToast('Proceeding to luxury checkout...')">CHECKOUT &rarr;</button>
+      <button class="btn-luxury-outline" style="width:100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Wishlist Drawer -->
+  <aside class="wishlist-drawer" id="wishlistDrawer" aria-label="Your Wishlist">
+    <div class="cart-drawer-header">
+      <h3 class="cart-title">Your Wishlist <span id="wishlistHeaderCount" style="font-size:1rem;color:var(--color-gold,#C9A96E);font-family:sans-serif;">(0)</span></h3>
+      <button class="drawer-close-btn" onclick="closeWishlistDrawer()" aria-label="Close Wishlist">&times;</button>
+    </div>
+    <div class="cart-items-container" id="wishlistItemsList"></div>
+    <div class="cart-empty-state" id="wishlistEmptyState">
+      <div class="cart-empty-icon">♡</div>
+      <p>Your wishlist is empty.</p>
+      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Save items you love to curate your personal beauty edit.</span>
+    </div>
+    <div class="cart-drawer-footer">
+      <button class="btn-luxury-primary" id="wishlistAddAllBtn" style="width:100%;margin-bottom:0.75rem;display:none;" onclick="addAllWishlistToCart()">MOVE ALL TO BAG &rarr;</button>
+      <button class="btn-luxury-outline" style="width:100%;" onclick="closeWishlistDrawer()">CONTINUE SHOPPING</button>
+    </div>
+  </aside>
+
+  <!-- Search Modal -->
+  <div class="search-modal" id="searchModal" role="dialog" aria-modal="true">
+    <button class="modal-close-btn" id="searchModalCloseBtn" aria-label="Close Search">&times;</button>
+    <div class="search-header-wrap">
+      <input type="text" class="search-input-field" id="searchModalInput" placeholder="Search the collection..." autocomplete="off" />
+    </div>
+    <div class="search-results-grid" id="searchResultsGrid">
+      <p style="grid-column:span 3;color:rgba(250,247,242,0.5);text-align:center;">Type to search luxury cosmetics, fragrances &amp; skincare...</p>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="lumiere-toast" id="lumiereToast">
+    <span style="color:var(--color-gold,#C9A96E);">✦</span>
+    <span id="toastMessage">Product added to your bag.</span>
+  </div>
+
+  <script src="js/lumiere-cinematic.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    (function forceReveal() {
+      function revealVisible() {
+        var els = document.querySelectorAll('.reveal:not(.revealed),.reveal-left:not(.revealed),.reveal-right:not(.revealed)');
+        var vp = window.innerHeight || document.documentElement.clientHeight;
+        els.forEach(function(el) {
+          if (el.getBoundingClientRect().top < vp + 100) el.classList.add('revealed');
+        });
+      }
+      document.addEventListener('DOMContentLoaded', function() { revealVisible(); setTimeout(revealVisible, 120); setTimeout(revealVisible, 400); });
+      window.addEventListener('scroll', revealVisible, { passive: true });
+    })();
+  </script>
+</body>
+</html>
