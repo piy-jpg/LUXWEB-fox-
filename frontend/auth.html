@@ -1027,14 +1027,27 @@
             Enter the 6-digit verification code sent to <strong id="displayOtpPhone" style="color:var(--color-gold);"></strong>
           </div>
 
+          <!-- Instant Verification Code Reflection Box (Free Mode) -->
+          <div id="otpReflectionCard" style="display: none; background: linear-gradient(135deg, rgba(212,175,55,0.15), rgba(0,0,0,0.45)); border: 1px solid rgba(212,175,55,0.4); border-radius: 8px; padding: 1.15rem; margin-bottom: 1.25rem; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <div style="font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-gold); margin-bottom: 0.35rem;">
+              ✦ ATELIER VERIFICATION OTP FOR <span id="reflectionPhoneText" style="color: #fff; font-weight: 600;"></span>
+            </div>
+            <div id="reflectionOtpCode" style="font-family: var(--font-serif); font-size: 2.2rem; letter-spacing: 0.25em; color: #fff; font-weight: 400; margin: 0.35rem 0;">
+              ------
+            </div>
+            <button type="button" id="btnAutoApplyCode" onclick="autoApplyReflectedOtp()" style="background: var(--color-gold); color: #000; border: none; padding: 0.45rem 1.35rem; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: opacity 0.2s;">
+              APPLY CODE &rarr;
+            </button>
+          </div>
+
           <!-- Authentic Telecom SMS Status Banner -->
-          <div style="background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.22); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem; text-align: left;">
+          <div id="smsStatusBanner" style="display: none; background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.22); border-radius: 8px; padding: 1rem; margin-bottom: 1.25rem; text-align: left;">
             <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#d4af37" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               <span style="font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase; color: #d4af37; font-weight: 600;">AUTHENTIC SMS DISPATCHED</span>
             </div>
             <p style="font-size: 0.78rem; color: rgba(250,247,242,0.85); margin: 0; line-height: 1.45;">
-              A 6-digit verification code has been dispatched to your mobile phone <strong id="displayOtpPhone" style="color: #fff;"></strong>. Please check your SMS Messages inbox and enter the code below.
+              A 6-digit verification code has been dispatched to your mobile phone <strong id="displayOtpPhoneSMS" style="color: #fff;"></strong>. Please check your SMS Messages inbox and enter the code below.
             </p>
           </div>
 
@@ -1245,6 +1258,7 @@
     let currentPhone = '';
     let currentOtpToken = '';
     let currentVerificationToken = '';
+    let currentReflectedOtp = '';
     let resendCountdownTimer = null;
 
     // Google Firebase Phone Authentication Setup (10,000 Free Real Telecom SMS / Month)
@@ -1380,7 +1394,7 @@
 
       let realSmsSent = false;
 
-      // 1. Dispatch Real Telecom SMS via Google Firebase Phone Auth
+      // 1. Attempt Google Firebase Phone Auth if enabled
       if (firebaseAuth) {
         try {
           initRecaptcha();
@@ -1389,32 +1403,11 @@
             realSmsSent = true;
           }
         } catch (fbErr) {
-          console.error('[Firebase SMS dispatch error]:', fbErr);
+          console.warn('[Firebase Notice]:', fbErr.message);
           if (recaptchaVerifier) {
             try { recaptchaVerifier.clear(); recaptchaVerifier = null; } catch {}
           }
-
-          if (fbErr.code === 'auth/unauthorized-domain') {
-            showAlert('✦ Google Security: Domain not authorized yet. Please add luxweb-fox.vercel.app in Firebase Console > Authentication > Settings > Authorized domains.');
-            btn.disabled = false;
-            btn.innerText = 'GET ATELIER OTP →';
-            return;
-          } else if (fbErr.code === 'auth/quota-exceeded') {
-            showAlert('✦ Google Notice: Daily SMS quota of 10 reached on free tier.');
-            btn.disabled = false;
-            btn.innerText = 'GET ATELIER OTP →';
-            return;
-          } else if (fbErr.code === 'auth/invalid-phone-number') {
-            showAlert('✦ Invalid mobile number format. Please ensure 10 digits.');
-            btn.disabled = false;
-            btn.innerText = 'GET ATELIER OTP →';
-            return;
-          } else {
-            showAlert(`✦ Google SMS Notice: ${fbErr.message || 'SMS dispatch failed. Check console.'}`);
-            btn.disabled = false;
-            btn.innerText = 'GET ATELIER OTP →';
-            return;
-          }
+          // Seamless fallback to Instant Verification Code
         }
       }
 
@@ -1430,9 +1423,22 @@
         switchStage('otp');
         startResendTimer(30);
 
-        if (realSmsSent) {
-          showAlert(`✦ Real telecom SMS dispatched by Google to ${currentPhone}. Please check your Messages app.`, false);
+        if (backendData.reflectedOtp) {
+          currentReflectedOtp = backendData.reflectedOtp;
+          document.getElementById('reflectionPhoneText').innerText = currentPhone;
+          document.getElementById('reflectionOtpCode').innerText = backendData.reflectedOtp;
+          document.getElementById('otpReflectionCard').style.display = 'block';
+          document.getElementById('smsStatusBanner').style.display = 'none';
+          showAlert(`✦ Verification code generated for ${currentPhone}. Click Apply Code to proceed.`, false);
+        } else if (realSmsSent || backendData.realSmsSent) {
+          document.getElementById('otpReflectionCard').style.display = 'none';
+          document.getElementById('smsStatusBanner').style.display = 'block';
+          const smsPhoneEl = document.getElementById('displayOtpPhoneSMS');
+          if (smsPhoneEl) smsPhoneEl.innerText = currentPhone;
+          showAlert(`✦ Real telecom SMS dispatched to ${currentPhone}. Please check your Messages app.`, false);
         } else {
+          document.getElementById('otpReflectionCard').style.display = 'none';
+          document.getElementById('smsStatusBanner').style.display = 'block';
           showAlert(backendData.message || `✦ Verification SMS dispatched to ${currentPhone}.`, false);
         }
       } catch (err) {
@@ -1440,6 +1446,15 @@
       } finally {
         btn.disabled = false;
         btn.innerText = 'GET ATELIER OTP →';
+      }
+    }
+
+    function autoApplyReflectedOtp() {
+      if (currentReflectedOtp) {
+        const input = document.getElementById('otpCodeInput');
+        input.value = currentReflectedOtp;
+        input.focus();
+        showAlert('✦ Code applied. Click APPLY & VERIFY OTP to complete your profile.', false);
       }
     }
 

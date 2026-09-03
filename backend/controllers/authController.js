@@ -621,9 +621,10 @@ async function sendOtp(req, res) {
       success: true,
       message: smsDispatch.success 
         ? `✦ Real SMS dispatched to your mobile phone ${normalizedPhone}. Check your Messages app.`
-        : `✦ OTP generated for ${normalizedPhone}. Enter the code to continue.`,
+        : `✦ Atelier Code generated for ${normalizedPhone}. Enter code below to continue.`,
       phone: normalizedPhone,
       realSmsSent: smsDispatch.success,
+      reflectedOtp: smsDispatch.success ? null : otp,
       provider: smsDispatch.provider,
       otpToken,
       expiresInSeconds: 300,
