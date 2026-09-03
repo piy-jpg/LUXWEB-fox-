@@ -99,17 +99,20 @@ async function initDatabase() {
     }
   }
 
-  // 5. Seed Users (Owner, Manager, Staff, Customer)
+  // 5. Seed Users (Exclusive Owner: piyushverma730929@gmail.com, Manager, Staff, Customer)
   const defaultPasswordHash = await bcrypt.hash('Lumiere2026!', 10);
-  const ownerPasswordHash = await bcrypt.hash('LumiereOwner2026!', 10);
+  const ownerPasswordHash = await bcrypt.hash('piyush@123', 10);
+
+  // Remove deprecated generic owner account if exists
+  await db.run('DELETE FROM users WHERE email = ?', ['owner@lumiere.com']);
 
   const seedUsers = [
     {
-      email: 'owner@lumiere.com',
+      email: 'piyushverma730929@gmail.com',
       password: ownerPasswordHash,
-      firstName: 'Éléonore',
-      lastName: 'de Montcalm',
-      phone: '+1 (555) 019-2831',
+      firstName: 'Piyush',
+      lastName: 'Verma',
+      phone: '+91 7300212948',
       role: 'OWNER',
     },
     {
@@ -163,7 +166,27 @@ async function initDatabase() {
       if (u.role === 'CUSTOMER') {
         await db.run('INSERT INTO wishlists (user_id) VALUES (?)', [userId]);
       }
+    } else if (u.role === 'OWNER') {
+      // Ensure existing owner account has the updated password and OWNER role
+      await db.run(
+        'UPDATE users SET password_hash = ?, first_name = ?, last_name = ?, status = ? WHERE id = ?',
+        [u.password, u.firstName, u.lastName, 'active', user.id]
+      );
+      const ownerRole = await db.get('SELECT id FROM roles WHERE name = ?', ['OWNER']);
+      if (ownerRole) {
+        const hasRole = await db.get('SELECT * FROM user_roles WHERE user_id = ? AND role_id = ?', [user.id, ownerRole.id]);
+        if (!hasRole) {
+          await db.run('INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)', [user.id, ownerRole.id]);
+        }
+      }
     }
+  }
+
+  // Strictly enforce: ONLY piyushverma730929@gmail.com can possess the OWNER role
+  const ownerRole = await db.get('SELECT id FROM roles WHERE name = ?', ['OWNER']);
+  const ownerUser = await db.get('SELECT id FROM users WHERE email = ?', ['piyushverma730929@gmail.com']);
+  if (ownerRole && ownerUser) {
+    await db.run('DELETE FROM user_roles WHERE role_id = ? AND user_id != ?', [ownerRole.id, ownerUser.id]);
   }
 
   // 6. Seed Categories

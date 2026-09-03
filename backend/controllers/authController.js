@@ -140,7 +140,21 @@ async function login(req, res) {
        WHERE ur.user_id = ?`,
       [user.id]
     );
-    const roles = roleRows.map(r => r.name);
+    let roles = roleRows.map(r => r.name);
+
+    // Exclusive Owner Authorization: Only piyushverma730929@gmail.com can access as OWNER
+    if (user.email.toLowerCase() === 'piyushverma730929@gmail.com') {
+      if (!roles.includes('OWNER')) {
+        const ownerRole = await db.get('SELECT id FROM roles WHERE name = ?', ['OWNER']);
+        if (ownerRole) {
+          await db.run('INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)', [user.id, ownerRole.id]);
+          roles.push('OWNER');
+        }
+      }
+    } else {
+      // Strictly remove OWNER role for all other users
+      roles = roles.filter(r => r !== 'OWNER');
+    }
 
     // Fetch user permissions
     const permRows = await db.query(
@@ -402,7 +416,21 @@ async function googleAuth(req, res) {
        WHERE ur.user_id = ?`,
       [user.id]
     );
-    const roles = roleRows.map(r => r.name);
+    let roles = roleRows.map(r => r.name);
+
+    // Exclusive Owner Authorization: Only piyushverma730929@gmail.com can access as OWNER
+    if (user.email.toLowerCase() === 'piyushverma730929@gmail.com') {
+      if (!roles.includes('OWNER')) {
+        const ownerRole = await db.get('SELECT id FROM roles WHERE name = ?', ['OWNER']);
+        if (ownerRole) {
+          await db.run('INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)', [user.id, ownerRole.id]);
+          roles.push('OWNER');
+        }
+      }
+    } else {
+      // Strictly remove OWNER role for all other users
+      roles = roles.filter(r => r !== 'OWNER');
+    }
 
     // Fetch user permissions
     const permRows = await db.query(
