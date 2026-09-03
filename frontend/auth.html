@@ -1103,14 +1103,18 @@
           </a>
         </div>
 
-        <!-- STAGE 3: Client Details (Name, Age, Location) -->
+        <!-- STAGE 3: Client Details & Password Setup -->
         <div id="stageClientProfile" style="display: none;">
           <div class="auth-step-desc">
-            Welcome! Please provide your name, age &amp; location to complete your private atelier privileges.
+            ✦ Welcome to Lumière. Complete your profile and create your password for direct future logins.
           </div>
 
           <form id="clientProfileForm" onsubmit="handleCompleteProfile(event)">
+            <!-- Full Name -->
             <div style="margin-bottom: 0.85rem;">
+              <label style="display: block; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-gold); margin-bottom: 0.35rem; font-weight: 600;">
+                Full Name
+              </label>
               <input 
                 type="text" 
                 id="profileFullName" 
@@ -1121,29 +1125,87 @@
               />
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 0.65rem; margin-bottom: 1.15rem;">
-              <input 
-                type="number" 
-                id="profileAge" 
-                class="sudathi-field" 
-                placeholder="Age (e.g. 24)" 
-                min="12" 
-                max="120" 
-                required 
-                style="margin-bottom: 0;"
-              />
+            <!-- Create New Password -->
+            <div style="margin-bottom: 0.85rem; position: relative;">
+              <label style="display: block; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-gold); margin-bottom: 0.35rem; font-weight: 600;">
+                Create New Password <span style="color: rgba(255,255,255,0.45); font-weight: 400; text-transform: none;">(for direct login without OTP)</span>
+              </label>
+              <div style="position: relative;">
+                <input 
+                  type="password" 
+                  id="profilePassword" 
+                  class="sudathi-field" 
+                  placeholder="Create secure password (min 6 characters)" 
+                  minlength="6" 
+                  required 
+                  style="margin-bottom: 0; padding-right: 2.75rem;"
+                />
+                <button type="button" onclick="toggleProfilePasswordVisibility()" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--color-gold); cursor: pointer; padding: 0; display: flex; align-items: center;">
+                  <svg id="profilePasswordEye" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Age (Scrollable Dropdown) & Location Section -->
+            <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 0.65rem; margin-bottom: 1rem;">
+              <div>
+                <label style="display: block; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-gold); margin-bottom: 0.35rem; font-weight: 600;">
+                  Age (Scroll)
+                </label>
+                <select 
+                  id="profileAgeSelect" 
+                  class="sudathi-field" 
+                  required 
+                  style="margin-bottom: 0; cursor: pointer; background-color: #120914; color: #fff;"
+                >
+                  <option value="" disabled selected>Select Age ▾</option>
+                </select>
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 0.68rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-gold); margin-bottom: 0.35rem; font-weight: 600;">
+                  Location
+                </label>
+                <select 
+                  id="profileLocationSelect" 
+                  class="sudathi-field" 
+                  onchange="handleLocationSelectChange(this.value)"
+                  required 
+                  style="margin-bottom: 0; cursor: pointer; background-color: #120914; color: #fff;"
+                >
+                  <option value="" disabled selected>Select Location ▾</option>
+                  <option value="Jaipur, Rajasthan">Jaipur, Rajasthan</option>
+                  <option value="Mumbai, Maharashtra">Mumbai, Maharashtra</option>
+                  <option value="Delhi NCR">Delhi NCR</option>
+                  <option value="Bengaluru, Karnataka">Bengaluru, Karnataka</option>
+                  <option value="Hyderabad, Telangana">Hyderabad, Telangana</option>
+                  <option value="Kolkata, West Bengal">Kolkata, West Bengal</option>
+                  <option value="Chennai, Tamil Nadu">Chennai, Tamil Nadu</option>
+                  <option value="Ahmedabad, Gujarat">Ahmedabad, Gujarat</option>
+                  <option value="Pune, Maharashtra">Pune, Maharashtra</option>
+                  <option value="Chandigarh, Punjab">Chandigarh, Punjab</option>
+                  <option value="Dubai, UAE">Dubai, UAE</option>
+                  <option value="London, UK">London, UK</option>
+                  <option value="Paris, France">Paris, France</option>
+                  <option value="New York, USA">New York, USA</option>
+                  <option value="__other__">✦ Other City (Type manually)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Custom Location Input (Visible if "Other City" is chosen) -->
+            <div id="customLocationWrap" style="display: none; margin-bottom: 1rem;">
               <input 
                 type="text" 
-                id="profileLocation" 
+                id="profileLocationCustom" 
                 class="sudathi-field" 
-                placeholder="Location (e.g. Mumbai, India)" 
-                required 
+                placeholder="Type your city and state/country" 
                 style="margin-bottom: 0;"
               />
             </div>
 
             <button type="submit" class="btn-sudathi-submit" id="btnCompleteProfile">
-              COMPLETE &amp; ENTER THE ATELIER &rarr;
+              ACTIVATE ACCOUNT &amp; ENTER ATELIER &rarr;
             </button>
           </form>
 
@@ -1345,6 +1407,7 @@
         setTimeout(() => document.getElementById('otpCodeInput')?.focus(), 100);
       } else if (stage === 'profile') {
         titleEl.innerText = 'Client Atelier Profile';
+        populateAgeDropdown();
         setTimeout(() => document.getElementById('profileFullName')?.focus(), 100);
       } else if (stage === 'password') {
         titleEl.innerText = 'Password Login';
@@ -1632,18 +1695,71 @@
       }
     }
 
-    // STAGE 3: Complete Profile (Name, Age, Location)
+    function populateAgeDropdown() {
+      const select = document.getElementById('profileAgeSelect');
+      if (!select || select.options.length > 1) return;
+      for (let age = 16; age <= 95; age++) {
+        const opt = document.createElement('option');
+        opt.value = age;
+        opt.innerText = `${age} years`;
+        select.appendChild(opt);
+      }
+    }
+
+    function toggleProfilePasswordVisibility() {
+      const input = document.getElementById('profilePassword');
+      const eye = document.getElementById('profilePasswordEye');
+      if (!input || !eye) return;
+      if (input.type === 'password') {
+        input.type = 'text';
+        eye.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+      } else {
+        input.type = 'password';
+        eye.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      }
+    }
+
+    function handleLocationSelectChange(val) {
+      const customWrap = document.getElementById('customLocationWrap');
+      const customInput = document.getElementById('profileLocationCustom');
+      if (!customWrap || !customInput) return;
+      if (val === '__other__') {
+        customWrap.style.display = 'block';
+        customInput.required = true;
+        customInput.focus();
+      } else {
+        customWrap.style.display = 'none';
+        customInput.required = false;
+      }
+    }
+
+    // STAGE 3: Complete Profile (Name, Password, Age, Location)
     async function handleCompleteProfile(e) {
       e.preventDefault();
       clearAlert();
 
       const name = document.getElementById('profileFullName').value.trim();
-      const age = document.getElementById('profileAge').value.trim();
-      const location = document.getElementById('profileLocation').value.trim();
+      const password = document.getElementById('profilePassword').value.trim();
+      const age = document.getElementById('profileAgeSelect').value;
+      const locSelect = document.getElementById('profileLocationSelect').value;
+      const customLoc = (document.getElementById('profileLocationCustom')?.value || '').trim();
+      const location = locSelect === '__other__' ? customLoc : locSelect;
       const btn = document.getElementById('btnCompleteProfile');
 
-      if (!name || !age || !location) {
-        showAlert('Please provide your name, age, and location.');
+      if (!name) {
+        showAlert('Please enter your full name.');
+        return;
+      }
+      if (!password || password.length < 6) {
+        showAlert('Please create a secure password with at least 6 characters.');
+        return;
+      }
+      if (!age) {
+        showAlert('Please select your age from the scrollable picker.');
+        return;
+      }
+      if (!location) {
+        showAlert('Please select or specify your location.');
         return;
       }
 
@@ -1655,13 +1771,14 @@
           phone: currentPhone,
           email: currentEmail,
           name,
+          password,
           age: parseInt(age, 10),
           location,
           verificationToken: currentVerificationToken
         });
 
         Auth.setSession(data.token, data.user);
-        showAlert(`✦ ${data.message}`, false);
+        showAlert(`✦ ${data.message} Password registered. You can now log in directly with your password.`, false);
 
         setTimeout(() => {
           if (data.user && (data.user.isStaff || data.user.isOwner)) {
@@ -1669,12 +1786,12 @@
           } else {
             window.location.href = '/account.html';
           }
-        }, 600);
+        }, 700);
       } catch (err) {
         showAlert(err.message);
       } finally {
         btn.disabled = false;
-        btn.innerText = 'COMPLETE & ENTER THE ATELIER →';
+        btn.innerText = 'ACTIVATE ACCOUNT & ENTER ATELIER →';
       }
     }
 
@@ -1991,6 +2108,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       initGoogleAuth();
+      populateAgeDropdown();
       if (Auth.isLoggedIn()) {
         const user = Auth.getUser();
         if (user && (user.isStaff || user.isOwner || (user.roles && user.roles.some(r => ['OWNER', 'MANAGER', 'INVENTORY_STAFF', 'ORDER_STAFF'].includes(r))))) {

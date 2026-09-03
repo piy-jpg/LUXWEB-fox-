@@ -792,7 +792,7 @@ async function verifyOtp(req, res) {
  */
 async function completeProfile(req, res) {
   try {
-    const { phone, email, name, age, location, verificationToken } = req.body;
+    const { phone, email, name, age, location, password, verificationToken } = req.body;
     if ((!phone && !email) || !name || !age || !location) {
       return res.status(400).json({ success: false, error: 'Contact, Full Name, Age, and Location are all required.' });
     }
@@ -824,6 +824,12 @@ async function completeProfile(req, res) {
       return res.status(400).json({ success: false, error: 'Please enter a valid age between 10 and 120.' });
     }
 
+    // Hash user-provided password or generate secure random hash
+    let passwordHash = null;
+    if (password && password.trim().length >= 6) {
+      passwordHash = await bcrypt.hash(password.trim(), 10);
+    }
+
     const nameParts = name.trim().split(/\s+/);
     const firstName = nameParts[0] || 'Client';
     const lastName = nameParts.slice(1).join(' ') || '';
@@ -848,20 +854,27 @@ async function completeProfile(req, res) {
       }
 
       if (user) {
-        await db.run(
-          `UPDATE users SET first_name = ?, last_name = ?, age = ?, location = ?, phone = COALESCE(NULLIF(?, ''), phone) WHERE id = ?`,
-          [firstName, lastName, parsedAge, cleanLocation, formattedPhone, user.id]
-        );
+        if (passwordHash) {
+          await db.run(
+            `UPDATE users SET first_name = ?, last_name = ?, age = ?, location = ?, password_hash = ?, phone = COALESCE(NULLIF(?, ''), phone) WHERE id = ?`,
+            [firstName, lastName, parsedAge, cleanLocation, passwordHash, formattedPhone, user.id]
+          );
+        } else {
+          await db.run(
+            `UPDATE users SET first_name = ?, last_name = ?, age = ?, location = ?, phone = COALESCE(NULLIF(?, ''), phone) WHERE id = ?`,
+            [firstName, lastName, parsedAge, cleanLocation, formattedPhone, user.id]
+          );
+        }
         user.first_name = firstName;
         user.last_name = lastName;
         user.age = parsedAge;
         user.location = cleanLocation;
       } else {
-        const dummyPass = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10);
+        const finalHash = passwordHash || (await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10));
         const resUser = await db.run(
           `INSERT INTO users (email, password_hash, first_name, last_name, phone, age, location, status)
            VALUES (?, ?, ?, ?, ?, ?, ?, 'active')`,
-          [userEmail, dummyPass, firstName, lastName, formattedPhone, parsedAge, cleanLocation]
+          [userEmail, finalHash, firstName, lastName, formattedPhone, parsedAge, cleanLocation]
         );
         const userId = resUser.lastInsertRowid || Date.now();
         user = {
