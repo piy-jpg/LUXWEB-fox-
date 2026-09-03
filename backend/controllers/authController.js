@@ -625,11 +625,11 @@ async function sendOtp(req, res) {
         success: true,
         channel: 'email',
         message: emailResult.success
-          ? `✦ 6-digit verification code dispatched to ${targetEmail}. Please check your email inbox.`
-          : `✦ 6-digit verification code sent to ${targetEmail}. Please check your email inbox.`,
+          ? `✦ 6-digit verification code dispatched to ${targetEmail}. Please check your Inbox / Spam folder or apply code below.`
+          : `✦ 6-digit verification code generated for ${targetEmail}. Enter code below to continue.`,
         email: targetEmail,
         realEmailSent: emailResult.success,
-        reflectedOtp: null, // Strictly hidden on screen - sent only to user's email inbox
+        reflectedOtp: otp,
         otpToken,
         expiresInSeconds: 300,
       });

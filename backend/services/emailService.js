@@ -111,54 +111,66 @@ async function sendConsultationEmail(inquiry) {
 async function sendEmailOtp(email, otp) {
   try {
     const senderEmail = process.env.GMAIL_USER || 'piyushverma730929@gmail.com';
+    const cleanEmail = (email || '').trim().toLowerCase();
+
     const mailOptions = {
-      from: `"Lumière Atelier Privé" <${senderEmail}>`,
-      to: email,
+      from: `"Lumiere Atelier" <${senderEmail}>`,
+      to: cleanEmail,
       replyTo: senderEmail,
-      subject: `Lumière Atelier Verification Code: ${otp}`,
-      headers: {
-        'X-Priority': '1',
-        'X-MSMail-Priority': 'High',
-        'Importance': 'high',
-        'X-Auto-Response-Suppress': 'OOF, AutoReply',
-      },
+      subject: `${otp} is your Lumiere verification code`,
+      text: `Your Lumière Atelier verification code is: ${otp}\n\nThis code expires in 5 minutes.\n\nEnter this code on the Lumière Atelier sign-in page to access your private account.\n\nIf you did not request this verification code, you can safely ignore this email.\n\nLumière Atelier Privé · Jaipur`,
       html: `
         <!DOCTYPE html>
         <html lang="en">
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Lumière Atelier Verification Code</title>
+          <title>Verification Code: ${otp}</title>
         </head>
-        <body style="margin: 0; padding: 0; background-color: #0c080a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-          <div style="background-color: #0c080a; color: #FFFFFF; padding: 40px 20px; text-align: center;">
-            <div style="max-width: 480px; margin: 0 auto; background: #181216; border: 1px solid rgba(212,175,55,0.4); border-radius: 12px; padding: 36px 28px; box-shadow: 0 16px 48px rgba(0,0,0,0.7);">
-              <div style="font-size: 11px; letter-spacing: 3px; color: #C9A96E; text-transform: uppercase; font-weight: 700; margin-bottom: 14px;">✦ LUMIÈRE ATELIER PRIVÉ ✦</div>
-              <h2 style="font-family: Georgia, serif; font-size: 22px; font-weight: 300; margin: 0 0 14px; color: #FFFFFF;">Client Verification Code</h2>
-              <p style="font-size: 13px; color: rgba(250,247,242,0.8); line-height: 1.6; margin-bottom: 24px;">
-                Enter the 6-digit atelier code below to complete your sign-in and unlock personal atelier privileges:
-              </p>
-              <div style="background: rgba(201,169,110,0.12); border: 1px dashed #C9A96E; border-radius: 8px; padding: 18px 10px; font-size: 34px; letter-spacing: 8px; font-family: Georgia, serif; color: #C9A96E; font-weight: bold; margin-bottom: 24px;">
-                ${otp}
-              </div>
-              <p style="font-size: 11px; color: rgba(250,247,242,0.5); line-height: 1.5; margin: 0 0 12px;">
-                This code is valid for 5 minutes. If you did not request this code, no action is required.
-              </p>
-              <p style="font-size: 11px; color: rgba(201,169,110,0.8); line-height: 1.5; margin: 0;">
-                Tip: Check your Spam or Promotions folder if this email does not appear in your primary inbox.
-              </p>
-            </div>
-            <div style="margin-top: 24px; font-size: 11px; color: rgba(250,247,242,0.4);">
-              Lumière Haute Parfumerie &amp; Skincare Atelier · Jaipur
-            </div>
-          </div>
+        <body style="margin: 0; padding: 0; background-color: #f6f7f9; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #f6f7f9; padding: 32px 16px;">
+            <tr>
+              <td align="center">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 460px; background-color: #ffffff; border: 1px solid #e2e5e9; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                  <tr>
+                    <td style="background-color: #0f0a0d; padding: 24px 20px; text-align: center; border-bottom: 2px solid #d4af37;">
+                      <div style="font-size: 11px; letter-spacing: 3px; color: #d4af37; text-transform: uppercase; font-weight: 700; margin-bottom: 6px;">✦ LUMIÈRE ATELIER PRIVÉ ✦</div>
+                      <div style="font-family: Georgia, serif; font-size: 20px; color: #ffffff; font-weight: 300;">Client Verification Code</div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 28px 24px; text-align: center;">
+                      <p style="font-size: 14px; color: #333333; line-height: 1.6; margin: 0 0 20px;">
+                        Enter the following 6-digit code to complete your verification and access your personal atelier account:
+                      </p>
+                      <div style="background-color: #fcf9f2; border: 1px dashed #d4af37; border-radius: 8px; padding: 16px; margin: 0 0 20px;">
+                        <span style="font-family: 'Courier New', Courier, monospace; font-size: 36px; font-weight: 700; letter-spacing: 8px; color: #0f0a0d;">${otp}</span>
+                      </div>
+                      <p style="font-size: 12px; color: #666666; line-height: 1.5; margin: 0 0 8px;">
+                        This code is valid for <strong>5 minutes</strong>.
+                      </p>
+                      <p style="font-size: 11px; color: #888888; line-height: 1.5; margin: 0;">
+                        If you did not request this verification code, you can safely ignore this email.
+                      </p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="background-color: #fafafa; padding: 16px 20px; text-align: center; border-top: 1px solid #eeeeee; font-size: 11px; color: #999999; line-height: 1.4;">
+                      Lumière Haute Parfumerie &amp; Skincare Atelier · Jaipur<br>
+                      Security Notice: Lumière will never ask for this code.
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
         </body>
         </html>
-      `,
-      text: `Your Lumière Atelier verification code is ${otp}. Valid for 5 minutes. If you did not request this code, no action is required.`
+      `
     };
 
     const info = await transporter.sendMail(mailOptions);
+    console.log(`[sendEmailOtp] Real email delivered to ${cleanEmail}: ${info.messageId}`);
     return { success: true, messageId: info.messageId };
   } catch (err) {
     console.error('[sendEmailOtp] Error:', err.message);
