@@ -13,7 +13,7 @@ const { logAudit } = require('../middleware/auditLogger');
 async function getProfile(req, res) {
   try {
     const user = await db.get(
-      'SELECT id, email, first_name, last_name, phone, created_at FROM users WHERE id = ?',
+      'SELECT id, email, first_name, last_name, phone, age, location, created_at FROM users WHERE id = ?',
       [req.user.id]
     );
 
@@ -38,6 +38,8 @@ async function getProfile(req, res) {
         firstName: user.first_name || '',
         lastName: user.last_name || '',
         phone: user.phone || '',
+        age: user.age || '',
+        location: user.location || '',
         memberSince: user.created_at,
         orderCount: orderStats ? orderStats.order_count : 0,
         totalSpent: orderStats ? parseFloat(orderStats.total_spent) : 0,
@@ -54,14 +56,22 @@ async function getProfile(req, res) {
  * Update Customer Profile
  */
 async function updateProfile(req, res) {
-  const { firstName, lastName, phone } = req.body;
+  const { firstName, lastName, phone, age, location } = req.body;
 
   try {
+    const parsedAge = age ? parseInt(age, 10) : null;
     await db.run(
       `UPDATE users 
-       SET first_name = ?, last_name = ?, phone = ?, updated_at = CURRENT_TIMESTAMP 
+       SET first_name = ?, last_name = ?, phone = ?, age = ?, location = ?, updated_at = CURRENT_TIMESTAMP 
        WHERE id = ?`,
-      [firstName ? firstName.trim() : null, lastName ? lastName.trim() : null, phone ? phone.trim() : null, req.user.id]
+      [
+        firstName ? firstName.trim() : null, 
+        lastName ? lastName.trim() : null, 
+        phone ? phone.trim() : null, 
+        parsedAge, 
+        location ? location.trim() : null, 
+        req.user.id
+      ]
     );
 
     return res.json({
@@ -73,6 +83,8 @@ async function updateProfile(req, res) {
         firstName: firstName || '',
         lastName: lastName || '',
         phone: phone || '',
+        age: parsedAge,
+        location: location || '',
       },
     });
   } catch (err) {

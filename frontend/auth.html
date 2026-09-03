@@ -547,6 +547,136 @@
       border: 1px solid rgba(16, 185, 129, 0.4);
     }
 
+    /* Phone OTP Flow & SMS Reflection Styles */
+    .auth-step-desc {
+      font-size: 0.78rem;
+      color: rgba(250, 247, 242, 0.65);
+      margin-bottom: 1.15rem;
+      line-height: 1.45;
+    }
+
+    .sms-reflection-card {
+      background: linear-gradient(145deg, rgba(201, 169, 110, 0.12) 0%, rgba(20, 15, 18, 0.85) 100%);
+      border: 1px dashed rgba(201, 169, 110, 0.45);
+      border-radius: 12px;
+      padding: 0.9rem 1.1rem;
+      margin-bottom: 1.25rem;
+      text-align: center;
+      animation: fadeInGlow 0.4s ease forwards;
+    }
+
+    @keyframes fadeInGlow {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .sms-badge {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-gold);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+
+    .sms-message {
+      font-size: 0.82rem;
+      color: #FAF7F2;
+      margin-bottom: 0.5rem;
+    }
+
+    .sms-code-highlight {
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.25em;
+      color: var(--color-gold);
+      display: inline-block;
+      padding: 0.15rem 0.5rem;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 6px;
+      border: 1px solid rgba(201, 169, 110, 0.3);
+      margin: 0.15rem 0;
+    }
+
+    .btn-sms-apply {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: linear-gradient(135deg, #C9A96E 0%, #EAD8BA 100%);
+      color: #120D0F;
+      border: none;
+      border-radius: 20px;
+      padding: 0.35rem 0.85rem;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .btn-sms-apply:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(201, 169, 110, 0.35);
+    }
+
+    .otp-big-input {
+      text-align: center !important;
+      font-family: 'SF Mono', Monaco, Consolas, monospace !important;
+      font-size: 1.45rem !important;
+      letter-spacing: 0.4em !important;
+      font-weight: 700 !important;
+      color: var(--color-gold) !important;
+      background: rgba(14, 10, 12, 0.85) !important;
+      padding: 0.85rem 1rem !important;
+    }
+
+    .otp-timer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.74rem;
+      color: rgba(250, 247, 242, 0.55);
+      margin-bottom: 1.1rem;
+    }
+
+    .resend-otp-btn {
+      background: none;
+      border: none;
+      color: var(--color-gold);
+      font-size: 0.74rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .resend-otp-btn:disabled {
+      color: rgba(250, 247, 242, 0.35);
+      cursor: not-allowed;
+      text-decoration: none;
+    }
+
+    .auth-switch-link {
+      display: block;
+      text-align: center;
+      font-size: 0.76rem;
+      color: var(--color-gold);
+      margin-top: 1rem;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .auth-switch-link:hover {
+      text-decoration: underline;
+      opacity: 0.9;
+    }
+
     /* Responsive Breakdown for mobile */
     @media (max-width: 860px) {
       .sudathi-split-modal {
@@ -824,18 +954,15 @@
     <div class="sudathi-auth-pane">
       <div class="auth-inner-card">
 
-        <!-- Title & Tab Toggle -->
+        <!-- Title Header -->
         <div class="auth-tab-header">
-          <div class="auth-main-title" id="authTitleText">Login Now!</div>
-          <button type="button" class="auth-tab-toggle" id="authToggleBtn" onclick="toggleAuthMode()">
-            Create Account
-          </button>
+          <div class="auth-main-title" id="authTitleText">Private Atelier Access</div>
         </div>
 
         <!-- Alert Notification -->
         <div id="sudathiAlert" class="sudathi-alert"></div>
 
-        <!-- Google One-Click Auth -->
+        <!-- Google One-Click Auth (Always available at top) -->
         <button type="button" class="btn-google-sudathi" onclick="triggerGoogleSignIn()">
           <svg width="18" height="18" viewBox="0 0 24 24">
             <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -847,69 +974,189 @@
         </button>
 
         <div class="sudathi-divider">
-          <span>OR WITH MOBILE / EMAIL</span>
+          <span>OR LOGIN WITH PHONE OTP</span>
         </div>
 
-        <form id="sudathiAuthForm" onsubmit="handleAuthSubmit(event)">
-          
-          <!-- Name inputs (shown only when mode is register) -->
-          <div id="registerNameGroup" style="display: none; gap: 0.65rem; margin-bottom: 1.1rem;">
-            <input type="text" id="regFirstName" class="sudathi-field" placeholder="First Name" style="margin-bottom: 0;" />
-            <input type="text" id="regLastName" class="sudathi-field" placeholder="Last Name" style="margin-bottom: 0;" />
+        <!-- STAGE 1: Enter Phone Number -->
+        <div id="stagePhone">
+          <div class="auth-step-desc">Enter your 10-digit mobile number. We will dispatch a 6-digit atelier OTP.</div>
+          <form id="phoneOtpForm" onsubmit="handleRequestOtp(event)">
+            <div class="input-wrapper-sudathi">
+              <select class="country-code-select" id="otpCountryCode" aria-label="Country Code">
+                <option value="+91">🇮🇳 +91</option>
+                <option value="+1">🇺🇸 +1</option>
+                <option value="+44">🇬🇧 +44</option>
+                <option value="+971">🇦🇪 +971</option>
+                <option value="+33">🇫🇷 +33</option>
+              </select>
+              <input 
+                type="tel" 
+                id="otpMobileInput" 
+                class="sudathi-text-input" 
+                placeholder="Enter 10-Digit Mobile (e.g. 7300212948)" 
+                required 
+                maxlength="14"
+                autocomplete="tel" 
+              />
+            </div>
+
+            <label class="sudathi-checkbox-row">
+              <input type="checkbox" id="notifyCheckbox" class="sudathi-checkbox" checked />
+              <span class="sudathi-checkbox-label">Notify me with private atelier offers &amp; product drops</span>
+            </label>
+
+            <button type="submit" class="btn-sudathi-submit" id="btnRequestOtp">
+              GET ATELIER OTP &rarr;
+            </button>
+          </form>
+
+          <a href="javascript:void(0)" class="auth-switch-link" onclick="switchStage('password')">
+            ✦ Or sign in with Email &amp; Password
+          </a>
+        </div>
+
+        <!-- STAGE 2: Verify OTP with Instant SMS Reflection -->
+        <div id="stageOtpVerify" style="display: none;">
+          <div class="auth-step-desc">
+            Enter the 6-digit verification code sent to <strong id="displayOtpPhone" style="color:var(--color-gold);"></strong>
           </div>
 
-          <!-- Phone / Email Combined Input with Country Code Selector -->
-          <div class="input-wrapper-sudathi">
-            <select class="country-code-select" id="countryCodeSelect" aria-label="Country Code">
-              <option value="+91">🇮🇳 +91</option>
-              <option value="+1">🇺🇸 +1</option>
-              <option value="+44">🇬🇧 +44</option>
-              <option value="+971">🇦🇪 +971</option>
-              <option value="+33">🇫🇷 +33</option>
-            </select>
-            <input 
-              type="text" 
-              id="identifierInput" 
-              class="sudathi-text-input" 
-              placeholder="Enter Mobile Number or Email" 
-              required 
-              autocomplete="username" 
-            />
-          </div>
-
-          <!-- Password field with Show/Hide toggle -->
-          <div style="position: relative; margin-bottom: 1.1rem;">
-            <input 
-              type="password" 
-              id="passwordInput" 
-              class="sudathi-field" 
-              placeholder="Password (8+ chars)" 
-              required 
-              autocomplete="current-password" 
-              style="margin-bottom: 0; padding-right: 2.8rem;"
-            />
-            <button type="button" onclick="togglePasswordVisibility()" title="Toggle visibility" style="position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--color-gold); cursor: pointer; display: flex; align-items: center; opacity: 0.75; transition: opacity 0.2s;">
-              <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          <!-- Haute SMS Reflection Card -->
+          <div class="sms-reflection-card" id="smsReflectionCard">
+            <div class="sms-badge">
+              <span>✦</span> SMS DISPATCH (Instant Reflection) <span>✦</span>
+            </div>
+            <div class="sms-message">
+              Lumière Atelier OTP: <span id="smsOtpCode" class="sms-code-highlight">------</span>
+            </div>
+            <button type="button" class="btn-sms-apply" onclick="autoApplyOtp()">
+              <span>Tap to Auto-Apply</span> &rarr;
             </button>
           </div>
 
-          <!-- Notification Checkbox (Matching Sudathi.com) -->
-          <label class="sudathi-checkbox-row">
-            <input type="checkbox" id="notifyCheckbox" class="sudathi-checkbox" checked />
-            <span class="sudathi-checkbox-label">Notify me with private atelier offers &amp; product drops</span>
-          </label>
+          <form id="otpVerifyForm" onsubmit="handleVerifyOtp(event)">
+            <div style="margin-bottom: 0.85rem;">
+              <input 
+                type="text" 
+                id="otpCodeInput" 
+                class="sudathi-field otp-big-input" 
+                placeholder="• • • • • •" 
+                maxlength="6" 
+                required 
+                autocomplete="one-time-code" 
+              />
+            </div>
 
-          <!-- Primary Submit Button -->
-          <button type="submit" class="btn-sudathi-submit" id="submitBtn">
-            ENTER THE ATELIER &rarr;
-          </button>
-        </form>
+            <div class="otp-timer-row">
+              <span id="timerText">Resend code in <strong id="resendSeconds" style="color:var(--color-gold);">30s</strong></span>
+              <button type="button" id="btnResendOtp" class="resend-otp-btn" onclick="resendOtp()" disabled>Resend Code</button>
+            </div>
 
-        <!-- Preloaded Demo Accounts Quick Pills -->
-        <div class="demo-pill-group">
-          <button type="button" class="demo-pill" onclick="fillDemo('customer@lumiere.com', 'Lumiere2026!')">
-            ✦ Customer Demo
-          </button>
+            <button type="submit" class="btn-sudathi-submit" id="btnVerifyOtp">
+              APPLY &amp; VERIFY OTP &rarr;
+            </button>
+          </form>
+
+          <a href="javascript:void(0)" class="auth-switch-link" onclick="switchStage('phone')">
+            &larr; Change Mobile Number
+          </a>
+        </div>
+
+        <!-- STAGE 3: Client Details (Name, Age, Location) -->
+        <div id="stageClientProfile" style="display: none;">
+          <div class="auth-step-desc">
+            Welcome! Please provide your name, age &amp; location to complete your private atelier privileges.
+          </div>
+
+          <form id="clientProfileForm" onsubmit="handleCompleteProfile(event)">
+            <div style="margin-bottom: 0.85rem;">
+              <input 
+                type="text" 
+                id="profileFullName" 
+                class="sudathi-field" 
+                placeholder="Client Full Name (e.g. Piyush Verma)" 
+                required 
+                style="margin-bottom: 0;"
+              />
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1.6fr; gap: 0.65rem; margin-bottom: 1.15rem;">
+              <input 
+                type="number" 
+                id="profileAge" 
+                class="sudathi-field" 
+                placeholder="Age (e.g. 24)" 
+                min="12" 
+                max="120" 
+                required 
+                style="margin-bottom: 0;"
+              />
+              <input 
+                type="text" 
+                id="profileLocation" 
+                class="sudathi-field" 
+                placeholder="Location (e.g. Mumbai, India)" 
+                required 
+                style="margin-bottom: 0;"
+              />
+            </div>
+
+            <button type="submit" class="btn-sudathi-submit" id="btnCompleteProfile">
+              COMPLETE &amp; ENTER THE ATELIER &rarr;
+            </button>
+          </form>
+
+          <a href="javascript:void(0)" class="auth-switch-link" onclick="switchStage('phone')">
+            &larr; Cancel
+          </a>
+        </div>
+
+        <!-- STAGE 4: Password / Email Login Fallback -->
+        <div id="stagePassword" style="display: none;">
+          <div class="auth-step-desc">Sign in with your registered email and password.</div>
+
+          <form id="passwordAuthForm" onsubmit="handlePasswordAuthSubmit(event)">
+            <div class="input-wrapper-sudathi" style="margin-bottom: 1.1rem;">
+              <input 
+                type="text" 
+                id="identifierInput" 
+                class="sudathi-text-input" 
+                placeholder="Enter Email or Mobile" 
+                required 
+                autocomplete="username" 
+                style="padding-left: 1rem;"
+              />
+            </div>
+
+            <div style="position: relative; margin-bottom: 1.1rem;">
+              <input 
+                type="password" 
+                id="passwordInput" 
+                class="sudathi-field" 
+                placeholder="Password" 
+                required 
+                autocomplete="current-password" 
+                style="margin-bottom: 0; padding-right: 2.8rem;"
+              />
+              <button type="button" onclick="togglePasswordVisibility()" title="Toggle visibility" style="position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--color-gold); cursor: pointer; display: flex; align-items: center; opacity: 0.75; transition: opacity 0.2s;">
+                <svg id="eyeIcon" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+
+            <button type="submit" class="btn-sudathi-submit" id="btnPasswordSubmit">
+              ENTER THE ATELIER &rarr;
+            </button>
+          </form>
+
+          <div class="demo-pill-group">
+            <button type="button" class="demo-pill" onclick="fillDemo('customer@lumiere.com', 'Lumiere2026!')">
+              ✦ Customer Demo
+            </button>
+          </div>
+
+          <a href="javascript:void(0)" class="auth-switch-link" onclick="switchStage('phone')">
+            &larr; Back to Mobile OTP Login
+          </a>
         </div>
 
         <!-- Terms Footer Note -->
@@ -989,63 +1236,35 @@
   <!-- Scripts -->
   <script src="js/auth.js"></script>
   <script>
-    let currentMode = 'login'; // 'login' or 'register'
+    // State management: 'phone', 'otp', 'profile', 'password'
+    let activeStage = 'phone';
+    let currentPhone = '';
+    let currentReflectedOtp = '';
+    let resendCountdownTimer = null;
 
-    function toggleAuthMode() {
-      currentMode = currentMode === 'login' ? 'register' : 'login';
+    function switchStage(stage) {
+      activeStage = stage;
+      clearAlert();
+
+      document.getElementById('stagePhone').style.display = stage === 'phone' ? 'block' : 'none';
+      document.getElementById('stageOtpVerify').style.display = stage === 'otp' ? 'block' : 'none';
+      document.getElementById('stageClientProfile').style.display = stage === 'profile' ? 'block' : 'none';
+      document.getElementById('stagePassword').style.display = stage === 'password' ? 'block' : 'none';
+
       const titleEl = document.getElementById('authTitleText');
-      const toggleBtn = document.getElementById('authToggleBtn');
-      const nameGroup = document.getElementById('registerNameGroup');
-      const submitBtn = document.getElementById('submitBtn');
-
-      if (currentMode === 'register') {
-        titleEl.innerText = 'Create Account';
-        toggleBtn.innerText = 'Login Now!';
-        nameGroup.style.display = 'flex';
-        submitBtn.innerText = 'CREATE ACCOUNT →';
-        document.getElementById('regFirstName').required = true;
-        document.getElementById('regLastName').required = true;
-      } else {
-        titleEl.innerText = 'Login Now!';
-        toggleBtn.innerText = 'Create Account';
-        nameGroup.style.display = 'none';
-        submitBtn.innerText = 'ENTER THE ATELIER →';
-        document.getElementById('regFirstName').required = false;
-        document.getElementById('regLastName').required = false;
+      if (stage === 'phone') {
+        titleEl.innerText = 'Private Atelier Access';
+        setTimeout(() => document.getElementById('otpMobileInput')?.focus(), 100);
+      } else if (stage === 'otp') {
+        titleEl.innerText = 'Verify Mobile Code';
+        setTimeout(() => document.getElementById('otpCodeInput')?.focus(), 100);
+      } else if (stage === 'profile') {
+        titleEl.innerText = 'Client Atelier Profile';
+        setTimeout(() => document.getElementById('profileFullName')?.focus(), 100);
+      } else if (stage === 'password') {
+        titleEl.innerText = 'Password Login';
+        setTimeout(() => document.getElementById('identifierInput')?.focus(), 100);
       }
-      clearAlert();
-    }
-
-    function togglePasswordVisibility() {
-      const pass = document.getElementById('passwordInput');
-      const icon = document.getElementById('eyeIcon');
-      if (!pass || !icon) return;
-      if (pass.type === 'password') {
-        pass.type = 'text';
-        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
-      } else {
-        pass.type = 'password';
-        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
-      }
-    }
-
-    function showAlert(msg, isError = true) {
-      const el = document.getElementById('sudathiAlert');
-      el.style.display = 'block';
-      el.className = `sudathi-alert ${isError ? 'error' : 'success'}`;
-      el.innerHTML = msg;
-    }
-
-    function clearAlert() {
-      const el = document.getElementById('sudathiAlert');
-      el.style.display = 'none';
-    }
-
-    function fillDemo(identifier, pass) {
-      if (currentMode === 'register') toggleAuthMode();
-      document.getElementById('identifierInput').value = identifier;
-      document.getElementById('passwordInput').value = pass;
-      clearAlert();
     }
 
     function getApiBase() {
@@ -1094,69 +1313,248 @@
       return data;
     }
 
-    // Submit handler
-    async function handleAuthSubmit(e) {
+    // STAGE 1: Request OTP
+    async function handleRequestOtp(e) {
       e.preventDefault();
       clearAlert();
 
-      const rawId = document.getElementById('identifierInput').value.trim();
-      const code = document.getElementById('countryCodeSelect').value;
-      const password = document.getElementById('passwordInput').value;
-      const btn = document.getElementById('submitBtn');
+      const code = document.getElementById('otpCountryCode').value;
+      const rawNum = document.getElementById('otpMobileInput').value.trim();
+      const digits = rawNum.replace(/\D/g, '');
 
-      let identifier = rawId;
-      // If purely numeric digits, attach country code if not already present
-      if (/^\d+$/.test(rawId) && !rawId.startsWith('+')) {
-        identifier = code + ' ' + rawId;
+      if (digits.length < 10) {
+        showAlert('Please enter a valid 10-digit mobile number.');
+        return;
       }
 
+      const fullPhone = `${code} ${digits.slice(-10)}`;
+      const btn = document.getElementById('btnRequestOtp');
       btn.disabled = true;
-      btn.innerText = 'PROCESSING...';
+      btn.innerText = 'DISPATCHING OTP...';
 
       try {
-        if (currentMode === 'login') {
-          const data = await safeApiFetch('/api/auth/login', {
-            identifier,
-            password
-          });
+        const data = await safeApiFetch('/api/auth/otp/send', { phone: fullPhone });
+        currentPhone = data.phone || fullPhone;
+        currentReflectedOtp = data.otp || '';
 
+        document.getElementById('displayOtpPhone').innerText = currentPhone;
+        document.getElementById('smsOtpCode').innerText = currentReflectedOtp;
+        document.getElementById('otpCodeInput').value = '';
+
+        switchStage('otp');
+        startResendTimer(30);
+        showAlert(`✦ OTP successfully sent to ${currentPhone}.`, false);
+      } catch (err) {
+        showAlert(err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'GET ATELIER OTP →';
+      }
+    }
+
+    // Auto-apply reflected OTP
+    function autoApplyOtp() {
+      if (!currentReflectedOtp) return;
+      const input = document.getElementById('otpCodeInput');
+      input.value = currentReflectedOtp;
+      showAlert(`✦ Applied code: ${currentReflectedOtp}`, false);
+      document.getElementById('btnVerifyOtp').click();
+    }
+
+    // STAGE 2: Verify OTP
+    async function handleVerifyOtp(e) {
+      e.preventDefault();
+      clearAlert();
+
+      const enteredOtp = document.getElementById('otpCodeInput').value.trim();
+      if (!enteredOtp || enteredOtp.length !== 6) {
+        showAlert('Please enter the 6-digit verification code.');
+        return;
+      }
+
+      const btn = document.getElementById('btnVerifyOtp');
+      btn.disabled = true;
+      btn.innerText = 'VERIFYING CODE...';
+
+      try {
+        const data = await safeApiFetch('/api/auth/otp/verify', {
+          phone: currentPhone,
+          otp: enteredOtp
+        });
+
+        if (data.needsProfile) {
+          if (data.existingName) {
+            document.getElementById('profileFullName').value = data.existingName;
+          }
+          switchStage('profile');
+          showAlert(`✦ Phone verified. Please complete your profile.`, false);
+        } else {
+          // Profile exists, logged in successfully
           Auth.setSession(data.token, data.user);
           showAlert(`✦ ${data.message}`, false);
-
           setTimeout(() => {
-            if (data.user && data.user.isStaff) {
+            if (data.user && (data.user.isStaff || data.user.isOwner)) {
               window.location.href = 'admin/index.html';
             } else {
               window.location.href = 'account.html';
             }
-          }, 600);
-        } else {
-          const firstName = document.getElementById('regFirstName').value.trim();
-          const lastName = document.getElementById('regLastName').value.trim();
-          const email = rawId.includes('@') ? rawId : `${rawId.replace(/\D/g, '')}@client.lumiere.com`;
-          const phone = rawId.includes('@') ? '' : identifier;
-
-          const data = await safeApiFetch('/api/auth/signup', {
-            firstName,
-            lastName,
-            email,
-            phone,
-            password
-          });
-
-          Auth.setSession(data.token, data.user);
-          showAlert(`✦ ${data.message}`, false);
-
-          setTimeout(() => {
-            window.location.href = 'account.html';
           }, 600);
         }
       } catch (err) {
         showAlert(err.message);
       } finally {
         btn.disabled = false;
-        btn.innerText = currentMode === 'login' ? 'ENTER THE ATELIER →' : 'CREATE ACCOUNT →';
+        btn.innerText = 'APPLY & VERIFY OTP →';
       }
+    }
+
+    // STAGE 3: Complete Profile (Name, Age, Location)
+    async function handleCompleteProfile(e) {
+      e.preventDefault();
+      clearAlert();
+
+      const name = document.getElementById('profileFullName').value.trim();
+      const age = document.getElementById('profileAge').value.trim();
+      const location = document.getElementById('profileLocation').value.trim();
+      const btn = document.getElementById('btnCompleteProfile');
+
+      if (!name || !age || !location) {
+        showAlert('Please provide your name, age, and location.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'ACTIVATING ATELIER...';
+
+      try {
+        const data = await safeApiFetch('/api/auth/otp/complete-profile', {
+          phone: currentPhone,
+          name,
+          age: parseInt(age, 10),
+          location
+        });
+
+        Auth.setSession(data.token, data.user);
+        showAlert(`✦ ${data.message}`, false);
+
+        setTimeout(() => {
+          if (data.user && (data.user.isStaff || data.user.isOwner)) {
+            window.location.href = 'admin/index.html';
+          } else {
+            window.location.href = 'account.html';
+          }
+        }, 600);
+      } catch (err) {
+        showAlert(err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'COMPLETE & ENTER THE ATELIER →';
+      }
+    }
+
+    // Resend OTP
+    async function resendOtp() {
+      const resendBtn = document.getElementById('btnResendOtp');
+      resendBtn.disabled = true;
+
+      try {
+        const data = await safeApiFetch('/api/auth/otp/send', { phone: currentPhone });
+        currentReflectedOtp = data.otp || '';
+        document.getElementById('smsOtpCode').innerText = currentReflectedOtp;
+        startResendTimer(30);
+        showAlert(`✦ New code sent to ${currentPhone}. Code: ${currentReflectedOtp}`, false);
+      } catch (err) {
+        showAlert(err.message);
+        resendBtn.disabled = false;
+      }
+    }
+
+    function startResendTimer(seconds) {
+      if (resendCountdownTimer) clearInterval(resendCountdownTimer);
+      let remaining = seconds;
+      const resendBtn = document.getElementById('btnResendOtp');
+      const timerText = document.getElementById('timerText');
+      const countdownSpan = document.getElementById('resendSeconds');
+
+      resendBtn.disabled = true;
+      countdownSpan.innerText = `${remaining}s`;
+      timerText.style.display = 'inline';
+
+      resendCountdownTimer = setInterval(() => {
+        remaining -= 1;
+        if (remaining <= 0) {
+          clearInterval(resendCountdownTimer);
+          countdownSpan.innerText = '0s';
+          resendBtn.disabled = false;
+          timerText.style.display = 'none';
+        } else {
+          countdownSpan.innerText = `${remaining}s`;
+        }
+      }, 1000);
+    }
+
+    // STAGE 4: Password / Email Login Handler
+    async function handlePasswordAuthSubmit(e) {
+      e.preventDefault();
+      clearAlert();
+
+      const identifier = document.getElementById('identifierInput').value.trim();
+      const password = document.getElementById('passwordInput').value;
+      const btn = document.getElementById('btnPasswordSubmit');
+
+      btn.disabled = true;
+      btn.innerText = 'AUTHENTICATING...';
+
+      try {
+        const data = await safeApiFetch('/api/auth/login', { identifier, password });
+        Auth.setSession(data.token, data.user);
+        showAlert(`✦ ${data.message}`, false);
+
+        setTimeout(() => {
+          if (data.user && (data.user.isStaff || data.user.isOwner)) {
+            window.location.href = 'admin/index.html';
+          } else {
+            window.location.href = 'account.html';
+          }
+        }, 600);
+      } catch (err) {
+        showAlert(err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'ENTER THE ATELIER →';
+      }
+    }
+
+    function togglePasswordVisibility() {
+      const pass = document.getElementById('passwordInput');
+      const icon = document.getElementById('eyeIcon');
+      if (!pass || !icon) return;
+      if (pass.type === 'password') {
+        pass.type = 'text';
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>';
+      } else {
+        pass.type = 'password';
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+      }
+    }
+
+    function showAlert(msg, isError = true) {
+      const el = document.getElementById('sudathiAlert');
+      el.style.display = 'block';
+      el.className = `sudathi-alert ${isError ? 'error' : 'success'}`;
+      el.innerHTML = msg;
+    }
+
+    function clearAlert() {
+      const el = document.getElementById('sudathiAlert');
+      el.style.display = 'none';
+    }
+
+    function fillDemo(identifier, pass) {
+      switchStage('password');
+      document.getElementById('identifierInput').value = identifier;
+      document.getElementById('passwordInput').value = pass;
+      clearAlert();
     }
 
     let googleTokenClient = null;

@@ -24,7 +24,18 @@ async function initDatabase() {
   await db.exec(rawSchema);
   console.log('[InitDB] Tables & indexes verified.');
 
-  // 2. Seed Roles
+  // Migration: Ensure age, location columns and phone_otps table exist
+  try { await db.exec('ALTER TABLE users ADD COLUMN age INTEGER;'); } catch {}
+  try { await db.exec('ALTER TABLE users ADD COLUMN location VARCHAR(255);'); } catch {}
+  await db.exec(`
+    CREATE TABLE IF NOT EXISTS phone_otps (
+      phone VARCHAR(50) PRIMARY KEY,
+      otp VARCHAR(10) NOT NULL,
+      expires_at TIMESTAMP NOT NULL,
+      verified BOOLEAN DEFAULT 0,
+      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+  `);
   const roles = [
     { name: 'OWNER', description: 'Complete administrative ownership with full system access' },
     { name: 'MANAGER', description: 'Store manager: products, inventory, orders, customers & analytics' },

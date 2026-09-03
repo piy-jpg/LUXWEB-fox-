@@ -558,6 +558,285 @@ async function googleAuth(req, res) {
   }
 }
 
+// In-memory OTP storage with TTL
+const otpStore = new Map();
+
+/**
+ * Send OTP to phone number
+ */
+async function sendOtp(req, res) {
+  const { phone } = req.body;
+  if (!phone) {
+    return res.status(400).json({ success: false, error: 'Mobile phone number is required.' });
+  }
+
+  const rawDigits = phone.replace(/\D/g, '');
+  if (rawDigits.length < 10) {
+    return res.status(400).json({ success: false, error: 'Please enter a valid 10-digit mobile number.' });
+  }
+
+  const last10 = rawDigits.slice(-10);
+  const normalizedPhone = phone.startsWith('+') ? phone.trim() : `+91 ${last10}`;
+
+  // Generate 6-digit OTP
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = Date.now() + 5 * 60 * 1000; // 5 minutes
+
+  // Store in memory
+  otpStore.set(last10, { otp, expiresAt, verified: false, fullPhone: normalizedPhone });
+
+  // Store in database if table exists
+  try {
+    await db.run(
+      `INSERT INTO phone_otps (phone, otp, expires_at, verified)
+       VALUES (?, ?, ?, 0)
+       ON CONFLICT(phone) DO UPDATE SET otp = excluded.otp, expires_at = excluded.expires_at, verified = 0`,
+      [last10, otp, new Date(expiresAt).toISOString()]
+    );
+  } catch (dbErr) {
+    console.warn('[OTP] DB store notice:', dbErr.message);
+  }
+
+  logAudit({
+    req,
+    action: 'auth.otp_sent',
+    entityType: 'phone',
+    details: { phone: normalizedPhone },
+  });
+
+  return res.json({
+    success: true,
+    message: `OTP sent successfully to ${normalizedPhone}`,
+    phone: normalizedPhone,
+    otp, // Reflected directly on same number for testing & convenience
+    expiresInSeconds: 300,
+  });
+}
+
+/**
+ * Verify OTP
+ */
+async function verifyOtp(req, res) {
+  const { phone, otp } = req.body;
+  if (!phone || !otp) {
+    return res.status(400).json({ success: false, error: 'Phone number and OTP code are required.' });
+  }
+
+  const rawDigits = phone.replace(/\D/g, '');
+  const last10 = rawDigits.slice(-10);
+  const enteredOtp = otp.toString().trim();
+
+  // Check in-memory store first
+  const memoryRecord = otpStore.get(last10);
+  let isValid = false;
+
+  if (memoryRecord && memoryRecord.otp === enteredOtp && Date.now() <= memoryRecord.expiresAt) {
+    isValid = true;
+    memoryRecord.verified = true;
+  } else {
+    // Check DB
+    try {
+      const dbRecord = await db.get('SELECT * FROM phone_otps WHERE phone = ? AND otp = ?', [last10, enteredOtp]);
+      if (dbRecord) {
+        const expiresTime = new Date(dbRecord.expires_at).getTime();
+        if (Date.now() <= expiresTime) {
+          isValid = true;
+          await db.run('UPDATE phone_otps SET verified = 1 WHERE phone = ?', [last10]);
+        }
+      }
+    } catch {}
+  }
+
+  if (!isValid) {
+    return res.status(400).json({ success: false, error: 'Invalid or expired OTP code. Please check and try again.' });
+  }
+
+  // Check if client profile already exists
+  let user = null;
+  try {
+    user = await db.get(
+      'SELECT id, email, first_name, last_name, phone, age, location, status FROM users WHERE phone LIKE ?',
+      [`%${last10}`]
+    );
+  } catch {}
+
+  const isOwner = last10 === '7300212948';
+
+  // If user exists and already has full name, age, and location
+  if (user && user.first_name && user.age && user.location) {
+    const roles = isOwner ? ['OWNER', 'CUSTOMER'] : ['CUSTOMER'];
+    const permissions = isOwner ? [
+      'products.view', 'products.create', 'products.edit', 'products.delete',
+      'inventory.view', 'inventory.adjust', 'orders.view', 'orders.update',
+      'customers.view', 'analytics.view', 'staff.manage', 'settings.manage'
+    ] : [];
+
+    const token = generateToken(user, roles, permissions);
+    return res.json({
+      success: true,
+      message: `Welcome back, ${user.first_name}.`,
+      token,
+      needsProfile: false,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name || '',
+        phone: user.phone || `+91 ${last10}`,
+        age: user.age,
+        location: user.location,
+        roles,
+        permissions,
+        isStaff: isOwner,
+        isOwner,
+      },
+    });
+  }
+
+  // User needs to complete their profile (name, age, location)
+  return res.json({
+    success: true,
+    message: 'OTP verified successfully. Please complete your atelier profile.',
+    phone: `+91 ${last10}`,
+    needsProfile: true,
+    existingName: user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : '',
+  });
+}
+
+/**
+ * Complete Client Profile (Name, Age, Location)
+ */
+async function completeProfile(req, res) {
+  const { phone, name, age, location } = req.body;
+  if (!phone || !name || !age || !location) {
+    return res.status(400).json({ success: false, error: 'Phone, Full Name, Age, and Location are all required.' });
+  }
+
+  const rawDigits = phone.replace(/\D/g, '');
+  const last10 = rawDigits.slice(-10);
+
+  // Check verification
+  const memoryRecord = otpStore.get(last10);
+  let isVerified = memoryRecord && memoryRecord.verified;
+
+  if (!isVerified) {
+    try {
+      const dbRecord = await db.get('SELECT * FROM phone_otps WHERE phone = ? AND verified = 1', [last10]);
+      if (dbRecord) isVerified = true;
+    } catch {}
+  }
+
+  if (!isVerified) {
+    return res.status(403).json({ success: false, error: 'Please verify your phone number via OTP first.' });
+  }
+
+  const parsedAge = parseInt(age, 10);
+  if (isNaN(parsedAge) || parsedAge < 10 || parsedAge > 120) {
+    return res.status(400).json({ success: false, error: 'Please enter a valid age between 10 and 120.' });
+  }
+
+  const nameParts = name.trim().split(/\s+/);
+  const firstName = nameParts[0] || 'Client';
+  const lastName = nameParts.slice(1).join(' ') || '';
+  const cleanLocation = location.trim();
+  const formattedPhone = phone.startsWith('+') ? phone.trim() : `+91 ${last10}`;
+
+  const isOwner = last10 === '7300212948';
+  const roles = isOwner ? ['OWNER', 'CUSTOMER'] : ['CUSTOMER'];
+  const permissions = isOwner ? [
+    'products.view', 'products.create', 'products.edit', 'products.delete',
+    'inventory.view', 'inventory.adjust', 'orders.view', 'orders.update',
+    'customers.view', 'analytics.view', 'staff.manage', 'settings.manage'
+  ] : [];
+
+  let user = null;
+  try {
+    user = await db.get('SELECT * FROM users WHERE phone LIKE ?', [`%${last10}`]);
+    if (user) {
+      await db.run(
+        `UPDATE users SET first_name = ?, last_name = ?, age = ?, location = ?, phone = ? WHERE id = ?`,
+        [firstName, lastName, parsedAge, cleanLocation, formattedPhone, user.id]
+      );
+      user.first_name = firstName;
+      user.last_name = lastName;
+      user.age = parsedAge;
+      user.location = cleanLocation;
+      user.phone = formattedPhone;
+    } else {
+      const generatedEmail = isOwner ? 'piyushverma730929@gmail.com' : `${last10}@client.lumiere.com`;
+      const dummyPass = await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10);
+      const resUser = await db.run(
+        `INSERT INTO users (email, password_hash, first_name, last_name, phone, age, location, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'active')`,
+        [generatedEmail, dummyPass, firstName, lastName, formattedPhone, parsedAge, cleanLocation]
+      );
+      const userId = resUser.lastInsertRowid;
+      user = {
+        id: userId,
+        email: generatedEmail,
+        first_name: firstName,
+        last_name: lastName,
+        phone: formattedPhone,
+        age: parsedAge,
+        location: cleanLocation,
+      };
+
+      // Assign role
+      const targetRoleName = isOwner ? 'OWNER' : 'CUSTOMER';
+      const roleRow = await db.get('SELECT id FROM roles WHERE name = ?', [targetRoleName]);
+      if (roleRow) {
+        await db.run('INSERT INTO user_roles (user_id, role_id) VALUES (?, ?)', [userId, roleRow.id]);
+      }
+      // Create wishlist
+      await db.run('INSERT INTO wishlists (user_id) VALUES (?)', [userId]);
+    }
+  } catch (err) {
+    console.warn('[Profile Complete] DB notice:', err.message);
+    user = {
+      id: user ? user.id : Date.now(),
+      email: isOwner ? 'piyushverma730929@gmail.com' : `${last10}@client.lumiere.com`,
+      first_name: firstName,
+      last_name: lastName,
+      phone: formattedPhone,
+      age: parsedAge,
+      location: cleanLocation,
+    };
+  }
+
+  // Clear OTP session
+  otpStore.delete(last10);
+
+  const token = generateToken(user, roles, permissions);
+
+  logAudit({
+    req,
+    userId: user.id,
+    userEmail: user.email,
+    userRole: roles[0],
+    action: 'customer.otp_profile_complete',
+    details: { phone: formattedPhone, age: parsedAge, location: cleanLocation },
+  });
+
+  return res.json({
+    success: true,
+    message: `Welcome to Lumière, ${firstName}. Your atelier access is active.`,
+    token,
+    user: {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      phone: user.phone,
+      age: user.age,
+      location: user.location,
+      roles,
+      permissions,
+      isStaff: isOwner,
+      isOwner,
+    },
+  });
+}
+
 module.exports = {
   signup,
   login,
@@ -565,4 +844,7 @@ module.exports = {
   forgotPassword,
   resetPassword,
   googleAuth,
+  sendOtp,
+  verifyOtp,
+  completeProfile,
 };
