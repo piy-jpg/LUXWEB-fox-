@@ -35,6 +35,7 @@
           <li><a href="new-arrivals.html" class="nav-link">New Arrivals</a></li>
           <li><a href="collections.html" class="nav-link">Collections</a></li>
           <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="reviews.html" class="nav-link">Reviews</a></li>
         </ul>
       </nav>
 
@@ -67,27 +68,45 @@
         </button>
 
         <!-- Mobile Hamburger Toggle -->
-        <button class="nav-hamburger" id="navHamburger" aria-label="Toggle Mobile Menu">
+        <button class="nav-hamburger" id="navHamburger" onclick="openMobileNav()" aria-label="Toggle Mobile Menu">
           <span></span>
           <span></span>
           <span></span>
         </button>
       </div>
     </div>
+
+    <!-- Mobile Quick Navigation Strip (Visible on mobile preview & phones) -->
+    <nav class="mobile-subnav" aria-label="Mobile Page Navigation">
+      <ul class="mobile-subnav-list">
+        <li><a href="index.html" class="mobile-subnav-link active">Home</a></li>
+        <li><a href="shop.html" class="mobile-subnav-link">Shop</a></li>
+        <li><a href="new-arrivals.html" class="mobile-subnav-link">New Arrivals</a></li>
+        <li><a href="collections.html" class="mobile-subnav-link">Collections</a></li>
+        <li><a href="about.html" class="mobile-subnav-link">About</a></li>
+        <li><a href="reviews.html" class="mobile-subnav-link">Reviews</a></li>
+      </ul>
+    </nav>
   </header>
 
   <!-- Mobile Navigation Drawer -->
-  <div class="mobile-nav-drawer" id="mobileNavDrawer">
-    <button class="mobile-nav-close" id="mobileNavClose" aria-label="Close Mobile Menu">&times;</button>
+  <aside class="mobile-nav-drawer" id="mobileNavDrawer" aria-label="Mobile Navigation">
+    <div class="mobile-nav-drawer-header">
+      <a href="index.html" class="mobile-nav-brand">
+        <span style="color: var(--color-gold);">✦</span>
+        <span>LUMIÈRE</span>
+      </a>
+      <button class="mobile-nav-close" id="mobileNavClose" onclick="closeMobileNav()" aria-label="Close Mobile Menu">&times;</button>
+    </div>
     <ul class="mobile-nav-links">
-      <li><a href="index.html" class="mobile-nav-link" onclick="closeMobileNav()">Home</a></li>
-      <li><a href="shop.html" class="mobile-nav-link" onclick="closeMobileNav()">Shop</a></li>
-      <li><a href="new-arrivals.html" class="mobile-nav-link" onclick="closeMobileNav()">New Arrivals</a></li>
-      <li><a href="collections.html" class="mobile-nav-link" onclick="closeMobileNav()">Collections</a></li>
-      <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About</a></li>
-      <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews</a></li>
+      <li><a href="index.html" class="mobile-nav-link active" onclick="closeMobileNav()">Home <span>&rarr;</span></a></li>
+      <li><a href="shop.html" class="mobile-nav-link" onclick="closeMobileNav()">Shop <span>&rarr;</span></a></li>
+      <li><a href="new-arrivals.html" class="mobile-nav-link" onclick="closeMobileNav()">New Arrivals <span>&rarr;</span></a></li>
+      <li><a href="collections.html" class="mobile-nav-link" onclick="closeMobileNav()">Collections <span>&rarr;</span></a></li>
+      <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About <span>&rarr;</span></a></li>
+      <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews <span>&rarr;</span></a></li>
     </ul>
-  </div>
+  </aside>
 
   <main>
     <!-- =========================================================
@@ -1232,7 +1251,7 @@
        14. DRAWERS & MODALS (E-COMMERCE INTERACTION)
   ========================================================= -->
   <!-- Backdrop -->
-  <div class="lumiere-backdrop" id="lumiereBackdrop"></div>
+  <div class="lumiere-backdrop" id="lumiereBackdrop" onclick="closeAllDrawersAndModals()"></div>
 
   <!-- Slide-In Cart Drawer -->
   <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Bag">

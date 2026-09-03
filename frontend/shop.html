@@ -76,6 +76,18 @@
         </button>
       </div>
     </div>
+
+    <!-- Mobile Quick Navigation Strip (Visible on mobile preview & phones) -->
+    <nav class="mobile-subnav" aria-label="Mobile Page Navigation">
+      <ul class="mobile-subnav-list">
+        <li><a href="index.html" class="mobile-subnav-link">Home</a></li>
+        <li><a href="shop.html" class="mobile-subnav-link active">Shop</a></li>
+        <li><a href="new-arrivals.html" class="mobile-subnav-link">New Arrivals</a></li>
+        <li><a href="collections.html" class="mobile-subnav-link">Collections</a></li>
+        <li><a href="about.html" class="mobile-subnav-link">About</a></li>
+        <li><a href="reviews.html" class="mobile-subnav-link">Reviews</a></li>
+      </ul>
+    </nav>
   </header>
 
   <!-- Mobile Side Navigation Drawer -->
@@ -597,7 +609,7 @@
   <!-- =========================================================
        6. DRAWERS & MODALS (CART, WISHLIST, SEARCH, QUICK VIEW)
   ========================================================= -->
-  <div class="lumiere-backdrop" id="lumiereBackdrop"></div>
+  <div class="lumiere-backdrop" id="lumiereBackdrop" onclick="closeAllDrawersAndModals()"></div>
 
   <!-- Cart Drawer -->
   <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Bag">
@@ -697,69 +709,6 @@
   </div>
 
   <!-- Scripts -->
-  <script src="js/lumiere-cinematic.js"></script>
-
-  <!-- Backdrop -->
-  <div class="lumiere-backdrop" id="lumiereBackdrop"></div>
-
-  <!-- Cart Drawer -->
-  <aside class="cart-drawer" id="cartDrawer" aria-label="Shopping Bag">
-    <div class="cart-drawer-header">
-      <h3 class="cart-title">Your Bag</h3>
-      <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
-    </div>
-    <div class="shipping-meter-wrap">
-      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>$100.00</strong> more for complimentary delivery.</div>
-      <div class="shipping-meter-bar"><div class="shipping-meter-fill" id="shippingMeterFill"></div></div>
-    </div>
-    <div class="cart-items-container" id="cartItemsList"></div>
-    <div class="cart-empty-state" id="cartEmptyState">
-      <div class="cart-empty-icon">🛍️</div>
-      <p>Your shopping bag is empty.</p>
-      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Discover our luxury edits to get started.</span>
-    </div>
-    <div class="cart-drawer-footer">
-      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span></div>
-      <button class="btn-luxury-primary" style="width:100%;margin-bottom:0.75rem;" onclick="showToast('Proceeding to luxury checkout...')">CHECKOUT &rarr;</button>
-      <button class="btn-luxury-outline" style="width:100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
-    </div>
-  </aside>
-
-  <!-- Wishlist Drawer -->
-  <aside class="wishlist-drawer" id="wishlistDrawer" aria-label="Your Wishlist">
-    <div class="cart-drawer-header">
-      <h3 class="cart-title">Your Wishlist <span id="wishlistHeaderCount" style="font-size:1rem;color:var(--color-gold,#C9A96E);font-family:sans-serif;">(0)</span></h3>
-      <button class="drawer-close-btn" onclick="closeWishlistDrawer()" aria-label="Close Wishlist">&times;</button>
-    </div>
-    <div class="cart-items-container" id="wishlistItemsList"></div>
-    <div class="cart-empty-state" id="wishlistEmptyState">
-      <div class="cart-empty-icon">♡</div>
-      <p>Your wishlist is empty.</p>
-      <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Save items you love to curate your personal beauty edit.</span>
-    </div>
-    <div class="cart-drawer-footer">
-      <button class="btn-luxury-primary" id="wishlistAddAllBtn" style="width:100%;margin-bottom:0.75rem;display:none;" onclick="addAllWishlistToCart()">MOVE ALL TO BAG &rarr;</button>
-      <button class="btn-luxury-outline" style="width:100%;" onclick="closeWishlistDrawer()">CONTINUE SHOPPING</button>
-    </div>
-  </aside>
-
-  <!-- Search Modal -->
-  <div class="search-modal" id="searchModal" role="dialog" aria-modal="true">
-    <button class="modal-close-btn" id="searchModalCloseBtn" aria-label="Close Search">&times;</button>
-    <div class="search-header-wrap">
-      <input type="text" class="search-input-field" id="searchModalInput" placeholder="Search the collection..." autocomplete="off" />
-    </div>
-    <div class="search-results-grid" id="searchResultsGrid">
-      <p style="grid-column:span 3;color:rgba(250,247,242,0.5);text-align:center;">Type to search luxury cosmetics, fragrances &amp; skincare...</p>
-    </div>
-  </div>
-
-  <!-- Toast -->
-  <div class="lumiere-toast" id="lumiereToast">
-    <span style="color:var(--color-gold,#C9A96E);">✦</span>
-    <span id="toastMessage">Product added to your bag.</span>
-  </div>
-
   <script src="js/lumiere-cinematic.js"></script>
   <script src="js/shared.js"></script>
   <script src="js/shop.js"></script>

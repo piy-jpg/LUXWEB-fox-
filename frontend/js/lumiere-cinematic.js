@@ -1522,16 +1522,26 @@ function initNewsletter() {
 function openMobileNav() {
   const drawer = document.getElementById('mobileNavDrawer');
   const backdrop = document.getElementById('lumiereBackdrop');
-  if (drawer) drawer.classList.add('open');
+  const hamburger = document.getElementById('navHamburger');
+  if (drawer) {
+    drawer.classList.add('open');
+    drawer.setAttribute('aria-hidden', 'false');
+  }
   if (backdrop) backdrop.classList.add('open');
+  if (hamburger) hamburger.classList.add('is-active');
   document.body.style.overflow = 'hidden';
 }
 
 function closeMobileNav() {
   const drawer = document.getElementById('mobileNavDrawer');
   const backdrop = document.getElementById('lumiereBackdrop');
-  if (drawer) drawer.classList.remove('open');
+  const hamburger = document.getElementById('navHamburger');
+  if (drawer) {
+    drawer.classList.remove('open');
+    drawer.setAttribute('aria-hidden', 'true');
+  }
   if (backdrop && !isAnyOtherModalOpen()) backdrop.classList.remove('open');
+  if (hamburger) hamburger.classList.remove('is-active');
   document.body.style.overflow = '';
 }
 
@@ -1541,13 +1551,20 @@ function initMobileNav() {
   const closeBtn = document.getElementById('mobileNavClose');
 
   if (hamburger) {
+    hamburger.removeEventListener('click', openMobileNav);
     hamburger.addEventListener('click', openMobileNav);
   }
 
   if (closeBtn) {
+    closeBtn.removeEventListener('click', closeMobileNav);
     closeBtn.addEventListener('click', closeMobileNav);
   }
 }
+
+// Global window exposure for inline event handlers
+window.openMobileNav = openMobileNav;
+window.closeMobileNav = closeMobileNav;
+
 
 /* ------------------- UTILITIES ------------------- */
 function closeAllDrawersAndModals() {
