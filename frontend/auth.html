@@ -1240,6 +1240,8 @@
     let activeStage = 'phone';
     let currentPhone = '';
     let currentReflectedOtp = '';
+    let currentOtpToken = '';
+    let currentVerificationToken = '';
     let resendCountdownTimer = null;
 
     function switchStage(stage) {
@@ -1336,6 +1338,7 @@
         const data = await safeApiFetch('/api/auth/otp/send', { phone: fullPhone });
         currentPhone = data.phone || fullPhone;
         currentReflectedOtp = data.otp || '';
+        currentOtpToken = data.otpToken || '';
 
         document.getElementById('displayOtpPhone').innerText = currentPhone;
         document.getElementById('smsOtpCode').innerText = currentReflectedOtp;
@@ -1379,8 +1382,11 @@
       try {
         const data = await safeApiFetch('/api/auth/otp/verify', {
           phone: currentPhone,
-          otp: enteredOtp
+          otp: enteredOtp,
+          otpToken: currentOtpToken
         });
+
+        currentVerificationToken = data.verificationToken || '';
 
         if (data.needsProfile) {
           if (data.existingName) {
@@ -1431,7 +1437,8 @@
           phone: currentPhone,
           name,
           age: parseInt(age, 10),
-          location
+          location,
+          verificationToken: currentVerificationToken
         });
 
         Auth.setSession(data.token, data.user);
@@ -1460,6 +1467,7 @@
       try {
         const data = await safeApiFetch('/api/auth/otp/send', { phone: currentPhone });
         currentReflectedOtp = data.otp || '';
+        currentOtpToken = data.otpToken || '';
         document.getElementById('smsOtpCode').innerText = currentReflectedOtp;
         startResendTimer(30);
         showAlert(`✦ New code sent to ${currentPhone}. Code: ${currentReflectedOtp}`, false);

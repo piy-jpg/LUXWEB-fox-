@@ -604,11 +604,15 @@ async function sendOtp(req, res) {
     details: { phone: normalizedPhone },
   });
 
+  // Generate stateless OTP token (valid for 5 mins across serverless containers)
+  const otpToken = jwt.sign({ phone: last10, otp }, JWT_SECRET, { expiresIn: '5m' });
+
   return res.json({
     success: true,
     message: `OTP sent successfully to ${normalizedPhone}`,
     phone: normalizedPhone,
     otp, // Reflected directly on same number for testing & convenience
+    otpToken,
     expiresInSeconds: 300,
   });
 }
@@ -617,7 +621,7 @@ async function sendOtp(req, res) {
  * Verify OTP
  */
 async function verifyOtp(req, res) {
-  const { phone, otp } = req.body;
+  const { phone, otp, otpToken } = req.body;
   if (!phone || !otp) {
     return res.status(400).json({ success: false, error: 'Phone number and OTP code are required.' });
   }
@@ -626,15 +630,29 @@ async function verifyOtp(req, res) {
   const last10 = rawDigits.slice(-10);
   const enteredOtp = otp.toString().trim();
 
-  // Check in-memory store first
-  const memoryRecord = otpStore.get(last10);
   let isValid = false;
 
-  if (memoryRecord && memoryRecord.otp === enteredOtp && Date.now() <= memoryRecord.expiresAt) {
-    isValid = true;
-    memoryRecord.verified = true;
-  } else {
-    // Check DB
+  // 1. Check stateless OTP token (resilient for multi-instance serverless)
+  if (otpToken) {
+    try {
+      const decoded = jwt.verify(otpToken, JWT_SECRET);
+      if (decoded.phone === last10 && decoded.otp === enteredOtp) {
+        isValid = true;
+      }
+    } catch {}
+  }
+
+  // 2. Check in-memory store
+  if (!isValid) {
+    const memoryRecord = otpStore.get(last10);
+    if (memoryRecord && memoryRecord.otp === enteredOtp && Date.now() <= memoryRecord.expiresAt) {
+      isValid = true;
+      memoryRecord.verified = true;
+    }
+  }
+
+  // 3. Check DB
+  if (!isValid) {
     try {
       const dbRecord = await db.get('SELECT * FROM phone_otps WHERE phone = ? AND otp = ?', [last10, enteredOtp]);
       if (dbRecord) {
@@ -650,6 +668,13 @@ async function verifyOtp(req, res) {
   if (!isValid) {
     return res.status(400).json({ success: false, error: 'Invalid or expired OTP code. Please check and try again.' });
   }
+
+  // Generate stateless verification token for profile completion (valid for 15 mins)
+  const verificationToken = jwt.sign(
+    { phone: last10, verified: true, type: 'phone_otp_verified' },
+    JWT_SECRET,
+    { expiresIn: '15m' }
+  );
 
   // Check if client profile already exists
   let user = null;
@@ -699,6 +724,7 @@ async function verifyOtp(req, res) {
     message: 'OTP verified successfully. Please complete your atelier profile.',
     phone: `+91 ${last10}`,
     needsProfile: true,
+    verificationToken,
     existingName: user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() : '',
   });
 }
@@ -707,7 +733,7 @@ async function verifyOtp(req, res) {
  * Complete Client Profile (Name, Age, Location)
  */
 async function completeProfile(req, res) {
-  const { phone, name, age, location } = req.body;
+  const { phone, name, age, location, verificationToken } = req.body;
   if (!phone || !name || !age || !location) {
     return res.status(400).json({ success: false, error: 'Phone, Full Name, Age, and Location are all required.' });
   }
@@ -715,9 +741,21 @@ async function completeProfile(req, res) {
   const rawDigits = phone.replace(/\D/g, '');
   const last10 = rawDigits.slice(-10);
 
-  // Check verification
-  const memoryRecord = otpStore.get(last10);
-  let isVerified = memoryRecord && memoryRecord.verified;
+  // Check verification statelessly
+  let isVerified = false;
+  if (verificationToken) {
+    try {
+      const decoded = jwt.verify(verificationToken, JWT_SECRET);
+      if (decoded.verified && decoded.phone === last10) {
+        isVerified = true;
+      }
+    } catch {}
+  }
+
+  if (!isVerified) {
+    const memoryRecord = otpStore.get(last10);
+    if (memoryRecord && memoryRecord.verified) isVerified = true;
+  }
 
   if (!isVerified) {
     try {
