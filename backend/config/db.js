@@ -42,6 +42,14 @@ function getSqliteInstance() {
               verified INTEGER DEFAULT 0,
               created_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS email_otps (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              email TEXT NOT NULL,
+              otp TEXT NOT NULL,
+              expires_at DATETIME NOT NULL,
+              verified INTEGER DEFAULT 0,
+              created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
           `);
         } catch {}
       } catch {}

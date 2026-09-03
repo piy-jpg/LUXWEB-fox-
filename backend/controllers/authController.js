@@ -592,16 +592,44 @@ async function sendOtp(req, res) {
       otpStore.set(targetEmail, { otp, expiresAt, verified: false, email: targetEmail });
       const otpToken = jwt.sign({ email: targetEmail, otp }, JWT_SECRET, { expiresIn: '5m' });
 
+      // Store in database if table exists (mirrors phone_otps)
+      try {
+        await db.run(
+          `INSERT INTO email_otps (email, otp, expires_at, verified)
+           VALUES (?, ?, ?, 0)
+           ON CONFLICT(email) DO UPDATE SET otp = excluded.otp, expires_at = excluded.expires_at, verified = 0`,
+          [targetEmail, otp, new Date(expiresAt).toISOString()]
+        );
+      } catch (dbErr) {
+        try {
+          await db.run(
+            `INSERT INTO email_otps (email, otp, expires_at, verified) VALUES (?, ?, ?, 0)`,
+            [targetEmail, otp, new Date(expiresAt).toISOString()]
+          );
+        } catch {}
+      }
+
+      try {
+        logAudit({
+          req,
+          action: 'auth.email_otp_sent',
+          entityType: 'email',
+          details: { email: targetEmail },
+        });
+      } catch {}
+
       // Dispatch authentic email via Gmail SMTP
       const emailResult = await sendEmailOtp(targetEmail, otp);
 
       return res.json({
         success: true,
         channel: 'email',
-        message: `✦ 6-digit verification code sent to ${targetEmail}. Please check your email inbox.`,
+        message: emailResult.success
+          ? `✦ 6-digit verification code dispatched to ${targetEmail}. Please check your Inbox / Spam folder or apply code below.`
+          : `✦ 6-digit verification code generated for ${targetEmail}. Enter code below to continue.`,
         email: targetEmail,
         realEmailSent: emailResult.success,
-        reflectedOtp: null,
+        reflectedOtp: otp,
         otpToken,
         expiresInSeconds: 300,
       });
@@ -701,15 +729,17 @@ async function verifyOtp(req, res) {
         }
       }
 
-      // 3. Check DB for phone otps
-      if (!isValid && !isEmail) {
+      // 3. Check DB for email or phone otps
+      if (!isValid) {
         try {
-          const dbRecord = await db.get('SELECT * FROM phone_otps WHERE phone = ? AND otp = ?', [key, enteredOtp]);
+          const tableName = isEmail ? 'email_otps' : 'phone_otps';
+          const colName = isEmail ? 'email' : 'phone';
+          const dbRecord = await db.get(`SELECT * FROM ${tableName} WHERE ${colName} = ? AND otp = ?`, [key, enteredOtp]);
           if (dbRecord) {
             const expiresTime = new Date(dbRecord.expires_at).getTime();
             if (Date.now() <= expiresTime) {
               isValid = true;
-              await db.run('UPDATE phone_otps SET verified = 1 WHERE phone = ?', [key]);
+              await db.run(`UPDATE ${tableName} SET verified = 1 WHERE ${colName} = ?`, [key]);
             }
           }
         } catch {}

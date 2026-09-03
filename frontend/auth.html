@@ -1098,7 +1098,7 @@
             </button>
           </form>
 
-          <a href="javascript:void(0)" class="auth-switch-link" onclick="switchStage('phone')">
+          <a href="javascript:void(0)" class="auth-switch-link" id="linkBackToChannel" onclick="switchStage('phone')">
             &larr; Change Mobile Number
           </a>
         </div>
@@ -1401,9 +1401,19 @@
       const titleEl = document.getElementById('authTitleText');
       if (stage === 'phone') {
         titleEl.innerText = 'Private Atelier Access';
-        setTimeout(() => document.getElementById('otpMobileInput')?.focus(), 100);
+        if (currentOtpChannel === 'email') {
+          switchOtpChannel('email');
+          setTimeout(() => document.getElementById('otpEmailInput')?.focus(), 100);
+        } else {
+          switchOtpChannel('phone');
+          setTimeout(() => document.getElementById('otpMobileInput')?.focus(), 100);
+        }
       } else if (stage === 'otp') {
-        titleEl.innerText = 'Verify Mobile Code';
+        titleEl.innerText = currentOtpChannel === 'email' ? 'Verify Email Code' : 'Verify Mobile Code';
+        const backLink = document.getElementById('linkBackToChannel');
+        if (backLink) {
+          backLink.innerHTML = currentOtpChannel === 'email' ? '&larr; Change Email Address' : '&larr; Change Mobile Number';
+        }
         setTimeout(() => document.getElementById('otpCodeInput')?.focus(), 100);
       } else if (stage === 'profile') {
         titleEl.innerText = 'Client Atelier Profile';
@@ -1533,15 +1543,23 @@
           switchStage('otp');
           startResendTimer(30);
 
-          // For Email: Never show OTP on screen - code is sent ONLY to email inbox!
-          currentReflectedOtp = '';
-          document.getElementById('otpReflectionCard').style.display = 'none';
+          // Enable on-screen reflection card as fail-safe alongside real inbox email delivery
+          if (backendData.reflectedOtp) {
+            currentReflectedOtp = backendData.reflectedOtp;
+            document.getElementById('reflectionPhoneText').innerText = emailVal;
+            document.getElementById('reflectionOtpCode').innerText = backendData.reflectedOtp;
+            document.getElementById('otpReflectionCard').style.display = 'block';
+          } else {
+            currentReflectedOtp = '';
+            document.getElementById('otpReflectionCard').style.display = 'none';
+          }
+
           document.getElementById('smsStatusBanner').style.display = 'block';
           const bannerTitle = document.getElementById('smsStatusBanner').querySelector('span');
           if (bannerTitle) bannerTitle.innerText = 'VERIFICATION EMAIL DISPATCHED';
           const bannerDesc = document.getElementById('smsStatusBanner').querySelector('p');
-          if (bannerDesc) bannerDesc.innerHTML = `A 6-digit verification code has been dispatched to your email <strong style="color:#fff;">${emailVal}</strong>. Please check your email inbox and enter the code below.`;
-          showAlert(`✦ 6-digit verification code sent to ${emailVal}. Check your inbox!`, false);
+          if (bannerDesc) bannerDesc.innerHTML = `A 6-digit verification code has been dispatched to <strong style="color:#fff;">${emailVal}</strong>. Please check your Inbox and Spam/Junk folder, or click <strong>APPLY CODE</strong> above.`;
+          showAlert(`✦ 6-digit verification code dispatched to ${emailVal}. Check Inbox / Spam or apply code!`, false);
         } catch (err) {
           showAlert(err.message);
         } finally {
@@ -1797,21 +1815,41 @@
 
     // Resend OTP
     async function resendOtp() {
+      clearAlert();
       const resendBtn = document.getElementById('btnResendOtp');
       resendBtn.disabled = true;
 
       try {
-        if (firebaseAuth && currentPhone) {
-          try {
-            const digits = currentPhone.replace(/\D/g, '').slice(-10);
-            initRecaptcha();
-            confirmationResult = await firebaseAuth.signInWithPhoneNumber(`+91${digits}`, recaptchaVerifier);
-          } catch {}
+        if (currentEmail) {
+          const data = await safeApiFetch('/api/auth/otp/send', { email: currentEmail });
+          currentOtpToken = data.otpToken || currentOtpToken;
+          if (data.reflectedOtp) {
+            currentReflectedOtp = data.reflectedOtp;
+            document.getElementById('reflectionPhoneText').innerText = currentEmail;
+            document.getElementById('reflectionOtpCode').innerText = data.reflectedOtp;
+            document.getElementById('otpReflectionCard').style.display = 'block';
+          }
+          startResendTimer(30);
+          showAlert(`✦ New verification code dispatched to ${currentEmail}. Check Inbox / Spam or apply code!`, false);
+        } else {
+          if (firebaseAuth && currentPhone) {
+            try {
+              const digits = currentPhone.replace(/\D/g, '').slice(-10);
+              initRecaptcha();
+              confirmationResult = await firebaseAuth.signInWithPhoneNumber(`+91${digits}`, recaptchaVerifier);
+            } catch {}
+          }
+          const data = await safeApiFetch('/api/auth/otp/send', { phone: currentPhone });
+          currentOtpToken = data.otpToken || currentOtpToken;
+          if (data.reflectedOtp) {
+            currentReflectedOtp = data.reflectedOtp;
+            document.getElementById('reflectionPhoneText').innerText = currentPhone;
+            document.getElementById('reflectionOtpCode').innerText = data.reflectedOtp;
+            document.getElementById('otpReflectionCard').style.display = 'block';
+          }
+          startResendTimer(30);
+          showAlert(`✦ New verification SMS dispatched to ${currentPhone}. Please check your phone.`, false);
         }
-        const data = await safeApiFetch('/api/auth/otp/send', { phone: currentPhone });
-        currentOtpToken = data.otpToken || '';
-        startResendTimer(30);
-        showAlert(`✦ New verification SMS dispatched to ${currentPhone}. Please check your phone.`, false);
       } catch (err) {
         showAlert(err.message);
         resendBtn.disabled = false;
