@@ -39,7 +39,9 @@ async function sendRealSms({ phone, otp }) {
 
       const result = await makeHttpsRequest(options, payload);
       console.log('[SMS Gateway] Fast2SMS dispatched:', result);
-      return { success: true, provider: 'Fast2SMS', result };
+      if (result && (result.return === true || result.status_code === 200)) {
+        return { success: true, provider: 'Fast2SMS', result };
+      }
     } catch (err) {
       console.error('[SMS Gateway] Fast2SMS error:', err.message);
     }
