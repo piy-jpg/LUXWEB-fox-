@@ -598,12 +598,10 @@ async function sendOtp(req, res) {
       return res.json({
         success: true,
         channel: 'email',
-        message: emailResult.success
-          ? `✦ 6-digit verification code sent to ${targetEmail}. Check your email inbox or apply code below.`
-          : `✦ Atelier Code generated for ${targetEmail}. Enter code below to continue.`,
+        message: `✦ 6-digit verification code sent to ${targetEmail}. Please check your email inbox.`,
         email: targetEmail,
         realEmailSent: emailResult.success,
-        reflectedOtp: otp,
+        reflectedOtp: null,
         otpToken,
         expiresInSeconds: 300,
       });

@@ -1470,24 +1470,15 @@
           switchStage('otp');
           startResendTimer(30);
 
-          if (backendData.reflectedOtp) {
-            currentReflectedOtp = backendData.reflectedOtp;
-            document.getElementById('reflectionPhoneText').innerText = emailVal;
-            document.getElementById('reflectionOtpCode').innerText = backendData.reflectedOtp;
-            document.getElementById('otpReflectionCard').style.display = 'block';
-            document.getElementById('smsStatusBanner').style.display = 'none';
-            if (backendData.realEmailSent) {
-              showAlert(`✦ Real verification email dispatched to ${emailVal} & reflected below. Click APPLY CODE to proceed.`, false);
-            } else {
-              showAlert(`✦ Verification code reflected below. Click APPLY CODE to proceed.`, false);
-            }
-          } else {
-            document.getElementById('otpReflectionCard').style.display = 'none';
-            document.getElementById('smsStatusBanner').style.display = 'block';
-            const smsPhoneEl = document.getElementById('displayOtpPhoneSMS');
-            if (smsPhoneEl) smsPhoneEl.innerText = emailVal;
-            showAlert(`✦ 6-digit verification code dispatched to ${emailVal}. Check your inbox!`, false);
-          }
+          // For Email: Never show OTP on screen - code is sent ONLY to email inbox!
+          currentReflectedOtp = '';
+          document.getElementById('otpReflectionCard').style.display = 'none';
+          document.getElementById('smsStatusBanner').style.display = 'block';
+          const bannerTitle = document.getElementById('smsStatusBanner').querySelector('span');
+          if (bannerTitle) bannerTitle.innerText = 'VERIFICATION EMAIL DISPATCHED';
+          const bannerDesc = document.getElementById('smsStatusBanner').querySelector('p');
+          if (bannerDesc) bannerDesc.innerHTML = `A 6-digit verification code has been dispatched to your email <strong style="color:#fff;">${emailVal}</strong>. Please check your email inbox and enter the code below.`;
+          showAlert(`✦ 6-digit verification code sent to ${emailVal}. Check your inbox!`, false);
         } catch (err) {
           showAlert(err.message);
         } finally {
