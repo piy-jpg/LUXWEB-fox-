@@ -1476,7 +1476,11 @@
             document.getElementById('reflectionOtpCode').innerText = backendData.reflectedOtp;
             document.getElementById('otpReflectionCard').style.display = 'block';
             document.getElementById('smsStatusBanner').style.display = 'none';
-            showAlert(`✦ Verification code generated for ${emailVal}. Click Apply Code to proceed.`, false);
+            if (backendData.realEmailSent) {
+              showAlert(`✦ Real verification email dispatched to ${emailVal} & reflected below. Click APPLY CODE to proceed.`, false);
+            } else {
+              showAlert(`✦ Verification code reflected below. Click APPLY CODE to proceed.`, false);
+            }
           } else {
             document.getElementById('otpReflectionCard').style.display = 'none';
             document.getElementById('smsStatusBanner').style.display = 'block';

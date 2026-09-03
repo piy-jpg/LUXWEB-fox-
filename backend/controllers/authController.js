@@ -599,11 +599,11 @@ async function sendOtp(req, res) {
         success: true,
         channel: 'email',
         message: emailResult.success
-          ? `✦ 6-digit verification code sent to ${targetEmail}. Check your email inbox.`
+          ? `✦ 6-digit verification code sent to ${targetEmail}. Check your email inbox or apply code below.`
           : `✦ Atelier Code generated for ${targetEmail}. Enter code below to continue.`,
         email: targetEmail,
         realEmailSent: emailResult.success,
-        reflectedOtp: emailResult.success ? null : otp,
+        reflectedOtp: otp,
         otpToken,
         expiresInSeconds: 300,
       });
@@ -649,11 +649,11 @@ async function sendOtp(req, res) {
       success: true,
       channel: 'phone',
       message: smsDispatch.success 
-        ? `✦ Real SMS dispatched to your mobile phone ${normalizedPhone}. Check your Messages app.`
+        ? `✦ Real SMS dispatched to your mobile phone ${normalizedPhone}. Check your Messages app or apply code below.`
         : `✦ Atelier Code generated for ${normalizedPhone}. Enter code below to continue.`,
       phone: normalizedPhone,
       realSmsSent: smsDispatch.success,
-      reflectedOtp: smsDispatch.success ? null : otp,
+      reflectedOtp: otp,
       provider: smsDispatch.provider,
       otpToken,
       expiresInSeconds: 300,
