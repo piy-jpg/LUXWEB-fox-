@@ -2,11 +2,16 @@ const nodemailer = require('nodemailer');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // Direct SSL for instant delivery on cloud serverless
   auth: {
     user: process.env.GMAIL_USER || 'piyushverma730929@gmail.com',
     pass: process.env.GMAIL_APP_PASS || 'rkpccfpucbdqmwqs'
-  }
+  },
+  connectionTimeout: 7000,
+  greetingTimeout: 7000,
+  socketTimeout: 10000
 });
 
 /**
