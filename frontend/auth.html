@@ -13,6 +13,9 @@
   <link rel="stylesheet" href="css/lumiere-cinematic.css" />
   <!-- Google Identity Services SDK -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <!-- Firebase Phone Authentication SDK (Real Telecom SMS by Google) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
   
   <style>
     :root {
@@ -1005,6 +1008,9 @@
               <span class="sudathi-checkbox-label">Notify me with private atelier offers &amp; product drops</span>
             </label>
 
+            <!-- Google reCAPTCHA container for authentic Telecom SMS -->
+            <div id="recaptcha-container"></div>
+
             <button type="submit" class="btn-sudathi-submit" id="btnRequestOtp">
               GET ATELIER OTP &rarr;
             </button>
@@ -1241,6 +1247,46 @@
     let currentVerificationToken = '';
     let resendCountdownTimer = null;
 
+    // Google Firebase Phone Authentication Setup (10,000 Free Real Telecom SMS / Month)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCZ-W-PR6jdCAwzAn6bUioJvX9NOzVW47E",
+      authDomain: "lumiere-atelier.firebaseapp.com",
+      projectId: "lumiere-atelier",
+      storageBucket: "lumiere-atelier.firebasestorage.app",
+      messagingSenderId: "716821347548",
+      appId: "1:716821347548:web:21696f8e45da954235c819",
+      measurementId: "G-X66FMKJY3K"
+    };
+
+    let firebaseAuth = null;
+    let confirmationResult = null;
+    let recaptchaVerifier = null;
+
+    try {
+      if (typeof firebase !== 'undefined') {
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        firebaseAuth = firebase.auth();
+        firebaseAuth.languageCode = 'en';
+      }
+    } catch (fbInitErr) {
+      console.warn('[Firebase] Init notice:', fbInitErr);
+    }
+
+    function initRecaptcha() {
+      if (!recaptchaVerifier && firebaseAuth) {
+        try {
+          recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+            size: 'invisible',
+            callback: () => {}
+          });
+        } catch (e) {
+          console.warn('[Recaptcha] init notice:', e.message);
+        }
+      }
+    }
+
     function switchStage(stage) {
       activeStage = stage;
       clearAlert();
@@ -1312,7 +1358,7 @@
       return data;
     }
 
-    // STAGE 1: Request OTP
+    // STAGE 1: Request Real SMS OTP
     async function handleRequestOtp(e) {
       e.preventDefault();
       clearAlert();
@@ -1327,21 +1373,46 @@
       }
 
       const fullPhone = `${code} ${digits.slice(-10)}`;
+      const e164Phone = `${code}${digits.slice(-10)}`;
       const btn = document.getElementById('btnRequestOtp');
       btn.disabled = true;
-      btn.innerText = 'DISPATCHING OTP...';
+      btn.innerText = 'DISPATCHING REAL SMS...';
+
+      let realSmsSent = false;
+
+      // 1. Dispatch Real Telecom SMS via Google Firebase Phone Auth
+      if (firebaseAuth) {
+        try {
+          initRecaptcha();
+          if (recaptchaVerifier) {
+            confirmationResult = await firebaseAuth.signInWithPhoneNumber(e164Phone, recaptchaVerifier);
+            realSmsSent = true;
+          }
+        } catch (fbErr) {
+          console.warn('[Firebase SMS dispatch]:', fbErr.message);
+          if (recaptchaVerifier) {
+            try { recaptchaVerifier.clear(); recaptchaVerifier = null; } catch {}
+          }
+        }
+      }
 
       try {
-        const data = await safeApiFetch('/api/auth/otp/send', { phone: fullPhone });
-        currentPhone = data.phone || fullPhone;
-        currentOtpToken = data.otpToken || '';
+        // Backend register & token sync
+        const backendData = await safeApiFetch('/api/auth/otp/send', { phone: fullPhone });
+        currentPhone = backendData.phone || fullPhone;
+        currentOtpToken = backendData.otpToken || '';
 
         document.getElementById('displayOtpPhone').innerText = currentPhone;
         document.getElementById('otpCodeInput').value = '';
 
         switchStage('otp');
         startResendTimer(30);
-        showAlert(`✦ Verification SMS dispatched to ${currentPhone}. Please check your phone.`, false);
+
+        if (realSmsSent) {
+          showAlert(`✦ Real telecom SMS dispatched by Google to ${currentPhone}. Please check your Messages app.`, false);
+        } else {
+          showAlert(backendData.message || `✦ Verification SMS dispatched to ${currentPhone}.`, false);
+        }
       } catch (err) {
         showAlert(err.message);
       } finally {
@@ -1350,7 +1421,7 @@
       }
     }
 
-    // STAGE 2: Verify OTP
+    // STAGE 2: Verify Real SMS OTP
     async function handleVerifyOtp(e) {
       e.preventDefault();
       clearAlert();
@@ -1365,11 +1436,24 @@
       btn.disabled = true;
       btn.innerText = 'VERIFYING CODE...';
 
+      let verifiedByGoogle = false;
+
+      // Confirm with Google Firebase
+      if (confirmationResult) {
+        try {
+          await confirmationResult.confirm(enteredOtp);
+          verifiedByGoogle = true;
+        } catch (fbConfirmErr) {
+          console.warn('[Google SMS Verification]:', fbConfirmErr.message);
+        }
+      }
+
       try {
         const data = await safeApiFetch('/api/auth/otp/verify', {
           phone: currentPhone,
           otp: enteredOtp,
-          otpToken: currentOtpToken
+          otpToken: currentOtpToken,
+          verifiedByGoogle
         });
 
         currentVerificationToken = data.verificationToken || '';
@@ -1451,6 +1535,13 @@
       resendBtn.disabled = true;
 
       try {
+        if (firebaseAuth && currentPhone) {
+          try {
+            const digits = currentPhone.replace(/\D/g, '').slice(-10);
+            initRecaptcha();
+            confirmationResult = await firebaseAuth.signInWithPhoneNumber(`+91${digits}`, recaptchaVerifier);
+          } catch {}
+        }
         const data = await safeApiFetch('/api/auth/otp/send', { phone: currentPhone });
         currentOtpToken = data.otpToken || '';
         startResendTimer(30);

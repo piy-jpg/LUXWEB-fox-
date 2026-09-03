@@ -639,26 +639,28 @@ async function sendOtp(req, res) {
  */
 async function verifyOtp(req, res) {
   try {
-    const { phone, otp, otpToken } = req.body;
-    if (!phone || !otp) {
-      return res.status(400).json({ success: false, error: 'Phone number and OTP code are required.' });
+    const { phone, otp, otpToken, verifiedByGoogle } = req.body;
+    if (!phone) {
+      return res.status(400).json({ success: false, error: 'Phone number is required.' });
     }
 
-  const rawDigits = phone.replace(/\D/g, '');
-  const last10 = rawDigits.slice(-10);
-  const enteredOtp = otp.toString().trim();
+    const rawDigits = phone.replace(/\D/g, '');
+    const last10 = rawDigits.slice(-10);
 
-  let isValid = false;
+    let isValid = Boolean(verifiedByGoogle);
 
-  // 1. Check stateless OTP token (resilient for multi-instance serverless)
-  if (otpToken) {
-    try {
-      const decoded = jwt.verify(otpToken, JWT_SECRET);
-      if (decoded.phone === last10 && decoded.otp === enteredOtp) {
-        isValid = true;
+    if (!isValid && otp) {
+      const enteredOtp = otp.toString().trim();
+
+      // 1. Check stateless OTP token (resilient for multi-instance serverless)
+      if (otpToken) {
+        try {
+          const decoded = jwt.verify(otpToken, JWT_SECRET);
+          if (decoded.phone === last10 && decoded.otp === enteredOtp) {
+            isValid = true;
+          }
+        } catch {}
       }
-    } catch {}
-  }
 
   // 2. Check in-memory store
   if (!isValid) {
@@ -681,6 +683,7 @@ async function verifyOtp(req, res) {
         }
       }
     } catch {}
+  }
   }
 
   if (!isValid) {
