@@ -95,7 +95,7 @@ async function authenticateToken(req, res, next) {
     let permissions = [];
 
     if (isOwnerUser) {
-      roles = ['owner', 'admin'];
+      roles = ['OWNER', 'ADMIN', 'MANAGER'];
       permissions = ['*'];
     } else {
       const roleRows = await db.query(
@@ -116,6 +116,8 @@ async function authenticateToken(req, res, next) {
       permissions = permRows.map(p => p.code);
     }
 
+    const upperRoles = roles.map(r => r.toUpperCase());
+
     req.user = {
       id: user.id,
       email: user.email,
@@ -124,9 +126,9 @@ async function authenticateToken(req, res, next) {
       phone: user.phone,
       roles,
       permissions,
-      isOwner: roles.includes('OWNER'),
-      isStaff: roles.some(r => ['OWNER', 'MANAGER', 'INVENTORY_STAFF', 'ORDER_STAFF'].includes(r)),
-      isCustomer: roles.includes('CUSTOMER'),
+      isOwner: isOwnerUser || upperRoles.includes('OWNER'),
+      isStaff: isOwnerUser || upperRoles.some(r => ['OWNER', 'ADMIN', 'MANAGER', 'INVENTORY_STAFF', 'ORDER_STAFF'].includes(r)),
+      isCustomer: upperRoles.includes('CUSTOMER'),
     };
 
     next();
@@ -147,6 +149,10 @@ function requireRole(...allowedRoles) {
       return res.status(401).json({ success: false, error: 'Authentication required.' });
     }
 
+    if (req.user.isOwner) {
+      return next();
+    }
+
     // Strict security: Customers are never permitted to administrative routes
     if (req.user.isCustomer && !allowedRoles.includes('CUSTOMER')) {
       return res.status(403).json({
@@ -155,7 +161,8 @@ function requireRole(...allowedRoles) {
       });
     }
 
-    const hasRole = req.user.roles.some(r => allowedRoles.includes(r));
+    const upperAllowed = allowedRoles.map(r => r.toUpperCase());
+    const hasRole = req.user.roles.some(r => upperAllowed.includes(r.toUpperCase()));
     if (!hasRole) {
       return res.status(403).json({
         success: false,
@@ -174,6 +181,11 @@ function requirePermission(...requiredPermissions) {
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ success: false, error: 'Authentication required.' });
+    }
+
+    // Owner has universal administrative permissions
+    if (req.user.isOwner || (req.user.permissions && req.user.permissions.includes('*'))) {
+      return next();
     }
 
     // Owner has superuser bypass
