@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Personal Client Atelier — Lumière</title>
+  <meta name="description" content="Manage your bespoke beauty edits, orders, tracking, saved addresses and preferences." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/lumiere-cinematic.css" />
+  <style>
+    .account-layout {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 3rem 2rem 6rem;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 3.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .account-layout {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding: 2rem 1rem 4rem;
+      }
+    }
+
+    .account-nav-card {
+      background: rgba(24, 19, 21, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 1.5rem;
+      height: fit-content;
+      backdrop-filter: blur(12px);
+    }
+
+    .account-nav-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .account-nav-btn {
+      width: 100%;
+      text-align: left;
+      padding: 0.85rem 1rem;
+      background: transparent;
+      border: none;
+      color: rgba(250, 247, 242, 0.7);
+      font-family: var(--font-sans);
+      font-size: 0.82rem;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      border-radius: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .account-nav-btn:hover,
+    .account-nav-btn.active {
+      background: rgba(201, 169, 110, 0.12);
+      color: var(--color-gold);
+      font-weight: 500;
+    }
+
+    .account-card {
+      background: rgba(24, 19, 21, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .stat-badge-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-badge {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(201, 169, 110, 0.18);
+      padding: 1.25rem;
+      border-radius: 4px;
+    }
+
+    .stat-val {
+      font-family: var(--font-serif);
+      font-size: 1.85rem;
+      color: var(--color-gold);
+      margin-top: 0.25rem;
+    }
+
+    .order-card-row {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.68rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .status-confirmed { background: rgba(52, 152, 219, 0.15); color: #5dade2; border: 1px solid rgba(52, 152, 219, 0.3); }
+    .status-processing { background: rgba(241, 196, 15, 0.15); color: #f4d03f; border: 1px solid rgba(241, 196, 15, 0.3); }
+    .status-shipped { background: rgba(155, 89, 182, 0.15); color: #bb8fce; border: 1px solid rgba(155, 89, 182, 0.3); }
+    .status-delivered { background: rgba(46, 204, 113, 0.15); color: #7bed9f; border: 1px solid rgba(46, 204, 113, 0.3); }
+    .status-cancelled { background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.3); }
+
+    /* Tracking Modal */
+    .tracking-timeline {
+      display: flex;
+      justify-content: space-between;
+      position: relative;
+      margin: 2.5rem 0;
+    }
+    .tracking-timeline::before {
+      content: '';
+      position: absolute;
+      top: 14px;
+      left: 20px;
+      right: 20px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.1);
+      z-index: 1;
+    }
+    .timeline-step {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.5rem;
+      width: 80px;
+    }
+    .timeline-dot {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #181315;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: rgba(250, 247, 242, 0.5);
+    }
+    .timeline-step.completed .timeline-dot {
+      background: var(--color-gold);
+      border-color: var(--color-gold);
+      color: #120D0F;
+      font-weight: bold;
+    }
+    .timeline-step.current .timeline-dot {
+      box-shadow: 0 0 15px var(--color-gold);
+      border-color: #fff;
+    }
+  </style>
+</head>
+<body style="background-color: #120D0F; color: var(--color-cream); min-height: 100vh;">
+
+  <!-- Global Header -->
+  <header class="lumiere-navbar" id="lumiereNavbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand" aria-label="Lumière Home">
+        <span class="nav-star">✦</span>
+        <span>Lumière</span>
+      </a>
+      <nav aria-label="Primary Navigation">
+        <ul class="nav-links-center">
+          <li><a href="index.html" class="nav-link">Home</a></li>
+          <li><a href="shop.html" class="nav-link">Shop</a></li>
+          <li><a href="new-arrivals.html" class="nav-link">New Arrivals</a></li>
+          <li><a href="collections.html" class="nav-link">Collections</a></li>
+          <li><a href="about.html" class="nav-link">About</a></li>
+          <li><a href="reviews.html" class="nav-link">Reviews</a></li>
+        </ul>
+      </nav>
+      <div class="nav-actions-right">
+        <button class="nav-icon-btn" onclick="openSearchModal()" aria-label="Search">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </button>
+        <button class="nav-icon-btn" onclick="openWishlistDrawer()" aria-label="Wishlist">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          <span class="nav-badge-count" id="navWishlistCount">0</span>
+        </button>
+        <button class="nav-icon-btn" onclick="openCartDrawer()" aria-label="Shopping Bag">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+          <span class="nav-badge-count" id="navCartCount">0</span>
+        </button>
+        <button class="nav-icon-btn active" id="navAccountBtn" aria-label="Account">
+          <span class="nav-user-avatar">✦</span>
+        </button>
+        <button class="nav-hamburger" id="navHamburger" onclick="openMobileNav()" aria-label="Menu"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Header -->
+  <section style="padding: 5rem 2rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.06); text-align: center; background: radial-gradient(circle at 50% 10%, rgba(201, 169, 110, 0.1) 0%, transparent 60%);">
+    <span style="color: var(--color-gold); font-size: 1.2rem;">✦</span>
+    <h1 style="font-family: var(--font-serif); font-size: 2.4rem; font-weight: 300; margin: 0.5rem 0;" id="welcomeHeading">
+      Personal Client Atelier
+    </h1>
+    <p style="font-size: 0.85rem; color: rgba(250,247,242,0.6);" id="welcomeSub">
+      Loading bespoke profile...
+    </p>
+  </section>
+
+  <!-- Main Portal Layout -->
+  <main class="account-layout">
+    
+    <!-- Sidebar Navigation -->
+    <aside>
+      <div class="account-nav-card">
+        <ul class="account-nav-list">
+          <li><button class="account-nav-btn active" id="navOverview" onclick="switchSection('overview')"><span>Overview</span> <span>&rarr;</span></button></li>
+          <li><button class="account-nav-btn" id="navOrders" onclick="switchSection('orders')"><span>Order History &amp; Tracking</span> <span>&rarr;</span></button></li>
+          <li><button class="account-nav-btn" id="navAddresses" onclick="switchSection('addresses')"><span>Saved Addresses</span> <span>&rarr;</span></button></li>
+          <li><button class="account-nav-btn" id="navWishlist" onclick="switchSection('wishlist')"><span>Wishlist</span> <span>&rarr;</span></button></li>
+          <li><button class="account-nav-btn" id="navSecurity" onclick="switchSection('security')"><span>Security &amp; Password</span> <span>&rarr;</span></button></li>
+          <li style="margin-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 0.75rem;">
+            <button class="account-nav-btn" style="color: #FF708F;" onclick="Auth.logout()"><span>Sign Out</span> <span>✕</span></button>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Staff Portal Card if Admin -->
+      <div id="staffPortalCard" style="display: none; margin-top: 1.5rem; padding: 1.25rem; background: rgba(201,169,110,0.08); border: 1px solid var(--color-gold); border-radius: 4px; text-align: center;">
+        <span style="color: var(--color-gold);">✦</span>
+        <div style="font-size: 0.82rem; font-weight: 600; margin: 0.35rem 0; color: #fff;">Staff Access Detected</div>
+        <a href="admin/index.html" class="btn-luxury-primary" style="display: block; padding: 0.5rem; font-size: 0.72rem; text-decoration: none; margin-top: 0.5rem;">
+          OPEN ADMIN PORTAL &rarr;
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <section>
+      
+      <!-- 1. OVERVIEW SECTION -->
+      <div id="sectionOverview">
+        <div class="stat-badge-grid">
+          <div class="stat-badge">
+            <span style="font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(250,247,242,0.6);">Total Orders</span>
+            <div class="stat-val" id="statOrders">0</div>
+          </div>
+          <div class="stat-badge">
+            <span style="font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(250,247,242,0.6);">Total Spent</span>
+            <div class="stat-val" id="statSpent">$0.00</div>
+          </div>
+          <div class="stat-badge">
+            <span style="font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(250,247,242,0.6);">Saved in Wishlist</span>
+            <div class="stat-val" id="statWishlist">0</div>
+          </div>
+        </div>
+
+        <div class="account-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.35rem; font-weight: 400; margin: 0;">Personal Details</h3>
+            <button onclick="switchSection('security')" class="btn-luxury-outline" style="padding: 0.4rem 0.8rem; font-size: 0.72rem;">Edit Password</button>
+          </div>
+          <form id="profileForm" onsubmit="handleUpdateProfile(event)" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div>
+              <label class="form-label">First Name</label>
+              <input type="text" id="profFirstName" class="form-input" required />
+            </div>
+            <div>
+              <label class="form-label">Last Name</label>
+              <input type="text" id="profLastName" class="form-input" required />
+            </div>
+            <div>
+              <label class="form-label">Email Address (Read-Only)</label>
+              <input type="email" id="profEmail" class="form-input" readonly style="opacity: 0.6; cursor: not-allowed;" />
+            </div>
+            <div>
+              <label class="form-label">Contact Phone</label>
+              <input type="tel" id="profPhone" class="form-input" placeholder="+1 (555) 000-0000" />
+            </div>
+            <div style="grid-column: span 2; margin-top: 0.5rem;">
+              <button type="submit" class="btn-luxury-primary" style="padding: 0.75rem 1.5rem; font-size: 0.75rem;">SAVE PROFILE DETAILS</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 2. ORDERS & TRACKING SECTION -->
+      <div id="sectionOrders" style="display: none;">
+        <h2 style="font-family: var(--font-serif); font-size: 1.75rem; font-weight: 300; margin-bottom: 1.5rem;">Bespoke Order History</h2>
+        <div id="ordersListContainer">Loading orders...</div>
+      </div>
+
+      <!-- 3. SAVED ADDRESSES SECTION -->
+      <div id="sectionAddresses" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+          <h2 style="font-family: var(--font-serif); font-size: 1.75rem; font-weight: 300; margin: 0;">Delivery Addresses</h2>
+          <button onclick="openAddressModal()" class="btn-luxury-primary" style="padding: 0.55rem 1.25rem; font-size: 0.72rem;">+ ADD NEW ADDRESS</button>
+        </div>
+        <div id="addressesListContainer" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem;">
+          Loading addresses...
+        </div>
+      </div>
+
+      <!-- 4. WISHLIST SECTION -->
+      <div id="sectionWishlist" style="display: none;">
+        <h2 style="font-family: var(--font-serif); font-size: 1.75rem; font-weight: 300; margin-bottom: 1.5rem;">Your Curated Wishlist</h2>
+        <div id="wishlistContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1.5rem;">
+          Loading wishlist...
+        </div>
+      </div>
+
+      <!-- 5. SECURITY SECTION -->
+      <div id="sectionSecurity" style="display: none;">
+        <div class="account-card">
+          <h2 style="font-family: var(--font-serif); font-size: 1.75rem; font-weight: 300; margin-bottom: 1.5rem;">Account Security</h2>
+          <form onsubmit="handleChangePassword(event)" style="max-width: 420px;">
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label class="form-label">Current Password</label>
+              <input type="password" id="currentPass" class="form-input" required />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label class="form-label">New Password (8+ characters)</label>
+              <input type="password" id="newPass" class="form-input" required minlength="8" />
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+              <label class="form-label">Confirm New Password</label>
+              <input type="password" id="confirmPass" class="form-input" required minlength="8" />
+            </div>
+            <button type="submit" class="btn-luxury-primary" style="padding: 0.8rem 1.5rem; font-size: 0.75rem;">UPDATE PASSWORD</button>
+          </form>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- ORDER TRACKING TIMELINE MODAL -->
+  <div class="quick-view-modal" id="trackingModal" style="max-width: 600px; padding: 2.5rem;">
+    <button class="modal-close-btn" onclick="closeTrackingModal()">&times;</button>
+    <div style="text-align: center;">
+      <span style="color: var(--color-gold); font-size: 1.2rem;">✦</span>
+      <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0.4rem 0;" id="modalOrderNumber">Order #LUM-2026</h3>
+      <p style="font-size: 0.8rem; color: rgba(250,247,242,0.6);" id="modalTrackingStatus">Tracking Status</p>
+    </div>
+
+    <!-- Interactive Progress Timeline -->
+    <div class="tracking-timeline" id="modalTimelineSteps"></div>
+
+    <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.25rem; font-size: 0.8rem;" id="modalOrderDetailsBody"></div>
+  </div>
+
+  <!-- ADD ADDRESS MODAL -->
+  <div class="quick-view-modal" id="addressModal" style="max-width: 500px; padding: 2.5rem;">
+    <button class="modal-close-btn" onclick="closeAddressModal()">&times;</button>
+    <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 1.25rem;">Add New Address</h3>
+    <form onsubmit="handleSaveAddress(event)">
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label">Full Name</label>
+        <input type="text" id="addrName" class="form-input" required />
+      </div>
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label">Phone Number</label>
+        <input type="tel" id="addrPhone" class="form-input" />
+      </div>
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label class="form-label">Street Address</label>
+        <input type="text" id="addrLine1" class="form-input" required />
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;">
+        <div>
+          <label class="form-label">City</label>
+          <input type="text" id="addrCity" class="form-input" required />
+        </div>
+        <div>
+          <label class="form-label">State / Region</label>
+          <input type="text" id="addrState" class="form-input" />
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.25rem;">
+        <div>
+          <label class="form-label">Postal Code</label>
+          <input type="text" id="addrZip" class="form-input" required />
+        </div>
+        <div>
+          <label class="form-label">Country</label>
+          <input type="text" id="addrCountry" class="form-input" value="United States" required />
+        </div>
+      </div>
+      <div style="margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        <input type="checkbox" id="addrDefault" style="accent-color: var(--color-gold);" />
+        <label for="addrDefault" style="font-size: 0.8rem; color: rgba(250,247,242,0.8);">Set as default shipping address</label>
+      </div>
+      <button type="submit" class="btn-luxury-primary" style="width: 100%;">SAVE ADDRESS &rarr;</button>
+    </form>
+  </div>
+
+  <div class="lumiere-backdrop" id="lumiereBackdrop" onclick="closeAllDrawersAndModals()"></div>
+
+  <div class="lumiere-toast" id="lumiereToast">
+    <span style="color: var(--color-gold);">✦</span>
+    <span id="toastMessage"></span>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/lumiere-cinematic.js"></script>
+  <script>
+    // Redirect if not logged in
+    if (!Auth.isLoggedIn()) {
+      window.location.href = 'auth.html';
+    }
+
+    function switchSection(sec) {
+      ['overview', 'orders', 'addresses', 'wishlist', 'security'].forEach(s => {
+        document.getElementById(`section${s.charAt(0).toUpperCase() + s.slice(1)}`).style.display = s === sec ? 'block' : 'none';
+        document.getElementById(`nav${s.charAt(0).toUpperCase() + s.slice(1)}`).classList.toggle('active', s === sec);
+      });
+      if (sec === 'orders') loadOrders();
+      if (sec === 'addresses') loadAddresses();
+      if (sec === 'wishlist') loadWishlist();
+    }
+
+    async function loadProfile() {
+      try {
+        const res = await Auth.apiFetch('/api/account/profile');
+        const data = await res.json();
+        if (data.success) {
+          const p = data.profile;
+          document.getElementById('welcomeHeading').innerText = `Welcome, ${p.firstName || 'Client'}`;
+          document.getElementById('welcomeSub').innerText = `Atelier Member since ${new Date(p.memberSince).toLocaleDateString()}`;
+          document.getElementById('statOrders').innerText = p.orderCount;
+          document.getElementById('statSpent').innerText = `$${p.totalSpent.toFixed(2)}`;
+          document.getElementById('statWishlist').innerText = p.wishlistCount;
+
+          document.getElementById('profFirstName').value = p.firstName;
+          document.getElementById('profLastName').value = p.lastName;
+          document.getElementById('profEmail').value = p.email;
+          document.getElementById('profPhone').value = p.phone || '';
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function handleUpdateProfile(e) {
+      e.preventDefault();
+      const firstName = document.getElementById('profFirstName').value;
+      const lastName = document.getElementById('profLastName').value;
+      const phone = document.getElementById('profPhone').value;
+
+      try {
+        const res = await Auth.apiFetch('/api/account/profile', {
+          method: 'PUT',
+          body: JSON.stringify({ firstName, lastName, phone }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Profile updated successfully.');
+          loadProfile();
+        } else {
+          showToast(data.error || 'Failed to update profile');
+        }
+      } catch (err) {
+        showToast(err.message);
+      }
+    }
+
+    async function loadOrders() {
+      const container = document.getElementById('ordersListContainer');
+      try {
+        const res = await Auth.apiFetch('/api/account/orders');
+        const data = await res.json();
+        if (data.success) {
+          if (data.orders.length === 0) {
+            container.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No orders placed yet. Explore the boutique to begin.</p>';
+            return;
+          }
+          container.innerHTML = data.orders.map(o => `
+            <div class="order-card-row">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div>
+                  <span style="font-family: var(--font-serif); font-size: 1.15rem; color: #fff;">Order #${o.order_number}</span>
+                  <span style="font-size: 0.75rem; color: rgba(250,247,242,0.5); margin-left: 0.75rem;">Placed on ${new Date(o.created_at).toLocaleDateString()}</span>
+                </div>
+                <div>
+                  <span class="status-pill status-${o.status.toLowerCase()}">${o.status}</span>
+                </div>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem; font-size: 0.85rem;">
+                <div>
+                  <span style="color: rgba(250,247,242,0.6);">Total:</span>
+                  <strong style="color: var(--color-gold); font-size: 1.05rem; margin-left: 0.35rem;">$${parseFloat(o.total_amount).toFixed(2)}</strong>
+                </div>
+                <button onclick="viewTracking('${o.id}')" class="btn-luxury-outline" style="padding: 0.4rem 0.85rem; font-size: 0.72rem;">
+                  TRACK SHIPMENT &rarr;
+                </button>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        container.innerHTML = '<p style="color: #FF8A9E;">Failed to load order history.</p>';
+      }
+    }
+
+    async function viewTracking(orderId) {
+      try {
+        const res = await Auth.apiFetch(`/api/account/orders/${orderId}`);
+        const data = await res.json();
+        if (data.success) {
+          const o = data.order;
+          document.getElementById('modalOrderNumber').innerText = `Order #${o.order_number}`;
+          document.getElementById('modalTrackingStatus').innerText = `Status: ${o.status} | Tracking: ${o.tracking_number || 'Preparing for dispatch'}`;
+          
+          document.getElementById('modalTimelineSteps').innerHTML = o.timeline.map((t, idx) => `
+            <div class="timeline-step ${t.completed ? 'completed' : ''} ${t.current ? 'current' : ''}">
+              <div class="timeline-dot">${idx + 1}</div>
+              <span style="font-size: 0.68rem; letter-spacing: 0.05em;">${t.step}</span>
+            </div>
+          `).join('');
+
+          document.getElementById('modalOrderDetailsBody').innerHTML = `
+            <div style="margin-bottom: 0.75rem;"><strong>Items (${o.items.length}):</strong></div>
+            ${o.items.map(i => `
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; color: rgba(250,247,242,0.85);">
+                <span>${i.quantity}x ${i.product_name}</span>
+                <span>$${parseFloat(i.total_price).toFixed(2)}</span>
+              </div>
+            `).join('')}
+            <div style="border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 0.75rem; padding-top: 0.75rem; display: flex; justify-content: space-between; font-weight: 600; color: var(--color-gold);">
+              <span>Order Total:</span>
+              <span>$${parseFloat(o.total_amount).toFixed(2)}</span>
+            </div>
+          `;
+
+          const modal = document.getElementById('trackingModal');
+          const backdrop = document.getElementById('lumiereBackdrop');
+          modal.classList.add('open');
+          backdrop.classList.add('open');
+        }
+      } catch (err) {
+        showToast(err.message);
+      }
+    }
+
+    function closeTrackingModal() {
+      document.getElementById('trackingModal').classList.remove('open');
+      document.getElementById('lumiereBackdrop').classList.remove('open');
+    }
+
+    async function loadAddresses() {
+      const container = document.getElementById('addressesListContainer');
+      try {
+        const res = await Auth.apiFetch('/api/account/addresses');
+        const data = await res.json();
+        if (data.success) {
+          if (data.addresses.length === 0) {
+            container.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No saved addresses yet.</p>';
+            return;
+          }
+          container.innerHTML = data.addresses.map(a => `
+            <div class="account-card" style="margin-bottom: 0;">
+              ${a.is_default ? '<span style="font-size: 0.65rem; padding: 0.2rem 0.5rem; background: rgba(201,169,110,0.2); color: var(--color-gold); border-radius: 2px; font-weight: 600; margin-bottom: 0.5rem; display: inline-block;">DEFAULT</span>' : ''}
+              <div style="font-weight: 600; font-size: 0.95rem; margin-bottom: 0.25rem;">${a.full_name}</div>
+              <div style="font-size: 0.8rem; color: rgba(250,247,242,0.7); line-height: 1.4;">
+                ${a.address_line1}<br/>
+                ${a.city}, ${a.state || ''} ${a.postal_code}<br/>
+                ${a.country}
+              </div>
+              <div style="margin-top: 1rem; display: flex; justify-content: flex-end;">
+                <button onclick="deleteAddress(${a.id})" style="background: none; border: none; color: #FF708F; font-size: 0.72rem; cursor: pointer;">Remove</button>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        container.innerHTML = '<p style="color: #FF8A9E;">Failed to load addresses.</p>';
+      }
+    }
+
+    function openAddressModal() {
+      document.getElementById('addressModal').classList.add('open');
+      document.getElementById('lumiereBackdrop').classList.add('open');
+    }
+    function closeAddressModal() {
+      document.getElementById('addressModal').classList.remove('open');
+      document.getElementById('lumiereBackdrop').classList.remove('open');
+    }
+
+    async function handleSaveAddress(e) {
+      e.preventDefault();
+      const fullName = document.getElementById('addrName').value;
+      const phone = document.getElementById('addrPhone').value;
+      const addressLine1 = document.getElementById('addrLine1').value;
+      const city = document.getElementById('addrCity').value;
+      const state = document.getElementById('addrState').value;
+      const postalCode = document.getElementById('addrZip').value;
+      const country = document.getElementById('addrCountry').value;
+      const isDefault = document.getElementById('addrDefault').checked;
+
+      try {
+        const res = await Auth.apiFetch('/api/account/addresses', {
+          method: 'POST',
+          body: JSON.stringify({ fullName, phone, addressLine1, city, state, postalCode, country, isDefault }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeAddressModal();
+          showToast('Address saved successfully.');
+          loadAddresses();
+        } else {
+          showToast(data.error || 'Failed to save address');
+        }
+      } catch (err) {
+        showToast(err.message);
+      }
+    }
+
+    async function deleteAddress(id) {
+      if (!confirm('Are you sure you want to remove this address?')) return;
+      try {
+        const res = await Auth.apiFetch(`/api/account/addresses/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Address removed.');
+          loadAddresses();
+        }
+      } catch (err) {
+        showToast(err.message);
+      }
+    }
+
+    async function loadWishlist() {
+      const container = document.getElementById('wishlistContainer');
+      try {
+        const res = await Auth.apiFetch('/api/account/wishlist');
+        const data = await res.json();
+        if (data.success) {
+          if (data.items.length === 0) {
+            container.innerHTML = '<p style="color: rgba(250,247,242,0.5);">Your wishlist is currently empty.</p>';
+            return;
+          }
+          container.innerHTML = data.items.map(p => `
+            <div class="account-card" style="padding: 1rem; margin-bottom: 0;">
+              <img src="${p.image_url || 'images/skincare_products_1788328338930.jpg'}" alt="${p.name}" style="width: 100%; height: 180px; object-fit: cover; border-radius: 2px; margin-bottom: 0.75rem;" />
+              <div style="font-family: var(--font-serif); font-size: 1rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
+              <div style="color: var(--color-gold); font-size: 0.9rem; margin: 0.35rem 0;">$${parseFloat(p.price).toFixed(2)}</div>
+              <button onclick="addToCart(${p.id}); showToast('Added to bag');" class="btn-luxury-primary" style="width: 100%; padding: 0.45rem; font-size: 0.7rem; margin-top: 0.5rem;">MOVE TO BAG +</button>
+            </div>
+          `).join('');
+        }
+      } catch (err) {
+        container.innerHTML = '<p style="color: #FF8A9E;">Failed to load wishlist.</p>';
+      }
+    }
+
+    async function handleChangePassword(e) {
+      e.preventDefault();
+      const currentPassword = document.getElementById('currentPass').value;
+      const newPassword = document.getElementById('newPass').value;
+      const confirmPassword = document.getElementById('confirmPass').value;
+
+      if (newPassword !== confirmPassword) {
+        showToast('New passwords do not match.');
+        return;
+      }
+
+      try {
+        const res = await Auth.apiFetch('/api/account/change-password', {
+          method: 'PUT',
+          body: JSON.stringify({ currentPassword, newPassword }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Password updated successfully.');
+          document.getElementById('currentPass').value = '';
+          document.getElementById('newPass').value = '';
+          document.getElementById('confirmPass').value = '';
+        } else {
+          showToast(data.error || 'Failed to update password');
+        }
+      } catch (err) {
+        showToast(err.message);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProfile();
+      if (Auth.isStaff()) {
+        document.getElementById('staffPortalCard').style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>

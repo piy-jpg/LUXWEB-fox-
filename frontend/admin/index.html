@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard — Lumière Luxury Beauty</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <!-- Navigation Sidebar -->
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <!-- Main Work Area -->
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+        <div>
+          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Executive Intelligence</span>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Atelier Performance Overview</h1>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <a href="inventory.html" class="btn-outline" style="font-size: 0.72rem;">INVENTORY STATUS &rarr;</a>
+          <a href="products.html" class="btn-gold" style="font-size: 0.72rem;">+ NEW PRODUCT</a>
+        </div>
+      </div>
+
+      <!-- Low Stock Warning Banner -->
+      <div id="lowStockBanner" style="display: none; padding: 1rem 1.5rem; margin-bottom: 2rem; background: rgba(230, 126, 34, 0.12); border: 1px solid rgba(230, 126, 34, 0.35); border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span style="font-size: 1.25rem;">⚠️</span>
+          <div>
+            <strong style="color: #f39c12; font-size: 0.85rem;">Inventory Attention Required:</strong>
+            <span style="font-size: 0.82rem; color: rgba(250,247,242,0.8); margin-left: 0.5rem;" id="lowStockBannerText">0 products are below safe reserve threshold.</span>
+          </div>
+        </div>
+        <a href="inventory.html" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.68rem; border-color: rgba(230,126,34,0.5); color: #f39c12;">Review Stock</a>
+      </div>
+
+      <!-- Metric Cards Grid -->
+      <div class="stat-card-grid">
+        <div class="stat-card">
+          <div class="stat-title">Total Revenue</div>
+          <div class="stat-number" id="valRevenue">$0.00</div>
+          <span style="font-size: 0.72rem; color: #7bed9f; margin-top: 0.5rem;">✦ Verified Transactions</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Total Orders</div>
+          <div class="stat-number" id="valOrders">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">All lifetime orders</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Today's Orders</div>
+          <div class="stat-number" id="valTodayOrders">0</div>
+          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;" id="valTodayRev">$0.00 today</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Total Clients</div>
+          <div class="stat-number" id="valCustomers">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Registered luxury accounts</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Active Products</div>
+          <div class="stat-number" id="valProducts">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Live boutique catalog</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Low / Out of Stock</div>
+          <div class="stat-number" id="valLowStock" style="color: #f39c12;">0</div>
+          <span style="font-size: 0.72rem; color: #e74c3c; margin-top: 0.5rem;" id="valOutStock">0 out of stock</span>
+        </div>
+      </div>
+
+      <!-- Two Column Layout: Recent Orders & Best Sellers -->
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+        
+        <!-- Recent Orders Table -->
+        <div class="table-card">
+          <div class="table-header-wrap">
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin: 0;">Recent Orders</h3>
+            <a href="orders.html" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.68rem;">VIEW ALL &rarr;</a>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Client</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody id="recentOrdersTableBody">
+                <tr><td colspan="5" style="text-align: center; color: rgba(250,247,242,0.5);">Loading orders...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Best Sellers -->
+        <div class="table-card">
+          <div class="table-header-wrap">
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin: 0;">Bestselling Curations</h3>
+          </div>
+          <div style="padding: 1.25rem;" id="bestSellersList">
+            Loading bestsellers...
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+  </div>
+
+  <div class="admin-backdrop" id="adminBackdrop"></div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    async function loadDashboard() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/overview');
+        const data = await res.json();
+        if (data.success) {
+          const m = data.metrics;
+          document.getElementById('valRevenue').innerText = `$${m.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+          document.getElementById('valOrders').innerText = m.totalOrders;
+          document.getElementById('valTodayOrders').innerText = m.todayOrders;
+          document.getElementById('valTodayRev').innerText = `$${m.todayRevenue.toFixed(2)} today`;
+          document.getElementById('valCustomers').innerText = m.totalCustomers;
+          document.getElementById('valProducts').innerText = m.totalProducts;
+          document.getElementById('valLowStock').innerText = m.lowStockCount;
+          document.getElementById('valOutStock').innerText = `${m.outOfStockCount} out of stock`;
+
+          // Low stock alert banner
+          if (m.lowStockCount > 0 || m.outOfStockCount > 0) {
+            const banner = document.getElementById('lowStockBanner');
+            banner.style.display = 'flex';
+            document.getElementById('lowStockBannerText').innerText = 
+              `${m.lowStockCount} items below threshold, ${m.outOfStockCount} out of stock. Immediate stock receipt recommended.`;
+          }
+
+          // Recent Orders
+          const orderBody = document.getElementById('recentOrdersTableBody');
+          if (data.recentOrders.length === 0) {
+            orderBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No orders recorded yet.</td></tr>';
+          } else {
+            orderBody.innerHTML = data.recentOrders.map(o => `
+              <tr>
+                <td><strong style="color: #fff;">#${o.order_number}</strong></td>
+                <td>
+                  <div>${o.customer_name}</div>
+                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email}</div>
+                </td>
+                <td style="color: var(--color-gold); font-weight: 500;">$${parseFloat(o.total_amount).toFixed(2)}</td>
+                <td><span class="badge badge-active">${o.status}</span></td>
+                <td style="color: rgba(250,247,242,0.6); font-size: 0.75rem;">${new Date(o.created_at).toLocaleDateString()}</td>
+              </tr>
+            `).join('');
+          }
+
+          // Best Sellers
+          const bestContainer = document.getElementById('bestSellersList');
+          if (data.bestSellers.length === 0) {
+            bestContainer.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No sales data recorded yet.</p>';
+          } else {
+            bestContainer.innerHTML = data.bestSellers.map(p => `
+              <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1rem;">
+                <img src="../${p.image_url || 'images/skincare_products_1788328338930.jpg'}" alt="${p.name}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 2px;" />
+                <div style="flex: 1; min-width: 0;">
+                  <div style="font-weight: 500; font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
+                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${p.total_sold} units sold</div>
+                </div>
+                <div style="color: var(--color-gold); font-size: 0.85rem; font-weight: 600;">$${parseFloat(p.revenue_generated).toFixed(2)}</div>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (err) {
+        console.error('Overview error:', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadDashboard);
+  </script>
+</body>
+</html>

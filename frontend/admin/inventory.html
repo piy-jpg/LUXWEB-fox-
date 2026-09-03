@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Management — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+        <div>
+          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Real-Time Stock Engine</span>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Inventory &amp; Transaction Ledger</h1>
+        </div>
+      </div>
+
+      <!-- Filters & Quick Toggles -->
+      <div class="table-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <input type="text" id="inventorySearch" class="admin-input" placeholder="Search product or SKU..." style="flex: 2; min-width: 200px;" oninput="debounceInvSearch()" />
+        <select id="stockFilter" class="admin-select" style="flex: 1; min-width: 160px;" onchange="loadInventory()">
+          <option value="all">All Inventory Levels</option>
+          <option value="low_stock">Low Stock Alerts Only</option>
+          <option value="out_of_stock">Out of Stock Only</option>
+        </select>
+      </div>
+
+      <!-- Inventory Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Physical Stock</th>
+                <th>Reserved</th>
+                <th>Available</th>
+                <th>Threshold</th>
+                <th>Status</th>
+                <th style="text-align: right;">Stock Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTableBody">
+              <tr><td colspan="8" style="text-align: center;">Loading inventory balances...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ADJUST INVENTORY MODAL -->
+  <div class="admin-modal" id="adjustModal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;">Adjust Inventory</h3>
+      <button onclick="Admin.closeModal('adjustModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <form onsubmit="handleExecuteAdjustment(event)">
+      <input type="hidden" id="adjInventoryId" />
+
+      <div style="margin-bottom: 1.25rem; padding: 0.85rem; background: rgba(255,255,255,0.03); border-radius: 4px;">
+        <div style="font-size: 0.72rem; color: rgba(250,247,242,0.6); text-transform: uppercase;">Product Target</div>
+        <div style="font-weight: 600; font-size: 1rem; color: #fff;" id="adjProductName">Product Name</div>
+        <div style="font-size: 0.8rem; color: var(--color-gold); margin-top: 0.25rem;" id="adjCurrentStock">Current Stock: 0</div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Transaction Reason Code</label>
+        <select id="adjType" class="admin-select" style="width: 100%;" required>
+          <option value="STOCK_RECEIVED">STOCK_RECEIVED — New atelier shipment arrived</option>
+          <option value="MANUAL_ADJUSTMENT">MANUAL_ADJUSTMENT — Inventory reconciliation</option>
+          <option value="DAMAGED">DAMAGED — Damaged or expired merchandise removed</option>
+          <option value="REFUND">REFUND — Returned item verified and restocked</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Quantity Delta (+ or -)</label>
+        <input type="number" id="adjDelta" class="admin-input" style="width: 100%;" placeholder="e.g. +25 or -5" required />
+        <span style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">Use positive numbers to add stock, negative numbers to remove.</span>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Operational Note / Justification</label>
+        <textarea id="adjReason" class="admin-input" style="width: 100%; height: 65px;" placeholder="e.g. Grasse shipment PO-9281 received" required></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" onclick="Admin.closeModal('adjustModal')" class="btn-outline">Cancel</button>
+        <button type="submit" class="btn-gold" id="btnSubmitAdj">APPLY TRANSACTION &rarr;</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- TRANSACTION HISTORY LEDGER MODAL -->
+  <div class="admin-modal" id="historyModal" style="max-width: 750px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <div>
+        <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;">Audit Transaction History</h3>
+        <span style="font-size: 0.75rem; color: rgba(250,247,242,0.6);" id="historyProdSubtitle">Product History</span>
+      </div>
+      <button onclick="Admin.closeModal('historyModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Date &amp; Time</th>
+            <th>Type</th>
+            <th>Delta</th>
+            <th>Balance</th>
+            <th>Justification</th>
+            <th>Operator</th>
+          </tr>
+        </thead>
+        <tbody id="historyTableBody">
+          <tr><td colspan="6" style="text-align: center;">Loading history log...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="admin-backdrop" id="adminBackdrop" onclick="Admin.closeModal('adjustModal'); Admin.closeModal('historyModal');"></div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let inventoryItems = [];
+    let invSearchTimeout = null;
+
+    function debounceInvSearch() {
+      clearTimeout(invSearchTimeout);
+      invSearchTimeout = setTimeout(loadInventory, 300);
+    }
+
+    async function loadInventory() {
+      const search = document.getElementById('inventorySearch').value.trim();
+      const filter = document.getElementById('stockFilter').value;
+
+      try {
+        const q = new URLSearchParams();
+        if (search) q.append('search', search);
+        if (filter !== 'all') q.append('filter', filter);
+
+        const res = await Auth.apiFetch(`/api/admin/inventory?${q.toString()}`);
+        const data = await res.json();
+
+        if (data.success) {
+          inventoryItems = data.inventory;
+          const tbody = document.getElementById('inventoryTableBody');
+
+          if (inventoryItems.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: rgba(250,247,242,0.5);">No inventory records matched your query.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = inventoryItems.map(item => {
+            let statusBadge = '<span class="badge badge-active">In Stock</span>';
+            if (item.is_out_of_stock) {
+              statusBadge = '<span class="badge badge-out-stock">Out of Stock</span>';
+            } else if (item.is_low_stock) {
+              statusBadge = '<span class="badge badge-low-stock">Low Stock</span>';
+            }
+
+            return `
+              <tr>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <img src="../${item.primary_image || 'images/skincare_products_1788328338930.jpg'}" alt="${item.product_name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 2px;" />
+                    <strong style="color: #fff;">${item.product_name}</strong>
+                  </div>
+                </td>
+                <td style="font-family: monospace; font-size: 0.75rem;">${item.sku}</td>
+                <td style="font-weight: 600;">${item.stock_quantity}</td>
+                <td style="color: #bb8fce;">${item.reserved_quantity}</td>
+                <td style="font-weight: 700; color: ${item.available_quantity <= item.low_stock_threshold ? '#f39c12' : '#7bed9f'};">
+                  ${item.available_quantity}
+                </td>
+                <td style="color: rgba(250,247,242,0.5);">${item.low_stock_threshold}</td>
+                <td>${statusBadge}</td>
+                <td style="text-align: right;">
+                  <button onclick="openAdjustModal(${item.inventory_id})" class="btn-gold" style="padding: 0.35rem 0.65rem; font-size: 0.68rem; margin-right: 0.35rem;">Adjust &plusmn;</button>
+                  <button onclick="openHistoryModal(${item.inventory_id}, '${item.product_name.replace(/'/g, "\\'")}')" class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.68rem;">History</button>
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.error('Inventory error:', err);
+      }
+    }
+
+    function openAdjustModal(invId) {
+      const item = inventoryItems.find(i => i.inventory_id === invId);
+      if (!item) return;
+
+      document.getElementById('adjInventoryId').value = invId;
+      document.getElementById('adjProductName').innerText = item.product_name;
+      document.getElementById('adjCurrentStock').innerText = `Physical: ${item.stock_quantity} | Reserved: ${item.reserved_quantity} | Available: ${item.available_quantity}`;
+      document.getElementById('adjDelta').value = '';
+      document.getElementById('adjReason').value = '';
+      Admin.openModal('adjustModal');
+    }
+
+    async function handleExecuteAdjustment(e) {
+      e.preventDefault();
+      const inventoryId = parseInt(document.getElementById('adjInventoryId').value, 10);
+      const quantityDelta = parseInt(document.getElementById('adjDelta').value, 10);
+      const transactionType = document.getElementById('adjType').value;
+      const reason = document.getElementById('adjReason').value.trim();
+
+      const btn = document.getElementById('btnSubmitAdj');
+      btn.disabled = true;
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory/adjust', {
+          method: 'POST',
+          body: JSON.stringify({ inventoryId, quantityDelta, transactionType, reason }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.closeModal('adjustModal');
+          Admin.toast(data.message);
+          loadInventory();
+        } else {
+          alert(data.error || 'Failed to adjust stock');
+        }
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function openHistoryModal(invId, prodName) {
+      document.getElementById('historyProdSubtitle').innerText = prodName;
+      const tbody = document.getElementById('historyTableBody');
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Loading ledger...</td></tr>';
+      Admin.openModal('historyModal');
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/inventory/${invId}/history`);
+        const data = await res.json();
+
+        if (data.success) {
+          if (data.history.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">No transactions recorded.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = data.history.map(tx => `
+            <tr>
+              <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">${new Date(tx.created_at).toLocaleString()}</td>
+              <td><span class="badge" style="background: rgba(255,255,255,0.06);">${tx.transaction_type}</span></td>
+              <td style="font-weight: 600; color: ${tx.quantity_delta > 0 ? '#7bed9f' : '#e74c3c'};">
+                ${tx.quantity_delta > 0 ? `+${tx.quantity_delta}` : tx.quantity_delta}
+              </td>
+              <td style="font-weight: 500;">${tx.balance_after}</td>
+              <td style="color: rgba(250,247,242,0.8);">${tx.reason || '—'}</td>
+              <td style="font-size: 0.72rem; color: var(--color-gold);">${tx.performed_by_first_name || tx.performed_by_email || 'System'}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #FF708F;">Failed to load transaction history.</td></tr>';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadInventory);
+  </script>
+</body>
+</html>

@@ -57,5 +57,8 @@ tmp/
 *.sqlite
 *.sqlite3
 *.db
+*.db-*
+*.db-shm
+*.db-wal
 .vercel
 .env*

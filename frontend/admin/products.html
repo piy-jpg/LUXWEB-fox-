@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Management — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+        <div>
+          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Catalog Management</span>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Haute Beauty Catalog</h1>
+        </div>
+        <button onclick="openCreateProductModal()" class="btn-gold" id="btnCreateProduct">
+          + CREATE NEW PRODUCT
+        </button>
+      </div>
+
+      <!-- Search & Filters Toolbar -->
+      <div class="table-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <input type="text" id="productSearchInput" class="admin-input" placeholder="Search by name or SKU..." style="flex: 2; min-width: 200px;" oninput="debounceProductSearch()" />
+        <select id="categoryFilter" class="admin-select" style="flex: 1; min-width: 150px;" onchange="loadProducts()">
+          <option value="">All Categories</option>
+        </select>
+        <select id="statusFilter" class="admin-select" style="flex: 1; min-width: 130px;" onchange="loadProducts()">
+          <option value="">All Statuses</option>
+          <option value="active">Active</option>
+          <option value="draft">Draft</option>
+          <option value="archived">Archived</option>
+        </select>
+      </div>
+
+      <!-- Products Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Category</th>
+                <th>Price</th>
+                <th>Available Stock</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="productsTableBody">
+              <tr><td colspan="7" style="text-align: center;">Loading catalog...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- CREATE / EDIT PRODUCT MODAL -->
+  <div class="admin-modal" id="productModal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;" id="productModalTitle">Create Product</h3>
+      <button onclick="Admin.closeModal('productModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <form id="productForm" onsubmit="handleSaveProduct(event)">
+      <input type="hidden" id="editProductId" />
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Product Name</label>
+          <input type="text" id="pName" class="admin-input" style="width: 100%;" required />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">SKU Code</label>
+          <input type="text" id="pSku" class="admin-input" style="width: 100%;" required placeholder="LUM-SKU-..." />
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Description</label>
+        <textarea id="pDesc" class="admin-input" style="width: 100%; height: 80px; resize: vertical;"></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Price ($)</label>
+          <input type="number" step="0.01" id="pPrice" class="admin-input" style="width: 100%;" required />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Compare Price ($)</label>
+          <input type="number" step="0.01" id="pComparePrice" class="admin-input" style="width: 100%;" placeholder="Optional" />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Category</label>
+          <select id="pCategory" class="admin-select" style="width: 100%;" required></select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Initial Stock</label>
+          <input type="number" id="pStock" class="admin-input" style="width: 100%;" value="50" min="0" />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Low Threshold</label>
+          <input type="number" id="pThreshold" class="admin-input" style="width: 100%;" value="5" min="1" />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Status</label>
+          <select id="pStatus" class="admin-select" style="width: 100%;">
+            <option value="active">Active</option>
+            <option value="draft">Draft</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Image URL</label>
+        <input type="text" id="pImageUrl" class="admin-input" style="width: 100%;" placeholder="e.g. images/skincare_products_1788328338930.jpg" />
+      </div>
+
+      <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem;">
+        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; cursor: pointer;">
+          <input type="checkbox" id="pBestseller" style="accent-color: var(--color-gold);" /> Bestseller
+        </label>
+        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; cursor: pointer;">
+          <input type="checkbox" id="pNewArrival" style="accent-color: var(--color-gold);" /> New Arrival
+        </label>
+        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; cursor: pointer;">
+          <input type="checkbox" id="pFeatured" style="accent-color: var(--color-gold);" /> Featured
+        </label>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" onclick="Admin.closeModal('productModal')" class="btn-outline">Cancel</button>
+        <button type="submit" class="btn-gold" id="btnSaveProduct">SAVE PRODUCT &rarr;</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="admin-backdrop" id="adminBackdrop" onclick="Admin.closeModal('productModal')"></div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let productsList = [];
+    let searchTimeout = null;
+
+    function debounceProductSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(loadProducts, 300);
+    }
+
+    async function loadProducts() {
+      const search = document.getElementById('productSearchInput').value.trim();
+      const category = document.getElementById('categoryFilter').value;
+      const status = document.getElementById('statusFilter').value;
+
+      try {
+        const queryParams = new URLSearchParams();
+        if (search) queryParams.append('search', search);
+        if (category) queryParams.append('category', category);
+        if (status) queryParams.append('status', status);
+
+        const res = await Auth.apiFetch(`/api/admin/products?${queryParams.toString()}`);
+        const data = await res.json();
+
+        if (data.success) {
+          productsList = data.products;
+
+          // Populate category filter dropdown once
+          const catFilter = document.getElementById('categoryFilter');
+          const pCatSelect = document.getElementById('pCategory');
+          if (catFilter.children.length === 1 && data.categories) {
+            data.categories.forEach(c => {
+              const opt = document.createElement('option');
+              opt.value = c.slug;
+              opt.innerText = c.name;
+              catFilter.appendChild(opt);
+
+              const pOpt = document.createElement('option');
+              pOpt.value = c.id;
+              pOpt.innerText = c.name;
+              pCatSelect.appendChild(pOpt);
+            });
+          }
+
+          const tbody = document.getElementById('productsTableBody');
+          if (productsList.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(250,247,242,0.5);">No matching products found.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = productsList.map(p => `
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.85rem;">
+                  <img src="../${p.primary_image || 'images/skincare_products_1788328338930.jpg'}" alt="${p.name}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 2px;" />
+                  <div>
+                    <div style="font-weight: 500;">${p.name}</div>
+                    <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${p.badge ? `<span style="color: var(--color-gold);">✦ ${p.badge}</span>` : ''}</div>
+                  </div>
+                </div>
+              </td>
+              <td style="font-family: monospace; font-size: 0.78rem;">${p.sku}</td>
+              <td style="color: rgba(250,247,242,0.7);">${p.category_name || '—'}</td>
+              <td style="color: var(--color-gold); font-weight: 600;">$${parseFloat(p.price).toFixed(2)}</td>
+              <td>
+                <span style="font-weight: 600; color: ${p.available_quantity <= p.low_stock_threshold ? '#f39c12' : '#7bed9f'};">
+                  ${p.available_quantity} available
+                </span>
+                <span style="font-size: 0.7rem; color: rgba(250,247,242,0.5);"> (${p.stock_quantity} total)</span>
+              </td>
+              <td>
+                <span class="badge badge-${p.status}">${p.status}</span>
+              </td>
+              <td style="text-align: right;">
+                <button onclick="openEditProductModal(${p.id})" class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.68rem; margin-right: 0.35rem;">Edit</button>
+                <button onclick="archiveProduct(${p.id})" class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.68rem; color: #FF708F; border-color: rgba(255,112,143,0.3);">Archive</button>
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Products error:', err);
+      }
+    }
+
+    function openCreateProductModal() {
+      document.getElementById('productModalTitle').innerText = 'Create New Product';
+      document.getElementById('editProductId').value = '';
+      document.getElementById('productForm').reset();
+      document.getElementById('pStock').disabled = false;
+      Admin.openModal('productModal');
+    }
+
+    function openEditProductModal(id) {
+      const p = productsList.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById('productModalTitle').innerText = `Edit: ${p.name}`;
+      document.getElementById('editProductId').value = p.id;
+      document.getElementById('pName').value = p.name;
+      document.getElementById('pSku').value = p.sku;
+      document.getElementById('pDesc').value = p.description || '';
+      document.getElementById('pPrice').value = p.price;
+      document.getElementById('pComparePrice').value = p.compare_at_price || '';
+      document.getElementById('pCategory').value = p.category_id || '';
+      document.getElementById('pStock').value = p.stock_quantity;
+      document.getElementById('pStock').disabled = true; // Use inventory adjustments for existing stock!
+      document.getElementById('pThreshold').value = p.low_stock_threshold || 5;
+      document.getElementById('pStatus').value = p.status;
+      document.getElementById('pImageUrl').value = p.primary_image || '';
+      document.getElementById('pBestseller').checked = Boolean(p.is_bestseller);
+      document.getElementById('pNewArrival').checked = Boolean(p.is_new_arrival);
+      document.getElementById('pFeatured').checked = Boolean(p.is_featured);
+
+      Admin.openModal('productModal');
+    }
+
+    async function handleSaveProduct(e) {
+      e.preventDefault();
+      const editId = document.getElementById('editProductId').value;
+      const payload = {
+        name: document.getElementById('pName').value.trim(),
+        sku: document.getElementById('pSku').value.trim(),
+        description: document.getElementById('pDesc').value.trim(),
+        price: parseFloat(document.getElementById('pPrice').value),
+        compareAtPrice: document.getElementById('pComparePrice').value ? parseFloat(document.getElementById('pComparePrice').value) : null,
+        categoryId: parseInt(document.getElementById('pCategory').value, 10),
+        status: document.getElementById('pStatus').value,
+        lowStockThreshold: parseInt(document.getElementById('pThreshold').value, 10),
+        isBestseller: document.getElementById('pBestseller').checked,
+        isNewArrival: document.getElementById('pNewArrival').checked,
+        isFeatured: document.getElementById('pFeatured').checked,
+      };
+
+      const imgUrl = document.getElementById('pImageUrl').value.trim();
+      if (imgUrl) payload.images = [imgUrl];
+
+      try {
+        let res;
+        if (editId) {
+          res = await Auth.apiFetch(`/api/admin/products/${editId}`, {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+          });
+        } else {
+          payload.stockQuantity = parseInt(document.getElementById('pStock').value, 10);
+          res = await Auth.apiFetch('/api/admin/products', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+          });
+        }
+
+        const data = await res.json();
+        if (data.success) {
+          Admin.closeModal('productModal');
+          Admin.toast(data.message);
+          loadProducts();
+        } else {
+          alert(data.error || 'Failed to save product');
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function archiveProduct(id) {
+      if (!confirm('Are you sure you want to archive this product? It will no longer appear in the boutique.')) return;
+      try {
+        const res = await Auth.apiFetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message);
+          loadProducts();
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadProducts);
+  </script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings &amp; Audit Logs — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <div style="margin-bottom: 2rem;">
+        <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Store Architecture</span>
+        <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Settings &amp; Security Audit Ledger</h1>
+      </div>
+
+      <!-- Atelier Global Configuration -->
+      <div class="table-card" style="padding: 1.75rem; margin-bottom: 2.5rem;">
+        <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin: 0 0 1.25rem;">Atelier Operational Parameters</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+          <div>
+            <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Store Currency</label>
+            <input type="text" class="admin-input" style="width: 100%;" value="USD ($) — United States Dollar" readonly />
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Complimentary Shipping Minimum</label>
+            <input type="text" class="admin-input" style="width: 100%;" value="$150.00 USD" readonly />
+          </div>
+          <div>
+            <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Default Low-Stock Threshold</label>
+            <input type="text" class="admin-input" style="width: 100%;" value="5 units" readonly />
+          </div>
+        </div>
+      </div>
+
+      <!-- Security Audit Trail -->
+      <div class="table-card">
+        <div class="table-header-wrap">
+          <div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem; margin: 0;">Security &amp; Administrative Audit Trail</h3>
+            <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Immutable record of all administrative modifications</div>
+          </div>
+          <button onclick="loadAuditLogs()" class="btn-outline" style="font-size: 0.7rem; padding: 0.35rem 0.75rem;">REFRESH LOGS ⟳</button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Operator</th>
+                <th>Role</th>
+                <th>Action</th>
+                <th>Entity</th>
+                <th>Audit Details</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <tr><td colspan="6" style="text-align: center;">Loading audit logs...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    async function loadAuditLogs() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/audit-logs');
+        const data = await res.json();
+
+        if (data.success) {
+          const tbody = document.getElementById('auditTableBody');
+
+          if (data.logs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(250,247,242,0.5);">No audit events recorded.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = data.logs.map(log => `
+            <tr>
+              <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">${new Date(log.created_at).toLocaleString()}</td>
+              <td style="font-weight: 500;">${log.user_email || 'System'}</td>
+              <td><span class="badge badge-owner" style="font-size: 0.62rem;">${log.user_role || 'SYSTEM'}</span></td>
+              <td style="font-family: monospace; font-size: 0.75rem; color: var(--color-gold);">${log.action}</td>
+              <td style="font-size: 0.75rem; color: rgba(250,247,242,0.7);">${log.entity_type} #${log.entity_id || '—'}</td>
+              <td style="font-family: monospace; font-size: 0.7rem; color: rgba(250,247,242,0.8); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                ${log.details_json || '—'}
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Audit logs error:', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadAuditLogs);
+  </script>
+</body>
+</html>

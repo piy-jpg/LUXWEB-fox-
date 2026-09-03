@@ -6437,3 +6437,104 @@ img {
     border-bottom: none;
   }
 }
+
+/* ============================================================
+   LUMIÈRE BESPOKE ACCOUNT & AUTH STYLING
+   ============================================================ */
+.nav-user-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-gold);
+  color: #120D0F;
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(201, 169, 110, 0.4);
+}
+
+.lumiere-account-dropdown {
+  position: fixed;
+  top: 75px;
+  right: 2rem;
+  width: 240px;
+  background: rgba(24, 19, 21, 0.95);
+  border: 1px solid rgba(201, 169, 110, 0.3);
+  border-radius: 4px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.8);
+  padding: 0.75rem 0;
+  z-index: 9500;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.lumiere-account-dropdown.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.account-menu-header {
+  padding: 0.75rem 1.25rem 0.5rem;
+}
+
+.account-user-name {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  color: #fff;
+  font-weight: 500;
+}
+
+.account-user-email {
+  font-size: 0.72rem;
+  color: rgba(250, 247, 242, 0.5);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0.4rem 0;
+}
+
+.account-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.6rem 1.25rem;
+  background: transparent;
+  border: none;
+  color: rgba(250, 247, 242, 0.8);
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.account-menu-item:hover {
+  background: rgba(201, 169, 110, 0.12);
+  color: var(--color-gold);
+}
+
+.account-menu-item.logout-item {
+  color: #FF8A9E;
+}
+
+.account-menu-item.logout-item:hover {
+  background: rgba(255, 138, 158, 0.1);
+  color: #FF8A9E;
+}
+

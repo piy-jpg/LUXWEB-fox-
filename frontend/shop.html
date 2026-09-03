@@ -68,6 +68,14 @@
           <span class="nav-badge-count" id="navCartCount">0</span>
         </button>
 
+        <!-- Customer Account Icon -->
+        <button class="nav-icon-btn" id="navAccountBtn" aria-label="Customer Account">
+          <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </button>
+
         <!-- Mobile Hamburger Toggle -->
         <button class="nav-hamburger" id="navHamburger" onclick="openMobileNav()" aria-label="Toggle Menu">
           <span></span>
@@ -640,7 +648,7 @@
         <span>Subtotal</span>
         <span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span>
       </div>
-      <button class="btn-luxury-primary" style="width: 100%; margin-bottom: 0.75rem;" onclick="showToast('Proceeding to luxury checkout...')">CHECKOUT &rarr;</button>
+      <button class="btn-luxury-primary" style="width: 100%; margin-bottom: 0.75rem;" onclick="processCheckout()">CHECKOUT &rarr;</button>
       <button class="btn-luxury-outline" style="width: 100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
     </div>
   </aside>
@@ -709,6 +717,7 @@
   </div>
 
   <!-- Scripts -->
+  <script src="js/auth.js"></script>
   <script src="js/lumiere-cinematic.js"></script>
   <script src="js/shared.js"></script>
   <script src="js/shop.js"></script>

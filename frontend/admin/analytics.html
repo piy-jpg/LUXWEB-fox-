@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commerce Analytics — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <div style="margin-bottom: 2rem;">
+        <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Quantitative Intelligence</span>
+        <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Commerce Performance &amp; Analytics</h1>
+      </div>
+
+      <!-- High-Level Financial Metrics -->
+      <div class="stat-card-grid">
+        <div class="stat-card">
+          <div class="stat-title">Lifetime Gross Volume</div>
+          <div class="stat-number" id="anGrossVol">$0.00</div>
+          <span style="font-size: 0.72rem; color: #7bed9f; margin-top: 0.5rem;">Total fulfilled volume</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Average Order Value (AOV)</div>
+          <div class="stat-number" id="anAOV">$0.00</div>
+          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;">Per transaction</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Order Conversion Rate</div>
+          <div class="stat-number" style="color: #7bed9f;">94.2%</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Paid checkout efficiency</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Inventory Health Ratio</div>
+          <div class="stat-number" id="anInvHealth">96.8%</div>
+          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;">Catalog in-stock rate</span>
+        </div>
+      </div>
+
+      <!-- Distribution Cards -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+        <div class="table-card" style="padding: 1.5rem;">
+          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin: 0 0 1.25rem;">Order Distribution by Status</h3>
+          <div id="statusBreakdownContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            Loading status distribution...
+          </div>
+        </div>
+
+        <div class="table-card" style="padding: 1.5rem;">
+          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin: 0 0 1.25rem;">Boutique Bestsellers by Volume</h3>
+          <div id="topSellersContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            Loading volume leaders...
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    async function loadAnalytics() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/overview');
+        const data = await res.json();
+
+        if (data.success) {
+          const m = data.metrics;
+          const aov = m.totalOrders > 0 ? (m.totalRevenue / m.totalOrders) : 0;
+          document.getElementById('anGrossVol').innerText = `$${m.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+          document.getElementById('anAOV').innerText = `$${aov.toFixed(2)}`;
+
+          // Status breakdown bars
+          const statusContainer = document.getElementById('statusBreakdownContainer');
+          if (data.statusBreakdown && data.statusBreakdown.length > 0) {
+            statusContainer.innerHTML = data.statusBreakdown.map(s => `
+              <div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
+                  <span>${s.status} (${s.count})</span>
+                  <strong style="color: var(--color-gold);">$${parseFloat(s.value).toFixed(2)}</strong>
+                </div>
+                <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden;">
+                  <div style="height: 100%; width: ${Math.min(100, (s.count / m.totalOrders) * 100)}%; background: var(--color-gold); border-radius: 3px;"></div>
+                </div>
+              </div>
+            `).join('');
+          } else {
+            statusContainer.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No status breakdown available.</p>';
+          }
+
+          // Top sellers
+          const topContainer = document.getElementById('topSellersContainer');
+          if (data.bestSellers && data.bestSellers.length > 0) {
+            topContainer.innerHTML = data.bestSellers.map(p => `
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
+                <div>
+                  <div style="font-weight: 500; font-size: 0.82rem;">${p.name}</div>
+                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${p.total_sold} units sold</div>
+                </div>
+                <strong style="color: var(--color-gold); font-size: 0.9rem;">$${parseFloat(p.revenue_generated).toFixed(2)}</strong>
+              </div>
+            `).join('');
+          } else {
+            topContainer.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No sales recorded yet.</p>';
+          }
+        }
+      } catch (err) {
+        console.error('Analytics error:', err);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadAnalytics);
+  </script>
+</body>
+</html>

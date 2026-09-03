@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Staff &amp; RBAC Management — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+        <div>
+          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Governance &amp; Access Control</span>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Atelier Staff &amp; RBAC Matrix</h1>
+        </div>
+        <button onclick="openCreateStaffModal()" class="btn-gold">
+          + PROVISION STAFF ACCOUNT
+        </button>
+      </div>
+
+      <!-- Staff Directory Table -->
+      <div class="table-card">
+        <div class="table-header-wrap">
+          <h3 style="font-family: var(--font-serif); font-size: 1.25rem; margin: 0;">Authorized Atelier Personnel</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Personnel</th>
+                <th>Assigned Role</th>
+                <th>Status</th>
+                <th>Last Active</th>
+                <th>Created</th>
+                <th style="text-align: right;">Access Controls</th>
+              </tr>
+            </thead>
+            <tbody id="staffTableBody">
+              <tr><td colspan="6" style="text-align: center;">Loading staff accounts...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RBAC Permissions Reference Card -->
+      <div class="table-card" style="padding: 1.5rem;">
+        <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin: 0 0 1rem;">Server-Enforced Role Privileges Matrix</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; font-size: 0.78rem;">
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--admin-border-gold); padding: 1rem; border-radius: 4px;">
+            <div style="font-weight: 600; color: var(--color-gold); font-size: 0.9rem; margin-bottom: 0.35rem;">✦ OWNER</div>
+            <p style="color: rgba(250,247,242,0.6); margin: 0 0 0.5rem;">Total administrative control over all atelier systems.</p>
+            <span style="color: #7bed9f;">✓ All 12 permissions</span>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--admin-border); padding: 1rem; border-radius: 4px;">
+            <div style="font-weight: 600; color: #bb8fce; font-size: 0.9rem; margin-bottom: 0.35rem;">✦ MANAGER</div>
+            <p style="color: rgba(250,247,242,0.6); margin: 0 0 0.5rem;">Full catalog, stock, order, client, &amp; revenue analytics access.</p>
+            <span style="color: rgba(250,247,242,0.8);">✕ No staff or store settings access</span>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--admin-border); padding: 1rem; border-radius: 4px;">
+            <div style="font-weight: 600; color: #5dade2; font-size: 0.9rem; margin-bottom: 0.35rem;">✦ INVENTORY STAFF</div>
+            <p style="color: rgba(250,247,242,0.6); margin: 0 0 0.5rem;">Dedicated to physical stock adjustments &amp; shipments.</p>
+            <span style="color: rgba(250,247,242,0.8);">Stock view, stock adjust &amp; catalog read-only</span>
+          </div>
+
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--admin-border); padding: 1rem; border-radius: 4px;">
+            <div style="font-weight: 600; color: #5dade2; font-size: 0.9rem; margin-bottom: 0.35rem;">✦ ORDER STAFF</div>
+            <p style="color: rgba(250,247,242,0.6); margin: 0 0 0.5rem;">Dedicated to order packing, tracking codes &amp; client service.</p>
+            <span style="color: rgba(250,247,242,0.8);">Order updates, tracking &amp; client view</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- CREATE STAFF MODAL -->
+  <div class="admin-modal" id="staffModal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;">Provision Staff Account</h3>
+      <button onclick="Admin.closeModal('staffModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <form onsubmit="handleCreateStaff(event)">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">First Name</label>
+          <input type="text" id="sFirstName" class="admin-input" style="width: 100%;" required />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Last Name</label>
+          <input type="text" id="sLastName" class="admin-input" style="width: 100%;" required />
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Email Address</label>
+        <input type="email" id="sEmail" class="admin-input" style="width: 100%;" required placeholder="staff@lumiere.com" />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Initial Password (8+ chars)</label>
+          <input type="password" id="sPassword" class="admin-input" style="width: 100%;" required minlength="8" placeholder="••••••••••••" />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Assigned Role</label>
+          <select id="sRole" class="admin-select" style="width: 100%;" required>
+            <option value="MANAGER">MANAGER</option>
+            <option value="INVENTORY_STAFF">INVENTORY_STAFF</option>
+            <option value="ORDER_STAFF">ORDER_STAFF</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1.5rem;">
+        <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Contact Phone (Optional)</label>
+        <input type="tel" id="sPhone" class="admin-input" style="width: 100%;" placeholder="+1 (555) 000-0000" />
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" onclick="Admin.closeModal('staffModal')" class="btn-outline">Cancel</button>
+        <button type="submit" class="btn-gold" id="btnSubmitStaff">CREATE ACCOUNT &rarr;</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="admin-backdrop" id="adminBackdrop" onclick="Admin.closeModal('staffModal')"></div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    async function loadStaff() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/staff');
+        const data = await res.json();
+
+        if (data.success) {
+          const tbody = document.getElementById('staffTableBody');
+
+          tbody.innerHTML = data.staff.map(s => {
+            let roleClass = 'badge-staff';
+            if (s.role_name === 'OWNER') roleClass = 'badge-owner';
+            if (s.role_name === 'MANAGER') roleClass = 'badge-manager';
+
+            const isCurrent = Auth.getUser() && Auth.getUser().id === s.id;
+
+            return `
+              <tr>
+                <td>
+                  <div style="font-weight: 600; color: #fff;">${s.first_name || ''} ${s.last_name || ''}</div>
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">${s.email}</div>
+                </td>
+                <td><span class="badge ${roleClass}">${s.role_name}</span></td>
+                <td>
+                  <span class="badge ${s.status === 'active' ? 'badge-active' : 'badge-archived'}">
+                    ${s.status}
+                  </span>
+                </td>
+                <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">
+                  ${s.last_login_at ? new Date(s.last_login_at).toLocaleDateString() : 'Never'}
+                </td>
+                <td style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">
+                  ${new Date(s.created_at).toLocaleDateString()}
+                </td>
+                <td style="text-align: right;">
+                  ${s.role_name === 'OWNER' ? '<span style="font-size: 0.7rem; color: var(--color-gold);">Primary Owner</span>' : `
+                    <button onclick="toggleStaffStatus(${s.id}, '${s.status === 'active' ? 'disabled' : 'active'}')" class="btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.68rem; margin-right: 0.35rem;">
+                      ${s.status === 'active' ? 'Disable' : 'Enable'}
+                    </button>
+                    <button onclick="promptResetPass(${s.id})" class="btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.68rem;">Reset Pass</button>
+                  `}
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.error('Staff error:', err);
+      }
+    }
+
+    function openCreateStaffModal() {
+      Admin.openModal('staffModal');
+    }
+
+    async function handleCreateStaff(e) {
+      e.preventDefault();
+      const firstName = document.getElementById('sFirstName').value.trim();
+      const lastName = document.getElementById('sLastName').value.trim();
+      const email = document.getElementById('sEmail').value.trim();
+      const password = document.getElementById('sPassword').value;
+      const roleName = document.getElementById('sRole').value;
+      const phone = document.getElementById('sPhone').value.trim();
+
+      const btn = document.getElementById('btnSubmitStaff');
+      btn.disabled = true;
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/staff', {
+          method: 'POST',
+          body: JSON.stringify({ firstName, lastName, email, password, roleName, phone }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.closeModal('staffModal');
+          Admin.toast(data.message);
+          loadStaff();
+        } else {
+          alert(data.error || 'Failed to create staff');
+        }
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function toggleStaffStatus(id, newStatus) {
+      if (!confirm(`Are you sure you want to set this staff account to ${newStatus}?`)) return;
+      try {
+        const res = await Auth.apiFetch(`/api/admin/staff/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ status: newStatus }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message);
+          loadStaff();
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function promptResetPass(id) {
+      const pass = prompt('Enter a new temporary password for this staff member (8+ chars):');
+      if (!pass || pass.length < 8) {
+        if (pass) alert('Password must be at least 8 characters long.');
+        return;
+      }
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/staff/${id}/reset-password`, {
+          method: 'POST',
+          body: JSON.stringify({ newPassword: pass }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message);
+        } else {
+          alert(data.error || 'Failed to reset password');
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadStaff);
+  </script>
+</body>
+</html>
