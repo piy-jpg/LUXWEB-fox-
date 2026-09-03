@@ -1564,6 +1564,13 @@ function initMobileNav() {
 // Global window exposure for inline event handlers
 window.openMobileNav = openMobileNav;
 window.closeMobileNav = closeMobileNav;
+window.addToCart = addToCart;
+window.openCartDrawer = openCartDrawer;
+window.closeCartDrawer = closeCartDrawer;
+window.openWishlistDrawer = openWishlistDrawer;
+window.closeWishlistDrawer = closeWishlistDrawer;
+window.closeAllDrawersAndModals = closeAllDrawersAndModals;
+window.showToast = showToast;
 
 
 /* ------------------- UTILITIES ------------------- */

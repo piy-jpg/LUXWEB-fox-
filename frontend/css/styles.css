@@ -1057,7 +1057,7 @@ a { text-decoration: none; color: inherit; transition: color 0.3s; }
   inset: 0;
   background: rgba(0,0,0,0.6);
   backdrop-filter: blur(4px);
-  z-index: 1100;
+  z-index: 9000;
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.4s;
@@ -1070,7 +1070,7 @@ a { text-decoration: none; color: inherit; transition: color 0.3s; }
   height: 100vh;
   background: var(--dark-2);
   border-left: 1px solid var(--border);
-  z-index: 1200;
+  z-index: 9100;
   transform: translateX(100%);
   transition: transform 0.4s var(--transition);
   display: flex;
