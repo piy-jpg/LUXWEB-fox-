@@ -100,7 +100,48 @@ async function sendConsultationEmail(inquiry) {
   return transporter.sendMail(mailOptions);
 }
 
+/**
+ * Send 6-digit Verification OTP Email to Client
+ */
+async function sendEmailOtp(email, otp) {
+  try {
+    const mailOptions = {
+      from: `"Lumière Haute Atelier" <${process.env.GMAIL_USER || 'piyushverma730929@gmail.com'}>`,
+      to: email,
+      subject: `✦ ${otp} is your Lumière Atelier Verification Code`,
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #0c080a; color: #FFFFFF; padding: 40px 20px; text-align: center;">
+          <div style="max-width: 480px; margin: 0 auto; background: #181216; border: 1px solid rgba(212,175,55,0.4); border-radius: 12px; padding: 36px 28px; box-shadow: 0 16px 48px rgba(0,0,0,0.7);">
+            <div style="font-size: 11px; letter-spacing: 3px; color: #C9A96E; text-transform: uppercase; font-weight: 700; margin-bottom: 14px;">✦ LUMIÈRE ATELIER PRIVÉ ✦</div>
+            <h2 style="font-family: Georgia, serif; font-size: 22px; font-weight: 300; margin: 0 0 14px; color: #FFFFFF;">Client Verification Code</h2>
+            <p style="font-size: 13px; color: rgba(250,247,242,0.8); line-height: 1.6; margin-bottom: 24px;">
+              Enter the 6-digit atelier code below to complete your sign-in and unlock personal atelier privileges:
+            </p>
+            <div style="background: rgba(201,169,110,0.12); border: 1px dashed #C9A96E; border-radius: 8px; padding: 18px 10px; font-size: 34px; letter-spacing: 8px; font-family: Georgia, serif; color: #C9A96E; font-weight: bold; margin-bottom: 24px;">
+              ${otp}
+            </div>
+            <p style="font-size: 11px; color: rgba(250,247,242,0.5); line-height: 1.5; margin: 0;">
+              This code is valid for 5 minutes. If you did not request this code, no action is required.
+            </p>
+          </div>
+          <div style="margin-top: 24px; font-size: 11px; color: rgba(250,247,242,0.4);">
+            Lumière Haute Parfumerie &amp; Skincare Atelier · Jaipur
+          </div>
+        </div>
+      `,
+      text: `Your Lumière Atelier verification code is ${otp}. Valid for 5 minutes.`
+    };
+
+    const info = await transporter.sendMail(mailOptions);
+    return { success: true, messageId: info.messageId };
+  } catch (err) {
+    console.error('[sendEmailOtp] Error:', err.message);
+    return { success: false, error: err.message };
+  }
+}
+
 module.exports = {
   transporter,
-  sendConsultationEmail
+  sendConsultationEmail,
+  sendEmailOtp
 };

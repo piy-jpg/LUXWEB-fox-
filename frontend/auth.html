@@ -977,14 +977,28 @@
         </button>
 
         <div class="sudathi-divider">
-          <span>OR LOGIN WITH PHONE OTP</span>
+          <span>OR LOGIN WITH MOBILE / EMAIL OTP</span>
         </div>
 
-        <!-- STAGE 1: Enter Phone Number -->
+        <!-- STAGE 1: Enter Phone Number or Email Address -->
         <div id="stagePhone">
-          <div class="auth-step-desc">Enter your 10-digit mobile number. We will dispatch a 6-digit atelier OTP.</div>
+          <!-- Channel Switcher Tabs -->
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 1.1rem;">
+            <button type="button" id="tabChannelPhone" onclick="switchOtpChannel('phone')" style="flex: 1; padding: 0.65rem 0.5rem; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 4px; border: 1px solid var(--color-gold); background: rgba(212,175,55,0.15); color: var(--color-gold); font-weight: 600; cursor: pointer; transition: all 0.2s;">
+              📱 Mobile OTP
+            </button>
+            <button type="button" id="tabChannelEmail" onclick="switchOtpChannel('email')" style="flex: 1; padding: 0.65rem 0.5rem; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 4px; border: 1px solid rgba(255,255,255,0.15); background: transparent; color: rgba(255,255,255,0.65); font-weight: 600; cursor: pointer; transition: all 0.2s;">
+              ✉️ Email OTP (100% Free)
+            </button>
+          </div>
+
+          <div class="auth-step-desc" id="channelStepDesc">
+            Enter your 10-digit mobile number. We will dispatch a 6-digit atelier OTP.
+          </div>
+
           <form id="phoneOtpForm" onsubmit="handleRequestOtp(event)">
-            <div class="input-wrapper-sudathi">
+            <!-- Mobile Field -->
+            <div class="input-wrapper-sudathi" id="mobileInputWrap">
               <select class="country-code-select" id="otpCountryCode" aria-label="Country Code">
                 <option value="+91">🇮🇳 +91</option>
                 <option value="+1">🇺🇸 +1</option>
@@ -997,9 +1011,19 @@
                 id="otpMobileInput" 
                 class="sudathi-text-input" 
                 placeholder="Enter 10-Digit Mobile (e.g. 7300212948)" 
-                required 
                 maxlength="14"
                 autocomplete="tel" 
+              />
+            </div>
+
+            <!-- Email Field -->
+            <div id="emailInputWrap" style="display: none; margin-bottom: 0.85rem;">
+              <input 
+                type="email" 
+                id="otpEmailInput" 
+                class="sudathi-field" 
+                placeholder="Enter your email address (e.g. client@gmail.com)" 
+                autocomplete="email"
               />
             </div>
 
@@ -1259,6 +1283,8 @@
     let currentOtpToken = '';
     let currentVerificationToken = '';
     let currentReflectedOtp = '';
+    let currentOtpChannel = 'phone';
+    let currentEmail = '';
     let resendCountdownTimer = null;
 
     // Google Firebase Phone Authentication Setup (10,000 Free Real Telecom SMS / Month)
@@ -1372,11 +1398,102 @@
       return data;
     }
 
-    // STAGE 1: Request Real SMS OTP
+    function switchOtpChannel(channel) {
+      currentOtpChannel = channel;
+      const tabPhone = document.getElementById('tabChannelPhone');
+      const tabEmail = document.getElementById('tabChannelEmail');
+      const mobileWrap = document.getElementById('mobileInputWrap');
+      const emailWrap = document.getElementById('emailInputWrap');
+      const desc = document.getElementById('channelStepDesc');
+      const btn = document.getElementById('btnRequestOtp');
+
+      if (channel === 'email') {
+        tabEmail.style.borderColor = 'var(--color-gold)';
+        tabEmail.style.background = 'rgba(212,175,55,0.15)';
+        tabEmail.style.color = 'var(--color-gold)';
+
+        tabPhone.style.borderColor = 'rgba(255,255,255,0.15)';
+        tabPhone.style.background = 'transparent';
+        tabPhone.style.color = 'rgba(255,255,255,0.65)';
+
+        mobileWrap.style.display = 'none';
+        emailWrap.style.display = 'block';
+        desc.innerText = 'Enter your personal email address. We will dispatch a 100% free 6-digit verification code to your inbox.';
+        btn.innerText = 'DISPATCH EMAIL OTP →';
+        const emailInput = document.getElementById('otpEmailInput');
+        if (emailInput) emailInput.focus();
+      } else {
+        tabPhone.style.borderColor = 'var(--color-gold)';
+        tabPhone.style.background = 'rgba(212,175,55,0.15)';
+        tabPhone.style.color = 'var(--color-gold)';
+
+        tabEmail.style.borderColor = 'rgba(255,255,255,0.15)';
+        tabEmail.style.background = 'transparent';
+        tabEmail.style.color = 'rgba(255,255,255,0.65)';
+
+        mobileWrap.style.display = 'flex';
+        emailWrap.style.display = 'none';
+        desc.innerText = 'Enter your 10-digit mobile number. We will dispatch a 6-digit atelier OTP.';
+        btn.innerText = 'GET ATELIER OTP →';
+        const phoneInput = document.getElementById('otpMobileInput');
+        if (phoneInput) phoneInput.focus();
+      }
+    }
+
+    // STAGE 1: Request Real SMS / Email OTP
     async function handleRequestOtp(e) {
       e.preventDefault();
       clearAlert();
 
+      const btn = document.getElementById('btnRequestOtp');
+
+      if (currentOtpChannel === 'email') {
+        const emailVal = (document.getElementById('otpEmailInput').value || '').trim().toLowerCase();
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailVal)) {
+          showAlert('Please enter a valid email address.');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerText = 'DISPATCHING EMAIL CODE...';
+
+        try {
+          const backendData = await safeApiFetch('/api/auth/otp/send', { email: emailVal });
+          currentEmail = emailVal;
+          currentPhone = '';
+          currentOtpToken = backendData.otpToken || '';
+
+          document.getElementById('displayOtpPhone').innerText = emailVal;
+          document.getElementById('otpCodeInput').value = '';
+
+          switchStage('otp');
+          startResendTimer(30);
+
+          if (backendData.reflectedOtp) {
+            currentReflectedOtp = backendData.reflectedOtp;
+            document.getElementById('reflectionPhoneText').innerText = emailVal;
+            document.getElementById('reflectionOtpCode').innerText = backendData.reflectedOtp;
+            document.getElementById('otpReflectionCard').style.display = 'block';
+            document.getElementById('smsStatusBanner').style.display = 'none';
+            showAlert(`✦ Verification code generated for ${emailVal}. Click Apply Code to proceed.`, false);
+          } else {
+            document.getElementById('otpReflectionCard').style.display = 'none';
+            document.getElementById('smsStatusBanner').style.display = 'block';
+            const smsPhoneEl = document.getElementById('displayOtpPhoneSMS');
+            if (smsPhoneEl) smsPhoneEl.innerText = emailVal;
+            showAlert(`✦ 6-digit verification code dispatched to ${emailVal}. Check your inbox!`, false);
+          }
+        } catch (err) {
+          showAlert(err.message);
+        } finally {
+          btn.disabled = false;
+          btn.innerText = 'DISPATCH EMAIL OTP →';
+        }
+        return;
+      }
+
+      // PHONE CHANNEL
       const code = document.getElementById('otpCountryCode').value;
       const rawNum = document.getElementById('otpMobileInput').value.trim();
       const digits = rawNum.replace(/\D/g, '');
@@ -1388,9 +1505,8 @@
 
       const fullPhone = `${code} ${digits.slice(-10)}`;
       const e164Phone = `${code}${digits.slice(-10)}`;
-      const btn = document.getElementById('btnRequestOtp');
       btn.disabled = true;
-      btn.innerText = 'DISPATCHING REAL SMS...';
+      btn.innerText = 'DISPATCHING ATELIER OTP...';
 
       let realSmsSent = false;
 
@@ -1407,14 +1523,13 @@
           if (recaptchaVerifier) {
             try { recaptchaVerifier.clear(); recaptchaVerifier = null; } catch {}
           }
-          // Seamless fallback to Instant Verification Code
         }
       }
 
       try {
-        // Backend register & token sync
         const backendData = await safeApiFetch('/api/auth/otp/send', { phone: fullPhone });
         currentPhone = backendData.phone || fullPhone;
+        currentEmail = '';
         currentOtpToken = backendData.otpToken || '';
 
         document.getElementById('displayOtpPhone').innerText = currentPhone;
@@ -1458,7 +1573,7 @@
       }
     }
 
-    // STAGE 2: Verify Real SMS OTP
+    // STAGE 2: Verify Real SMS / Email OTP
     async function handleVerifyOtp(e) {
       e.preventDefault();
       clearAlert();
@@ -1475,8 +1590,8 @@
 
       let verifiedByGoogle = false;
 
-      // Confirm with Google Firebase
-      if (confirmationResult) {
+      // Confirm with Google Firebase if active
+      if (confirmationResult && currentPhone) {
         try {
           await confirmationResult.confirm(enteredOtp);
           verifiedByGoogle = true;
@@ -1488,6 +1603,7 @@
       try {
         const data = await safeApiFetch('/api/auth/otp/verify', {
           phone: currentPhone,
+          email: currentEmail,
           otp: enteredOtp,
           otpToken: currentOtpToken,
           verifiedByGoogle
@@ -1500,7 +1616,7 @@
             document.getElementById('profileFullName').value = data.existingName;
           }
           switchStage('profile');
-          showAlert(`✦ Phone verified. Please complete your profile.`, false);
+          showAlert(`✦ Verification successful. Please complete your atelier profile.`, false);
         } else {
           // Profile exists, logged in successfully
           Auth.setSession(data.token, data.user);
@@ -1542,6 +1658,7 @@
       try {
         const data = await safeApiFetch('/api/auth/otp/complete-profile', {
           phone: currentPhone,
+          email: currentEmail,
           name,
           age: parseInt(age, 10),
           location,
