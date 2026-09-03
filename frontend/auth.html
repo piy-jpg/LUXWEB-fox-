@@ -1077,9 +1077,10 @@
     }
 
     let googleTokenClient = null;
+    const LIVE_GOOGLE_CLIENT_ID = '880806707459-8t18k7pfrs1p65h1sjrciq54bu1d73tp.apps.googleusercontent.com';
 
     function getGoogleClientId() {
-      return localStorage.getItem('lumiere_google_client_id') || window.GOOGLE_CLIENT_ID || '';
+      return localStorage.getItem('lumiere_google_client_id') || LIVE_GOOGLE_CLIENT_ID;
     }
 
     // Google Identity Services (GIS) & Real-Time OAuth2 Popup Handler
@@ -1141,19 +1142,19 @@
 
     function triggerGoogleSignIn() {
       const clientId = getGoogleClientId();
-      if (clientId && !clientId.includes('your_google_client_id')) {
-        if (!googleTokenClient) {
-          initGoogleAuth();
-        }
-        if (googleTokenClient) {
+      if (!googleTokenClient) {
+        initGoogleAuth();
+      }
+      if (googleTokenClient) {
+        try {
           // Open real Google OAuth popup window directly to accounts.google.com!
           googleTokenClient.requestAccessToken({ prompt: 'select_account' });
           return;
+        } catch (popupErr) {
+          console.warn('[Google] Popup notice:', popupErr.message);
         }
       }
-
-      // If Client ID is not yet configured, guide user to connect to real-time Google!
-      promptGoogleClientIdSetup();
+      openGoogleModal();
     }
 
     function promptGoogleClientIdSetup() {
