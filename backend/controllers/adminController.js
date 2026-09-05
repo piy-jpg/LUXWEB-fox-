@@ -97,7 +97,7 @@ async function getOverview(req, res) {
    2. PRODUCT MANAGEMENT
    ============================================================ */
 async function getProducts(req, res) {
-  const { search, category, status, limit = 100 } = req.query;
+  const { search, category, status, limit = 250 } = req.query;
 
   try {
     let sql = `
