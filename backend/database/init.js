@@ -212,6 +212,7 @@ async function initDatabase() {
     { slug: 'skincare', name: 'Skincare', desc: 'Cellular restorative formulas & clean botanical elixirs' },
     { slug: 'makeup', name: 'Makeup', desc: 'Haute couture pigments, velvet formulas & luminous bases' },
     { slug: 'fragrance', name: 'Fragrance', desc: 'Haute parfumerie crafted with precious Grasse essences' },
+    { slug: 'haircare', name: 'Hair Care', desc: 'Cellular follicle densifying serums, elixirs & silken conditioning masques' },
     { slug: 'bath-body', name: 'Bath & Body', desc: 'Luxurious body oils, softening elixirs & silken polishes' },
     { slug: 'sets', name: 'Sets & Gifts', desc: 'Curated beauty rituals in gold-embossed coffrets' },
   ];

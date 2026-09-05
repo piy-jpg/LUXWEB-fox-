@@ -321,6 +321,55 @@ async function archiveProduct(req, res) {
   }
 }
 
+async function createCategory(req, res) {
+  const { name, description } = req.body;
+  if (!name) {
+    return res.status(400).json({ success: false, error: 'Category name is required.' });
+  }
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+  try {
+    const existing = await db.get('SELECT id FROM categories WHERE slug = ?', [slug]);
+    if (existing) {
+      return res.status(409).json({ success: false, error: `Category "${name}" already exists.` });
+    }
+    const result = await db.run(
+      'INSERT INTO categories (name, slug, description) VALUES (?, ?, ?)',
+      [name.trim(), slug, description || '']
+    );
+    return res.status(201).json({
+      success: true,
+      message: `Category "${name}" created successfully.`,
+      categoryId: result.lastInsertRowid,
+      slug,
+    });
+  } catch (err) {
+    console.error('[Admin.createCategory] Error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+async function getProductVariants(req, res) {
+  const { productId } = req.query;
+  try {
+    let sql = `
+      SELECT pv.*, p.name as product_name, p.sku as product_sku
+      FROM product_variants pv
+      JOIN products p ON p.id = pv.product_id
+    `;
+    const params = [];
+    if (productId) {
+      sql += ' WHERE pv.product_id = ?';
+      params.push(productId);
+    }
+    sql += ' ORDER BY pv.id DESC LIMIT 100';
+    const variants = await db.query(sql, params);
+    return res.json({ success: true, variants });
+  } catch (err) {
+    console.error('[Admin.getProductVariants] Error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
 /* ============================================================
    3. INVENTORY SYSTEM (TRANSACTIONAL)
    ============================================================ */
@@ -765,6 +814,8 @@ module.exports = {
   createProduct,
   updateProduct,
   archiveProduct,
+  createCategory,
+  getProductVariants,
   getInventory,
   getInventoryHistory,
   adjustInventory,

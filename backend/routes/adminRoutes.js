@@ -21,6 +21,8 @@ router.get('/products', requirePermission('products.view'), adminController.getP
 router.post('/products', requirePermission('products.create'), adminController.createProduct);
 router.put('/products/:id', requirePermission('products.edit'), adminController.updateProduct);
 router.delete('/products/:id', requirePermission('products.delete'), adminController.archiveProduct);
+router.post('/categories', requirePermission('products.create'), adminController.createCategory);
+router.get('/variants', requirePermission('products.view'), adminController.getProductVariants);
 
 // 3. Inventory Management (Transactional)
 router.get('/inventory', requirePermission('inventory.view'), adminController.getInventory);

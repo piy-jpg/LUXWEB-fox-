@@ -25,9 +25,7 @@ const PORT = process.env.PORT || 5000;
 
 // Connect to Database & Auto-verify Schema
 connectDB();
-if (!process.env.VERCEL) {
-  initDatabase().catch(err => console.error('[Server] DB Init error:', err.message));
-}
+initDatabase().catch(err => console.error('[Server] DB Init error:', err.message));
 
 // Core Middleware
 app.use(cors());

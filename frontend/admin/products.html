@@ -3,123 +3,446 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Product Management — Lumière Admin</title>
+  <title>Product Registration & Catalog Suite — Lumière Admin</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
   
   <link rel="stylesheet" href="css/admin.css" />
 </head>
 <body>
 
+  <!-- Navigation Sidebar -->
   <aside class="admin-sidebar" id="adminSidebar"></aside>
 
+  <!-- Main Work Area -->
   <div class="admin-main">
     <header class="admin-topbar" id="adminTopbar"></header>
 
     <main class="admin-content">
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+      <!-- Page Header & Quick Actions -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Catalog Management</span>
-          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Haute Beauty Catalog</h1>
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.14em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Executive Catalog Management</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <span id="headerProdCountBadge" class="badge badge-owner" style="font-size: 0.65rem;">Loading Catalog...</span>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.3rem; font-weight: 300; margin: 0; color: #FAF7F2;">Atelier Product Registration & Catalog</h1>
         </div>
-        <button onclick="openCreateProductModal()" class="btn-gold" id="btnCreateProduct">
-          + CREATE NEW PRODUCT
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <button onclick="switchTab('tabRegister')" class="btn-owner-action btn-owner-gold" style="font-size: 0.72rem;">
+            <span>+</span> REGISTER NEW PRODUCT
+          </button>
+          <button onclick="loadProducts()" class="btn-outline" style="font-size: 0.72rem; padding: 0.55rem 0.9rem;" title="Refresh Catalog">
+            ⟳ SYNC
+          </button>
+        </div>
+      </div>
+
+      <!-- Catalog Executive Metric Cards -->
+      <div class="stat-card-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card" id="cardTotalProds">
+          <div class="stat-title">Total Products Registered</div>
+          <div class="stat-number" id="valTotalProds">0</div>
+          <span style="font-size: 0.72rem; color: #7bed9f; margin-top: 0.5rem;" id="valActiveProds">0 active in boutique</span>
+        </div>
+
+        <div class="stat-card" id="cardCatalogValue">
+          <div class="stat-title">Catalog Inventory Retail Value</div>
+          <div class="stat-number" id="valCatalogValue">$0.00</div>
+          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;">Vault & shelf assets</span>
+        </div>
+
+        <div class="stat-card" id="cardStockHealthy">
+          <div class="stat-title">Stock Healthy</div>
+          <div class="stat-number" id="valStockHealthy" style="color: #2ecc71;">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Above safe threshold</span>
+        </div>
+
+        <div class="stat-card" id="cardStockAlerts">
+          <div class="stat-title">Stock Attention</div>
+          <div class="stat-number" id="valStockAlerts" style="color: #f39c12;">0</div>
+          <span style="font-size: 0.72rem; color: #e74c3c; margin-top: 0.5rem;" id="valOutStockAlert">0 out of stock</span>
+        </div>
+      </div>
+
+      <!-- Sub-Navigation Tabs matching exact Sidebar Menu -->
+      <div class="admin-tabs">
+        <button class="admin-tab active" id="tabBtnAll" onclick="switchTab('tabAll')">
+          <span>💎</span> All Products <span id="tabAllBadge" style="opacity: 0.7; font-size: 0.7rem;">(0)</span>
+        </button>
+        <button class="admin-tab" id="tabBtnRegister" onclick="switchTab('tabRegister')">
+          <span>➕</span> Register New Product
+        </button>
+        <button class="admin-tab" id="tabBtnCategories" onclick="switchTab('tabCategories')">
+          <span>📂</span> Categories & Collections
+        </button>
+        <button class="admin-tab" id="tabBtnVariants" onclick="switchTab('tabVariants')">
+          <span>🎨</span> Product Variants
         </button>
       </div>
 
-      <!-- Search & Filters Toolbar -->
-      <div class="table-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-        <input type="text" id="productSearchInput" class="admin-input" placeholder="Search by name or SKU..." style="flex: 2; min-width: 200px;" oninput="debounceProductSearch()" />
-        <select id="categoryFilter" class="admin-select" style="flex: 1; min-width: 150px;" onchange="loadProducts()">
-          <option value="">All Categories</option>
-        </select>
-        <select id="statusFilter" class="admin-select" style="flex: 1; min-width: 130px;" onchange="loadProducts()">
-          <option value="">All Statuses</option>
-          <option value="active">Active</option>
-          <option value="draft">Draft</option>
-          <option value="archived">Archived</option>
-        </select>
-      </div>
+      <!-- ========================================================
+           TAB 1: ALL PRODUCTS MASTER TABLE
+           ======================================================== -->
+      <div id="tabContentAll" class="tab-pane">
+        <!-- Search & Filter Deck -->
+        <div class="table-card" style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+          <div style="flex: 2; min-width: 220px; position: relative;">
+            <input type="text" id="productSearchInput" class="admin-input" placeholder="Search catalog by product name, SKU, or notes..." style="width: 100%; padding-left: 2rem;" oninput="debounceProductSearch()" />
+            <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: rgba(250,247,242,0.4); font-size: 0.85rem;">🔍</span>
+          </div>
+          <select id="categoryFilter" class="admin-select" style="flex: 1; min-width: 160px;" onchange="loadProducts()">
+            <option value="">All Categories</option>
+          </select>
+          <select id="statusFilter" class="admin-select" style="flex: 1; min-width: 140px;" onchange="loadProducts()">
+            <option value="">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="draft">Draft</option>
+            <option value="archived">Archived</option>
+          </select>
+          <select id="sortFilter" class="admin-select" style="flex: 1; min-width: 160px;" onchange="applySortAndRender()">
+            <option value="newest">Sort: Newest First</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="stock_asc">Stock: Low to High</option>
+            <option value="name_asc">Name: A to Z</option>
+          </select>
+        </div>
 
-      <!-- Products Table -->
-      <div class="table-card">
-        <div class="table-responsive">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>SKU</th>
-                <th>Category</th>
-                <th>Price</th>
-                <th>Available Stock</th>
-                <th>Status</th>
-                <th style="text-align: right;">Actions</th>
-              </tr>
-            </thead>
-            <tbody id="productsTableBody">
-              <tr><td colspan="7" style="text-align: center;">Loading catalog...</td></tr>
-            </tbody>
-          </table>
+        <!-- Master Products Table -->
+        <div class="table-card">
+          <div class="table-header-wrap" style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.3rem; font-weight: 400; margin: 0;">Registered Boutique Catalog</h3>
+            <span id="tableShowingCount" style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Showing 0 items</span>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>SKU</th>
+                  <th>Category</th>
+                  <th>Price ($)</th>
+                  <th>Vault Stock</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="productsTableBody">
+                <tr><td colspan="7" style="text-align: center; color: rgba(250,247,242,0.5);">Loading registered products...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
+
+      <!-- ========================================================
+           TAB 2: REGISTER NEW PRODUCT SUITE (ON-PAGE EXECUTIVE FORM)
+           ======================================================== -->
+      <div id="tabContentRegister" class="tab-pane" style="display: none;">
+        <form id="registerProductForm" onsubmit="handleRegisterNewProduct(event)">
+          
+          <!-- Section 1: Identification & Taxonomy -->
+          <div class="reg-section-card">
+            <div class="reg-section-title">
+              <span style="color: var(--color-gold);">✦</span>
+              <span>1. Product Identity & Atelier Classification</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; margin-bottom: 1.25rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.06em;">Product Name *</label>
+                <input type="text" id="regName" class="admin-input" required placeholder="e.g. L’Élixir Diamant Blanc Cellular Emulsion" style="width: 100%; font-size: 0.95rem; font-weight: 500;" />
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.06em;">SKU Code *</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="text" id="regSku" class="admin-input" required placeholder="LUM-HAUTE-..." style="flex: 1; font-family: monospace;" />
+                  <button type="button" onclick="autoGenerateRegSku()" class="btn-outline" style="padding: 0.5rem 0.75rem; font-size: 0.68rem;" title="Generate Unique Atelier SKU">Auto SKU</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+              <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                  <label style="font-size:0.75rem; color:rgba(250,247,242,0.75); text-transform:uppercase; letter-spacing:0.06em;">Category *</label>
+                  <a href="javascript:void(0)" onclick="quickPromptNewCategory()" style="font-size: 0.68rem; color: var(--color-gold); text-decoration: underline;">+ Add Category</a>
+                </div>
+                <select id="regCategory" class="admin-select" style="width: 100%;" required>
+                  <option value="">-- Select Category --</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.06em;">Collection (Curated Line)</label>
+                <select id="regCollection" class="admin-select" style="width: 100%;">
+                  <option value="">None (Standalone Atelier Curation)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 2: Pricing & Vault Reserve -->
+          <div class="reg-section-card">
+            <div class="reg-section-title">
+              <span style="color: var(--color-gold);">💎</span>
+              <span>2. Pricing & Vault Inventory Allocation</span>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1.25rem;">
+              <div>
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.06em;">Retail Price ($ USD) *</label>
+                <input type="number" step="0.01" min="1" id="regPrice" class="admin-input" required placeholder="185.00" style="width: 100%; font-size: 1rem; font-weight: 600; color: var(--color-gold);" />
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.06em;">Compare Price ($ USD)</label>
+                <input type="number" step="0.01" min="1" id="regComparePrice" class="admin-input" placeholder="Optional" style="width: 100%;" />
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.06em;">Initial Stock Units *</label>
+                <input type="number" min="0" id="regStock" class="admin-input" value="50" required style="width: 100%; font-size: 1rem; font-weight: 600;" />
+              </div>
+              <div>
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.06em;">Low Stock Alert Threshold</label>
+                <input type="number" min="1" id="regThreshold" class="admin-input" value="5" required style="width: 100%;" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 3: Haute Visuals & Imagery -->
+          <div class="reg-section-card">
+            <div class="reg-section-title">
+              <span style="color: var(--color-gold);">🖼️</span>
+              <span>3. Visuals & Haute Photography</span>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 2fr 1.2fr; gap: 1.5rem; align-items: flex-start;">
+              <div>
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.06em;">Product Image URL *</label>
+                <input type="text" id="regImageUrl" class="admin-input" required placeholder="images/skincare_products_1788328338930.jpg" style="width: 100%;" oninput="updateImagePreview(this.value)" />
+                
+                <!-- Preset One-Click Gallery Picker -->
+                <div style="margin-top: 1rem;">
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.6); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">
+                    Or Select High-Res Atelier Preset:
+                  </div>
+                  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <button type="button" class="reg-preset-chip" onclick="setPresetImage('images/skincare_products_1788328338930.jpg')">🌿 Skincare Botanical</button>
+                    <button type="button" class="reg-preset-chip" onclick="setPresetImage('images/makeup_products_1788328354838.jpg')">💄 Velvet Couture</button>
+                    <button type="button" class="reg-preset-chip" onclick="setPresetImage('images/perfume_collection_1788328378783.jpg')">✨ Noir d'Or Parfumerie</button>
+                    <button type="button" class="reg-preset-chip" onclick="setPresetImage('images/haircare_luxury.jpg')">💆‍♀️ Haircare Elixir</button>
+                    <button type="button" class="reg-preset-chip" onclick="setPresetImage('images/editorial_flatlay.jpg')">👑 Editorial Flatlay</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Live Preview Card -->
+              <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--admin-border); border-radius: 4px; padding: 1rem; text-align: center;">
+                <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.6rem;">Live Visual Preview</div>
+                <img id="regImagePreview" src="../images/skincare_products_1788328338930.jpg" alt="Preview" style="width: 100px; height: 100px; object-fit: cover; border-radius: 4px; border: 1px solid var(--color-gold); margin: 0 auto; display: block;" onerror="this.src='../images/skincare_products_1788328338930.jpg'" />
+                <div id="regPreviewName" style="font-weight: 500; font-size: 0.8rem; margin-top: 0.6rem; color: #FAF7F2;">Product Title Preview</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 4: Formulation Story & Merchandising -->
+          <div class="reg-section-card">
+            <div class="reg-section-title">
+              <span style="color: var(--color-gold);">📜</span>
+              <span>4. Formulation Story & Merchandising Attributes</span>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.06em;">Haute Formulation Description</label>
+              <textarea id="regDesc" class="admin-input" rows="3" placeholder="Rare French botanical actives, molecular restorative peptides, sensorial texture details..." style="width: 100%; resize: vertical;"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.25rem; align-items: center;">
+              <div>
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.5rem; text-transform:uppercase; letter-spacing:0.06em;">Merchandising Flags</label>
+                <div style="display: flex; gap: 1.5rem; flex-wrap: wrap;">
+                  <label style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; cursor: pointer;">
+                    <input type="checkbox" id="regBestseller" style="accent-color: var(--color-gold);" /> ✦ Bestseller
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; cursor: pointer;">
+                    <input type="checkbox" id="regNewArrival" checked style="accent-color: var(--color-gold);" /> ✦ New Arrival
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; cursor: pointer;">
+                    <input type="checkbox" id="regFeatured" style="accent-color: var(--color-gold);" /> ✦ Featured
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.4rem; text-transform:uppercase; letter-spacing:0.06em;">Publication Status</label>
+                <select id="regStatus" class="admin-select" style="width: 100%;">
+                  <option value="active">Active (Immediate Boutique Launch)</option>
+                  <option value="draft">Draft (Atelier Lab Reserve)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 5: Product Variants (Optional) -->
+          <div class="reg-section-card">
+            <div class="reg-section-title" style="justify-content: space-between;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="color: var(--color-gold);">🎨</span>
+                <span>5. Product Variants (Shades, Volumes & Sizes)</span>
+              </div>
+              <button type="button" onclick="addVariantRow()" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.68rem;">+ Add Variant</button>
+            </div>
+            
+            <div id="variantsContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
+              <div style="font-size: 0.75rem; color: rgba(250,247,242,0.5); font-style: italic;">
+                Optional: Add specific shade variations (e.g. "Velvet Rose") or sizes (e.g. "50ml", "100ml").
+              </div>
+            </div>
+          </div>
+
+          <!-- Submission Action Deck -->
+          <div style="display: flex; justify-content: flex-end; gap: 1rem; align-items: center; margin-top: 2rem;">
+            <button type="button" onclick="document.getElementById('registerProductForm').reset(); autoGenerateRegSku();" class="btn-outline">
+              Reset Form
+            </button>
+            <button type="submit" class="btn-owner-action btn-owner-gold" id="btnSubmitRegister" style="padding: 0.75rem 1.75rem; font-size: 0.85rem;">
+              ✦ REGISTER PRODUCT IN ATELIER CATALOG &rarr;
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- ========================================================
+           TAB 3: CATEGORIES & COLLECTIONS
+           ======================================================== -->
+      <div id="tabContentCategories" class="tab-pane" style="display: none;">
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+          
+          <!-- Categories List -->
+          <div class="table-card">
+            <div class="table-header-wrap">
+              <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin: 0;">Catalog Categories</h3>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Category</th>
+                    <th>Slug</th>
+                    <th>Products Registered</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody id="categoriesTableBody">
+                  <tr><td colspan="4" style="text-align: center;">Loading categories...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Create New Category Card -->
+          <div class="table-card" style="padding: 1.5rem;">
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin: 0 0 1rem; color: #FAF7F2;">
+              + Register New Category
+            </h3>
+            <form onsubmit="handleCreateCategory(event)">
+              <div style="margin-bottom: 1rem;">
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.35rem;">Category Name *</label>
+                <input type="text" id="newCatName" class="admin-input" required placeholder="e.g. Solaire Body Bronzing" style="width: 100%;" />
+              </div>
+              <div style="margin-bottom: 1.25rem;">
+                <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.75); margin-bottom:0.35rem;">Description</label>
+                <textarea id="newCatDesc" class="admin-input" rows="3" placeholder="Category curation scope..." style="width: 100%; resize: vertical;"></textarea>
+              </div>
+              <button type="submit" class="btn-gold" id="btnSubmitCategory" style="width: 100%; justify-content: center;">
+                Save Category
+              </button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ========================================================
+           TAB 4: PRODUCT VARIANTS
+           ======================================================== -->
+      <div id="tabContentVariants" class="tab-pane" style="display: none;">
+        <div class="table-card">
+          <div class="table-header-wrap">
+            <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin: 0;">Product Variants & Shades Directory</h3>
+          </div>
+          <div class="table-responsive">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Variant Name</th>
+                  <th>Parent Product</th>
+                  <th>Variant Type</th>
+                  <th>SKU Code</th>
+                  <th>Price Override</th>
+                </tr>
+              </thead>
+              <tbody id="variantsTableBody">
+                <tr><td colspan="5" style="text-align: center; color: rgba(250,247,242,0.5);">Loading variants...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 
-  <!-- CREATE / EDIT PRODUCT MODAL -->
-  <div class="admin-modal" id="productModal">
+  <!-- EDIT PRODUCT MODAL -->
+  <div class="admin-modal" id="productModal" style="max-width: 680px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
-      <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;" id="productModalTitle">Create Product</h3>
-      <button onclick="Admin.closeModal('productModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+      <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin: 0; color: #FAF7F2;" id="productModalTitle">Edit Product</h3>
+      <button onclick="Admin.closeModal('productModal')" style="background: none; border: none; color: rgba(250,247,242,0.6); font-size: 1.5rem; cursor: pointer;">&times;</button>
     </div>
 
-    <form id="productForm" onsubmit="handleSaveProduct(event)">
+    <form id="editProductForm" onsubmit="handleSaveEditProduct(event)">
       <input type="hidden" id="editProductId" />
 
       <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
         <div>
           <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Product Name</label>
-          <input type="text" id="pName" class="admin-input" style="width: 100%;" required />
+          <input type="text" id="editPName" class="admin-input" style="width: 100%;" required />
         </div>
         <div>
           <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">SKU Code</label>
-          <input type="text" id="pSku" class="admin-input" style="width: 100%;" required placeholder="LUM-SKU-..." />
+          <input type="text" id="editPSku" class="admin-input" style="width: 100%;" required />
         </div>
       </div>
 
-      <div class="form-group" style="margin-bottom: 1rem;">
+      <div style="margin-bottom: 1rem;">
         <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Description</label>
-        <textarea id="pDesc" class="admin-input" style="width: 100%; height: 80px; resize: vertical;"></textarea>
+        <textarea id="editPDesc" class="admin-input" style="width: 100%; height: 75px; resize: vertical;"></textarea>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
         <div>
           <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Price ($)</label>
-          <input type="number" step="0.01" id="pPrice" class="admin-input" style="width: 100%;" required />
+          <input type="number" step="0.01" id="editPPrice" class="admin-input" style="width: 100%;" required />
         </div>
         <div>
           <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Compare Price ($)</label>
-          <input type="number" step="0.01" id="pComparePrice" class="admin-input" style="width: 100%;" placeholder="Optional" />
+          <input type="number" step="0.01" id="editPComparePrice" class="admin-input" style="width: 100%;" placeholder="Optional" />
         </div>
         <div>
           <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Category</label>
-          <select id="pCategory" class="admin-select" style="width: 100%;" required></select>
+          <select id="editPCategory" class="admin-select" style="width: 100%;" required></select>
         </div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
         <div>
-          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Initial Stock</label>
-          <input type="number" id="pStock" class="admin-input" style="width: 100%;" value="50" min="0" />
-        </div>
-        <div>
-          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Low Threshold</label>
-          <input type="number" id="pThreshold" class="admin-input" style="width: 100%;" value="5" min="1" />
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Low Stock Threshold</label>
+          <input type="number" id="editPThreshold" class="admin-input" style="width: 100%;" value="5" min="1" />
         </div>
         <div>
           <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Status</label>
-          <select id="pStatus" class="admin-select" style="width: 100%;">
+          <select id="editPStatus" class="admin-select" style="width: 100%;">
             <option value="active">Active</option>
             <option value="draft">Draft</option>
             <option value="archived">Archived</option>
@@ -127,26 +450,26 @@
         </div>
       </div>
 
-      <div class="form-group" style="margin-bottom: 1rem;">
+      <div style="margin-bottom: 1rem;">
         <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Image URL</label>
-        <input type="text" id="pImageUrl" class="admin-input" style="width: 100%;" placeholder="e.g. images/skincare_products_1788328338930.jpg" />
+        <input type="text" id="editPImageUrl" class="admin-input" style="width: 100%;" />
       </div>
 
       <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem;">
         <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; cursor: pointer;">
-          <input type="checkbox" id="pBestseller" style="accent-color: var(--color-gold);" /> Bestseller
+          <input type="checkbox" id="editPBestseller" style="accent-color: var(--color-gold);" /> Bestseller
         </label>
         <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; cursor: pointer;">
-          <input type="checkbox" id="pNewArrival" style="accent-color: var(--color-gold);" /> New Arrival
+          <input type="checkbox" id="editPNewArrival" style="accent-color: var(--color-gold);" /> New Arrival
         </label>
         <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; cursor: pointer;">
-          <input type="checkbox" id="pFeatured" style="accent-color: var(--color-gold);" /> Featured
+          <input type="checkbox" id="editPFeatured" style="accent-color: var(--color-gold);" /> Featured
         </label>
       </div>
 
       <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
         <button type="button" onclick="Admin.closeModal('productModal')" class="btn-outline">Cancel</button>
-        <button type="submit" class="btn-gold" id="btnSaveProduct">SAVE PRODUCT &rarr;</button>
+        <button type="submit" class="btn-gold" id="btnUpdateProduct">Save Changes &rarr;</button>
       </div>
     </form>
   </div>
@@ -156,12 +479,42 @@
   <script src="../js/auth.js"></script>
   <script src="js/admin.js"></script>
   <script>
+    /* ============================================================
+       ATELIER PRODUCT REGISTRATION & CATALOG CONTROLLER
+       ============================================================ */
+
     let productsList = [];
+    let categoriesList = [];
+    let collectionsList = [];
     let searchTimeout = null;
 
+    // 1. Tab Switching Engine
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+
+      if (tabId === 'tabAll') {
+        document.getElementById('tabContentAll').style.display = 'block';
+        document.getElementById('tabBtnAll').classList.add('active');
+      } else if (tabId === 'tabRegister') {
+        document.getElementById('tabContentRegister').style.display = 'block';
+        document.getElementById('tabBtnRegister').classList.add('active');
+        autoGenerateRegSku();
+      } else if (tabId === 'tabCategories') {
+        document.getElementById('tabContentCategories').style.display = 'block';
+        document.getElementById('tabBtnCategories').classList.add('active');
+        renderCategoriesTab();
+      } else if (tabId === 'tabVariants') {
+        document.getElementById('tabContentVariants').style.display = 'block';
+        document.getElementById('tabBtnVariants').classList.add('active');
+        loadVariantsTab();
+      }
+    }
+
+    // 2. Load Products & Initialize Catalog
     function debounceProductSearch() {
       clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(loadProducts, 300);
+      searchTimeout = setTimeout(loadProducts, 250);
     }
 
     async function loadProducts() {
@@ -174,166 +527,529 @@
         if (search) queryParams.append('search', search);
         if (category) queryParams.append('category', category);
         if (status) queryParams.append('status', status);
+        queryParams.append('limit', '100');
 
         const res = await Auth.apiFetch(`/api/admin/products?${queryParams.toString()}`);
         const data = await res.json();
 
         if (data.success) {
-          productsList = data.products;
+          productsList = data.products || [];
+          categoriesList = data.categories || [];
+          collectionsList = data.collections || [];
 
-          // Populate category filter dropdown once
-          const catFilter = document.getElementById('categoryFilter');
-          const pCatSelect = document.getElementById('pCategory');
-          if (catFilter.children.length === 1 && data.categories) {
-            data.categories.forEach(c => {
-              const opt = document.createElement('option');
-              opt.value = c.slug;
-              opt.innerText = c.name;
-              catFilter.appendChild(opt);
-
-              const pOpt = document.createElement('option');
-              pOpt.value = c.id;
-              pOpt.innerText = c.name;
-              pCatSelect.appendChild(pOpt);
-            });
-          }
-
-          const tbody = document.getElementById('productsTableBody');
-          if (productsList.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(250,247,242,0.5);">No matching products found.</td></tr>';
-            return;
-          }
-
-          tbody.innerHTML = productsList.map(p => `
-            <tr>
-              <td>
-                <div style="display: flex; align-items: center; gap: 0.85rem;">
-                  <img src="../${p.primary_image || 'images/skincare_products_1788328338930.jpg'}" alt="${p.name}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 2px;" />
-                  <div>
-                    <div style="font-weight: 500;">${p.name}</div>
-                    <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${p.badge ? `<span style="color: var(--color-gold);">✦ ${p.badge}</span>` : ''}</div>
-                  </div>
-                </div>
-              </td>
-              <td style="font-family: monospace; font-size: 0.78rem;">${p.sku}</td>
-              <td style="color: rgba(250,247,242,0.7);">${p.category_name || '—'}</td>
-              <td style="color: var(--color-gold); font-weight: 600;">$${parseFloat(p.price).toFixed(2)}</td>
-              <td>
-                <span style="font-weight: 600; color: ${p.available_quantity <= p.low_stock_threshold ? '#f39c12' : '#7bed9f'};">
-                  ${p.available_quantity} available
-                </span>
-                <span style="font-size: 0.7rem; color: rgba(250,247,242,0.5);"> (${p.stock_quantity} total)</span>
-              </td>
-              <td>
-                <span class="badge badge-${p.status}">${p.status}</span>
-              </td>
-              <td style="text-align: right;">
-                <button onclick="openEditProductModal(${p.id})" class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.68rem; margin-right: 0.35rem;">Edit</button>
-                <button onclick="archiveProduct(${p.id})" class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.68rem; color: #FF708F; border-color: rgba(255,112,143,0.3);">Archive</button>
-              </td>
-            </tr>
-          `).join('');
+          populateTaxonomySelects();
+          updateExecutiveMetricCards();
+          applySortAndRender();
         }
       } catch (err) {
-        console.error('Products error:', err);
+        console.error('Products load error:', err);
       }
     }
 
-    function openCreateProductModal() {
-      document.getElementById('productModalTitle').innerText = 'Create New Product';
-      document.getElementById('editProductId').value = '';
-      document.getElementById('productForm').reset();
-      document.getElementById('pStock').disabled = false;
-      Admin.openModal('productModal');
+    function populateTaxonomySelects() {
+      // Category filter in toolbar
+      const catFilter = document.getElementById('categoryFilter');
+      const regCat = document.getElementById('regCategory');
+      const editCat = document.getElementById('editPCategory');
+      const regCol = document.getElementById('regCollection');
+
+      const curFilterVal = catFilter.value;
+      catFilter.innerHTML = '<option value="">All Categories</option>';
+      regCat.innerHTML = '<option value="">-- Select Category --</option>';
+      editCat.innerHTML = '';
+
+      categoriesList.forEach(c => {
+        // Filter
+        const opt = document.createElement('option');
+        opt.value = c.slug;
+        opt.innerText = c.name;
+        catFilter.appendChild(opt);
+
+        // Register form
+        const rOpt = document.createElement('option');
+        rOpt.value = c.id;
+        rOpt.innerText = c.name;
+        regCat.appendChild(rOpt);
+
+        // Edit form
+        const eOpt = document.createElement('option');
+        eOpt.value = c.id;
+        eOpt.innerText = c.name;
+        editCat.appendChild(eOpt);
+      });
+      catFilter.value = curFilterVal;
+
+      // Collections
+      regCol.innerHTML = '<option value="">None (Standalone Atelier Curation)</option>';
+      collectionsList.forEach(col => {
+        const cOpt = document.createElement('option');
+        cOpt.value = col.id;
+        cOpt.innerText = col.name;
+        regCol.appendChild(cOpt);
+      });
     }
 
+    function updateExecutiveMetricCards() {
+      const total = productsList.length;
+      const active = productsList.filter(p => p.status === 'active').length;
+      const healthy = productsList.filter(p => (p.available_quantity || p.stock_quantity) > (p.low_stock_threshold || 5)).length;
+      const lowStock = productsList.filter(p => (p.available_quantity || p.stock_quantity) <= (p.low_stock_threshold || 5) && (p.available_quantity || p.stock_quantity) > 0).length;
+      const outStock = productsList.filter(p => (p.available_quantity || p.stock_quantity) <= 0).length;
+
+      let catalogRetailVal = 0;
+      productsList.forEach(p => {
+        catalogRetailVal += (parseFloat(p.price) || 0) * (parseInt(p.stock_quantity) || 0);
+      });
+
+      document.getElementById('valTotalProds').innerText = total;
+      document.getElementById('valActiveProds').innerText = `${active} active in boutique`;
+      document.getElementById('valCatalogValue').innerText = `$${catalogRetailVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('valStockHealthy').innerText = healthy;
+      document.getElementById('valStockAlerts').innerText = lowStock + outStock;
+      document.getElementById('valOutStockAlert').innerText = `${outStock} completely out of stock`;
+
+      document.getElementById('headerProdCountBadge').innerText = `${total} Registered Products`;
+      document.getElementById('tabAllBadge').innerText = `(${total})`;
+      document.getElementById('tableShowingCount').innerText = `Showing ${total} items`;
+    }
+
+    function applySortAndRender() {
+      const sortBy = document.getElementById('sortFilter').value;
+      let sorted = [...productsList];
+
+      if (sortBy === 'price_desc') {
+        sorted.sort((a, b) => b.price - a.price);
+      } else if (sortBy === 'price_asc') {
+        sorted.sort((a, b) => a.price - b.price);
+      } else if (sortBy === 'stock_asc') {
+        sorted.sort((a, b) => (a.available_quantity || 0) - (b.available_quantity || 0));
+      } else if (sortBy === 'name_asc') {
+        sorted.sort((a, b) => a.name.localeCompare(b.name));
+      } else {
+        // newest first (id descending)
+        sorted.sort((a, b) => b.id - a.id);
+      }
+
+      renderProductsTable(sorted);
+    }
+
+    function renderProductsTable(items) {
+      const tbody = document.getElementById('productsTableBody');
+      if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(250,247,242,0.5);">No matching products registered in catalog.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = items.map(p => {
+        const avail = p.available_quantity !== undefined ? p.available_quantity : p.stock_quantity;
+        const thresh = p.low_stock_threshold || 5;
+        let stockBadgeHtml = '';
+        if (avail <= 0) {
+          stockBadgeHtml = `<span class="badge badge-out-stock">⛔ Out of Stock (0)</span>`;
+        } else if (avail <= thresh) {
+          stockBadgeHtml = `<span class="badge badge-low-stock">⚠️ Low Stock (${avail})</span>`;
+        } else {
+          stockBadgeHtml = `<span style="color: #7bed9f; font-weight: 600; font-size: 0.8rem;">${avail} units</span>`;
+        }
+
+        return `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.85rem;">
+                <img src="../${p.primary_image || 'images/skincare_products_1788328338930.jpg'}" alt="${p.name}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 3px; border: 1px solid var(--admin-border);" onerror="this.src='../images/skincare_products_1788328338930.jpg'" />
+                <div style="min-width: 0;">
+                  <div style="font-weight: 600; font-size: 0.85rem; color: #FAF7F2;">${p.name}</div>
+                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5); display: flex; gap: 0.5rem; align-items: center; margin-top: 0.15rem;">
+                    ${p.collection_name ? `<span style="color: var(--color-gold);">✦ ${p.collection_name}</span>` : ''}
+                    ${p.badge ? `<span style="background: rgba(201,169,110,0.15); color: var(--color-gold); padding: 0.1rem 0.4rem; border-radius: 10px;">${p.badge}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td style="font-family: monospace; font-size: 0.78rem; color: rgba(250,247,242,0.85);">${p.sku}</td>
+            <td style="color: rgba(250,247,242,0.75); font-size: 0.8rem;">${p.category_name || '—'}</td>
+            <td>
+              <strong style="color: var(--color-gold); font-size: 0.9rem;">$${parseFloat(p.price).toFixed(2)}</strong>
+              ${p.compare_at_price ? `<div style="font-size: 0.68rem; color: rgba(250,247,242,0.4); text-decoration: line-through;">$${parseFloat(p.compare_at_price).toFixed(2)}</div>` : ''}
+            </td>
+            <td>
+              ${stockBadgeHtml}
+              <div style="font-size: 0.68rem; color: rgba(250,247,242,0.45); margin-top: 0.2rem;">Total: ${p.stock_quantity} units</div>
+            </td>
+            <td>
+              <span class="badge badge-${p.status}">${p.status}</span>
+            </td>
+            <td style="text-align: right;">
+              <button onclick="quickRestockItem(${p.id}, '${escapeJs(p.name)}')" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem; color: #2ecc71; border-color: rgba(46,204,113,0.3);" title="Restock +25 Units">
+                +25
+              </button>
+              <button onclick="openEditProductModal(${p.id})" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem;">
+                Edit
+              </button>
+              <button onclick="archiveProduct(${p.id})" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; color: #FF708F; border-color: rgba(255,112,143,0.3);">
+                Archive
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function escapeJs(str) {
+      if (!str) return '';
+      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // 3. Register Product Suite Form Handler
+    function autoGenerateRegSku() {
+      const randomId = Math.floor(100 + Math.random() * 900);
+      document.getElementById('regSku').value = `LUM-HAUTE-${randomId}`;
+    }
+
+    function updateImagePreview(url) {
+      const img = document.getElementById('regImagePreview');
+      const title = document.getElementById('regPreviewName');
+      img.src = url.startsWith('http') || url.startsWith('data:') ? url : ('../' + url);
+      title.innerText = document.getElementById('regName').value.trim() || 'Product Title Preview';
+    }
+
+    function setPresetImage(presetPath) {
+      document.getElementById('regImageUrl').value = presetPath;
+      updateImagePreview(presetPath);
+    }
+
+    document.getElementById('regName').addEventListener('input', function() {
+      document.getElementById('regPreviewName').innerText = this.value.trim() || 'Product Title Preview';
+    });
+
+    // Dynamic Variant Rows Builder
+    let variantRowCount = 0;
+    function addVariantRow() {
+      const container = document.getElementById('variantsContainer');
+      variantRowCount++;
+      const row = document.createElement('div');
+      row.id = `variantRow_${variantRowCount}`;
+      row.style.cssText = 'display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.75rem; align-items: center; background: rgba(255,255,255,0.02); padding: 0.75rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05);';
+      row.innerHTML = `
+        <input type="text" class="admin-input variant-name" placeholder="Variant Name (e.g. 100ml or Rose Nude)" required />
+        <select class="admin-select variant-type">
+          <option value="size">Size / Volume</option>
+          <option value="shade">Shade / Color</option>
+          <option value="finish">Formula / Finish</option>
+        </select>
+        <input type="text" class="admin-input variant-sku" placeholder="SKU Suffix (optional)" />
+        <input type="number" step="0.01" class="admin-input variant-price" placeholder="Price Override" />
+        <button type="button" onclick="document.getElementById('variantRow_${variantRowCount}').remove()" style="background: none; border: none; color: #e74c3c; font-size: 1.1rem; cursor: pointer;">&times;</button>
+      `;
+      container.appendChild(row);
+    }
+
+    async function handleRegisterNewProduct(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitRegister');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> REGISTERING IN ATELIER DATABASE...';
+
+      // Harvest variants if any
+      const variants = [];
+      document.querySelectorAll('#variantsContainer > div[id^="variantRow_"]').forEach(row => {
+        const vName = row.querySelector('.variant-name').value.trim();
+        const vType = row.querySelector('.variant-type').value;
+        const vSku = row.querySelector('.variant-sku').value.trim();
+        const vPrice = row.querySelector('.variant-price').value;
+        if (vName) {
+          variants.push({
+            variantName: vName,
+            variantType: vType,
+            sku: vSku || null,
+            priceOverride: vPrice ? parseFloat(vPrice) : null,
+          });
+        }
+      });
+
+      const payload = {
+        name: document.getElementById('regName').value.trim(),
+        sku: document.getElementById('regSku').value.trim(),
+        categoryId: parseInt(document.getElementById('regCategory').value, 10),
+        collectionId: document.getElementById('regCollection').value ? parseInt(document.getElementById('regCollection').value, 10) : null,
+        price: parseFloat(document.getElementById('regPrice').value),
+        compareAtPrice: document.getElementById('regComparePrice').value ? parseFloat(document.getElementById('regComparePrice').value) : null,
+        stockQuantity: parseInt(document.getElementById('regStock').value, 10),
+        lowStockThreshold: parseInt(document.getElementById('regThreshold').value, 10),
+        description: document.getElementById('regDesc').value.trim(),
+        images: [document.getElementById('regImageUrl').value.trim()],
+        isBestseller: document.getElementById('regBestseller').checked,
+        isNewArrival: document.getElementById('regNewArrival').checked,
+        isFeatured: document.getElementById('regFeatured').checked,
+        status: document.getElementById('regStatus').value,
+        variants: variants.length > 0 ? variants : undefined,
+      };
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/products', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(`✦ Product "${payload.name}" successfully registered in catalog!`);
+          document.getElementById('registerProductForm').reset();
+          document.getElementById('variantsContainer').innerHTML = '<div style="font-size: 0.75rem; color: rgba(250,247,242,0.5); font-style: italic;">Optional: Add specific shade variations or sizes.</div>';
+          autoGenerateRegSku();
+          
+          // Switch to All Products tab and reload
+          switchTab('tabAll');
+          await loadProducts();
+        } else {
+          alert('Registration Error: ' + (data.error || 'Failed to register product.'));
+        }
+      } catch (err) {
+        alert('Network Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '✦ REGISTER PRODUCT IN ATELIER CATALOG &rarr;';
+      }
+    }
+
+    // 4. Edit Product Modal Handlers
     function openEditProductModal(id) {
       const p = productsList.find(item => item.id === id);
       if (!p) return;
 
       document.getElementById('productModalTitle').innerText = `Edit: ${p.name}`;
       document.getElementById('editProductId').value = p.id;
-      document.getElementById('pName').value = p.name;
-      document.getElementById('pSku').value = p.sku;
-      document.getElementById('pDesc').value = p.description || '';
-      document.getElementById('pPrice').value = p.price;
-      document.getElementById('pComparePrice').value = p.compare_at_price || '';
-      document.getElementById('pCategory').value = p.category_id || '';
-      document.getElementById('pStock').value = p.stock_quantity;
-      document.getElementById('pStock').disabled = true; // Use inventory adjustments for existing stock!
-      document.getElementById('pThreshold').value = p.low_stock_threshold || 5;
-      document.getElementById('pStatus').value = p.status;
-      document.getElementById('pImageUrl').value = p.primary_image || '';
-      document.getElementById('pBestseller').checked = Boolean(p.is_bestseller);
-      document.getElementById('pNewArrival').checked = Boolean(p.is_new_arrival);
-      document.getElementById('pFeatured').checked = Boolean(p.is_featured);
+      document.getElementById('editPName').value = p.name;
+      document.getElementById('editPSku').value = p.sku;
+      document.getElementById('editPDesc').value = p.description || '';
+      document.getElementById('editPPrice').value = p.price;
+      document.getElementById('editPComparePrice').value = p.compare_at_price || '';
+      document.getElementById('editPCategory').value = p.category_id || '';
+      document.getElementById('editPThreshold').value = p.low_stock_threshold || 5;
+      document.getElementById('editPStatus').value = p.status;
+      document.getElementById('editPImageUrl').value = p.primary_image || '';
+      document.getElementById('editPBestseller').checked = Boolean(p.is_bestseller);
+      document.getElementById('editPNewArrival').checked = Boolean(p.is_new_arrival);
+      document.getElementById('editPFeatured').checked = Boolean(p.is_featured);
 
       Admin.openModal('productModal');
     }
 
-    async function handleSaveProduct(e) {
+    async function handleSaveEditProduct(e) {
       e.preventDefault();
       const editId = document.getElementById('editProductId').value;
+      const btn = document.getElementById('btnUpdateProduct');
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
       const payload = {
-        name: document.getElementById('pName').value.trim(),
-        sku: document.getElementById('pSku').value.trim(),
-        description: document.getElementById('pDesc').value.trim(),
-        price: parseFloat(document.getElementById('pPrice').value),
-        compareAtPrice: document.getElementById('pComparePrice').value ? parseFloat(document.getElementById('pComparePrice').value) : null,
-        categoryId: parseInt(document.getElementById('pCategory').value, 10),
-        status: document.getElementById('pStatus').value,
-        lowStockThreshold: parseInt(document.getElementById('pThreshold').value, 10),
-        isBestseller: document.getElementById('pBestseller').checked,
-        isNewArrival: document.getElementById('pNewArrival').checked,
-        isFeatured: document.getElementById('pFeatured').checked,
+        name: document.getElementById('editPName').value.trim(),
+        sku: document.getElementById('editPSku').value.trim(),
+        description: document.getElementById('editPDesc').value.trim(),
+        price: parseFloat(document.getElementById('editPPrice').value),
+        compareAtPrice: document.getElementById('editPComparePrice').value ? parseFloat(document.getElementById('editPComparePrice').value) : null,
+        categoryId: parseInt(document.getElementById('editPCategory').value, 10),
+        status: document.getElementById('editPStatus').value,
+        lowStockThreshold: parseInt(document.getElementById('editPThreshold').value, 10),
+        isBestseller: document.getElementById('editPBestseller').checked,
+        isNewArrival: document.getElementById('editPNewArrival').checked,
+        isFeatured: document.getElementById('editPFeatured').checked,
       };
 
-      const imgUrl = document.getElementById('pImageUrl').value.trim();
+      const imgUrl = document.getElementById('editPImageUrl').value.trim();
       if (imgUrl) payload.images = [imgUrl];
 
       try {
-        let res;
-        if (editId) {
-          res = await Auth.apiFetch(`/api/admin/products/${editId}`, {
-            method: 'PUT',
-            body: JSON.stringify(payload),
-          });
-        } else {
-          payload.stockQuantity = parseInt(document.getElementById('pStock').value, 10);
-          res = await Auth.apiFetch('/api/admin/products', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-          });
-        }
-
+        const res = await Auth.apiFetch(`/api/admin/products/${editId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        });
         const data = await res.json();
         if (data.success) {
           Admin.closeModal('productModal');
-          Admin.toast(data.message);
+          Admin.toast(data.message || 'Product updated successfully.');
           loadProducts();
         } else {
-          alert(data.error || 'Failed to save product');
+          alert('Error: ' + (data.error || 'Failed to update product.'));
         }
       } catch (err) {
-        alert(err.message);
+        alert('Network Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save Changes \u2192';
+      }
+    }
+
+    async function quickRestockItem(productId, productName) {
+      try {
+        // Fetch inventory id for product
+        const invRes = await Auth.apiFetch(`/api/admin/inventory?search=${encodeURIComponent(productName)}`);
+        const invData = await invRes.json();
+        let invId = null;
+        if (invData.success && invData.inventory) {
+          const match = invData.inventory.find(i => i.product_id === productId);
+          if (match) invId = match.inventory_id;
+        }
+
+        if (!invId) {
+          alert('Inventory record not found for product #' + productId);
+          return;
+        }
+
+        const res = await Auth.apiFetch('/api/admin/inventory/adjust', {
+          method: 'POST',
+          body: JSON.stringify({
+            inventoryId: invId,
+            quantityDelta: 25,
+            transactionType: 'STOCK_RECEIVED',
+            reason: 'Quick Catalog Restock (+25 units)',
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(`Restocked +25 units for "${productName}"!`);
+          loadProducts();
+        } else {
+          alert('Error: ' + (data.error || 'Restock failed'));
+        }
+      } catch (err) {
+        alert('Restock Error: ' + err.message);
       }
     }
 
     async function archiveProduct(id) {
-      if (!confirm('Are you sure you want to archive this product? It will no longer appear in the boutique.')) return;
+      if (!confirm('Are you sure you want to archive this product? It will no longer appear in the boutique storefront.')) return;
       try {
         const res = await Auth.apiFetch(`/api/admin/products/${id}`, { method: 'DELETE' });
         const data = await res.json();
         if (data.success) {
-          Admin.toast(data.message);
+          Admin.toast(data.message || 'Product archived.');
           loadProducts();
+        } else {
+          alert('Error: ' + data.error);
         }
       } catch (err) {
-        alert(err.message);
+        alert('Error: ' + err.message);
       }
     }
 
-    document.addEventListener('DOMContentLoaded', loadProducts);
+    // 5. Categories Tab Handler
+    function renderCategoriesTab() {
+      const tbody = document.getElementById('categoriesTableBody');
+      if (categoriesList.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No categories loaded.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = categoriesList.map(c => {
+        const count = productsList.filter(p => p.category_id === c.id || p.category_name === c.name).length;
+        return `
+          <tr>
+            <td><strong style="color: #FAF7F2; font-size: 0.85rem;">${c.name}</strong></td>
+            <td><span style="font-family: monospace; font-size: 0.76rem; color: var(--color-gold);">${c.slug}</span></td>
+            <td><span class="badge badge-owner">${count} products</span></td>
+            <td style="font-size: 0.76rem; color: rgba(250,247,242,0.65); max-width: 300px;">${c.description || '—'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function handleCreateCategory(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitCategory');
+      const name = document.getElementById('newCatName').value.trim();
+      const desc = document.getElementById('newCatDesc').value.trim();
+
+      btn.disabled = true;
+      btn.innerText = 'Saving Category...';
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/categories', {
+          method: 'POST',
+          body: JSON.stringify({ name, description: desc })
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(`Category "${name}" created!`);
+          document.getElementById('newCatName').value = '';
+          document.getElementById('newCatDesc').value = '';
+          await loadProducts();
+          renderCategoriesTab();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to create category'));
+        }
+      } catch (err) {
+        alert('Network Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save Category';
+      }
+    }
+
+    function quickPromptNewCategory() {
+      const name = prompt('Enter new Category Name (e.g. "Body Bronzing"):');
+      if (!name) return;
+      Auth.apiFetch('/api/admin/categories', {
+        method: 'POST',
+        body: JSON.stringify({ name: name.trim() })
+      }).then(r => r.json()).then(data => {
+        if (data.success) {
+          Admin.toast(`Category "${name}" added!`);
+          loadProducts().then(() => {
+            document.getElementById('regCategory').value = data.categoryId;
+          });
+        } else {
+          alert('Error: ' + data.error);
+        }
+      });
+    }
+
+    // 6. Variants Tab Handler
+    async function loadVariantsTab() {
+      const tbody = document.getElementById('variantsTableBody');
+      tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: rgba(250,247,242,0.5);">Querying product variants database...</td></tr>';
+      try {
+        const res = await Auth.apiFetch('/api/admin/variants');
+        const data = await res.json();
+        if (data.success && data.variants && data.variants.length > 0) {
+          tbody.innerHTML = data.variants.map(v => `
+            <tr>
+              <td><strong style="color: #FAF7F2;">${v.variant_name}</strong></td>
+              <td>${v.product_name} <span style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">(${v.product_sku})</span></td>
+              <td><span class="badge badge-active">${v.variant_type || 'shade'}</span></td>
+              <td style="font-family: monospace; font-size: 0.76rem;">${v.sku}</td>
+              <td style="color: var(--color-gold); font-weight: 600;">${v.price_override ? `$${parseFloat(v.price_override).toFixed(2)}` : 'Standard'}</td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: rgba(250,247,242,0.5);">No product variants registered yet. You can add shades and sizes when registering a new product!</td></tr>';
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #e74c3c;">Failed to load variants: ${err.message}</td></tr>`;
+      }
+    }
+
+    // 7. Deep-link & URL Action Routing
+    function handleInitialRoute() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const hash = window.location.hash;
+      const action = urlParams.get('action');
+
+      if (action === 'new' || hash === '#new') {
+        switchTab('tabRegister');
+      } else if (action === 'categories' || hash === '#categories') {
+        switchTab('tabCategories');
+      } else if (action === 'variants' || hash === '#variants') {
+        switchTab('tabVariants');
+      } else if (action === 'edit' && urlParams.get('id')) {
+        setTimeout(() => openEditProductModal(parseInt(urlParams.get('id'), 10)), 300);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProducts().then(() => {
+        handleInitialRoute();
+      });
+    });
   </script>
 </body>
 </html>
