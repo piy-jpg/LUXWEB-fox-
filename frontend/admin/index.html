@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Dashboard — Lumière Luxury Beauty</title>
+  <title>Executive Owner Dashboard — Lumière Luxury Beauty</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
   
   <link rel="stylesheet" href="css/admin.css" />
 </head>
@@ -21,27 +21,70 @@
     <header class="admin-topbar" id="adminTopbar"></header>
 
     <main class="admin-content">
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+      <!-- Page Header & Live Telemetry Controls -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Executive Intelligence</span>
-          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Atelier Performance Overview</h1>
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.14em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Executive Owner Suite</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator" id="liveIndicator">
+              <span class="live-dot"></span>
+              <span id="liveStatusText">LIVE TELEMETRY (5s)</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.3rem; font-weight: 300; margin: 0; color: #FAF7F2;">Atelier Performance & Telemetry</h1>
         </div>
-        <div style="display: flex; gap: 0.75rem;">
-          <a href="inventory.html" class="btn-outline" style="font-size: 0.72rem;">INVENTORY STATUS &rarr;</a>
-          <a href="products.html" class="btn-gold" style="font-size: 0.72rem;">+ NEW PRODUCT</a>
+
+        <!-- Telemetry Controls -->
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <span id="lastSyncedTime" style="font-size: 0.7rem; color: rgba(250,247,242,0.5); font-family: monospace;">Synced: Just now</span>
+          <button class="btn-outline" id="btnToggleLive" onclick="toggleRealTime()" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="Pause / Resume 5-Second Real-Time Heartbeat">⏸ PAUSE LIVE</button>
+          <button class="btn-outline" onclick="forceSync()" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="Immediate Sync with Database">⟳ SYNC NOW</button>
         </div>
       </div>
 
-      <!-- Low Stock Warning Banner -->
-      <div id="lowStockBanner" style="display: none; padding: 1rem 1.5rem; margin-bottom: 2rem; background: rgba(230, 126, 34, 0.12); border: 1px solid rgba(230, 126, 34, 0.35); border-radius: 4px; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-          <span style="font-size: 1.25rem;">⚠️</span>
-          <div>
-            <strong style="color: #f39c12; font-size: 0.85rem;">Inventory Attention Required:</strong>
-            <span style="font-size: 0.82rem; color: rgba(250,247,242,0.8); margin-left: 0.5rem;" id="lowStockBannerText">0 products are below safe reserve threshold.</span>
+      <!-- Owner Action Deck -->
+      <div class="owner-deck">
+        <div class="owner-deck-left">
+          <div class="owner-deck-badge">👑 OWNER COMMAND DECK</div>
+          <div style="font-size: 0.78rem; color: rgba(250, 247, 242, 0.75);">
+            High-Impact Atelier Actions with Instant Real-Time Propagation
           </div>
         </div>
-        <a href="inventory.html" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.68rem; border-color: rgba(230,126,34,0.5); color: #f39c12;">Review Stock</a>
+        <div class="owner-deck-actions">
+          <button class="btn-owner-action btn-owner-gold" onclick="openCreateProductModal()">
+            <span>+</span> CREATE PRODUCT
+          </button>
+          <button class="btn-owner-action btn-owner-outline" onclick="openQuickStockModal()">
+            <span>⚡</span> QUICK RESTOCK
+          </button>
+          <button class="btn-owner-action btn-owner-sim" id="btnSimulateOrder" onclick="simulateClientOrder()">
+            <span>🛍️</span> SIMULATE ORDER
+          </button>
+          <button class="btn-owner-action btn-owner-outline" onclick="exportExecutiveCSV()">
+            <span>📊</span> EXPORT CSV
+          </button>
+          <button class="btn-owner-action btn-owner-outline" onclick="openAuditModal()">
+            <span>📜</span> AUDIT LEDGER
+          </button>
+        </div>
+      </div>
+
+      <!-- Low Stock Warning Banner with 1-Click Restock All -->
+      <div id="lowStockBanner" style="display: none; padding: 1.1rem 1.6rem; margin-bottom: 2rem; background: rgba(230, 126, 34, 0.12); border: 1px solid rgba(230, 126, 34, 0.4); border-radius: 4px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.85rem;">
+          <span style="font-size: 1.4rem;">⚠️</span>
+          <div>
+            <strong style="color: #f39c12; font-size: 0.86rem; letter-spacing: 0.04em;">Inventory Attention Required:</strong>
+            <span style="font-size: 0.82rem; color: rgba(250,247,242,0.85); margin-left: 0.5rem;" id="lowStockBannerText">0 products are below safe reserve threshold.</span>
+          </div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button onclick="restockAllLowStock()" id="btnRestockAll" class="btn-gold" style="padding: 0.4rem 0.9rem; font-size: 0.7rem; background: #e67e22; border-color: #d35400; color: #fff;">
+            ⚡ 1-CLICK RESTOCK ALL (+25 UNITS)
+          </button>
+          <a href="inventory.html?filter=low_stock" class="btn-outline" style="padding: 0.4rem 0.9rem; font-size: 0.7rem; border-color: rgba(230,126,34,0.5); color: #f39c12;">Review Stock &rarr;</a>
+        </div>
       </div>
 
       <!-- Metric Cards Grid -->
@@ -83,13 +126,16 @@
         </div>
       </div>
 
-      <!-- Two Column Layout: Recent Orders & Best Sellers -->
-      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+      <!-- Two Column Layout: Recent Orders & Best Sellers / Activity -->
+      <div style="display: grid; grid-template-columns: 2fr 1.15fr; gap: 2rem;">
         
-        <!-- Recent Orders Table -->
+        <!-- Recent Orders Table with In-line Dispatch -->
         <div class="table-card">
-          <div class="table-header-wrap">
-            <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin: 0;">Recent Orders</h3>
+          <div class="table-header-wrap" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <h3 style="font-family: var(--font-serif); font-size: 1.3rem; font-weight: 400; margin: 0;">Recent Orders & In-Line Dispatch</h3>
+              <span id="ordersLiveCountBadge" class="badge badge-owner" style="font-size: 0.62rem;">Live Sync</span>
+            </div>
             <a href="orders.html" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.68rem;">VIEW ALL &rarr;</a>
           </div>
           <div class="table-responsive">
@@ -99,25 +145,51 @@
                   <th>Order</th>
                   <th>Client</th>
                   <th>Total</th>
-                  <th>Status</th>
+                  <th>Status (In-Line Dispatch)</th>
                   <th>Date</th>
+                  <th style="text-align: right;">Action</th>
                 </tr>
               </thead>
               <tbody id="recentOrdersTableBody">
-                <tr><td colspan="5" style="text-align: center; color: rgba(250,247,242,0.5);">Loading orders...</td></tr>
+                <tr><td colspan="6" style="text-align: center; color: rgba(250,247,242,0.5);">Loading orders...</td></tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        <!-- Best Sellers -->
-        <div class="table-card">
-          <div class="table-header-wrap">
-            <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin: 0;">Bestselling Curations</h3>
+        <!-- Right Side: Bestsellers & Real-Time Activity Feed -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+          
+          <!-- Best Sellers -->
+          <div class="table-card">
+            <div class="table-header-wrap">
+              <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin: 0;">Bestselling Curations</h3>
+            </div>
+            <div style="padding: 1.25rem;" id="bestSellersList">
+              Loading bestsellers...
+            </div>
           </div>
-          <div style="padding: 1.25rem;" id="bestSellersList">
-            Loading bestsellers...
+
+          <!-- Real-Time Activity Feed -->
+          <div class="activity-feed-card" style="margin-top: 0;">
+            <div class="table-header-wrap" style="display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span class="activity-dot"></span>
+                <h3 style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 400; margin: 0;">Live Atelier Activity Feed</h3>
+              </div>
+              <button onclick="clearActivityFeed()" style="background: none; border: none; color: rgba(250,247,242,0.4); font-size: 0.68rem; cursor: pointer; text-decoration: underline;">Clear</button>
+            </div>
+            <div class="activity-feed-list" id="activityFeedList">
+              <div class="activity-item">
+                <div class="activity-item-main">
+                  <span class="activity-dot"></span>
+                  <span>Executive Owner Telemetry Engine initialized.</span>
+                </div>
+                <span class="activity-time">Just now</span>
+              </div>
+            </div>
           </div>
+
         </div>
 
       </div>
@@ -125,76 +197,912 @@
     </main>
   </div>
 
-  <div class="admin-backdrop" id="adminBackdrop"></div>
+  <!-- Backdrops & Modals -->
+  <div class="admin-backdrop" id="adminBackdrop" onclick="closeAllModals()"></div>
+
+  <!-- MODAL 1: Create Product Modal -->
+  <div class="admin-modal" id="createProductModal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <h3 style="font-family: var(--font-serif); font-size: 1.5rem; font-weight: 400; margin: 0; color: #FAF7F2;">Create New Boutique Product</h3>
+      <button onclick="Admin.closeModal('createProductModal')" style="background:none; border:none; color:rgba(250,247,242,0.6); font-size:1.25rem; cursor:pointer;">&times;</button>
+    </div>
+    <form id="createProductForm" onsubmit="submitCreateProduct(event)">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">SKU *</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="text" id="newProdSku" class="admin-input" required placeholder="LUM-..." style="flex: 1;" />
+            <button type="button" onclick="generateSku()" class="btn-outline" style="padding: 0.5rem 0.75rem; font-size: 0.68rem;">Auto</button>
+          </div>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Product Name *</label>
+          <input type="text" id="newProdName" class="admin-input" required placeholder="e.g. L’Élixir Lumineux" style="width: 100%;" />
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Category</label>
+          <select id="newProdCategory" class="admin-select" style="width: 100%;">
+            <option value="1">Skincare</option>
+            <option value="2">Fragrance</option>
+            <option value="3">Body Care</option>
+            <option value="4">Bespoke Sets</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Price ($ USD) *</label>
+          <input type="number" id="newProdPrice" step="0.01" min="1" class="admin-input" required placeholder="185.00" style="width: 100%;" />
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+        <div>
+          <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Initial Stock Quantity</label>
+          <input type="number" id="newProdStock" min="0" value="50" class="admin-input" style="width: 100%;" />
+        </div>
+        <div>
+          <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Low Stock Threshold</label>
+          <input type="number" id="newProdThreshold" min="1" value="5" class="admin-input" style="width: 100%;" />
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Description</label>
+        <textarea id="newProdDesc" class="admin-input" rows="3" placeholder="Haute formulation details..." style="width: 100%; resize: vertical;"></textarea>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" onclick="Admin.closeModal('createProductModal')" class="btn-outline">Cancel</button>
+        <button type="submit" class="btn-gold" id="btnSubmitProduct">Create Product</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- MODAL 2: Quick Restock Modal -->
+  <div class="admin-modal" id="quickStockModal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <h3 style="font-family: var(--font-serif); font-size: 1.5rem; font-weight: 400; margin: 0; color: #FAF7F2;">⚡ Quick Atelier Restock</h3>
+      <button onclick="Admin.closeModal('quickStockModal')" style="background:none; border:none; color:rgba(250,247,242,0.6); font-size:1.25rem; cursor:pointer;">&times;</button>
+    </div>
+    <form id="quickStockForm" onsubmit="submitQuickStock(event)">
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Select Product to Restock *</label>
+        <select id="quickStockProductSelect" class="admin-select" required style="width: 100%;" onchange="updateStockInfoDisplay()">
+          <option value="">Loading products...</option>
+        </select>
+        <div id="quickStockCurrentInfo" style="font-size: 0.75rem; color: var(--color-gold); margin-top: 0.4rem;"></div>
+      </div>
+
+      <div style="margin-bottom: 1.25rem;">
+        <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Units to Add *</label>
+        <input type="number" id="quickStockDelta" class="admin-input" required min="1" value="25" style="width: 100%; font-size: 1.1rem; font-weight: 600;" />
+        
+        <!-- Preset quick buttons -->
+        <div style="display: flex; gap: 0.5rem; margin-top: 0.6rem;">
+          <button type="button" class="btn-outline" style="padding: 0.3rem 0.65rem; font-size: 0.7rem;" onclick="setQuickStockUnits(10)">+10</button>
+          <button type="button" class="btn-outline" style="padding: 0.3rem 0.65rem; font-size: 0.7rem;" onclick="setQuickStockUnits(25)">+25</button>
+          <button type="button" class="btn-outline" style="padding: 0.3rem 0.65rem; font-size: 0.7rem;" onclick="setQuickStockUnits(50)">+50</button>
+          <button type="button" class="btn-outline" style="padding: 0.3rem 0.65rem; font-size: 0.7rem;" onclick="setQuickStockUnits(100)">+100</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Transaction Reason</label>
+        <select id="quickStockReason" class="admin-select" style="width: 100%;">
+          <option value="STOCK_RECEIVED">Stock Received (Purchase Delivery)</option>
+          <option value="MANUAL_ADJUSTMENT">Manual Atelier Replenishment</option>
+        </select>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" onclick="Admin.closeModal('quickStockModal')" class="btn-outline">Cancel</button>
+        <button type="submit" class="btn-gold" id="btnSubmitStock">Execute Restock &rarr;</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- MODAL 3: Order Dispatch & Details Modal -->
+  <div class="admin-modal" id="orderDispatchModal" style="max-width: 700px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 0.75rem;">
+      <h3 style="font-family: var(--font-serif); font-size: 1.45rem; font-weight: 400; margin: 0; color: #FAF7F2;" id="dispatchModalTitle">Order Dispatch & Client Care</h3>
+      <button onclick="Admin.closeModal('orderDispatchModal')" style="background:none; border:none; color:rgba(250,247,242,0.6); font-size:1.25rem; cursor:pointer;">&times;</button>
+    </div>
+    
+    <div id="dispatchModalContent" style="margin-bottom: 1.5rem;">
+      <!-- Populated dynamically -->
+      Loading order details...
+    </div>
+
+    <form id="orderDispatchForm" onsubmit="submitOrderDispatch(event)">
+      <input type="hidden" id="dispatchOrderId" />
+      <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid var(--admin-border-gold); padding: 1.25rem; border-radius: 4px; margin-bottom: 1.5rem;">
+        <div style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--color-gold); font-weight: 600; margin-bottom: 0.85rem;">
+          Dispatch Status & Tracking Update
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+          <div>
+            <label style="display:block; font-size:0.72rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Order Status</label>
+            <select id="dispatchStatusSelect" class="admin-select" style="width: 100%;">
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Processing">Processing</option>
+              <option value="Shipped">Shipped</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+          </div>
+          <div>
+            <label style="display:block; font-size:0.72rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Carrier / Tracking Number</label>
+            <input type="text" id="dispatchTrackingInput" class="admin-input" placeholder="e.g. LUM-EXP-884920" style="width: 100%;" />
+          </div>
+        </div>
+        <div>
+          <label style="display:block; font-size:0.72rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Dispatch Notes</label>
+          <input type="text" id="dispatchNotesInput" class="admin-input" placeholder="White-glove courier instructions..." style="width: 100%;" />
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" onclick="Admin.closeModal('orderDispatchModal')" class="btn-outline">Close</button>
+        <button type="submit" class="btn-gold" id="btnSaveDispatch">Save Dispatch Update</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- MODAL 4: Audit Ledger Modal -->
+  <div class="admin-modal" id="auditModal" style="max-width: 800px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 0.75rem;">
+      <h3 style="font-family: var(--font-serif); font-size: 1.45rem; font-weight: 400; margin: 0; color: #FAF7F2;">Executive Audit Ledger</h3>
+      <button onclick="Admin.closeModal('auditModal')" style="background:none; border:none; color:rgba(250,247,242,0.6); font-size:1.25rem; cursor:pointer;">&times;</button>
+    </div>
+    <div style="max-height: 480px; overflow-y: auto;">
+      <table class="admin-table" style="width: 100%;">
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Entity</th>
+            <th>Details</th>
+            <th>Timestamp</th>
+          </tr>
+        </thead>
+        <tbody id="auditLogsBody">
+          <tr><td colspan="4" style="text-align: center; color: rgba(250,247,242,0.5);">Loading audit ledger records...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+      <button type="button" onclick="Admin.closeModal('auditModal')" class="btn-outline">Close Ledger</button>
+    </div>
+  </div>
 
   <script src="../js/auth.js"></script>
   <script src="js/admin.js"></script>
   <script>
+    /* ============================================================
+       REAL-TIME TELEMETRY ENGINE & OWNER MASTER SUITE CONTROLLER
+       ============================================================ */
+
+    let isRealTimePaused = false;
+    let realTimeInterval = null;
+    let cachedProducts = [];
+    let cachedInventory = [];
+    let lastMetricValues = {};
+
+    // 1. Initial Load & Telemetry Polling
     async function loadDashboard() {
       try {
         const res = await Auth.apiFetch('/api/admin/overview');
         const data = await res.json();
         if (data.success) {
-          const m = data.metrics;
-          document.getElementById('valRevenue').innerText = `$${m.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-          document.getElementById('valOrders').innerText = m.totalOrders;
-          document.getElementById('valTodayOrders').innerText = m.todayOrders;
-          document.getElementById('valTodayRev').innerText = `$${m.todayRevenue.toFixed(2)} today`;
-          document.getElementById('valCustomers').innerText = m.totalCustomers;
-          document.getElementById('valProducts').innerText = m.totalProducts;
-          document.getElementById('valLowStock').innerText = m.lowStockCount;
-          document.getElementById('valOutStock').innerText = `${m.outOfStockCount} out of stock`;
-
-          // Low stock alert banner
-          if (m.lowStockCount > 0 || m.outOfStockCount > 0) {
-            const banner = document.getElementById('lowStockBanner');
-            banner.style.display = 'flex';
-            document.getElementById('lowStockBannerText').innerText = 
-              `${m.lowStockCount} items below threshold, ${m.outOfStockCount} out of stock. Immediate stock receipt recommended.`;
-          }
-
-          // Recent Orders
-          const orderBody = document.getElementById('recentOrdersTableBody');
-          if (data.recentOrders.length === 0) {
-            orderBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">No orders recorded yet.</td></tr>';
-          } else {
-            orderBody.innerHTML = data.recentOrders.map(o => `
-              <tr>
-                <td><strong style="color: #fff;">#${o.order_number}</strong></td>
-                <td>
-                  <div>${o.customer_name}</div>
-                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email}</div>
-                </td>
-                <td style="color: var(--color-gold); font-weight: 500;">$${parseFloat(o.total_amount).toFixed(2)}</td>
-                <td><span class="badge badge-active">${o.status}</span></td>
-                <td style="color: rgba(250,247,242,0.6); font-size: 0.75rem;">${new Date(o.created_at).toLocaleDateString()}</td>
-              </tr>
-            `).join('');
-          }
-
-          // Best Sellers
-          const bestContainer = document.getElementById('bestSellersList');
-          if (data.bestSellers.length === 0) {
-            bestContainer.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No sales data recorded yet.</p>';
-          } else {
-            bestContainer.innerHTML = data.bestSellers.map(p => `
-              <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1rem;">
-                <img src="../${p.image_url || 'images/skincare_products_1788328338930.jpg'}" alt="${p.name}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 2px;" />
-                <div style="flex: 1; min-width: 0;">
-                  <div style="font-weight: 500; font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
-                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${p.total_sold} units sold</div>
-                </div>
-                <div style="color: var(--color-gold); font-size: 0.85rem; font-weight: 600;">$${parseFloat(p.revenue_generated).toFixed(2)}</div>
-              </div>
-            `).join('');
-          }
+          renderMetrics(data.metrics);
+          renderLowStockAlert(data.metrics);
+          renderRecentOrders(data.recentOrders || []);
+          renderBestSellers(data.bestSellers || []);
+          
+          document.getElementById('lastSyncedTime').innerText = `Synced: ${new Date().toLocaleTimeString()}`;
         }
       } catch (err) {
-        console.error('Overview error:', err);
+        console.warn('[Dashboard Telemetry] Sync error:', err);
       }
     }
 
-    document.addEventListener('DOMContentLoaded', loadDashboard);
+    function renderMetrics(m) {
+      if (!m) return;
+      const formattedRev = `$${m.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      
+      // Update with flash animation if value changed
+      updateStatWithFlash('valRevenue', formattedRev, lastMetricValues.rev);
+      updateStatWithFlash('valOrders', m.totalOrders, lastMetricValues.orders);
+      updateStatWithFlash('valTodayOrders', m.todayOrders, lastMetricValues.todayOrders);
+      updateStatWithFlash('valCustomers', m.totalCustomers, lastMetricValues.customers);
+      updateStatWithFlash('valProducts', m.totalProducts, lastMetricValues.products);
+      updateStatWithFlash('valLowStock', m.lowStockCount, lastMetricValues.lowStock);
+
+      document.getElementById('valTodayRev').innerText = `$${(m.todayRevenue || 0).toFixed(2)} today`;
+      document.getElementById('valOutStock').innerText = `${m.outOfStockCount || 0} out of stock`;
+
+      // Cache current values
+      lastMetricValues = {
+        rev: formattedRev,
+        orders: m.totalOrders,
+        todayOrders: m.todayOrders,
+        customers: m.totalCustomers,
+        products: m.totalProducts,
+        lowStock: m.lowStockCount,
+      };
+    }
+
+    function updateStatWithFlash(elementId, newVal, oldVal) {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      if (oldVal !== undefined && oldVal !== newVal) {
+        el.classList.remove('val-updated');
+        void el.offsetWidth; // Force CSS reflow
+        el.classList.add('val-updated');
+      }
+      el.innerText = newVal;
+    }
+
+    function renderLowStockAlert(m) {
+      const banner = document.getElementById('lowStockBanner');
+      if (!banner) return;
+      if (m.lowStockCount > 0 || m.outOfStockCount > 0) {
+        banner.style.display = 'flex';
+        document.getElementById('lowStockBannerText').innerText = 
+          `${m.lowStockCount} items below threshold, ${m.outOfStockCount} out of stock. Immediate replenishment advised.`;
+      } else {
+        banner.style.display = 'none';
+      }
+    }
+
+    function renderRecentOrders(orders) {
+      const orderBody = document.getElementById('recentOrdersTableBody');
+      if (!orderBody) return;
+
+      if (orders.length === 0) {
+        orderBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(250,247,242,0.5);">No orders recorded yet.</td></tr>';
+        return;
+      }
+
+      const getStatusClass = (st) => {
+        switch(st) {
+          case 'Pending': return 'badge-pending';
+          case 'Confirmed': return 'badge-confirmed';
+          case 'Processing': return 'badge-processing';
+          case 'Shipped': return 'badge-shipped';
+          case 'Delivered': return 'badge-delivered';
+          case 'Cancelled': return 'badge-cancelled';
+          default: return 'badge-active';
+        }
+      };
+
+      orderBody.innerHTML = orders.map(o => `
+        <tr>
+          <td>
+            <a href="javascript:void(0)" onclick="openOrderDispatchModal(${o.id})" style="color: #fff; font-weight: 600; text-decoration: underline;">
+              #${o.order_number}
+            </a>
+          </td>
+          <td>
+            <div style="font-weight: 500;">${o.customer_name}</div>
+            <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email}</div>
+          </td>
+          <td style="color: var(--color-gold); font-weight: 600;">$${parseFloat(o.total_amount).toFixed(2)}</td>
+          <td>
+            <select class="admin-table-select" onchange="inlineUpdateOrderStatus(${o.id}, this.value, '${o.order_number}')">
+              <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+              <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>
+              <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+              <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+              <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+          </td>
+          <td style="color: rgba(250,247,242,0.6); font-size: 0.75rem;">${new Date(o.created_at).toLocaleDateString()}</td>
+          <td style="text-align: right;">
+            <button onclick="openOrderDispatchModal(${o.id})" class="btn-outline" style="padding: 0.25rem 0.55rem; font-size: 0.65rem;">
+              Dispatch &rarr;
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderBestSellers(items) {
+      const bestContainer = document.getElementById('bestSellersList');
+      if (!bestContainer) return;
+
+      if (items.length === 0) {
+        bestContainer.innerHTML = '<p style="color: rgba(250,247,242,0.5); font-size: 0.8rem;">No sales curations recorded yet.</p>';
+        return;
+      }
+
+      bestContainer.innerHTML = items.map(p => `
+        <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 1rem; padding-bottom: 0.85rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04);">
+          <img src="../${p.image_url || 'images/skincare_products_1788328338930.jpg'}" alt="${p.name}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 2px; border: 1px solid var(--admin-border);" />
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 500; font-size: 0.82rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</div>
+            <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${p.total_sold} bottles dispatched</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="color: var(--color-gold); font-size: 0.85rem; font-weight: 600;">$${parseFloat(p.revenue_generated).toFixed(2)}</div>
+            <button onclick="triggerQuickStockForProduct(${p.id}, '${escapeHtml(p.name)}')" class="btn-outline" style="padding: 0.2rem 0.45rem; font-size: 0.62rem; margin-top: 0.25rem;">+ Restock</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    }
+
+    // 2. Real-Time Heartbeat Toggle
+    function toggleRealTime() {
+      const indicator = document.getElementById('liveIndicator');
+      const btn = document.getElementById('btnToggleLive');
+      const text = document.getElementById('liveStatusText');
+
+      if (isRealTimePaused) {
+        // Resume
+        isRealTimePaused = false;
+        indicator.classList.remove('paused');
+        btn.innerText = '⏸ PAUSE LIVE';
+        btn.style.color = '';
+        text.innerText = 'LIVE TELEMETRY (5s)';
+        startRealTimeLoop();
+        Admin.toast('Real-time telemetry heartbeat resumed.');
+        addActivity('Real-time telemetry heartbeat resumed (5-second polling).');
+      } else {
+        // Pause
+        isRealTimePaused = true;
+        if (realTimeInterval) clearInterval(realTimeInterval);
+        indicator.classList.add('paused');
+        btn.innerText = '▶ RESUME LIVE';
+        btn.style.color = '#f1c40f';
+        text.innerText = 'STREAM PAUSED';
+        Admin.toast('Real-time telemetry paused.');
+        addActivity('Real-time telemetry stream paused by owner.');
+      }
+    }
+
+    function startRealTimeLoop() {
+      if (realTimeInterval) clearInterval(realTimeInterval);
+      realTimeInterval = setInterval(() => {
+        if (!isRealTimePaused) {
+          loadDashboard();
+        }
+      }, 5000);
+    }
+
+    function forceSync() {
+      loadDashboard();
+      Admin.toast('Telemetrics synchronized with database.');
+      addActivity('Owner triggered immediate database synchronization.');
+    }
+
+    // 3. Activity Feed Logger
+    function addActivity(msg) {
+      const feed = document.getElementById('activityFeedList');
+      if (!feed) return;
+
+      const item = document.createElement('div');
+      item.className = 'activity-item';
+      item.innerHTML = `
+        <div class="activity-item-main">
+          <span class="activity-dot"></span>
+          <span>${msg}</span>
+        </div>
+        <span class="activity-time">${new Date().toLocaleTimeString()}</span>
+      `;
+      feed.insertBefore(item, feed.firstChild);
+
+      // Trim feed to 20 items
+      while (feed.children.length > 20) {
+        feed.removeChild(feed.lastChild);
+      }
+    }
+
+    function clearActivityFeed() {
+      const feed = document.getElementById('activityFeedList');
+      if (feed) {
+        feed.innerHTML = `
+          <div class="activity-item">
+            <div class="activity-item-main">
+              <span class="activity-dot"></span>
+              <span>Activity feed reset.</span>
+            </div>
+            <span class="activity-time">${new Date().toLocaleTimeString()}</span>
+          </div>
+        `;
+      }
+    }
+
+    // 4. Action Button 1: Create Product Modal
+    async function openCreateProductModal() {
+      document.getElementById('createProductForm').reset();
+      generateSku();
+      Admin.openModal('createProductModal');
+    }
+
+    function generateSku() {
+      const randomId = Math.floor(100 + Math.random() * 900);
+      document.getElementById('newProdSku').value = `LUM-HAUTE-${randomId}`;
+    }
+
+    async function submitCreateProduct(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitProduct');
+      btn.disabled = true;
+      btn.innerText = 'Creating...';
+
+      const payload = {
+        sku: document.getElementById('newProdSku').value.trim(),
+        name: document.getElementById('newProdName').value.trim(),
+        categoryId: parseInt(document.getElementById('newProdCategory').value, 10),
+        price: parseFloat(document.getElementById('newProdPrice').value),
+        stockQuantity: parseInt(document.getElementById('newProdStock').value, 10),
+        lowStockThreshold: parseInt(document.getElementById('newProdThreshold').value, 10),
+        description: document.getElementById('newProdDesc').value.trim(),
+      };
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/products', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.closeModal('createProductModal');
+          Admin.toast(`Product "${payload.name}" created successfully!`);
+          addActivity(`✨ New Boutique Product Added: "${payload.name}" (${payload.sku}) with ${payload.stockQuantity} units.`);
+          loadDashboard();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to create product.'));
+        }
+      } catch (err) {
+        alert('Network Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Create Product';
+      }
+    }
+
+    // 5. Action Button 2: Quick Restock Modal
+    async function loadProductsForRestock() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.inventory)) {
+          cachedInventory = data.inventory;
+          const sel = document.getElementById('quickStockProductSelect');
+          sel.innerHTML = '<option value="">-- Choose Product to Restock --</option>' + 
+            data.inventory.map(item => `
+              <option value="${item.inventory_id}" data-prod-name="${escapeHtml(item.product_name)}" data-stock="${item.stock_quantity}">
+                ${item.product_name} (${item.sku}) — Current Stock: ${item.stock_quantity}
+              </option>
+            `).join('');
+        }
+      } catch (err) {
+        console.warn('Failed to load inventory for restock:', err);
+      }
+    }
+
+    async function openQuickStockModal(preselectInventoryId = null) {
+      await loadProductsForRestock();
+      if (preselectInventoryId) {
+        document.getElementById('quickStockProductSelect').value = preselectInventoryId;
+        updateStockInfoDisplay();
+      }
+      Admin.openModal('quickStockModal');
+    }
+
+    function triggerQuickStockForProduct(productId, productName) {
+      const match = cachedInventory.find(i => i.product_id === productId);
+      if (match) {
+        openQuickStockModal(match.inventory_id);
+      } else {
+        openQuickStockModal();
+      }
+    }
+
+    function updateStockInfoDisplay() {
+      const sel = document.getElementById('quickStockProductSelect');
+      const opt = sel.options[sel.selectedIndex];
+      const infoEl = document.getElementById('quickStockCurrentInfo');
+      if (opt && opt.dataset.stock !== undefined) {
+        infoEl.innerText = `Current available inventory: ${opt.dataset.stock} unit(s).`;
+      } else {
+        infoEl.innerText = '';
+      }
+    }
+
+    function setQuickStockUnits(qty) {
+      document.getElementById('quickStockDelta').value = qty;
+    }
+
+    async function submitQuickStock(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitStock');
+      const sel = document.getElementById('quickStockProductSelect');
+      const inventoryId = sel.value;
+      const quantityDelta = parseInt(document.getElementById('quickStockDelta').value, 10);
+      const transactionType = document.getElementById('quickStockReason').value;
+
+      if (!inventoryId || !quantityDelta) {
+        alert('Please select a product and valid restock amount.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'Restocking...';
+
+      try {
+        const prodName = sel.options[sel.selectedIndex].dataset.prodName || 'Product';
+        const res = await Auth.apiFetch('/api/admin/inventory/adjust', {
+          method: 'POST',
+          body: JSON.stringify({
+            inventoryId: parseInt(inventoryId, 10),
+            quantityDelta,
+            transactionType,
+            reason: `Executive Quick Restock: +${quantityDelta} units`,
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.closeModal('quickStockModal');
+          Admin.toast(`Restocked +${quantityDelta} units for ${prodName}!`);
+          addActivity(`📦 Stock Received: +${quantityDelta} units for ${prodName} (New balance: ${data.result.newStock}).`);
+          loadDashboard();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to adjust stock.'));
+        }
+      } catch (err) {
+        alert('Network Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Execute Restock \u2192';
+      }
+    }
+
+    // 6. Action Button 3: Simulate Luxury Client Order
+    const LUXURY_CLIENTS = [
+      { name: "Duchess Genevieve Vance", email: "genevieve.vance@chateau-lumiere.com" },
+      { name: "Lord Alistair Sterling", email: "sterling.alistair@mayfair-haute.co.uk" },
+      { name: "Baroness Vivienne Dupont", email: "vivienne.dupont@atelier-paris.fr" },
+      { name: "Dr. Camille Laurent", email: "camille.laurent@sorbonne-lux.fr" },
+      { name: "Count Alexander von Roth", email: "a.roth@geneva-vault.ch" },
+      { name: "Lady Seraphina Sinclair", email: "seraphina@kensington-palace.org" }
+    ];
+
+    async function simulateClientOrder() {
+      const btn = document.getElementById('btnSimulateOrder');
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> SIMULATING...';
+
+      try {
+        // Fetch inventory to pick an available item
+        const invRes = await Auth.apiFetch('/api/admin/inventory');
+        const invData = await invRes.json();
+        
+        let availableItems = [];
+        if (invData.success && invData.inventory) {
+          availableItems = invData.inventory.filter(i => i.stock_quantity > 0);
+        }
+
+        if (availableItems.length === 0) {
+          alert('Cannot simulate order: No inventory currently in stock. Restock products first!');
+          return;
+        }
+
+        // Pick 1 or 2 random products
+        const randomItem = availableItems[Math.floor(Math.random() * availableItems.length)];
+        const client = LUXURY_CLIENTS[Math.floor(Math.random() * LUXURY_CLIENTS.length)];
+        const qty = Math.floor(Math.random() * 2) + 1;
+
+        const orderPayload = {
+          items: [{ productId: randomItem.product_id, quantity: qty }],
+          customerName: client.name,
+          customerEmail: client.email,
+          shippingAddress: {
+            street: "14 Place Vendôme",
+            city: "Paris",
+            postalCode: "75001",
+            country: "France"
+          },
+          shippingFee: 0,
+          notes: "Client requested white-glove velvet pouch dispatch."
+        };
+
+        const res = await Auth.apiFetch('/api/orders', {
+          method: 'POST',
+          body: JSON.stringify(orderPayload)
+        });
+        const data = await res.json();
+
+        if (data.success && data.order) {
+          Admin.toast(`✦ Luxury Order #${data.order.orderNumber} placed by ${client.name} ($${parseFloat(data.order.totalAmount).toFixed(2)})!`);
+          addActivity(`🛍️ Order Placed: #${data.order.orderNumber} by ${client.name} ($${parseFloat(data.order.totalAmount).toFixed(2)}) — Item: ${randomItem.product_name} x${qty}.`);
+          loadDashboard();
+        } else {
+          alert('Order Simulation Failed: ' + (data.error || 'Server error'));
+        }
+      } catch (err) {
+        console.error('Simulation error:', err);
+        alert('Simulation Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🛍️</span> SIMULATE ORDER';
+      }
+    }
+
+    // 7. Action Button 4: Export Executive CSV
+    async function exportExecutiveCSV() {
+      try {
+        Admin.toast('Compiling Executive Intelligence Report...');
+        const [ovRes, ordRes, invRes] = await Promise.all([
+          Auth.apiFetch('/api/admin/overview'),
+          Auth.apiFetch('/api/admin/orders?limit=100'),
+          Auth.apiFetch('/api/admin/inventory')
+        ]);
+
+        const ov = (await ovRes.json()).metrics || {};
+        const orders = (await ordRes.json()).orders || [];
+        const inventory = (await invRes.json()).inventory || [];
+
+        let csv = "LUMIÈRE ATELIER — EXECUTIVE OWNER PERFORMANCE REPORT\n";
+        csv += `Generated At,${new Date().toISOString()}\n\n`;
+
+        csv += "EXECUTIVE METRICS\n";
+        csv += `Total Revenue,$${ov.totalRevenue || 0}\n`;
+        csv += `Total Orders,${ov.totalOrders || 0}\n`;
+        csv += `Today Orders,${ov.todayOrders || 0}\n`;
+        csv += `Today Revenue,$${ov.todayRevenue || 0}\n`;
+        csv += `Total Registered Clients,${ov.totalCustomers || 0}\n`;
+        csv += `Active Products In Catalog,${ov.totalProducts || 0}\n`;
+        csv += `Low Stock Alerts,${ov.lowStockCount || 0}\n`;
+        csv += `Out of Stock Alerts,${ov.outOfStockCount || 0}\n\n`;
+
+        csv += "RECENT ORDERS AUDIT\n";
+        csv += "Order Number,Client Name,Client Email,Total Amount,Status,Created Date\n";
+        orders.forEach(o => {
+          csv += `"${o.order_number}","${o.customer_name}","${o.customer_email}",$${parseFloat(o.total_amount).toFixed(2)},"${o.status}","${new Date(o.created_at).toLocaleString()}"\n`;
+        });
+        csv += "\n";
+
+        csv += "INVENTORY & VAULT RESERVE STATUS\n";
+        csv += "SKU,Product Name,Current Stock,Reserved,Available,Threshold,Status\n";
+        inventory.forEach(i => {
+          const st = i.available_quantity <= 0 ? "OUT_OF_STOCK" : (i.available_quantity <= i.low_stock_threshold ? "LOW_STOCK" : "HEALTHY");
+          csv += `"${i.sku}","${i.product_name}",${i.stock_quantity},${i.reserved_quantity},${i.available_quantity},${i.low_stock_threshold},"${st}"\n`;
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Lumiere_Executive_Report_${new Date().toISOString().split('T')[0]}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        Admin.toast('Executive CSV Report downloaded successfully.');
+        addActivity('Owner exported Executive Performance & Orders CSV report.');
+      } catch (err) {
+        alert('CSV Export Failed: ' + err.message);
+      }
+    }
+
+    // 8. Action Button 5: Audit Ledger Modal
+    async function openAuditModal() {
+      Admin.openModal('auditModal');
+      const body = document.getElementById('auditLogsBody');
+      body.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(250,247,242,0.5);">Querying verified cryptographic audit ledger...</td></tr>';
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/audit-logs?limit=50');
+        const data = await res.json();
+        if (data.success && data.logs && data.logs.length > 0) {
+          body.innerHTML = data.logs.map(l => {
+            let detailStr = '';
+            try {
+              detailStr = typeof l.details === 'object' ? JSON.stringify(l.details) : (l.details_json || l.details || '-');
+            } catch {
+              detailStr = '-';
+            }
+            return `
+              <tr>
+                <td><strong style="color: var(--color-gold); font-size: 0.78rem;">${l.action}</strong></td>
+                <td><span class="badge badge-owner" style="font-size: 0.65rem;">${l.entity_type || 'system'} #${l.entity_id || '-'}</span></td>
+                <td style="font-size: 0.74rem; color: rgba(250,247,242,0.7); max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${detailStr}</td>
+                <td style="font-size: 0.7rem; color: rgba(250,247,242,0.5); font-family: monospace;">${new Date(l.created_at).toLocaleString()}</td>
+              </tr>
+            `;
+          }).join('');
+        } else {
+          body.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(250,247,242,0.5);">No recent audit ledger events recorded.</td></tr>';
+        }
+      } catch (err) {
+        body.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #e74c3c;">Failed to load audit logs: ${err.message}</td></tr>`;
+      }
+    }
+
+    // 9. 1-Click Restock All Low Stock Items
+    async function restockAllLowStock() {
+      const btn = document.getElementById('btnRestockAll');
+      btn.disabled = true;
+      btn.innerText = 'Restocking All...';
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory');
+        const data = await res.json();
+        if (!data.success || !data.inventory) throw new Error('Could not fetch inventory');
+
+        const needRestock = data.inventory.filter(i => (i.stock_quantity - i.reserved_quantity) <= i.low_stock_threshold);
+        if (needRestock.length === 0) {
+          Admin.toast('All products are currently above safe reserve threshold!');
+          btn.disabled = false;
+          btn.innerText = '⚡ 1-CLICK RESTOCK ALL (+25 UNITS)';
+          return;
+        }
+
+        let updatedCount = 0;
+        for (const item of needRestock) {
+          await Auth.apiFetch('/api/admin/inventory/adjust', {
+            method: 'POST',
+            body: JSON.stringify({
+              inventoryId: item.inventory_id,
+              quantityDelta: 25,
+              transactionType: 'STOCK_RECEIVED',
+              reason: 'Executive 1-Click Vault Replenishment (+25 units)',
+            })
+          });
+          updatedCount++;
+        }
+
+        Admin.toast(`Replenished +25 units for all ${updatedCount} low-stock items!`);
+        addActivity(`⚡ Executive 1-Click Restock: Replenished +25 units across ${updatedCount} low-stock catalog items.`);
+        loadDashboard();
+      } catch (err) {
+        alert('Restock failed: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '⚡ 1-CLICK RESTOCK ALL (+25 UNITS)';
+      }
+    }
+
+    // 10. In-Line Order Status Updater
+    async function inlineUpdateOrderStatus(orderId, newStatus, orderNumber) {
+      try {
+        const res = await Auth.apiFetch(`/api/admin/orders/${orderId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(`Order #${orderNumber} status updated to ${newStatus}.`);
+          addActivity(`✦ Order Status Dispatched: #${orderNumber} &rarr; ${newStatus}.`);
+          loadDashboard();
+        } else {
+          alert('Update failed: ' + (data.error || 'Unknown error'));
+          loadDashboard(); // revert UI
+        }
+      } catch (err) {
+        alert('Network Error: ' + err.message);
+        loadDashboard();
+      }
+    }
+
+    // 11. Order Dispatch & Detail Modal
+    let currentDispatchOrder = null;
+
+    async function openOrderDispatchModal(orderId) {
+      Admin.openModal('orderDispatchModal');
+      const content = document.getElementById('dispatchModalContent');
+      content.innerHTML = '<p style="color: rgba(250,247,242,0.5);">Loading order details & customer profile...</p>';
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/orders/${orderId}`);
+        const data = await res.json();
+        if (data.success && data.order) {
+          currentDispatchOrder = data.order;
+          const o = data.order;
+          document.getElementById('dispatchOrderId').value = o.id;
+          document.getElementById('dispatchModalTitle').innerText = `Order #${o.order_number} — Atelier Dispatch`;
+          document.getElementById('dispatchStatusSelect').value = o.status;
+          document.getElementById('dispatchTrackingInput').value = o.tracking_number || '';
+          document.getElementById('dispatchNotesInput').value = o.notes || '';
+
+          const addr = o.shippingAddress || {};
+          const addrStr = [addr.street, addr.city, addr.state, addr.postalCode, addr.country].filter(Boolean).join(', ') || addr.text || 'Standard Atelier Address';
+
+          content.innerHTML = `
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.25rem;">
+              <div>
+                <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--color-gold); letter-spacing: 0.1em; margin-bottom: 0.35rem;">Client Details</div>
+                <div style="font-size: 0.95rem; font-weight: 500; color: #fff;">${o.customer_name}</div>
+                <div style="font-size: 0.75rem; color: rgba(250,247,242,0.6);">${o.customer_email}</div>
+                <div style="font-size: 0.72rem; color: rgba(250,247,242,0.45); margin-top: 0.2rem;">Order Placed: ${new Date(o.created_at).toLocaleString()}</div>
+              </div>
+              <div>
+                <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--color-gold); letter-spacing: 0.1em; margin-bottom: 0.35rem;">White-Glove Delivery Address</div>
+                <div style="font-size: 0.8rem; color: rgba(250,247,242,0.85); line-height: 1.4;">${addrStr}</div>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <div style="font-size: 0.7rem; text-transform: uppercase; color: var(--color-gold); letter-spacing: 0.1em; margin-bottom: 0.6rem;">Items Enclosed (${o.items ? o.items.length : 0})</div>
+              <div style="background: rgba(0,0,0,0.25); border: 1px solid var(--admin-border); border-radius: 4px; padding: 0.75rem;">
+                ${(o.items || []).map(item => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.78rem;">
+                    <div>
+                      <strong style="color: #fff;">${item.product_name || item.name || 'Atelier Formula'}</strong>
+                      <span style="color: rgba(250,247,242,0.5); font-size: 0.72rem; margin-left: 0.4rem;">&times; ${item.quantity}</span>
+                    </div>
+                    <div style="color: var(--color-gold); font-weight: 500;">$${parseFloat(item.unit_price * item.quantity).toFixed(2)}</div>
+                  </div>
+                `).join('')}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; font-weight: 600; font-size: 0.85rem;">
+                  <span>Total Settled Amount</span>
+                  <span style="color: var(--color-gold); font-size: 1rem;">$${parseFloat(o.total_amount).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }
+      } catch (err) {
+        content.innerHTML = `<p style="color: #e74c3c;">Failed to load order: ${err.message}</p>`;
+      }
+    }
+
+    async function submitOrderDispatch(e) {
+      e.preventDefault();
+      const orderId = document.getElementById('dispatchOrderId').value;
+      const status = document.getElementById('dispatchStatusSelect').value;
+      const trackingNumber = document.getElementById('dispatchTrackingInput').value.trim();
+      const notes = document.getElementById('dispatchNotesInput').value.trim();
+
+      const btn = document.getElementById('btnSaveDispatch');
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/orders/${orderId}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status, trackingNumber, notes })
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.closeModal('orderDispatchModal');
+          Admin.toast(`Dispatch updated for Order #${currentDispatchOrder ? currentDispatchOrder.order_number : orderId}!`);
+          addActivity(`🚚 Dispatch Updated: Order #${currentDispatchOrder ? currentDispatchOrder.order_number : orderId} marked as ${status}${trackingNumber ? ` (Tracking: ${trackingNumber})` : ''}.`);
+          loadDashboard();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to update order status.'));
+        }
+      } catch (err) {
+        alert('Network Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save Dispatch Update';
+      }
+    }
+
+    function closeAllModals() {
+      ['createProductModal', 'quickStockModal', 'orderDispatchModal', 'auditModal'].forEach(id => {
+        Admin.closeModal(id);
+      });
+    }
+
+    // Initialize Telemetry Engine upon DOM Load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadDashboard();
+      startRealTimeLoop();
+    });
   </script>
 </body>
 </html>
+
