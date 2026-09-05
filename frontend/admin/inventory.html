@@ -148,8 +148,15 @@
     }
 
     async function loadInventory() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlFilter = urlParams.get('filter');
+      const stockSelect = document.getElementById('stockFilter');
+      if (urlFilter && stockSelect && !stockSelect.dataset.userChanged) {
+        stockSelect.value = urlFilter;
+      }
+
       const search = document.getElementById('inventorySearch').value.trim();
-      const filter = document.getElementById('stockFilter').value;
+      const filter = stockSelect ? stockSelect.value : 'all';
 
       try {
         const q = new URLSearchParams();

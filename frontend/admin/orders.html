@@ -92,8 +92,15 @@
     }
 
     async function loadOrders() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlStatus = urlParams.get('status');
+      const statusSelect = document.getElementById('statusFilter');
+      if (urlStatus && statusSelect && !statusSelect.dataset.userChanged) {
+        statusSelect.value = urlStatus;
+      }
+
       const search = document.getElementById('orderSearch').value.trim();
-      const status = document.getElementById('statusFilter').value;
+      const status = statusSelect ? statusSelect.value : 'all';
 
       try {
         const q = new URLSearchParams();
