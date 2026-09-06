@@ -226,9 +226,11 @@
           <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Category</label>
           <select id="newProdCategory" class="admin-select" style="width: 100%;">
             <option value="1">Skincare</option>
-            <option value="2">Fragrance</option>
-            <option value="3">Body Care</option>
-            <option value="4">Bespoke Sets</option>
+            <option value="2">Makeup</option>
+            <option value="3">Fragrance</option>
+            <option value="6">Hair Care</option>
+            <option value="4">Bath &amp; Body</option>
+            <option value="5">Sets &amp; Gifts</option>
           </select>
         </div>
         <div>
@@ -624,6 +626,14 @@
     async function openCreateProductModal() {
       document.getElementById('createProductForm').reset();
       generateSku();
+      try {
+        const res = await Auth.apiFetch('/api/admin/products?limit=1');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.categories) && data.categories.length > 0) {
+          const sel = document.getElementById('newProdCategory');
+          sel.innerHTML = data.categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+      } catch (e) {}
       Admin.openModal('createProductModal');
     }
 

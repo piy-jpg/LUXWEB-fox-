@@ -9,7 +9,7 @@ async function logAudit({ req, userId, userEmail, userRole, action, entityType, 
     const effectiveUserId = userId || (req && req.user ? req.user.id : null);
     const effectiveEmail = userEmail || (req && req.user ? req.user.email : null);
     const effectiveRole = userRole || (req && req.user && req.user.roles ? req.user.roles[0] : 'SYSTEM');
-    const ipAddress = req ? (req.headers['x-forwarded-for'] || req.socket.remoteAddress || null) : null;
+    const ipAddress = req && req.headers ? (req.headers['x-forwarded-for'] || (req.socket ? req.socket.remoteAddress : null) || null) : null;
     const detailsJson = typeof details === 'object' ? JSON.stringify(details) : (details || null);
 
     await db.run(

@@ -918,3 +918,10 @@ body {
   color: var(--color-gold);
   background: rgba(201, 169, 110, 0.1);
 }
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+

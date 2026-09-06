@@ -142,12 +142,15 @@
     let inventoryItems = [];
     let invSearchTimeout = null;
 
+    let lastInvFingerprint = '';
+    let realTimeInvTimer = null;
+
     function debounceInvSearch() {
       clearTimeout(invSearchTimeout);
-      invSearchTimeout = setTimeout(loadInventory, 300);
+      invSearchTimeout = setTimeout(() => loadInventory(false), 300);
     }
 
-    async function loadInventory() {
+    async function loadInventory(isSilent = false) {
       const urlParams = new URLSearchParams(window.location.search);
       const urlFilter = urlParams.get('filter');
       const stockSelect = document.getElementById('stockFilter');
@@ -167,13 +170,23 @@
         const data = await res.json();
 
         if (data.success) {
-          inventoryItems = data.inventory;
+          const items = data.inventory || [];
+          const fingerprint = `${items.length}_${items.map(i => `${i.inventory_id}:${i.stock_quantity}:${i.reserved_quantity}`).join(';')}`;
+
+          if (isSilent && fingerprint === lastInvFingerprint) {
+            return;
+          }
+          lastInvFingerprint = fingerprint;
+          inventoryItems = items;
+
           const tbody = document.getElementById('inventoryTableBody');
 
           if (inventoryItems.length === 0) {
             tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: rgba(250,247,242,0.5);">No inventory records matched your query.</td></tr>';
             return;
           }
+
+          const canAdjust = Auth.hasPermission('inventory.adjust');
 
           tbody.innerHTML = inventoryItems.map(item => {
             let statusBadge = '<span class="badge badge-active">In Stock</span>';
@@ -182,6 +195,10 @@
             } else if (item.is_low_stock) {
               statusBadge = '<span class="badge badge-low-stock">Low Stock</span>';
             }
+
+            const adjBtn = canAdjust
+              ? `<button onclick="openAdjustModal(${item.inventory_id})" class="btn-gold" style="padding: 0.35rem 0.65rem; font-size: 0.68rem; margin-right: 0.35rem;">Adjust &plusmn;</button>`
+              : `<button disabled class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.68rem; margin-right: 0.35rem; opacity: 0.35; cursor: not-allowed;" title="Requires inventory.adjust role">Adjust &plusmn;</button>`;
 
             return `
               <tr>
@@ -200,7 +217,7 @@
                 <td style="color: rgba(250,247,242,0.5);">${item.low_stock_threshold}</td>
                 <td>${statusBadge}</td>
                 <td style="text-align: right;">
-                  <button onclick="openAdjustModal(${item.inventory_id})" class="btn-gold" style="padding: 0.35rem 0.65rem; font-size: 0.68rem; margin-right: 0.35rem;">Adjust &plusmn;</button>
+                  ${adjBtn}
                   <button onclick="openHistoryModal(${item.inventory_id}, '${item.product_name.replace(/'/g, "\\'")}')" class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.68rem;">History</button>
                 </td>
               </tr>
@@ -213,6 +230,10 @@
     }
 
     function openAdjustModal(invId) {
+      if (!Auth.hasPermission('inventory.adjust')) {
+        Admin.toast('⚠️ Stock adjustments are reserved for Inventory Staff, Managers, and Owners.');
+        return;
+      }
       const item = inventoryItems.find(i => i.inventory_id === invId);
       if (!item) return;
 
@@ -289,7 +310,20 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', loadInventory);
+    document.addEventListener('DOMContentLoaded', () => {
+      loadInventory(false);
+      if (realTimeInvTimer) clearInterval(realTimeInvTimer);
+      realTimeInvTimer = setInterval(() => {
+        const activeEl = document.activeElement;
+        const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+        const modalOpen = (document.getElementById('adjustModal') && document.getElementById('adjustModal').classList.contains('open')) ||
+                          (document.getElementById('historyModal') && document.getElementById('historyModal').classList.contains('open'));
+        if (!isTyping && !modalOpen) {
+          loadInventory(true);
+        }
+      }, 5000);
+      window.addEventListener('focus', () => loadInventory(true));
+    });
   </script>
 </body>
 </html>

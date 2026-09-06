@@ -24,19 +24,24 @@
       <!-- Page Header & Quick Actions -->
       <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.25rem; flex-wrap: wrap;">
             <span style="font-size: 0.72rem; letter-spacing: 0.14em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Executive Catalog Management</span>
             <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
             <span id="headerProdCountBadge" class="badge badge-owner" style="font-size: 0.65rem;">Loading Catalog...</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.68rem; color: #7bed9f;">
+              <span class="live-dot" id="liveCatalogPulse"></span>
+              <span id="liveSyncStatusText">LIVE REAL-TIME SYNC (5s)</span>
+            </div>
           </div>
           <h1 style="font-family: var(--font-serif); font-size: 2.3rem; font-weight: 300; margin: 0; color: #FAF7F2;">Atelier Product Registration & Catalog</h1>
         </div>
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-          <button onclick="switchTab('tabRegister')" class="btn-owner-action btn-owner-gold" style="font-size: 0.72rem;">
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+          <button id="btnTopRegisterProduct" onclick="switchTab('tabRegister')" class="btn-owner-action btn-owner-gold" style="font-size: 0.72rem;">
             <span>+</span> REGISTER NEW PRODUCT
           </button>
-          <button onclick="loadProducts()" class="btn-outline" style="font-size: 0.72rem; padding: 0.55rem 0.9rem;" title="Refresh Catalog">
-            ⟳ SYNC
+          <button id="btnManualSync" onclick="manualSyncCatalog()" class="btn-outline" style="font-size: 0.72rem; padding: 0.55rem 0.9rem;" title="Immediate Real-Time Database Sync">
+            <span id="syncSpinIcon" style="display: inline-block;">⟳</span> SYNC NOW
           </button>
         </div>
       </div>
@@ -488,8 +493,40 @@
     let collectionsList = [];
     let searchTimeout = null;
 
-    // 1. Tab Switching Engine
+    let lastProductsFingerprint = '';
+    let realTimeProductsTimer = null;
+
+    // 1. Role Enforcement for UI Controls
+    function enforceRoleUI() {
+      const canCreate = Auth.hasPermission('products.create');
+      const regTopBtn = document.getElementById('btnTopRegisterProduct');
+      const tabRegBtn = document.getElementById('tabBtnRegister');
+
+      if (regTopBtn) {
+        if (!canCreate) {
+          regTopBtn.disabled = true;
+          regTopBtn.style.opacity = '0.4';
+          regTopBtn.style.cursor = 'not-allowed';
+          regTopBtn.title = 'Product registration restricted to Owner / Manager';
+        } else {
+          regTopBtn.disabled = false;
+          regTopBtn.style.opacity = '1';
+          regTopBtn.style.cursor = 'pointer';
+        }
+      }
+
+      if (tabRegBtn && !canCreate) {
+        tabRegBtn.title = 'Requires Owner or Manager role';
+      }
+    }
+
+    // 2. Tab Switching Engine (Role Protected)
     function switchTab(tabId) {
+      if (tabId === 'tabRegister' && !Auth.hasPermission('products.create')) {
+        Admin.toast('⚠️ Product registration is restricted to Atelier Owners and Managers.');
+        return;
+      }
+
       document.querySelectorAll('.tab-pane').forEach(el => el.style.display = 'none');
       document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
 
@@ -511,39 +548,77 @@
       }
     }
 
-    // 2. Load Products & Initialize Catalog
+    // 3. Load Products & Initialize Catalog (Real-Time & Role Aware)
     function debounceProductSearch() {
       clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(loadProducts, 250);
+      searchTimeout = setTimeout(() => loadProducts(false), 250);
     }
 
-    async function loadProducts() {
-      const search = document.getElementById('productSearchInput').value.trim();
-      const category = document.getElementById('categoryFilter').value;
-      const status = document.getElementById('statusFilter').value;
+    async function loadProducts(isSilent = false) {
+      const search = document.getElementById('productSearchInput') ? document.getElementById('productSearchInput').value.trim() : '';
+      const category = document.getElementById('categoryFilter') ? document.getElementById('categoryFilter').value : '';
+      const status = document.getElementById('statusFilter') ? document.getElementById('statusFilter').value : '';
 
       try {
         const queryParams = new URLSearchParams();
         if (search) queryParams.append('search', search);
         if (category) queryParams.append('category', category);
         if (status) queryParams.append('status', status);
-        queryParams.append('limit', '100');
+        queryParams.append('limit', '500'); // Load all registered boutique products
 
         const res = await Auth.apiFetch(`/api/admin/products?${queryParams.toString()}`);
         const data = await res.json();
 
         if (data.success) {
-          productsList = data.products || [];
+          const newProducts = data.products || [];
+          const fingerprint = `${newProducts.length}_${newProducts.map(p => `${p.id}:${p.stock_quantity}:${p.status}`).join(';')}`;
+
+          if (isSilent && fingerprint === lastProductsFingerprint) {
+            return; // Skip DOM churn if nothing changed
+          }
+          lastProductsFingerprint = fingerprint;
+
+          productsList = newProducts;
           categoriesList = data.categories || [];
           collectionsList = data.collections || [];
 
           populateTaxonomySelects();
           updateExecutiveMetricCards();
           applySortAndRender();
+
+          // Flash live indicator dot
+          const pulse = document.getElementById('liveCatalogPulse');
+          if (pulse) {
+            pulse.style.transform = 'scale(1.4)';
+            setTimeout(() => { if (pulse) pulse.style.transform = ''; }, 300);
+          }
         }
       } catch (err) {
         console.error('Products load error:', err);
       }
+    }
+
+    async function manualSyncCatalog() {
+      const spin = document.getElementById('syncSpinIcon');
+      if (spin) spin.style.animation = 'spin 0.6s linear infinite';
+      await loadProducts(false);
+      Admin.toast('✦ Product catalog synchronized in real time.');
+      setTimeout(() => {
+        if (spin) spin.style.animation = '';
+      }, 500);
+    }
+
+    function startProductsRealTimeSync() {
+      if (realTimeProductsTimer) clearInterval(realTimeProductsTimer);
+      realTimeProductsTimer = setInterval(() => {
+        const activeEl = document.activeElement;
+        const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+        const modalOpen = document.getElementById('productModal') && document.getElementById('productModal').classList.contains('open');
+        const tabAllActive = document.getElementById('tabBtnAll') && document.getElementById('tabBtnAll').classList.contains('active');
+        if (!isTyping && !modalOpen && tabAllActive) {
+          loadProducts(true);
+        }
+      }, 5000);
     }
 
     function populateTaxonomySelects() {
@@ -640,6 +715,10 @@
         return;
       }
 
+      const canEdit = Auth.hasPermission('products.edit');
+      const canArchive = Auth.hasPermission('products.delete');
+      const canRestock = Auth.hasPermission('inventory.adjust');
+
       tbody.innerHTML = items.map(p => {
         const avail = p.available_quantity !== undefined ? p.available_quantity : p.stock_quantity;
         const thresh = p.low_stock_threshold || 5;
@@ -652,11 +731,23 @@
           stockBadgeHtml = `<span style="color: #7bed9f; font-weight: 600; font-size: 0.8rem;">${avail} units</span>`;
         }
 
+        const restockBtn = canRestock
+          ? `<button onclick="quickRestockItem(${p.id}, '${escapeJs(p.name)}', ${p.inventory_id || 'null'})" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem; color: #2ecc71; border-color: rgba(46,204,113,0.3);" title="Quick Restock +25 Units in Real Time">+25</button>`
+          : `<button disabled class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem; opacity: 0.35; cursor: not-allowed;" title="Restocking requires inventory.adjust role">+25</button>`;
+
+        const editBtn = canEdit
+          ? `<button onclick="openEditProductModal(${p.id})" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem;" title="Edit Product Details">Edit</button>`
+          : `<button disabled class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem; opacity: 0.35; cursor: not-allowed;" title="Product editing requires Manager or Owner role">Edit</button>`;
+
+        const archiveBtn = canArchive
+          ? `<button onclick="archiveProduct(${p.id})" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; color: #FF708F; border-color: rgba(255,112,143,0.3);" title="Archive Product from Catalog">Archive</button>`
+          : `<button disabled class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; color: rgba(255,112,143,0.4); border-color: rgba(255,112,143,0.15); opacity: 0.35; cursor: not-allowed;" title="Archiving requires Manager or Owner role">Archive</button>`;
+
         return `
           <tr>
             <td>
               <div style="display: flex; align-items: center; gap: 0.85rem;">
-                <img src="../${p.primary_image || 'images/skincare_products_1788328338930.jpg'}" alt="${p.name}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 3px; border: 1px solid var(--admin-border);" onerror="this.src='../images/skincare_products_1788328338930.jpg'" />
+                <img src="../${p.primary_image || 'images/skincare_products_1788328338930.jpg'}" alt="${escapeJs(p.name)}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 3px; border: 1px solid var(--admin-border);" onerror="this.src='../images/skincare_products_1788328338930.jpg'" />
                 <div style="min-width: 0;">
                   <div style="font-weight: 600; font-size: 0.85rem; color: #FAF7F2;">${p.name}</div>
                   <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5); display: flex; gap: 0.5rem; align-items: center; margin-top: 0.15rem;">
@@ -679,16 +770,10 @@
             <td>
               <span class="badge badge-${p.status}">${p.status}</span>
             </td>
-            <td style="text-align: right;">
-              <button onclick="quickRestockItem(${p.id}, '${escapeJs(p.name)}')" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem; color: #2ecc71; border-color: rgba(46,204,113,0.3);" title="Restock +25 Units">
-                +25
-              </button>
-              <button onclick="openEditProductModal(${p.id})" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem;">
-                Edit
-              </button>
-              <button onclick="archiveProduct(${p.id})" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; color: #FF708F; border-color: rgba(255,112,143,0.3);">
-                Archive
-              </button>
+            <td style="text-align: right; white-space: nowrap;">
+              ${restockBtn}
+              ${editBtn}
+              ${archiveBtn}
             </td>
           </tr>
         `;
@@ -746,6 +831,10 @@
 
     async function handleRegisterNewProduct(e) {
       e.preventDefault();
+      if (!Auth.hasPermission('products.create')) {
+        Admin.toast('⚠️ Product registration is reserved for Atelier Owners and Managers.');
+        return;
+      }
       const btn = document.getElementById('btnSubmitRegister');
       btn.disabled = true;
       btn.innerHTML = '<span>⏳</span> REGISTERING IN ATELIER DATABASE...';
@@ -799,7 +888,7 @@
           
           // Switch to All Products tab and reload
           switchTab('tabAll');
-          await loadProducts();
+          await loadProducts(false);
         } else {
           alert('Registration Error: ' + (data.error || 'Failed to register product.'));
         }
@@ -813,6 +902,10 @@
 
     // 4. Edit Product Modal Handlers
     function openEditProductModal(id) {
+      if (!Auth.hasPermission('products.edit')) {
+        Admin.toast('⚠️ Product modification is reserved for Atelier Owners and Managers.');
+        return;
+      }
       const p = productsList.find(item => item.id === id);
       if (!p) return;
 
@@ -836,6 +929,10 @@
 
     async function handleSaveEditProduct(e) {
       e.preventDefault();
+      if (!Auth.hasPermission('products.edit')) {
+        Admin.toast('⚠️ Product modification is reserved for Atelier Owners and Managers.');
+        return;
+      }
       const editId = document.getElementById('editProductId').value;
       const btn = document.getElementById('btnUpdateProduct');
       btn.disabled = true;
@@ -867,7 +964,7 @@
         if (data.success) {
           Admin.closeModal('productModal');
           Admin.toast(data.message || 'Product updated successfully.');
-          loadProducts();
+          await loadProducts(false);
         } else {
           alert('Error: ' + (data.error || 'Failed to update product.'));
         }
@@ -879,35 +976,29 @@
       }
     }
 
-    async function quickRestockItem(productId, productName) {
-      try {
-        // Fetch inventory id for product
-        const invRes = await Auth.apiFetch(`/api/admin/inventory?search=${encodeURIComponent(productName)}`);
-        const invData = await invRes.json();
-        let invId = null;
-        if (invData.success && invData.inventory) {
-          const match = invData.inventory.find(i => i.product_id === productId);
-          if (match) invId = match.inventory_id;
-        }
+    async function quickRestockItem(productId, productName, invId) {
+      if (!Auth.hasPermission('inventory.adjust')) {
+        Admin.toast('⚠️ Restock privilege is reserved for Inventory Staff, Managers, and Owners.');
+        return;
+      }
 
-        if (!invId) {
-          alert('Inventory record not found for product #' + productId);
-          return;
-        }
+      try {
+        const payload = {
+          productId: productId,
+          quantityDelta: 25,
+          transactionType: 'STOCK_RECEIVED',
+          reason: `Quick Catalog Restock (+25 units) by ${Auth.getUser() ? (Auth.getUser().firstName || Auth.getUser().email) : 'Staff'}`
+        };
+        if (invId) payload.inventoryId = invId;
 
         const res = await Auth.apiFetch('/api/admin/inventory/adjust', {
           method: 'POST',
-          body: JSON.stringify({
-            inventoryId: invId,
-            quantityDelta: 25,
-            transactionType: 'STOCK_RECEIVED',
-            reason: 'Quick Catalog Restock (+25 units)',
-          })
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         if (data.success) {
-          Admin.toast(`Restocked +25 units for "${productName}"!`);
-          loadProducts();
+          Admin.toast(`✦ Restocked +25 units for "${productName}"!`);
+          await loadProducts(false);
         } else {
           alert('Error: ' + (data.error || 'Restock failed'));
         }
@@ -917,13 +1008,17 @@
     }
 
     async function archiveProduct(id) {
+      if (!Auth.hasPermission('products.delete')) {
+        Admin.toast('⚠️ Archiving products is reserved for Atelier Managers and Owners.');
+        return;
+      }
       if (!confirm('Are you sure you want to archive this product? It will no longer appear in the boutique storefront.')) return;
       try {
         const res = await Auth.apiFetch(`/api/admin/products/${id}`, { method: 'DELETE' });
         const data = await res.json();
         if (data.success) {
           Admin.toast(data.message || 'Product archived.');
-          loadProducts();
+          await loadProducts(false);
         } else {
           alert('Error: ' + data.error);
         }
@@ -955,6 +1050,10 @@
 
     async function handleCreateCategory(e) {
       e.preventDefault();
+      if (!Auth.hasPermission('products.create')) {
+        Admin.toast('⚠️ Category creation is reserved for Atelier Managers and Owners.');
+        return;
+      }
       const btn = document.getElementById('btnSubmitCategory');
       const name = document.getElementById('newCatName').value.trim();
       const desc = document.getElementById('newCatDesc').value.trim();
@@ -969,10 +1068,10 @@
         });
         const data = await res.json();
         if (data.success) {
-          Admin.toast(`Category "${name}" created!`);
+          Admin.toast(`✦ Category "${name}" created!`);
           document.getElementById('newCatName').value = '';
           document.getElementById('newCatDesc').value = '';
-          await loadProducts();
+          await loadProducts(false);
           renderCategoriesTab();
         } else {
           alert('Error: ' + (data.error || 'Failed to create category'));
@@ -986,6 +1085,10 @@
     }
 
     function quickPromptNewCategory() {
+      if (!Auth.hasPermission('products.create')) {
+        Admin.toast('⚠️ Category creation is reserved for Atelier Managers and Owners.');
+        return;
+      }
       const name = prompt('Enter new Category Name (e.g. "Body Bronzing"):');
       if (!name) return;
       Auth.apiFetch('/api/admin/categories', {
@@ -993,8 +1096,8 @@
         body: JSON.stringify({ name: name.trim() })
       }).then(r => r.json()).then(data => {
         if (data.success) {
-          Admin.toast(`Category "${name}" added!`);
-          loadProducts().then(() => {
+          Admin.toast(`✦ Category "${name}" added!`);
+          loadProducts(false).then(() => {
             document.getElementById('regCategory').value = data.categoryId;
           });
         } else {
@@ -1046,9 +1149,12 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      loadProducts().then(() => {
+      enforceRoleUI();
+      loadProducts(false).then(() => {
         handleInitialRoute();
+        startProductsRealTimeSync();
       });
+      window.addEventListener('focus', () => loadProducts(true));
     });
   </script>
 </body>

@@ -106,6 +106,7 @@ async function getProducts(req, res) {
         c.name as category_name,
         c.slug as category_slug,
         col.name as collection_name,
+        inv.id as inventory_id,
         inv.stock_quantity,
         inv.reserved_quantity,
         (inv.stock_quantity - inv.reserved_quantity) as available_quantity,
@@ -398,12 +399,25 @@ async function getInventoryHistory(req, res) {
 }
 
 async function adjustInventory(req, res) {
-  const { inventoryId, quantityDelta, transactionType, reason } = req.body;
+  let { inventoryId, productId, quantityDelta, transactionType, reason } = req.body;
+
+  if (!inventoryId && productId) {
+    const invRow = await db.get('SELECT id FROM inventory WHERE product_id = ?', [productId]);
+    if (invRow) {
+      inventoryId = invRow.id;
+    } else {
+      const newInv = await db.run(
+        'INSERT INTO inventory (product_id, stock_quantity, reserved_quantity, low_stock_threshold) VALUES (?, 0, 0, 5)',
+        [productId]
+      );
+      inventoryId = newInv.lastInsertRowid;
+    }
+  }
 
   if (!inventoryId || quantityDelta === undefined || !transactionType) {
     return res.status(400).json({
       success: false,
-      error: 'inventoryId, quantityDelta, and transactionType are required.',
+      error: 'inventoryId (or productId), quantityDelta, and transactionType are required.',
     });
   }
 

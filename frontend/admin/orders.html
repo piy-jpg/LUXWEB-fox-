@@ -85,13 +85,15 @@
   <script>
     let ordersList = [];
     let orderSearchTimeout = null;
+    let lastOrdersFingerprint = '';
+    let realTimeOrdersTimer = null;
 
     function debounceOrderSearch() {
       clearTimeout(orderSearchTimeout);
-      orderSearchTimeout = setTimeout(loadOrders, 300);
+      orderSearchTimeout = setTimeout(() => loadOrders(false), 300);
     }
 
-    async function loadOrders() {
+    async function loadOrders(isSilent = false) {
       const urlParams = new URLSearchParams(window.location.search);
       const urlStatus = urlParams.get('status');
       const statusSelect = document.getElementById('statusFilter');
@@ -111,7 +113,15 @@
         const data = await res.json();
 
         if (data.success) {
-          ordersList = data.orders;
+          const orders = data.orders || [];
+          const fingerprint = `${orders.length}_${orders.map(o => `${o.id}:${o.status}:${o.tracking_number}`).join(';')}`;
+
+          if (isSilent && fingerprint === lastOrdersFingerprint) {
+            return;
+          }
+          lastOrdersFingerprint = fingerprint;
+          ordersList = orders;
+
           const tbody = document.getElementById('ordersTableBody');
 
           if (ordersList.length === 0) {
@@ -119,16 +129,11 @@
             return;
           }
 
-          tbody.innerHTML = ordersList.map(o => `
-            <tr>
-              <td><strong style="color: #fff;">#${o.order_number}</strong></td>
-              <td>
-                <div style="font-weight: 500;">${o.customer_name}</div>
-                <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email}</div>
-              </td>
-              <td>${o.total_items || 1} item(s)</td>
-              <td style="color: var(--color-gold); font-weight: 600;">$${parseFloat(o.total_amount).toFixed(2)}</td>
-              <td>
+          const canUpdateOrder = Auth.hasPermission('orders.update');
+
+          tbody.innerHTML = ordersList.map(o => {
+            const statusSelectHtml = canUpdateOrder
+              ? `
                 <select class="admin-select" style="padding: 0.3rem 0.5rem; font-size: 0.72rem;" onchange="updateStatus(${o.id}, this.value)">
                   <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
                   <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
@@ -137,14 +142,29 @@
                   <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
                   <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
                 </select>
-              </td>
-              <td style="font-family: monospace; font-size: 0.72rem; color: rgba(250,247,242,0.7);">${o.tracking_number || '—'}</td>
-              <td style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">${new Date(o.created_at).toLocaleDateString()}</td>
-              <td style="text-align: right;">
-                <button onclick="openOrderModal(${o.id})" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.68rem;">View &rarr;</button>
-              </td>
-            </tr>
-          `).join('');
+              `
+              : `
+                <span class="badge badge-${o.status.toLowerCase()}">${o.status}</span>
+              `;
+
+            return `
+              <tr>
+                <td><strong style="color: #fff;">#${o.order_number}</strong></td>
+                <td>
+                  <div style="font-weight: 500;">${o.customer_name}</div>
+                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email}</div>
+                </td>
+                <td>${o.total_items || 1} item(s)</td>
+                <td style="color: var(--color-gold); font-weight: 600;">$${parseFloat(o.total_amount).toFixed(2)}</td>
+                <td>${statusSelectHtml}</td>
+                <td style="font-family: monospace; font-size: 0.72rem; color: rgba(250,247,242,0.7);">${o.tracking_number || '—'}</td>
+                <td style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">${new Date(o.created_at).toLocaleDateString()}</td>
+                <td style="text-align: right;">
+                  <button onclick="openOrderModal(${o.id})" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.68rem;">View &rarr;</button>
+                </td>
+              </tr>
+            `;
+          }).join('');
         }
       } catch (err) {
         console.error('Orders error:', err);
@@ -152,6 +172,10 @@
     }
 
     async function updateStatus(orderId, newStatus) {
+      if (!Auth.hasPermission('orders.update')) {
+        Admin.toast('⚠️ Order dispatch updates require Order Staff, Manager, or Owner role.');
+        return;
+      }
       try {
         const res = await Auth.apiFetch(`/api/admin/orders/${orderId}/status`, {
           method: 'PUT',
@@ -159,15 +183,15 @@
         });
         const data = await res.json();
         if (data.success) {
-          Admin.toast(data.message);
-          loadOrders();
+          Admin.toast(`✦ Order #${orderId} status updated to ${newStatus}`);
+          loadOrders(false);
         } else {
           alert(data.error || 'Failed to update order status');
-          loadOrders();
+          loadOrders(false);
         }
       } catch (err) {
         alert(err.message);
-        loadOrders();
+        loadOrders(false);
       }
     }
 
@@ -276,7 +300,19 @@
       }
     }
 
-    document.addEventListener('DOMContentLoaded', loadOrders);
+    document.addEventListener('DOMContentLoaded', () => {
+      loadOrders(false);
+      if (realTimeOrdersTimer) clearInterval(realTimeOrdersTimer);
+      realTimeOrdersTimer = setInterval(() => {
+        const activeEl = document.activeElement;
+        const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT');
+        const modalOpen = document.getElementById('orderModal') && document.getElementById('orderModal').classList.contains('open');
+        if (!isTyping && !modalOpen) {
+          loadOrders(true);
+        }
+      }, 5000);
+      window.addEventListener('focus', () => loadOrders(true));
+    });
   </script>
 </body>
 </html>

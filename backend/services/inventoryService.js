@@ -271,6 +271,12 @@ async function adjustStock({ inventoryId, quantityDelta, transactionType, reason
       [newStock, inventoryId]
     );
 
+    let validUserId = null;
+    if (userId) {
+      const userExists = await tx.get('SELECT id FROM users WHERE id = ?', [userId]);
+      if (userExists) validUserId = userExists.id;
+    }
+
     await tx.run(
       `INSERT INTO inventory_transactions 
        (inventory_id, transaction_type, quantity_delta, balance_after, reference_type, reference_id, reason, performed_by)
@@ -281,7 +287,7 @@ async function adjustStock({ inventoryId, quantityDelta, transactionType, reason
         quantityDelta,
         newStock,
         reason || `Manual adjustment: ${transactionType}`,
-        userId,
+        validUserId,
       ]
     );
 
