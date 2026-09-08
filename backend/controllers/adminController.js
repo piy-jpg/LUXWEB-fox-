@@ -1441,48 +1441,83 @@ async function updateOrderStatus(req, res) {
   }
 
   try {
-    const order = await db.get('SELECT * FROM orders WHERE id = ?', [id]);
+    let order = null;
+    try {
+      order = await db.get('SELECT * FROM orders WHERE id = ? OR order_number = ?', [id, id]);
+    } catch (_) {}
+
+    // Resilient fallback to order ledger
+    if (!order) {
+      const ledgerOrder = orderLedger.findOrder(id);
+      if (ledgerOrder) {
+        order = ledgerOrder;
+      }
+    }
+
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found.' });
     }
 
     const previousStatus = order.status;
 
-    // Handle inventory state transitions
+    // Handle inventory state transitions safely
     if (['Cancelled', 'Deleted'].includes(status) && !['Cancelled', 'Deleted'].includes(previousStatus)) {
       // Order cancelled or soft-deleted: restore inventory!
-      await inventoryService.cancelOrderInventory(order.id, req.user.id);
+      try {
+        await inventoryService.cancelOrderInventory(order.id, req.user ? req.user.id : null);
+      } catch (invErr) {
+        console.warn('[Admin.updateOrderStatus] Inventory cancellation notice:', invErr.message);
+      }
     } else if (['Cancelled', 'Deleted'].includes(previousStatus) && !['Cancelled', 'Deleted'].includes(status)) {
       // Order restored from Cancelled/Deleted: re-reserve inventory
       try {
         const orderItems = await db.query('SELECT product_id as productId, quantity FROM order_items WHERE order_id = ?', [order.id]);
-        await inventoryService.reserveStockForOrder(orderItems, order.order_number, req.user.id);
+        if (orderItems && orderItems.length > 0) {
+          await inventoryService.reserveStockForOrder(orderItems, order.order_number, req.user ? req.user.id : null);
+        }
       } catch (invErr) {
         console.warn('[Admin.updateOrderStatus] Inventory re-reservation notice:', invErr.message);
       }
     } else if (['Shipped', 'Delivered'].includes(status) && !['Shipped', 'Delivered'].includes(previousStatus)) {
       // Order fulfilled/delivered: finalize inventory deduction!
-      await inventoryService.completeOrderInventory(order.id, req.user.id);
+      try {
+        await inventoryService.completeOrderInventory(order.id, req.user ? req.user.id : null);
+      } catch (invErr) {
+        console.warn('[Admin.updateOrderStatus] Inventory completion notice:', invErr.message);
+      }
     }
 
-    await db.run(
-      `UPDATE orders 
-       SET status = ?, tracking_number = COALESCE(?, tracking_number), notes = COALESCE(?, notes), updated_at = CURRENT_TIMESTAMP
-       WHERE id = ?`,
-      [status, trackingNumber || null, notes || null, id]
-    );
+    // Update SQLite if db is accessible and record exists
+    try {
+      await db.run(
+        `UPDATE orders 
+         SET status = ?, tracking_number = COALESCE(?, tracking_number), notes = COALESCE(?, notes), updated_at = CURRENT_TIMESTAMP
+         WHERE id = ? OR order_number = ?`,
+        [status, trackingNumber || null, notes || null, order.id, order.order_number]
+      );
+    } catch (dbErr) {
+      console.warn('[Admin.updateOrderStatus] DB update notice:', dbErr.message);
+    }
+
+    // Update ledger (persists to memory + disk JSON)
+    const updatedLedgerOrder = orderLedger.updateOrderStatus(order.order_number || order.id || id, {
+      status,
+      trackingNumber,
+      notes
+    });
 
     logAudit({
       req,
       action: 'order.status_changed',
       entityType: 'order',
-      entityId: id,
-      details: { previousStatus, newStatus: status, trackingNumber },
+      entityId: String(order.id || id),
+      details: { previousStatus, newStatus: status, trackingNumber, orderNumber: order.order_number },
     });
 
     return res.json({
       success: true,
       message: `Order #${order.order_number} status updated to "${status}".`,
+      order: updatedLedgerOrder || { ...order, status, tracking_number: trackingNumber || order.tracking_number, notes: notes || order.notes }
     });
   } catch (err) {
     console.error('[Admin.updateOrderStatus] Error:', err);
@@ -1495,7 +1530,15 @@ async function deleteOrder(req, res) {
   const { permanent } = req.query;
 
   try {
-    const order = await db.get('SELECT * FROM orders WHERE id = ?', [id]);
+    let order = null;
+    try {
+      order = await db.get('SELECT * FROM orders WHERE id = ? OR order_number = ?', [id, id]);
+    } catch (_) {}
+
+    if (!order) {
+      order = orderLedger.findOrder(id);
+    }
+
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found.' });
     }
@@ -1509,16 +1552,24 @@ async function deleteOrder(req, res) {
       }
     }
 
-    if (permanent === 'true' || permanent === true) {
+    const isPermanent = (permanent === 'true' || permanent === true);
+
+    if (isPermanent) {
       // Permanent purge
-      await db.run('DELETE FROM order_items WHERE order_id = ?', [id]);
-      await db.run('DELETE FROM orders WHERE id = ?', [id]);
+      try {
+        await db.run('DELETE FROM order_items WHERE order_id = ?', [order.id]);
+        await db.run('DELETE FROM orders WHERE id = ? OR order_number = ?', [order.id, order.order_number]);
+      } catch (dbErr) {
+        console.warn('[Admin.deleteOrder] DB purge notice:', dbErr.message);
+      }
+
+      orderLedger.deleteOrder(order.order_number || order.id || id, true);
 
       logAudit({
         req,
         action: 'order.permanently_deleted',
         entityType: 'order',
-        entityId: id,
+        entityId: String(order.id || id),
         details: { orderNumber: order.order_number, totalAmount: order.total_amount },
       });
 
@@ -1529,16 +1580,22 @@ async function deleteOrder(req, res) {
       });
     } else {
       // Soft-delete to Deleted archive
-      await db.run(
-        `UPDATE orders SET status = 'Deleted', updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
-        [id]
-      );
+      try {
+        await db.run(
+          `UPDATE orders SET status = 'Deleted', updated_at = CURRENT_TIMESTAMP WHERE id = ? OR order_number = ?`,
+          [order.id, order.order_number]
+        );
+      } catch (dbErr) {
+        console.warn('[Admin.deleteOrder] DB soft-delete notice:', dbErr.message);
+      }
+
+      orderLedger.deleteOrder(order.order_number || order.id || id, false);
 
       logAudit({
         req,
         action: 'order.deleted',
         entityType: 'order',
-        entityId: id,
+        entityId: String(order.id || id),
         details: { orderNumber: order.order_number, totalAmount: order.total_amount, previousStatus: order.status },
       });
 
@@ -1559,7 +1616,15 @@ async function restoreOrder(req, res) {
   const { status = 'Confirmed' } = req.body;
 
   try {
-    const order = await db.get('SELECT * FROM orders WHERE id = ?', [id]);
+    let order = null;
+    try {
+      order = await db.get('SELECT * FROM orders WHERE id = ? OR order_number = ?', [id, id]);
+    } catch (_) {}
+
+    if (!order) {
+      order = orderLedger.findOrder(id);
+    }
+
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found.' });
     }
@@ -1570,21 +1635,29 @@ async function restoreOrder(req, res) {
     // Re-reserve inventory
     try {
       const items = await db.query('SELECT product_id as productId, quantity FROM order_items WHERE order_id = ?', [order.id]);
-      await inventoryService.reserveStockForOrder(items, order.order_number, req.user ? req.user.id : null);
+      if (items && items.length > 0) {
+        await inventoryService.reserveStockForOrder(items, order.order_number, req.user ? req.user.id : null);
+      }
     } catch (invErr) {
       console.warn('[Admin.restoreOrder] Inventory re-reservation notice:', invErr.message);
     }
 
-    await db.run(
-      `UPDATE orders SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?`,
-      [status, id]
-    );
+    try {
+      await db.run(
+        `UPDATE orders SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? OR order_number = ?`,
+        [status, order.id, order.order_number]
+      );
+    } catch (dbErr) {
+      console.warn('[Admin.restoreOrder] DB update notice:', dbErr.message);
+    }
+
+    const restoredOrder = orderLedger.restoreOrder(order.order_number || order.id || id, status);
 
     logAudit({
       req,
       action: 'order.restored',
       entityType: 'order',
-      entityId: id,
+      entityId: String(order.id || id),
       details: { orderNumber: order.order_number, restoredStatus: status },
     });
 
@@ -1592,6 +1665,7 @@ async function restoreOrder(req, res) {
       success: true,
       message: `Order #${order.order_number} successfully restored to "${status}".`,
       status,
+      order: restoredOrder || { ...order, status }
     });
   } catch (err) {
     console.error('[Admin.restoreOrder] Error:', err);
@@ -1693,15 +1767,35 @@ async function getCustomerDetails(req, res) {
       [customer.id, customer.email]
     );
 
-    for (const ord of orders) {
-      ord.items = await db.query(
-        `SELECT oi.*, COALESCE(oi.product_name, p.name) as product_title, img.image_url as product_image
-         FROM order_items oi
-         LEFT JOIN products p ON p.id = oi.product_id
-         LEFT JOIN product_images img ON img.product_id = oi.product_id AND img.is_primary = 1
-         WHERE oi.order_id = ?`,
-        [ord.id]
-      );
+    // Merge customer orders from ledger
+    const ledgerOrders = orderLedger.getCustomerOrders(customer.email || customer.id);
+    const orderMap = new Map();
+    (orders || []).forEach(o => {
+      const num = o.order_number || o.orderNumber;
+      if (num) orderMap.set(num, o);
+    });
+    ledgerOrders.forEach(lo => {
+      const num = lo.order_number || lo.orderNumber;
+      if (num && !orderMap.has(num)) {
+        orderMap.set(num, { ...lo, item_count: (lo.items && lo.items.length) || 1 });
+      }
+    });
+    const combinedOrders = Array.from(orderMap.values());
+    combinedOrders.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+    for (const ord of combinedOrders) {
+      if (!ord.items || ord.items.length === 0) {
+        try {
+          ord.items = await db.query(
+            `SELECT oi.*, COALESCE(oi.product_name, p.name) as product_title, img.image_url as product_image
+             FROM order_items oi
+             LEFT JOIN products p ON p.id = oi.product_id
+             LEFT JOIN product_images img ON img.product_id = oi.product_id AND img.is_primary = 1
+             WHERE oi.order_id = ?`,
+            [ord.id]
+          );
+        } catch (_) {}
+      }
     }
 
     const addresses = await db.query(
@@ -1711,7 +1805,7 @@ async function getCustomerDetails(req, res) {
 
     return res.json({
       success: true,
-      customer: { ...customer, orders, addresses },
+      customer: { ...customer, orders: combinedOrders, addresses },
     });
   } catch (err) {
     console.error('[Admin.getCustomerDetails] Error:', err);
@@ -1732,30 +1826,53 @@ async function getCustomerOrders(req, res) {
       return res.status(404).json({ success: false, error: 'Customer not found.' });
     }
 
-    const orders = await db.query(
-      `SELECT o.*, 
-              (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as item_count
-       FROM orders o 
-       WHERE o.customer_id = ? OR o.customer_email = ? 
-       ORDER BY o.created_at DESC`,
-      [customer.id, customer.email]
-    );
-
-    for (const ord of orders) {
-      ord.items = await db.query(
-        `SELECT oi.*, COALESCE(oi.product_name, p.name) as product_title, img.image_url as product_image
-         FROM order_items oi
-         LEFT JOIN products p ON p.id = oi.product_id
-         LEFT JOIN product_images img ON img.product_id = oi.product_id AND img.is_primary = 1
-         WHERE oi.order_id = ?`,
-        [ord.id]
+    let orders = [];
+    try {
+      orders = await db.query(
+        `SELECT o.*, 
+                (SELECT COUNT(*) FROM order_items WHERE order_id = o.id) as item_count
+         FROM orders o 
+         WHERE o.customer_id = ? OR o.customer_email = ? 
+         ORDER BY o.created_at DESC`,
+        [customer.id, customer.email]
       );
+    } catch (_) {}
+
+    // Merge customer orders from ledger
+    const ledgerOrders = orderLedger.getCustomerOrders(customer.email || customer.id);
+    const orderMap = new Map();
+    (orders || []).forEach(o => {
+      const num = o.order_number || o.orderNumber;
+      if (num) orderMap.set(num, o);
+    });
+    ledgerOrders.forEach(lo => {
+      const num = lo.order_number || lo.orderNumber;
+      if (num && !orderMap.has(num)) {
+        orderMap.set(num, { ...lo, item_count: (lo.items && lo.items.length) || 1 });
+      }
+    });
+    const combinedOrders = Array.from(orderMap.values());
+    combinedOrders.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+    for (const ord of combinedOrders) {
+      if (!ord.items || ord.items.length === 0) {
+        try {
+          ord.items = await db.query(
+            `SELECT oi.*, COALESCE(oi.product_name, p.name) as product_title, img.image_url as product_image
+             FROM order_items oi
+             LEFT JOIN products p ON p.id = oi.product_id
+             LEFT JOIN product_images img ON img.product_id = oi.product_id AND img.is_primary = 1
+             WHERE oi.order_id = ?`,
+            [ord.id]
+          );
+        } catch (_) {}
+      }
     }
 
     return res.json({
       success: true,
       customer,
-      orders,
+      orders: combinedOrders,
       timestamp: new Date().toISOString()
     });
   } catch (err) {

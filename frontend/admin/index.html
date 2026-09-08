@@ -425,6 +425,7 @@
               <option value="Shipped">Shipped</option>
               <option value="Delivered">Delivered</option>
               <option value="Cancelled">Cancelled</option>
+              <option value="Refunded">Refunded</option>
             </select>
           </div>
           <div>
@@ -683,6 +684,7 @@
               <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
               <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
               <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+              <option value="Refunded" ${o.status === 'Refunded' ? 'selected' : ''}>Refunded</option>
             </select>
           </td>
           <td style="color: rgba(250,247,242,0.6); font-size: 0.75rem;">${new Date(o.created_at).toLocaleDateString()}</td>

@@ -97,21 +97,22 @@ function recordOrder(orderData) {
   }
 
   // Attempt persistence to disk
-  try {
-    const list = getAllOrders();
-    // Try primary project path
-    try {
-      fs.writeFileSync(LEDGER_PATH, JSON.stringify(list, null, 2), "utf8");
-    } catch (_) {}
-    // Also try /tmp for writable serverless container storage
-    try {
-      fs.writeFileSync(TMP_LEDGER_PATH, JSON.stringify(list, null, 2), "utf8");
-    } catch (_) {}
-  } catch (err) {
-    console.warn("[OrderLedger] File persistence notice:", err.message);
-  }
+  saveToDisk(getAllOrders());
 
   return normalized;
+}
+
+/**
+ * Write ledger orders array to available disk targets
+ */
+function saveToDisk(orders) {
+  if (!Array.isArray(orders)) return;
+  try {
+    fs.writeFileSync(LEDGER_PATH, JSON.stringify(orders, null, 2), "utf8");
+  } catch (_) {}
+  try {
+    fs.writeFileSync(TMP_LEDGER_PATH, JSON.stringify(orders, null, 2), "utf8");
+  } catch (_) {}
 }
 
 /**
@@ -132,14 +133,105 @@ function getCustomerOrders(identifier) {
  * Find single order by ID or order_number
  */
 function findOrder(query) {
-  if (!query) return null;
+  if (!query && query !== 0) return null;
   const qStr = String(query).toLowerCase().trim();
+  const cleanQ = qStr.replace(/^#/, "");
   const all = getAllOrders();
   return all.find(o => 
-    String(o.id).toLowerCase() === qStr ||
-    String(o.order_number || "").toLowerCase() === qStr ||
-    String(o.payment_id || "").toLowerCase() === qStr
+    String(o.id).toLowerCase() === cleanQ ||
+    String(o.order_number || "").toLowerCase().replace(/^#/, "") === cleanQ ||
+    String(o.payment_id || "").toLowerCase() === cleanQ
   ) || null;
+}
+
+/**
+ * Update order status, tracking number, payment status, or notes in the ledger
+ */
+function updateOrderStatus(query, updates = {}) {
+  if (!query && query !== 0) return null;
+  const qStr = String(query).toLowerCase().trim().replace(/^#/, "");
+
+  // Synchronize memory with latest dataset
+  const all = getAllOrders();
+  MEMORY_ORDERS = all;
+
+  const idx = MEMORY_ORDERS.findIndex(o => 
+    String(o.id).toLowerCase() === qStr ||
+    String(o.order_number || "").toLowerCase().replace(/^#/, "") === qStr ||
+    String(o.payment_id || "").toLowerCase() === qStr
+  );
+
+  if (idx === -1) return null;
+
+  const target = MEMORY_ORDERS[idx];
+  if (updates.status) target.status = updates.status;
+  if (updates.payment_status || updates.paymentStatus) {
+    target.payment_status = updates.payment_status || updates.paymentStatus;
+  }
+  if (updates.trackingNumber !== undefined || updates.tracking_number !== undefined) {
+    target.tracking_number = updates.trackingNumber !== undefined ? updates.trackingNumber : updates.tracking_number;
+  }
+  if (updates.notes !== undefined) {
+    target.notes = updates.notes;
+  }
+  target.updated_at = new Date().toISOString();
+
+  saveToDisk(MEMORY_ORDERS);
+  return target;
+}
+
+/**
+ * Soft delete or permanently purge an order from the ledger
+ */
+function deleteOrder(query, permanent = false) {
+  if (!query && query !== 0) return false;
+  const qStr = String(query).toLowerCase().trim().replace(/^#/, "");
+
+  const all = getAllOrders();
+  MEMORY_ORDERS = all;
+
+  const idx = MEMORY_ORDERS.findIndex(o => 
+    String(o.id).toLowerCase() === qStr ||
+    String(o.order_number || "").toLowerCase().replace(/^#/, "") === qStr ||
+    String(o.payment_id || "").toLowerCase() === qStr
+  );
+
+  if (idx === -1) return false;
+
+  if (permanent === true || permanent === "true") {
+    MEMORY_ORDERS.splice(idx, 1);
+  } else {
+    MEMORY_ORDERS[idx].status = "Deleted";
+    MEMORY_ORDERS[idx].updated_at = new Date().toISOString();
+  }
+
+  saveToDisk(MEMORY_ORDERS);
+  return true;
+}
+
+/**
+ * Restore an order from Deleted status in the ledger
+ */
+function restoreOrder(query, status = "Confirmed") {
+  if (!query && query !== 0) return null;
+  const qStr = String(query).toLowerCase().trim().replace(/^#/, "");
+
+  const all = getAllOrders();
+  MEMORY_ORDERS = all;
+
+  const idx = MEMORY_ORDERS.findIndex(o => 
+    String(o.id).toLowerCase() === qStr ||
+    String(o.order_number || "").toLowerCase().replace(/^#/, "") === qStr ||
+    String(o.payment_id || "").toLowerCase() === qStr
+  );
+
+  if (idx === -1) return null;
+
+  MEMORY_ORDERS[idx].status = status || "Confirmed";
+  MEMORY_ORDERS[idx].updated_at = new Date().toISOString();
+
+  saveToDisk(MEMORY_ORDERS);
+  return MEMORY_ORDERS[idx];
 }
 
 /**
@@ -223,5 +315,9 @@ module.exports = {
   recordOrder,
   getCustomerOrders,
   findOrder,
+  updateOrderStatus,
+  deleteOrder,
+  restoreOrder,
+  saveToDisk,
   syncLiveRazorpayPayments
 };
