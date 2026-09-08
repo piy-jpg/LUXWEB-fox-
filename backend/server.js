@@ -61,7 +61,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/inquiries', inquiryRoutes);
 
 // Fallback for unmatched API routes to always return JSON (never HTML)
-app.all('/api/*', (req, res) => {
+app.use('/api', (req, res) => {
   res.status(404).json({
     success: false,
     error: `API endpoint not found: ${req.method} ${req.originalUrl}`
