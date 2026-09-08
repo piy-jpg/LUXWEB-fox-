@@ -2618,31 +2618,73 @@
       }
     }
 
-    // Trigger Google Sign-In (Mobile-optimized with instant fallback)
-    function triggerGoogleSignIn() {
-      const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    // Real-time Google OAuth 2.0 Return Handler (From full-page accounts.google.com redirect)
+    async function checkGoogleRedirectReturn() {
+      if (window.location.hash && window.location.hash.includes('access_token=')) {
+        const hash = window.location.hash.substring(1);
+        const params = new URLSearchParams(hash);
+        const accessToken = params.get('access_token');
 
-      // On mobile devices and in-app webviews (Safari, Chrome, WhatsApp), popups are blocked or fail due to origin restrictions on Vercel.
-      // Instantly open the mobile-optimized Google Sign-In Sheet for a seamless client experience!
+        if (accessToken) {
+          window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+          showAlert('✦ Google account verified. Connecting to your private atelier...', false);
+
+          try {
+            const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+              headers: { Authorization: `Bearer ${accessToken}` },
+            });
+            if (!res.ok) throw new Error('Could not retrieve Google profile.');
+            const profile = await res.json();
+
+            const data = await safeApiFetch('/api/auth/google', {
+              email: profile.email,
+              firstName: profile.given_name || profile.name || 'Google',
+              lastName: profile.family_name || 'Client',
+            });
+
+            Auth.setSession(data.token, data.user);
+            showAlert(`✦ ${data.message}`, false);
+            setTimeout(() => redirectToTarget(data.user), 500);
+          } catch (err) {
+            showAlert('Google authentication error: ' + err.message);
+          }
+        }
+      }
+    }
+
+    // Trigger Real-Time Google Sign-In (Directly to accounts.google.com)
+    function triggerGoogleSignIn() {
+      clearAlert();
+      const clientId = getGoogleClientId();
+      const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const redirectUri = window.location.origin + '/auth.html';
+      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=openid%20email%20profile&prompt=select_account`;
+
+      // On mobile devices: Real-world apps (like Blinkit, Spotify, Uber) redirect full-page to accounts.google.com
+      // This launches Google's real mobile account selector with zero popup blockers!
       if (isMobile) {
-        openGoogleModal();
+        showAlert('✦ Connecting to accounts.google.com in real time...', false);
+        window.location.href = googleAuthUrl;
         return;
       }
 
+      // On desktop: Launch the real-time Google OAuth popup window directly to accounts.google.com
       if (!googleTokenClient) {
         initGoogleAuth();
       }
 
       if (googleTokenClient) {
         try {
+          showAlert('✦ Launching real-time Google Sign-In...', false);
           googleTokenClient.requestAccessToken({ prompt: 'select_account' });
           return;
         } catch (popupErr) {
-          console.warn('[Google] Popup fallback:', popupErr.message);
+          console.warn('[Google] Popup fallback to redirect:', popupErr.message);
         }
       }
 
-      openGoogleModal();
+      // Seamless fallback if popup is blocked: direct redirect to Google
+      window.location.href = googleAuthUrl;
     }
 
     function renderSavedGoogleAccounts() {
@@ -2960,6 +3002,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      checkGoogleRedirectReturn();
       initGoogleAuth();
       populateAgeDropdown();
       init3DAtelier();
