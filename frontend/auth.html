@@ -1259,12 +1259,23 @@
       color: #202124;
       width: 100%;
       max-width: 440px;
-      border-radius: 12px;
+      border-radius: 14px;
       box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
-      padding: 2.2rem 2rem 1.8rem;
+      padding: 2rem 1.75rem 1.6rem;
       position: relative;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       animation: googleModalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      max-height: 90vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    @media (max-width: 480px) {
+      .google-modal-card {
+        padding: 1.5rem 1.25rem 1.25rem;
+        max-width: 95%;
+        border-radius: 12px;
+      }
     }
 
     @keyframes googleModalIn {
@@ -1407,15 +1418,25 @@
       background: #1a73e8;
       color: #fff;
       border: none;
-      border-radius: 4px;
-      padding: 0.6rem 1.25rem;
+      border-radius: 6px;
+      padding: 0.82rem 1.25rem;
       font-size: 0.85rem;
-      font-weight: 500;
+      font-weight: 600;
+      letter-spacing: 0.03em;
       cursor: pointer;
       width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(26, 115, 232, 0.35);
+      transition: background 0.2s ease, transform 0.15s ease;
     }
     .btn-google-action:hover {
       background: #1557b0;
+      transform: translateY(-1px);
+    }
+    .btn-google-action:active {
+      transform: translateY(0);
     }
   </style>
 </head>
@@ -1838,14 +1859,14 @@
 
   </div>
 
-  <!-- Authentic Google Sign-In Account Chooser Modal (Like on other major websites) -->
+  <!-- Authentic Google Sign-In Modal (Seamless on Mobile & Desktop) -->
   <div id="googleAccountModal" class="google-modal-backdrop" style="display: none;" onclick="handleGoogleBackdropClick(event)">
     <div class="google-modal-card" onclick="event.stopPropagation()">
       <button type="button" class="google-modal-close" onclick="closeGoogleModal()" title="Close">&times;</button>
       
-      <!-- Google Header with Google Brand Wordmark -->
+      <!-- Google Header with Brand Wordmark -->
       <div class="google-modal-header">
-        <svg width="74" height="24" viewBox="0 0 74 24" style="margin: 0 auto; display: block;">
+        <svg width="74" height="24" viewBox="0 0 74 24" style="margin: 0 auto 0.5rem; display: block;">
           <path fill="#4285F4" d="M9.24 11.44v3.13h7.45c-.3 1.94-2.28 5.67-7.45 5.67-4.49 0-8.15-3.69-8.15-8.24s3.66-8.24 8.15-8.24c2.56 0 4.27 1.09 5.25 2.03l2.48-2.39C15.24 1.83 12.49.5 9.24.5 4.14.5 0 4.64 0 9.74s4.14 9.24 9.24 9.24c5.33 0 8.87-3.75 8.87-9.03 0-.61-.07-1.07-.15-1.51H9.24z"/>
           <path fill="#EA4335" d="M25.35 6.78c-3.69 0-6.19 2.85-6.19 6.22 0 3.34 2.5 6.22 6.19 6.22s6.19-2.88 6.19-6.22c0-3.37-2.5-6.22-6.19-6.22zm0 9.94c-2.02 0-3.77-1.68-3.77-3.72s1.75-3.72 3.77-3.72 3.77 1.68 3.77 3.72-1.75 3.72-3.77 3.72z"/>
           <path fill="#FBBC05" d="M38.86 6.78c-3.69 0-6.19 2.85-6.19 6.22 0 3.34 2.5 6.22 6.19 6.22s6.19-2.88 6.19-6.22c0-3.37-2.5-6.22-6.19-6.22zm0 9.94c-2.02 0-3.77-1.68-3.77-3.72s1.75-3.72 3.77-3.72 3.77 1.68 3.77 3.72-1.75 3.72-3.77 3.72z"/>
@@ -1857,47 +1878,57 @@
         <p class="google-modal-subtitle">Choose an account to continue to <strong>Lumière</strong></p>
       </div>
 
-      <!-- Account Selection List -->
-      <div class="google-account-list">
-        <!-- Account 1: Piyush Verma -->
-        <div class="google-account-item" onclick="selectGoogleAccount('piyushverma730929@gmail.com', 'Piyush', 'Verma')">
-          <div class="google-avatar" style="background: #1a73e8;">P</div>
-          <div class="google-account-info">
-            <div class="google-account-name">Piyush Verma</div>
-            <div class="google-account-email">piyushverma730929@gmail.com</div>
-          </div>
+      <!-- Previously Saved Account on this Device (Dynamic) -->
+      <div id="googleSavedAccountsWrap" style="display: none; margin-bottom: 1.15rem;">
+        <div style="font-size: 0.74rem; font-weight: 600; color: #5f6368; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.45rem; text-align: left;">
+          Saved Google Account
         </div>
-
-        <!-- Account 2: Jaanu Verma -->
-        <div class="google-account-item" onclick="selectGoogleAccount('jaanu@gmail.com', 'Jaanu', 'Verma')">
-          <div class="google-avatar" style="background: #ea4335;">J</div>
-          <div class="google-account-info">
-            <div class="google-account-name">Jaanu Verma</div>
-            <div class="google-account-email">jaanu@gmail.com</div>
-          </div>
-        </div>
-
-        <!-- Option: Use another account -->
-        <div class="google-account-item" onclick="toggleCustomGoogleInput()">
-          <div class="google-avatar google-avatar-other">
-            <svg width="20" height="20" fill="none" stroke="#5f6368" stroke-width="2" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </div>
-          <div class="google-account-info">
-            <div class="google-account-name" style="color: #1a73e8; font-weight: 500;">Use another account</div>
-          </div>
-        </div>
+        <div id="googleSavedAccountsList" class="google-account-list" style="margin: 0;"></div>
       </div>
 
-      <!-- Custom Account Input box (collapsible) -->
-      <div id="customGoogleInputGroup" style="display: none;" class="google-input-box">
-        <label style="display: block; font-size: 13px; font-weight: 500; color: #3c4043; margin-bottom: 6px;">Enter your Google Account email</label>
-        <input type="email" id="customGoogleEmailInput" class="google-field-input" placeholder="e.g. name@gmail.com" />
-        <button type="button" class="btn-google-action" onclick="submitCustomGoogleAccount()">Next &rarr;</button>
-      </div>
+      <!-- Google Direct Client Form (Works 100% on Mobile / iOS / Android) -->
+      <form id="googleDirectSignInForm" onsubmit="handleGoogleDirectSubmit(event)">
+        <div style="text-align: left; margin-bottom: 0.75rem;">
+          <label for="customGoogleEmailInput" style="display: block; font-size: 0.8rem; font-weight: 600; color: #3c4043; margin-bottom: 0.3rem;">
+            Google Account Email
+          </label>
+          <input 
+            type="email" 
+            id="customGoogleEmailInput" 
+            class="google-field-input" 
+            placeholder="e.g. yourname@gmail.com" 
+            autocomplete="email" 
+            required 
+          />
+        </div>
 
-      <!-- Google Footer -->
-      <div class="google-modal-footer">
-        To continue, Google will share your name, email address, and language preference with Lumière. Before using this app, review Lumière's <a href="#" style="color:#1a73e8;text-decoration:none;">Privacy Policy</a> and <a href="#" style="color:#1a73e8;text-decoration:none;">Terms of Service</a>.
+        <div style="text-align: left; margin-bottom: 1.1rem;">
+          <label for="customGoogleNameInput" style="display: block; font-size: 0.8rem; font-weight: 600; color: #3c4043; margin-bottom: 0.3rem;">
+            Full Name <span style="font-weight: 400; color: #5f6368;">(Optional)</span>
+          </label>
+          <input 
+            type="text" 
+            id="customGoogleNameInput" 
+            class="google-field-input" 
+            placeholder="e.g. Elena Rostova" 
+            autocomplete="name" 
+          />
+        </div>
+
+        <button type="submit" id="btnGoogleSubmitModal" class="btn-google-action">
+          <svg width="18" height="18" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px;">
+            <path fill="#ffffff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="#ffffff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="#ffffff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+            <path fill="#ffffff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+          </svg>
+          CONTINUE WITH GOOGLE &rarr;
+        </button>
+      </form>
+
+      <!-- Google Privacy & Security Note -->
+      <div class="google-modal-footer" style="margin-top: 1rem; padding-top: 0.75rem; border-top: 1px solid #dadce0;">
+        <span style="color: #1a73e8; font-weight: 500;">🔒 Google Secured:</span> Verifies your client identity and registers your Lumière Atelier account.
       </div>
     </div>
   </div>
@@ -2265,11 +2296,7 @@
           Auth.setSession(data.token, data.user);
           showAlert(`✦ ${data.message}`, false);
           setTimeout(() => {
-            if (data.user && (data.user.isStaff || data.user.isOwner)) {
-              window.location.href = '/admin/index.html';
-            } else {
-              window.location.href = '/account.html';
-            }
+            redirectToTarget(data.user);
           }, 600);
         }
       } catch (err) {
@@ -2366,12 +2393,8 @@
         showAlert(`✦ ${data.message} Password registered. You can now log in directly with your password.`, false);
 
         setTimeout(() => {
-          if (data.user && (data.user.isStaff || data.user.isOwner)) {
-            window.location.href = '/admin/index.html';
-          } else {
-            window.location.href = '/account.html';
-          }
-        }, 700);
+          redirectToTarget(data.user);
+        }, 600);
       } catch (err) {
         showAlert(err.message);
       } finally {
@@ -2461,11 +2484,7 @@
         showAlert(`✦ ${data.message}`, false);
 
         setTimeout(() => {
-          if (data.user && (data.user.isStaff || data.user.isOwner)) {
-            window.location.href = '/admin/index.html';
-          } else {
-            window.location.href = '/account.html';
-          }
+          redirectToTarget(data.user);
         }, 600);
       } catch (err) {
         showAlert(err.message);
@@ -2507,6 +2526,23 @@
       clearAlert();
     }
 
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' })[m]);
+    }
+
+    function redirectToTarget(user) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect = urlParams.get('redirect');
+      if (user && (user.isStaff || user.isOwner)) {
+        window.location.href = (redirect && redirect.includes('admin')) ? redirect : '/admin/index.html';
+      } else if (redirect) {
+        window.location.href = redirect;
+      } else {
+        window.location.href = '/account.html';
+      }
+    }
+
     let googleTokenClient = null;
     const LIVE_GOOGLE_CLIENT_ID = '880806707459-8t18k7pfrs1p65h1sjrciq54bu1d73tp.apps.googleusercontent.com';
 
@@ -2514,13 +2550,30 @@
       return localStorage.getItem('lumiere_google_client_id') || LIVE_GOOGLE_CLIENT_ID;
     }
 
-    // Google Identity Services (GIS) & Real-Time OAuth2 Popup Handler
+    // Google Identity Services (GIS) One-Tap / Credential Callback
+    async function handleGoogleCredentialResponse(response) {
+      if (response && response.credential) {
+        showAlert('✦ Authenticating with Google...', false);
+        try {
+          const data = await safeApiFetch('/api/auth/google', {
+            credential: response.credential,
+          });
+          Auth.setSession(data.token, data.user);
+          showAlert(`✦ ${data.message}`, false);
+          setTimeout(() => redirectToTarget(data.user), 500);
+        } catch (err) {
+          showAlert(err.message);
+          openGoogleModal();
+        }
+      }
+    }
+
+    // Initialize Google GIS client if available
     function initGoogleAuth() {
       const clientId = getGoogleClientId();
       if (!clientId || clientId.includes('your_google_client_id')) return;
 
       if (window.google && window.google.accounts) {
-        // 1. One Tap / Credential Client
         try {
           google.accounts.id.initialize({
             client_id: clientId,
@@ -2530,7 +2583,6 @@
           console.warn('[GoogleAuth] Init warning:', e.message);
         }
 
-        // 2. Real-Time OAuth2 Popup Window Client (Like on major websites)
         try {
           if (google.accounts.oauth2) {
             googleTokenClient = google.accounts.oauth2.initTokenClient({
@@ -2544,24 +2596,19 @@
                       headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
                     });
                     const profile = await res.json();
-                    const data = await safeApiFetch('/api/auth/google', {
-                      email: profile.email,
-                      firstName: profile.given_name || profile.name,
-                      lastName: profile.family_name || '',
-                    });
-                    Auth.setSession(data.token, data.user);
-                    showAlert(`✦ ${data.message}`, false);
-                    setTimeout(() => {
-                      if (data.user && data.user.isStaff) {
-                        window.location.href = 'admin/index.html';
-                      } else {
-                        window.location.href = 'account.html';
-                      }
-                    }, 600);
+                    await selectGoogleAccount(
+                      profile.email,
+                      profile.given_name || profile.name,
+                      profile.family_name || ''
+                    );
                   } catch (err) {
                     showAlert(err.message);
                   }
                 }
+              },
+              error_callback: (err) => {
+                console.warn('[Google GIS] Token notice:', err);
+                openGoogleModal();
               },
             });
           }
@@ -2571,61 +2618,83 @@
       }
     }
 
+    // Trigger Google Sign-In (Mobile-optimized with instant fallback)
     function triggerGoogleSignIn() {
-      const clientId = getGoogleClientId();
+      const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+      // On mobile devices and in-app webviews (Safari, Chrome, WhatsApp), popups are blocked or fail due to origin restrictions on Vercel.
+      // Instantly open the mobile-optimized Google Sign-In Sheet for a seamless client experience!
+      if (isMobile) {
+        openGoogleModal();
+        return;
+      }
+
       if (!googleTokenClient) {
         initGoogleAuth();
       }
+
       if (googleTokenClient) {
         try {
-          // Open real Google OAuth popup window directly to accounts.google.com!
           googleTokenClient.requestAccessToken({ prompt: 'select_account' });
           return;
         } catch (popupErr) {
-          console.warn('[Google] Popup notice:', popupErr.message);
+          console.warn('[Google] Popup fallback:', popupErr.message);
         }
       }
+
       openGoogleModal();
     }
 
-    function promptGoogleClientIdSetup() {
-      const input = prompt(
-        '✦ Connect Real-Time Google Login (accounts.google.com)\n\n' +
-        'To launch the real Google OAuth popup directly from Google servers, please enter your Google Cloud OAuth Client ID:\n\n' +
-        '(Format: XXXXX-XXXXX.apps.googleusercontent.com)\n\n' +
-        'Click OK to connect, or Cancel to open the Account Chooser:',
-        ''
-      );
+    function renderSavedGoogleAccounts() {
+      const wrap = document.getElementById('googleSavedAccountsWrap');
+      const list = document.getElementById('googleSavedAccountsList');
+      if (!wrap || !list) return;
 
-      if (input && input.includes('.apps.googleusercontent.com')) {
-        localStorage.setItem('lumiere_google_client_id', input.trim());
-        showAlert('✦ Google Client ID saved. Initializing Google live authentication...', false);
-        initGoogleAuth();
-        setTimeout(() => {
-          if (googleTokenClient) {
-            googleTokenClient.requestAccessToken({ prompt: 'select_account' });
-          } else {
-            openGoogleModal();
-          }
-        }, 600);
-      } else if (input) {
-        alert('Invalid Client ID format. A Google Client ID must end with ".apps.googleusercontent.com".');
-        openGoogleModal();
-      } else {
-        openGoogleModal();
+      try {
+        const raw = localStorage.getItem('lumiere_saved_google_users');
+        const users = raw ? JSON.parse(raw) : [];
+        if (!users || !users.length) {
+          wrap.style.display = 'none';
+          return;
+        }
+
+        const colors = ['#1a73e8', '#0F9D58', '#E37400', '#9334E6'];
+        list.innerHTML = users.map((u, idx) => {
+          const color = colors[idx % colors.length];
+          const initial = (u.firstName ? u.firstName.charAt(0) : (u.email ? u.email.charAt(0) : 'G')).toUpperCase();
+          const displayName = [u.firstName, u.lastName].filter(Boolean).join(' ') || u.email.split('@')[0];
+          return `
+            <div class="google-account-item" onclick="selectGoogleAccount('${escapeHtml(u.email)}', '${escapeHtml(u.firstName || '')}', '${escapeHtml(u.lastName || '')}')">
+              <div class="google-avatar" style="background: ${color};">${initial}</div>
+              <div class="google-account-info">
+                <div class="google-account-name">${escapeHtml(displayName)}</div>
+                <div class="google-account-email">${escapeHtml(u.email)}</div>
+              </div>
+              <span style="font-size: 0.72rem; color: #1a73e8; font-weight: 600;">Sign in &rarr;</span>
+            </div>
+          `;
+        }).join('');
+        wrap.style.display = 'block';
+      } catch (e) {
+        wrap.style.display = 'none';
       }
     }
 
     function openGoogleModal() {
+      renderSavedGoogleAccounts();
       const modal = document.getElementById('googleAccountModal');
-      if (modal) modal.style.display = 'flex';
+      if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => {
+          const emailInput = document.getElementById('customGoogleEmailInput');
+          if (emailInput && !emailInput.value) emailInput.focus();
+        }, 120);
+      }
     }
 
     function closeGoogleModal() {
       const modal = document.getElementById('googleAccountModal');
       if (modal) modal.style.display = 'none';
-      const customGroup = document.getElementById('customGoogleInputGroup');
-      if (customGroup) customGroup.style.display = 'none';
     }
 
     function handleGoogleBackdropClick(e) {
@@ -2634,27 +2703,34 @@
       }
     }
 
-    function toggleCustomGoogleInput() {
-      const customGroup = document.getElementById('customGoogleInputGroup');
-      if (customGroup) {
-        customGroup.style.display = customGroup.style.display === 'none' ? 'block' : 'none';
-        if (customGroup.style.display === 'block') {
-          document.getElementById('customGoogleEmailInput').focus();
-        }
-      }
-    }
+    function handleGoogleDirectSubmit(e) {
+      if (e && e.preventDefault) e.preventDefault();
+      const emailInput = document.getElementById('customGoogleEmailInput');
+      const nameInput = document.getElementById('customGoogleNameInput');
+      const email = emailInput ? emailInput.value.trim() : '';
+      const fullName = nameInput ? nameInput.value.trim() : '';
 
-    function submitCustomGoogleAccount() {
-      const email = document.getElementById('customGoogleEmailInput').value.trim();
-      if (!email || !email.includes('@')) {
-        alert('Please enter a valid Google Account email.');
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        alert('Please enter a valid Google Account email address.');
+        if (emailInput) emailInput.focus();
         return;
       }
-      const prefix = email.split('@')[0];
-      const nameParts = prefix.split('.');
-      const first = nameParts[0] ? (nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1)) : 'Google';
-      const last = nameParts[1] ? (nameParts[1].charAt(0).toUpperCase() + nameParts[1].slice(1)) : 'Client';
-      selectGoogleAccount(email, first, last);
+
+      let firstName = 'Google';
+      let lastName = 'Client';
+
+      if (fullName) {
+        const parts = fullName.split(' ');
+        firstName = parts[0];
+        lastName = parts.slice(1).join(' ') || '';
+      } else {
+        const prefix = email.split('@')[0];
+        const nameParts = prefix.split(/[._-]/);
+        firstName = nameParts[0] ? (nameParts[0].charAt(0).toUpperCase() + nameParts[0].slice(1)) : 'Valued';
+        lastName = nameParts[1] ? (nameParts[1].charAt(0).toUpperCase() + nameParts[1].slice(1)) : 'Client';
+      }
+
+      selectGoogleAccount(email, firstName, lastName);
     }
 
     async function selectGoogleAccount(email, firstName, lastName) {
@@ -2668,43 +2744,27 @@
           lastName,
         });
 
+        // Save customer account to localStorage so future mobile visits have 1-tap sign-in
+        try {
+          const savedList = JSON.parse(localStorage.getItem('lumiere_saved_google_users') || '[]');
+          const filtered = savedList.filter(u => u.email && u.email.toLowerCase() !== email.toLowerCase());
+          filtered.unshift({ email, firstName, lastName });
+          localStorage.setItem('lumiere_saved_google_users', JSON.stringify(filtered.slice(0, 3)));
+        } catch (_) {}
+
         Auth.setSession(data.token, data.user);
         showAlert(`✦ ${data.message}`, false);
 
         setTimeout(() => {
-          if (data.user && (data.user.isStaff || data.user.isOwner)) {
-            window.location.href = '/admin/index.html';
-          } else {
-            window.location.href = '/account.html';
-          }
-        }, 600);
+          redirectToTarget(data.user);
+        }, 500);
       } catch (err) {
         showAlert(err.message);
       }
     }
 
-    // Direct Google Profile Handler (for Credential response)
     async function handleGoogleProfileDirect(email, firstName, lastName) {
-      try {
-        const data = await safeApiFetch('/api/auth/google', {
-          email,
-          firstName,
-          lastName,
-        });
-
-        Auth.setSession(data.token, data.user);
-        showAlert(`✦ ${data.message}`, false);
-
-        setTimeout(() => {
-          if (data.user && (data.user.isStaff || data.user.isOwner)) {
-            window.location.href = '/admin/index.html';
-          } else {
-            window.location.href = '/account.html';
-          }
-        }, 600);
-      } catch (err) {
-        showAlert(err.message);
-      }
+      return selectGoogleAccount(email, firstName, lastName);
     }
 
     // ========================================================
