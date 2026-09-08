@@ -6,6 +6,7 @@
 const bcrypt = require('bcryptjs');
 const db = require('../config/db');
 const { logAudit } = require('../middleware/auditLogger');
+const orderLedger = require('../services/orderLedger');
 
 /**
  * Get Customer Profile Overview
@@ -48,6 +49,15 @@ async function getProfile(req, res) {
       );
     } catch (_) {}
 
+    // Fallback: check ledger orders if DB has 0
+    let resolvedOrderCount = orderStats ? orderStats.order_count : 0;
+    let resolvedTotalSpent = orderStats && orderStats.total_spent ? parseFloat(orderStats.total_spent) : 0;
+    const ledgerCustomerOrders = orderLedger.getCustomerOrders(user.email || user.id);
+    if (resolvedOrderCount === 0 && ledgerCustomerOrders.length > 0) {
+      resolvedOrderCount = ledgerCustomerOrders.length;
+      resolvedTotalSpent = ledgerCustomerOrders.reduce((sum, o) => sum + parseFloat(o.total_amount || 0), 0);
+    }
+
     let wishlistStats = null;
     try {
       wishlistStats = await db.get(
@@ -69,8 +79,8 @@ async function getProfile(req, res) {
         age: user.age || '',
         location: user.location || '',
         memberSince: user.created_at || new Date().toISOString(),
-        orderCount: orderStats ? orderStats.order_count : 0,
-        totalSpent: orderStats && orderStats.total_spent ? parseFloat(orderStats.total_spent) : 0,
+        orderCount: resolvedOrderCount,
+        totalSpent: resolvedTotalSpent,
         wishlistCount: wishlistStats ? wishlistStats.wishlist_count : 0,
       },
     });
@@ -246,27 +256,75 @@ async function deleteAddress(req, res) {
  */
 async function getOrders(req, res) {
   try {
-    const orders = await db.query(
-      `SELECT 
-        o.id,
-        o.order_number,
-        o.subtotal,
-        o.shipping_fee,
-        o.total_amount,
-        o.status,
-        o.payment_status,
-        o.tracking_number,
-        o.created_at,
-        COUNT(oi.id) as item_count
-       FROM orders o
-       LEFT JOIN order_items oi ON oi.order_id = o.id
-       WHERE o.customer_id = ? OR o.customer_email = ?
-       GROUP BY o.id
-       ORDER BY o.created_at DESC`,
-      [req.user.id, req.user.email]
-    );
+    let dbOrders = [];
+    try {
+      dbOrders = await db.query(
+        `SELECT 
+          o.id,
+          o.order_number,
+          o.subtotal,
+          o.shipping_fee,
+          o.total_amount,
+          o.status,
+          o.payment_status,
+          o.payment_method,
+          o.notes,
+          o.tracking_number,
+          o.created_at,
+          COUNT(oi.id) as item_count
+         FROM orders o
+         LEFT JOIN order_items oi ON oi.order_id = o.id
+         WHERE o.customer_id = ? OR o.customer_email = ?
+         GROUP BY o.id
+         ORDER BY o.created_at DESC`,
+        [req.user.id, (req.user.email || '').toLowerCase()]
+      );
+    } catch (_) {}
 
-    return res.json({ success: true, orders });
+    // Resilient fallback & merge from order ledger
+    const customerIdentifier = req.user.email || req.user.id;
+    const ledgerOrders = orderLedger.getCustomerOrders(customerIdentifier);
+    const orderMap = new Map();
+
+    (dbOrders || []).forEach(o => {
+      const num = o.order_number || o.orderNumber;
+      if (num) {
+        const match = o.notes ? o.notes.match(/pay_[a-zA-Z0-9]+/) : null;
+        o.payment_id = match ? match[0] : null;
+        orderMap.set(num, o);
+      }
+    });
+
+    ledgerOrders.forEach(lo => {
+      const num = lo.order_number || lo.orderNumber;
+      if (num && !orderMap.has(num)) {
+        orderMap.set(num, {
+          id: lo.id,
+          order_number: lo.order_number,
+          subtotal: lo.subtotal,
+          shipping_fee: lo.shipping_fee,
+          total_amount: lo.total_amount,
+          status: lo.status,
+          payment_status: lo.payment_status,
+          payment_method: lo.payment_method,
+          payment_id: lo.payment_id,
+          razorpay_order_id: lo.razorpay_order_id,
+          tracking_number: lo.tracking_number || null,
+          created_at: lo.created_at,
+          item_count: (lo.items && lo.items.length) || 1
+        });
+      } else if (num && orderMap.has(num)) {
+        const existing = orderMap.get(num);
+        if (!existing.payment_id && lo.payment_id) {
+          existing.payment_id = lo.payment_id;
+        }
+      }
+    });
+
+    const combined = Array.from(orderMap.values());
+    combined.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+
+    return res.json({ success: true, orders: combined });
   } catch (err) {
     console.error('[Account.getOrders] Error:', err);
     return res.status(500).json({ success: false, error: 'Failed to load order history.' });
@@ -280,46 +338,71 @@ async function getOrderDetails(req, res) {
   const { id } = req.params;
 
   try {
-    const order = await db.get(
-      `SELECT * FROM orders 
-       WHERE (id = ? OR order_number = ?) AND (customer_id = ? OR customer_email = ?)`,
-      [id, id, req.user.id, req.user.email]
-    );
+    let order = null;
+    try {
+      order = await db.get(
+        `SELECT * FROM orders 
+         WHERE (id = ? OR order_number = ?) AND (customer_id = ? OR customer_email = ?)`,
+        [id, id, req.user.id, (req.user.email || '').toLowerCase()]
+      );
+    } catch (_) {}
+
+    // Ledger fallback
+    if (!order) {
+      const ledgerOrder = orderLedger.findOrder(id);
+      if (ledgerOrder) {
+        const userEmail = (req.user.email || '').toLowerCase();
+        const orderEmail = (ledgerOrder.customer_email || '').toLowerCase();
+        if (orderEmail === userEmail || String(ledgerOrder.customer_id) === String(req.user.id)) {
+          order = ledgerOrder;
+        }
+      }
+    }
 
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found.' });
     }
 
-    const items = await db.query(
-      `SELECT 
-        oi.*,
-        img.image_url as product_image
-       FROM order_items oi
-       LEFT JOIN product_images img ON img.product_id = oi.product_id AND img.is_primary = 1
-       WHERE oi.order_id = ?`,
-      [order.id]
-    );
+    let items = [];
+    try {
+      items = await db.query(
+        `SELECT 
+          oi.*,
+          img.image_url as product_image
+         FROM order_items oi
+         LEFT JOIN product_images img ON img.product_id = oi.product_id AND img.is_primary = 1
+         WHERE oi.order_id = ?`,
+        [order.id]
+      );
+    } catch (_) {}
+
+    if ((!items || items.length === 0) && Array.isArray(order.items)) {
+      items = order.items;
+    }
 
     // Build timeline steps
     const statusOrder = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered'];
-    const currentIndex = statusOrder.indexOf(order.status);
+    const currentIndex = statusOrder.indexOf(order.status || 'Confirmed');
     const timeline = statusOrder.map((step, idx) => ({
       step,
       completed: currentIndex >= idx && order.status !== 'Cancelled' && order.status !== 'Refunded',
-      current: order.status === step,
+      current: (order.status || 'Confirmed') === step,
     }));
 
     let shippingAddress = null;
     try {
-      shippingAddress = JSON.parse(order.shipping_address_json);
+      shippingAddress = typeof order.shipping_address_json === 'string' ? JSON.parse(order.shipping_address_json) : (order.shipping_address_json || { address: 'Standard Complimentary Delivery' });
     } catch {
       shippingAddress = { text: order.shipping_address_json };
     }
+
+    const paymentId = order.payment_id || order.paymentId || (order.notes ? order.notes.match(/pay_[a-zA-Z0-9]+/)?.[0] : null);
 
     return res.json({
       success: true,
       order: {
         ...order,
+        payment_id: paymentId,
         shippingAddress,
         items,
         timeline,

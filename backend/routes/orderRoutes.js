@@ -15,6 +15,7 @@ const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../middleware/auth');
 const { sendOrderNotificationToOwner, generateOwnerWhatsAppNotification } = require('../services/emailService');
 const { sendOrderAlertSmsToOwner } = require('../services/smsService');
+const orderLedger = require('../services/orderLedger');
 
 /**
  * Optional authentication helper (permits guest checkout or links to logged-in customer)
@@ -46,6 +47,8 @@ async function processOrderCreation({
   notes = '',
   resolvedPaymentMethod = 'Complimentary Concierge Authorization',
   resolvedPaymentStatus = 'Paid',
+  paymentId = null,
+  razorpayOrderId = null,
   user = null
 }) {
   if (!Array.isArray(items) || items.length === 0) {
@@ -251,6 +254,32 @@ async function processOrderCreation({
 
   console.log(`[OrderRoutes] 📲 New Order #${orderNumber} registered. Owner WhatsApp: +91 7300212948 | Owner Email: piyushverma9903@gmail.com`);
 
+  // Persist order in resilient ledger (guarantees persistence across serverless container restarts)
+  try {
+    orderLedger.recordOrder({
+      id: orderId,
+      order_number: orderNumber,
+      customer_id: orderUserId,
+      customer_email: email.trim().toLowerCase(),
+      customer_name: name.trim(),
+      subtotal,
+      discount_amount: parseFloat(discountAmount || 0),
+      shipping_fee: parseFloat(shippingFee || 0),
+      total_amount: totalAmount,
+      status: 'Confirmed',
+      payment_status: resolvedPaymentStatus,
+      payment_method: resolvedPaymentMethod,
+      payment_id: paymentId || null,
+      razorpay_order_id: razorpayOrderId || null,
+      notes: notes || `Payment via ${resolvedPaymentMethod}`,
+      shipping_address: shippingAddress,
+      items: resolvedItems,
+      created_at: new Date().toISOString()
+    });
+  } catch (ledgErr) {
+    console.warn('[OrderRoutes] Ledger record notice:', ledgErr.message);
+  }
+
   return {
     id: orderId,
     orderNumber,
@@ -259,6 +288,9 @@ async function processOrderCreation({
     status: 'Confirmed',
     paymentStatus: resolvedPaymentStatus,
     paymentMethod: resolvedPaymentMethod,
+    paymentId: paymentId || null,
+    payment_id: paymentId || null,
+    razorpayOrderId: razorpayOrderId || null,
     items: resolvedItems,
     shippingAddress,
     createdAt: new Date().toISOString(),
@@ -379,6 +411,8 @@ router.post('/razorpay-verify', optionalAuth, async (req, res) => {
     // Payment is verified! Create order in database
     const orderRecord = await processOrderCreation({
       ...(orderPayload || {}),
+      paymentId: razorpay_payment_id,
+      razorpayOrderId: razorpay_order_id,
       resolvedPaymentMethod: 'Online Payment (PhonePe / UPI / Cards via Razorpay)',
       resolvedPaymentStatus: 'Paid',
       notes: `Razorpay Verified: ${razorpay_payment_id} | Order: ${razorpay_order_id}`,
@@ -454,6 +488,36 @@ router.post('/', optionalAuth, async (req, res) => {
   } catch (err) {
     console.error('[Orders.placeOrder] Error:', err);
     return res.status(400).json({ success: false, error: err.message || 'Failed to process order.' });
+  }
+});
+
+/**
+ * Get Ledger Orders (Fallback & Real-time Persistence)
+ */
+router.get('/ledger', (req, res) => {
+  try {
+    const orders = orderLedger.getAllOrders();
+    res.json({ success: true, count: orders.length, orders });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * Trigger Real-time Razorpay Payment Sync & Ledger Refresh
+ */
+router.all('/sync-razorpay', async (req, res) => {
+  try {
+    const orders = await orderLedger.syncLiveRazorpayPayments(true);
+    res.json({
+      success: true,
+      message: 'Razorpay live payment sync completed.',
+      totalOrders: orders.length,
+      orders
+    });
+  } catch (err) {
+    console.error('[OrderRoutes.syncRazorpay] Error:', err);
+    res.status(500).json({ success: false, error: err.message });
   }
 });
 

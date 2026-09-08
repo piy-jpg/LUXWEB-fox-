@@ -298,7 +298,10 @@
 
             return `
               <tr>
-                <td><strong style="color: #fff;">#${o.order_number}</strong></td>
+                <td>
+                  <strong style="color: #fff;">#${o.order_number}</strong>
+                  ${(o.payment_id || o.paymentId) ? `<div style="font-size: 0.65rem; color: var(--color-gold); font-family: monospace; margin-top: 2px;">💳 ${o.payment_id || o.paymentId}</div>` : ''}
+                </td>
                 <td>
                   <div style="font-weight: 500;">${o.customer_name}</div>
                   <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email}</div>

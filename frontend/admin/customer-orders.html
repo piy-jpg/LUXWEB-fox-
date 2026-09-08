@@ -294,6 +294,7 @@
               <strong style="font-family: monospace; font-size: 0.85rem; color: #fff;">
                 #${o.order_number || o.id}
               </strong>
+              ${(o.payment_id || o.paymentId) ? `<div style="font-size: 0.65rem; color: var(--color-gold); font-family: monospace; margin-top: 2px;">💳 ${o.payment_id || o.paymentId}</div>` : ''}
             </td>
             <td style="font-size: 0.74rem; color: rgba(250,247,242,0.65); white-space: nowrap;">
               ${new Date(o.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
@@ -320,8 +321,9 @@
             <td style="font-weight: 600; color: var(--color-gold); font-size: 0.92rem; font-family: var(--font-serif);">
               ₹${parseFloat(o.total_amount).toFixed(2)}
             </td>
-            <td style="font-size: 0.74rem; color: rgba(250,247,242,0.65); text-transform: uppercase;">
-              ${o.payment_method || 'CARD'}
+            <td style="font-size: 0.74rem; color: rgba(250,247,242,0.65);">
+              <div>${o.payment_method || 'Online Payment'}</div>
+              ${(o.payment_id || o.paymentId) ? `<div style="font-family: monospace; color: var(--color-gold); font-size: 0.68rem;">${o.payment_id || o.paymentId}</div>` : ''}
             </td>
             <td>
               <span class="badge ${statusBadge}" style="font-size: 0.68rem;">
