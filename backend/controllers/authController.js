@@ -417,14 +417,20 @@ async function googleAuth(req, res) {
       }
 
       // Fallback: decode JWT payload if offline or in sandbox
-      if (!email) {
+      if (!email && credential) {
         const parts = credential.split('.');
         if (parts.length === 3) {
-          const payloadStr = Buffer.from(parts[1], 'base64').toString('utf8');
-          const payload = JSON.parse(payloadStr);
-          email = payload.email;
-          firstName = payload.given_name || payload.name || 'Google';
-          lastName = payload.family_name || 'Client';
+          try {
+            const b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+            const pad = b64.length % 4 === 0 ? '' : '='.repeat(4 - (b64.length % 4));
+            const payloadStr = Buffer.from(b64 + pad, 'base64').toString('utf8');
+            const payload = JSON.parse(payloadStr);
+            email = payload.email;
+            firstName = payload.given_name || payload.name || 'Google';
+            lastName = payload.family_name || 'Client';
+          } catch (e) {
+            console.warn('[Auth.googleAuth] Fallback decode warning:', e.message);
+          }
         }
       }
     } else if (manualEmail) {
@@ -476,11 +482,20 @@ async function googleAuth(req, res) {
         last_name: lastName || 'Client',
         status: 'active',
       };
-    } else if (user.status === 'disabled') {
-      return res.status(403).json({
-        success: false,
-        error: 'This account has been disabled. Please contact Lumière concierge support.',
-      });
+    } else {
+      if (user.status === 'disabled') {
+        return res.status(403).json({
+          success: false,
+          error: 'This account has been disabled. Please contact Lumière concierge support.',
+        });
+      }
+      if ((!user.first_name || user.first_name === 'Valued' || user.first_name === 'Google') && firstName && firstName !== 'Google') {
+        try {
+          await db.run('UPDATE users SET first_name = ?, last_name = ? WHERE id = ?', [firstName, lastName || user.last_name || '', user.id]);
+          user.first_name = firstName;
+          if (lastName) user.last_name = lastName;
+        } catch (_) {}
+      }
     }
 
     // Fetch user roles

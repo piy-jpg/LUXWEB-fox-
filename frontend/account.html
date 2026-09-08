@@ -458,14 +458,14 @@
         if (data.success) {
           const p = data.profile;
           document.getElementById('welcomeHeading').innerText = `Welcome, ${p.firstName || 'Client'}`;
-          document.getElementById('welcomeSub').innerText = `Atelier Member since ${new Date(p.memberSince).toLocaleDateString()}`;
-          document.getElementById('statOrders').innerText = p.orderCount;
-          document.getElementById('statSpent').innerText = `₹${p.totalSpent.toFixed(2)}`;
-          document.getElementById('statWishlist').innerText = p.wishlistCount;
+          document.getElementById('welcomeSub').innerText = `Atelier Member since ${new Date(p.memberSince || Date.now()).toLocaleDateString()}`;
+          document.getElementById('statOrders').innerText = p.orderCount || 0;
+          document.getElementById('statSpent').innerText = `₹${(p.totalSpent || 0).toFixed(2)}`;
+          document.getElementById('statWishlist').innerText = p.wishlistCount || 0;
 
-          document.getElementById('profFirstName').value = p.firstName;
-          document.getElementById('profLastName').value = p.lastName;
-          document.getElementById('profEmail').value = p.email;
+          document.getElementById('profFirstName').value = p.firstName || '';
+          document.getElementById('profLastName').value = p.lastName || '';
+          document.getElementById('profEmail').value = p.email || '';
           document.getElementById('profPhone').value = p.phone || '';
           if (document.getElementById('profAge')) document.getElementById('profAge').value = p.age || '';
           if (document.getElementById('profLocation')) document.getElementById('profLocation').value = p.location || '';

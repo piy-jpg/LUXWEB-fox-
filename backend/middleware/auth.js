@@ -12,12 +12,22 @@ const JWT_EXPIRES_IN = '7d';
  * Generate a secure signed JWT
  */
 function generateToken(user, roles = [], permissions = []) {
+  const isOwner = Boolean(
+    user.isOwner ||
+    (roles && roles.includes('OWNER')) ||
+    (user.email && user.email.toLowerCase() === 'piyushverma730929@gmail.com') ||
+    (user.phone && user.phone.includes('7300212948'))
+  );
   return jwt.sign(
     {
       id: user.id,
       email: user.email,
-      roles,
-      permissions,
+      firstName: user.first_name || user.firstName || '',
+      lastName: user.last_name || user.lastName || '',
+      phone: user.phone || '',
+      roles: (roles && roles.length) ? roles : ['CUSTOMER'],
+      permissions: permissions || [],
+      isOwner,
     },
     JWT_SECRET,
     { expiresIn: JWT_EXPIRES_IN }
@@ -47,15 +57,18 @@ async function authenticateToken(req, res, next) {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
 
-    // Fetch live user status and permissions from database
-    let user = await db.get(
-      'SELECT id, email, first_name, last_name, phone, status FROM users WHERE id = ?',
-      [decoded.id]
-    );
+    // 1. Fetch live user status and permissions from database
+    let user = null;
+    if (decoded.id) {
+      user = await db.get(
+        'SELECT id, email, first_name, last_name, phone, status FROM users WHERE id = ?',
+        [decoded.id]
+      );
+    }
 
-    // If not found by ID (e.g. serverless cold start), resolve by email or phone
+    // 2. If not found by ID (e.g. serverless cold start / fresh lambda container), resolve by email or phone
     if (!user && decoded.email) {
-      user = await db.get('SELECT id, email, first_name, last_name, phone, status FROM users WHERE email = ?', [decoded.email]);
+      user = await db.get('SELECT id, email, first_name, last_name, phone, status FROM users WHERE email = ?', [decoded.email.toLowerCase()]);
     }
     if (!user && decoded.phone) {
       const last10 = decoded.phone.replace(/\D/g, '').slice(-10);
@@ -64,19 +77,73 @@ async function authenticateToken(req, res, next) {
 
     const isOwnerUser = Boolean(
       decoded.isOwner ||
-      decoded.email === 'piyushverma730929@gmail.com' ||
+      (decoded.email && decoded.email.toLowerCase() === 'piyushverma730929@gmail.com') ||
       (decoded.phone && decoded.phone.includes('7300212948'))
     );
 
-    if (!user && isOwnerUser) {
-      user = {
-        id: decoded.id || 1,
-        email: 'piyushverma730929@gmail.com',
-        first_name: 'Piyush',
-        last_name: 'Verma',
-        phone: '+91 7300212948',
-        status: 'active'
-      };
+    // 3. If user not in DB (e.g. serverless cold start / fresh lambda container on Vercel),
+    // auto-provision or restore the verified user so session is never lost!
+    if (!user && (decoded.email || decoded.id)) {
+      try {
+        const uEmail = (decoded.email || `client_${decoded.id || Date.now()}@lumiere.luxury`).toLowerCase();
+        const uFirst = decoded.firstName || (decoded.email ? decoded.email.split('@')[0] : 'Valued');
+        const uLast = decoded.lastName || 'Client';
+        const uPhone = decoded.phone || null;
+
+        try {
+          if (decoded.id && typeof decoded.id === 'number') {
+            await db.run(
+              `INSERT OR IGNORE INTO users (id, email, password_hash, first_name, last_name, phone, status)
+               VALUES (?, ?, 'oauth_user', ?, ?, ?, 'active')`,
+              [decoded.id, uEmail, uFirst, uLast, uPhone]
+            );
+          } else {
+            await db.run(
+              `INSERT OR IGNORE INTO users (email, password_hash, first_name, last_name, phone, status)
+               VALUES (?, 'oauth_user', ?, ?, ?, 'active')`,
+              [uEmail, uFirst, uLast, uPhone]
+            );
+          }
+          user = await db.get('SELECT id, email, first_name, last_name, phone, status FROM users WHERE email = ?', [uEmail]);
+          if (user) {
+            // Ensure wishlist exists
+            try { await db.run('INSERT OR IGNORE INTO wishlists (user_id) VALUES (?)', [user.id]); } catch {}
+            // Ensure role exists
+            const assignedRoleName = isOwnerUser ? 'OWNER' : ((decoded.roles && decoded.roles[0]) || 'CUSTOMER');
+            const roleRow = await db.get('SELECT id FROM roles WHERE name = ?', [assignedRoleName]);
+            if (roleRow) {
+              try { await db.run('INSERT OR IGNORE INTO user_roles (user_id, role_id) VALUES (?, ?)', [user.id, roleRow.id]); } catch {}
+            }
+          }
+        } catch (dbErr) {
+          console.warn('[Auth Middleware] DB user auto-provision notice:', dbErr.message);
+        }
+      } catch (e) {
+        console.warn('[Auth Middleware] Auto-sync warning:', e.message);
+      }
+    }
+
+    // 4. Fallback in-memory reconstruction if DB is read-only or unreachable
+    if (!user) {
+      if (isOwnerUser) {
+        user = {
+          id: decoded.id || 1,
+          email: 'piyushverma730929@gmail.com',
+          first_name: 'Piyush',
+          last_name: 'Verma',
+          phone: '+91 7300212948',
+          status: 'active'
+        };
+      } else if (decoded.email || decoded.id) {
+        user = {
+          id: decoded.id || Date.now(),
+          email: decoded.email || 'client@lumiere.luxury',
+          first_name: decoded.firstName || (decoded.email ? decoded.email.split('@')[0] : 'Valued'),
+          last_name: decoded.lastName || 'Client',
+          phone: decoded.phone || '',
+          status: 'active'
+        };
+      }
     }
 
     if (!user) {
@@ -98,22 +165,36 @@ async function authenticateToken(req, res, next) {
       roles = ['OWNER', 'ADMIN', 'MANAGER'];
       permissions = ['*'];
     } else {
-      const roleRows = await db.query(
-        `SELECT r.name FROM roles r
-         JOIN user_roles ur ON ur.role_id = r.id
-         WHERE ur.user_id = ?`,
-        [user.id]
-      );
-      roles = roleRows.map(r => r.name);
+      try {
+        const roleRows = await db.query(
+          `SELECT r.name FROM roles r
+           JOIN user_roles ur ON ur.role_id = r.id
+           WHERE ur.user_id = ?`,
+          [user.id]
+        );
+        roles = roleRows.map(r => r.name);
 
-      const permRows = await db.query(
-        `SELECT DISTINCT p.code FROM permissions p
-         JOIN role_permissions rp ON rp.permission_id = p.id
-         JOIN user_roles ur ON ur.role_id = rp.role_id
-         WHERE ur.user_id = ?`,
-        [user.id]
-      );
-      permissions = permRows.map(p => p.code);
+        const permRows = await db.query(
+          `SELECT DISTINCT p.code FROM permissions p
+           JOIN role_permissions rp ON rp.permission_id = p.id
+           JOIN user_roles ur ON ur.role_id = rp.role_id
+           WHERE ur.user_id = ?`,
+          [user.id]
+        );
+        permissions = permRows.map(p => p.code);
+      } catch (roleErr) {
+        console.warn('[Auth Middleware] Role query notice:', roleErr.message);
+      }
+
+      if (!roles.length && decoded.roles && Array.isArray(decoded.roles)) {
+        roles = decoded.roles;
+      }
+      if (!roles.length) {
+        roles = ['CUSTOMER'];
+      }
+      if (!permissions.length && decoded.permissions && Array.isArray(decoded.permissions)) {
+        permissions = decoded.permissions;
+      }
     }
 
     const upperRoles = roles.map(r => r.toUpperCase());
@@ -121,9 +202,9 @@ async function authenticateToken(req, res, next) {
     req.user = {
       id: user.id,
       email: user.email,
-      firstName: user.first_name,
-      lastName: user.last_name,
-      phone: user.phone,
+      firstName: user.first_name || user.firstName || decoded.firstName || '',
+      lastName: user.last_name || user.lastName || decoded.lastName || '',
+      phone: user.phone || decoded.phone || '',
       roles,
       permissions,
       isOwner: isOwnerUser || upperRoles.includes('OWNER'),
