@@ -1413,7 +1413,14 @@ async function executeOrderPlacement() {
   }
 
   const orderPayload = {
-    items: currentCheckoutItems.map(i => ({ productId: parseInt(i.id || i.productId, 10), quantity: parseInt(i.qty || 1, 10) })),
+    items: currentCheckoutItems.map(i => ({
+      id: parseInt(i.id || i.productId, 10),
+      productId: parseInt(i.id || i.productId, 10),
+      quantity: parseInt(i.qty || 1, 10),
+      name: i.name || 'Lumière Item',
+      price: parseFloat(i.price || 0),
+      sku: i.sku || `LUM-PRD-${i.id || i.productId}`
+    })),
     customerName: currentCheckoutAddress.fullName,
     customerEmail: currentCheckoutAddress.email,
     shippingAddress: {
