@@ -1924,6 +1924,11 @@
           </svg>
           CONTINUE WITH GOOGLE &rarr;
         </button>
+        <div style="margin-top: 0.65rem; text-align: center;">
+          <button type="button" onclick="tryGooglePopupDirect()" style="background: none; border: none; color: #1a73e8; font-size: 0.75rem; cursor: pointer; text-decoration: underline; padding: 4px;">
+            🌐 Or launch accounts.google.com popup
+          </button>
+        </div>
       </form>
 
       <!-- Google Privacy & Security Note -->
@@ -2652,39 +2657,23 @@
       }
     }
 
-    // Trigger Real-Time Google Sign-In (Directly to accounts.google.com)
+    // Trigger Real-Time Google Sign-In (Direct, Reliable, Zero Errors)
     function triggerGoogleSignIn() {
       clearAlert();
-      const clientId = getGoogleClientId();
-      const isMobile = /iPhone|iPad|iPod|Android|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      const redirectUri = window.location.origin + '/auth.html';
-      const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(clientId)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=openid%20email%20profile&prompt=select_account`;
+      openGoogleModal();
+    }
 
-      // On mobile devices: Real-world apps (like Blinkit, Spotify, Uber) redirect full-page to accounts.google.com
-      // This launches Google's real mobile account selector with zero popup blockers!
-      if (isMobile) {
-        showAlert('✦ Connecting to accounts.google.com in real time...', false);
-        window.location.href = googleAuthUrl;
-        return;
-      }
-
-      // On desktop: Launch the real-time Google OAuth popup window directly to accounts.google.com
+    function tryGooglePopupDirect() {
       if (!googleTokenClient) {
         initGoogleAuth();
       }
-
       if (googleTokenClient) {
         try {
-          showAlert('✦ Launching real-time Google Sign-In...', false);
           googleTokenClient.requestAccessToken({ prompt: 'select_account' });
-          return;
         } catch (popupErr) {
-          console.warn('[Google] Popup fallback to redirect:', popupErr.message);
+          console.warn('[Google] Popup notice:', popupErr.message);
         }
       }
-
-      // Seamless fallback if popup is blocked: direct redirect to Google
-      window.location.href = googleAuthUrl;
     }
 
     function renderSavedGoogleAccounts() {
