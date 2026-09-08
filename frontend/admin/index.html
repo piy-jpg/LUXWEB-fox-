@@ -89,28 +89,28 @@
 
       <!-- Metric Cards Grid -->
       <div class="stat-card-grid">
-        <div class="stat-card" id="cardRevenue">
+        <div class="stat-card" id="cardRevenue" onclick="location.href='analytics.html'" style="cursor: pointer;" title="Click to view full Revenue Analytics & Financial Registers">
           <div class="stat-title">Total Revenue</div>
           <div class="stat-number" id="valRevenue">₹0.00</div>
-          <span style="font-size: 0.72rem; color: #7bed9f; margin-top: 0.5rem;">✦ Verified Transactions</span>
+          <span style="font-size: 0.72rem; color: #7bed9f; margin-top: 0.5rem;">✦ Verified Transactions &rarr;</span>
         </div>
 
-        <div class="stat-card" id="cardOrders">
+        <div class="stat-card" id="cardOrders" onclick="location.href='orders.html'" style="cursor: pointer;" title="Click to view all Orders & Dispatch Management">
           <div class="stat-title">Total Orders</div>
           <div class="stat-number" id="valOrders">0</div>
-          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">All lifetime orders</span>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">All lifetime orders &rarr;</span>
         </div>
 
-        <div class="stat-card" id="cardTodayOrders">
+        <div class="stat-card" id="cardTodayOrders" onclick="location.href='orders.html?status=Pending'" style="cursor: pointer;" title="Click to view Pending Orders requiring dispatch">
           <div class="stat-title">Today's Orders</div>
           <div class="stat-number" id="valTodayOrders">0</div>
-          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;" id="valTodayRev">₹0.00 today</span>
+          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;" id="valTodayRev">₹0.00 today &rarr;</span>
         </div>
 
-        <div class="stat-card" id="cardCustomers">
+        <div class="stat-card" id="cardCustomers" onclick="location.href='customers.html'" style="cursor: pointer;" title="Click to view Registered Luxury Clients Directory">
           <div class="stat-title">Total Clients</div>
           <div class="stat-number" id="valCustomers">0</div>
-          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Registered luxury accounts</span>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Registered luxury accounts &rarr;</span>
         </div>
 
         <div class="stat-card" id="cardProducts" onclick="scrollToOwnerProducts()" style="cursor: pointer;" title="Click to view all products in the Executive Catalog fleet">
@@ -119,10 +119,10 @@
           <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;">↓ View Live Catalog Fleet</span>
         </div>
 
-        <div class="stat-card" id="cardLowStock">
+        <div class="stat-card" id="cardLowStock" onclick="location.href='inventory.html?filter=low_stock'" style="cursor: pointer;" title="Click to review Low & Out of Stock items">
           <div class="stat-title">Low / Out of Stock</div>
           <div class="stat-number" id="valLowStock" style="color: #f39c12;">0</div>
-          <span style="font-size: 0.72rem; color: #e74c3c; margin-top: 0.5rem;" id="valOutStock">0 out of stock</span>
+          <span style="font-size: 0.72rem; color: #e74c3c; margin-top: 0.5rem;" id="valOutStock">0 out of stock &rarr;</span>
         </div>
       </div>
 
@@ -1751,6 +1751,10 @@
     function enforceRoleButtons() {
       const canCreate = Auth.hasPermission('products.create');
       const canRestock = Auth.hasPermission('inventory.adjust');
+      const canAnalytics = Auth.hasPermission('analytics.view');
+      const canOrders = Auth.hasPermission('orders.view');
+      const canCustomers = Auth.hasPermission('customers.view');
+      const canInventory = Auth.hasPermission('inventory.view');
       const isOwner = Auth.isOwner();
 
       const btnCreate = document.getElementById('btnDeckCreateProduct');
@@ -1800,6 +1804,21 @@
         btnAudit.style.cursor = 'not-allowed';
         btnAudit.title = 'Audit ledger restricted to Atelier Owner';
       }
+
+      // Role-based visibility for Dashboard Cards
+      const cardRevenue = document.getElementById('cardRevenue');
+      const cardTodayOrders = document.getElementById('cardTodayOrders');
+      const cardOrders = document.getElementById('cardOrders');
+      const cardCustomers = document.getElementById('cardCustomers');
+      const cardLowStock = document.getElementById('cardLowStock');
+      const lowStockBanner = document.getElementById('lowStockBanner');
+
+      if (cardRevenue && !canAnalytics) cardRevenue.style.display = 'none';
+      if (cardTodayOrders && !canAnalytics) cardTodayOrders.style.display = 'none';
+      if (cardOrders && !canOrders) cardOrders.style.display = 'none';
+      if (cardCustomers && !canCustomers) cardCustomers.style.display = 'none';
+      if (cardLowStock && !canInventory) cardLowStock.style.display = 'none';
+      if (lowStockBanner && !canInventory) lowStockBanner.style.display = 'none';
     }
 
     function closeAllModals() {

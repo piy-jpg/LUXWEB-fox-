@@ -13,7 +13,7 @@ router.use(authenticateToken);
 router.use(requireRole('OWNER', 'MANAGER', 'INVENTORY_STAFF', 'ORDER_STAFF'));
 
 // 1. Dashboard Overview & Analytics
-router.get('/overview', requirePermission('analytics.view'), adminController.getOverview);
+router.get('/overview', adminController.getOverview);
 router.get('/analytics', requirePermission('analytics.view'), adminController.getOverview);
 router.get('/analytics/detailed', requirePermission('analytics.view'), adminController.getDetailedAnalytics);
 

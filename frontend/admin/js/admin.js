@@ -30,14 +30,14 @@ const Admin = {
       title: 'Dashboard',
       icon: '📊',
       url: 'index.html',
-      perm: 'analytics.view',
+      perm: null, // Accessible by all staff roles; sub-links filtered strictly by role permissions
       badgeKey: null,
       children: [
-        { title: 'Revenue', url: 'index.html#valRevenue', badgeKey: 'revenue', badgeType: 'revenue' },
-        { title: 'Orders', url: 'index.html#valOrders', badgeKey: 'orders', badgeType: 'orders' },
-        { title: 'Customers', url: 'index.html#valCustomers', badgeKey: 'customers' },
-        { title: 'Products', url: 'index.html#valProducts', badgeKey: 'products' },
-        { title: 'Stock Alerts', url: 'index.html#lowStockBanner', badgeKey: 'stockAlerts', badgeType: 'alert' }
+        { title: 'Revenue', url: 'index.html#valRevenue', badgeKey: 'revenue', badgeType: 'revenue', perm: 'analytics.view' },
+        { title: 'Orders', url: 'index.html#valOrders', badgeKey: 'orders', badgeType: 'orders', perm: 'orders.view' },
+        { title: 'Customers', url: 'index.html#valCustomers', badgeKey: 'customers', perm: 'customers.view' },
+        { title: 'Products', url: 'index.html#valProducts', badgeKey: 'products', perm: 'products.view' },
+        { title: 'Stock Alerts', url: 'index.html#lowStockBanner', badgeKey: 'stockAlerts', badgeType: 'alert', perm: 'inventory.view' }
       ]
     },
     {
@@ -186,6 +186,53 @@ const Admin = {
     this.renderTopNav();
     this.startRealTimeSync();
     this.handlePageActions();
+
+    // Listen for hash navigation within the page
+    window.addEventListener('hashchange', () => {
+      this.handlePageActions();
+      this.updateActiveSubItems();
+    });
+
+    // Handle clicking same-hash sub-items directly without page reload
+    document.addEventListener('click', (e) => {
+      const link = e.target.closest('.nav-sub-item');
+      if (!link) return;
+      const href = link.getAttribute('data-sub-url') || link.getAttribute('href') || '';
+      if (href.includes('#')) {
+        const hash = href.substring(href.indexOf('#'));
+        const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+        const targetPath = href.split('?')[0].split('#')[0];
+        if (currentPath === targetPath && window.location.hash === hash) {
+          Admin.handlePageActions();
+        }
+      }
+    });
+  },
+
+  updateActiveSubItems() {
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const currentHash = window.location.hash.toLowerCase();
+    const currentSearch = window.location.search;
+
+    document.querySelectorAll('.nav-sub-item').forEach(link => {
+      const subUrl = link.getAttribute('data-sub-url') || '';
+      const subPath = subUrl.split('?')[0].split('#')[0];
+      const subHash = subUrl.includes('#') ? subUrl.substring(subUrl.indexOf('#')).toLowerCase() : '';
+      const subSearch = subUrl.includes('?') ? subUrl.substring(subUrl.indexOf('?')).split('#')[0] : '';
+
+      let isActive = false;
+      if (currentPath === subPath) {
+        if (subHash) {
+          isActive = (currentHash === subHash);
+        } else if (subSearch) {
+          isActive = (currentSearch === subSearch);
+        } else {
+          isActive = (!currentSearch && !currentHash);
+        }
+      }
+      if (isActive) link.classList.add('active');
+      else link.classList.remove('active');
+    });
   },
 
   renderSidebar() {
@@ -199,10 +246,11 @@ const Admin = {
 
     const allowedGroups = this.menuTree.filter(item => {
       if (isOwner) return true;
+      if (item.id === 'dashboard') return Auth.isStaff();
       if (item.id === 'reports') {
         return Auth.isStaff() || Auth.hasPermission('analytics.view');
       }
-      return Auth.hasPermission(item.perm);
+      return !item.perm || Auth.hasPermission(item.perm);
     });
 
     sidebar.innerHTML = `
@@ -224,7 +272,7 @@ const Admin = {
           const visibleChildren = (group.children || []).filter(sub => {
             if (isOwner) return true;
             if (!sub.perm) return true;
-            return Auth.hasPermission(sub.perm) || Auth.hasPermission('analytics.view');
+            return Auth.hasPermission(sub.perm);
           });
           const isCurrentGroup = (currentPath === group.url.split('?')[0].split('#')[0]) ||
             (visibleChildren.some(sub => sub.url.split('?')[0].split('#')[0] === currentPath));
@@ -439,20 +487,49 @@ const Admin = {
     const urlParams = new URLSearchParams(window.location.search);
     const hash = window.location.hash;
 
-    // 1. Dashboard Hash Highlighting
+    // 1. Dashboard Hash Highlighting & Target Resolution
     if (hash) {
       setTimeout(() => {
-        const target = document.querySelector(hash);
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          target.style.transition = 'box-shadow 0.4s ease, border-color 0.4s ease';
-          target.style.borderColor = 'var(--color-gold)';
-          target.style.boxShadow = '0 0 25px rgba(201, 169, 110, 0.5)';
+        let target = document.querySelector(hash);
+
+        // Fallback for stock alerts banner if hidden
+        if (hash === '#lowStockBanner') {
+          const banner = document.getElementById('lowStockBanner');
+          if (banner && banner.style.display !== 'none') {
+            target = banner;
+          } else {
+            target = document.getElementById('cardLowStock') || banner;
+          }
+        }
+
+        // If target is an inner stat element (e.g. #valRevenue, #valOrders, #valCustomers, #valProducts), highlight the parent card!
+        const highlightTarget = (target && target.closest) ? (target.closest('.stat-card') || target) : target;
+
+        if (highlightTarget) {
+          highlightTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          highlightTarget.style.transition = 'box-shadow 0.4s ease, border-color 0.4s ease, transform 0.4s ease';
+          highlightTarget.style.borderColor = 'var(--color-gold)';
+          highlightTarget.style.boxShadow = '0 0 35px rgba(201, 169, 110, 0.7)';
+          highlightTarget.style.transform = 'translateY(-4px)';
           setTimeout(() => {
-            target.style.boxShadow = '';
+            highlightTarget.style.boxShadow = '';
+            highlightTarget.style.transform = '';
           }, 2400);
         }
-      }, 350);
+
+        // When navigating to products, also highlight and scroll towards live catalog fleet
+        if (hash === '#valProducts' || hash === '#cardProducts') {
+          const fleet = document.getElementById('ownerCatalogSection');
+          if (fleet) {
+            setTimeout(() => {
+              fleet.style.transition = 'box-shadow 0.4s ease, border-color 0.4s ease';
+              fleet.style.borderColor = 'rgba(201, 169, 110, 0.6)';
+              fleet.style.boxShadow = '0 0 25px rgba(201, 169, 110, 0.35)';
+              setTimeout(() => { fleet.style.boxShadow = ''; }, 2400);
+            }, 500);
+          }
+        }
+      }, 150);
     }
 
     // 2. Orders Filter Preselection
