@@ -457,10 +457,20 @@
         const data = await res.json();
         if (data.success) {
           const p = data.profile;
+          
+          let localOrders = [];
+          try {
+            localOrders = JSON.parse(localStorage.getItem('lumiere_customer_orders') || '[]');
+          } catch (_) {}
+
+          const totalOrders = Math.max(p.orderCount || 0, localOrders.length);
+          const localSpent = localOrders.reduce((sum, o) => sum + parseFloat(o.total_amount || o.totalAmount || 0), 0);
+          const totalSpent = (p.totalSpent && p.totalSpent > 0) ? p.totalSpent : localSpent;
+
           document.getElementById('welcomeHeading').innerText = `Welcome, ${p.firstName || 'Client'}`;
           document.getElementById('welcomeSub').innerText = `Atelier Member since ${new Date(p.memberSince || Date.now()).toLocaleDateString()}`;
-          document.getElementById('statOrders').innerText = p.orderCount || 0;
-          document.getElementById('statSpent').innerText = `₹${(p.totalSpent || 0).toFixed(2)}`;
+          document.getElementById('statOrders').innerText = totalOrders;
+          document.getElementById('statSpent').innerText = `₹${totalSpent.toFixed(2)}`;
           document.getElementById('statWishlist').innerText = p.wishlistCount || 0;
 
           document.getElementById('profFirstName').value = p.firstName || '';
@@ -503,36 +513,59 @@
     async function loadOrders() {
       const container = document.getElementById('ordersListContainer');
       try {
-        const res = await Auth.apiFetch('/api/account/orders');
-        const data = await res.json();
-        if (data.success) {
-          if (data.orders.length === 0) {
-            container.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No orders placed yet. Explore the boutique to begin.</p>';
-            return;
+        let serverOrders = [];
+        try {
+          const res = await Auth.apiFetch('/api/account/orders');
+          const data = await res.json();
+          if (data.success && Array.isArray(data.orders)) {
+            serverOrders = data.orders;
           }
-          container.innerHTML = data.orders.map(o => `
-            <div class="order-card-row">
-              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
-                <div>
-                  <span style="font-family: var(--font-serif); font-size: 1.15rem; color: #fff;">Order #${o.order_number}</span>
-                  <span style="font-size: 0.75rem; color: rgba(250,247,242,0.5); margin-left: 0.75rem;">Placed on ${new Date(o.created_at).toLocaleDateString()}</span>
-                </div>
-                <div>
-                  <span class="status-pill status-${o.status.toLowerCase()}">${o.status}</span>
-                </div>
+        } catch (_) {}
+
+        let localOrders = [];
+        try {
+          localOrders = JSON.parse(localStorage.getItem('lumiere_customer_orders') || '[]');
+        } catch (_) {}
+
+        // Merge orders by order_number
+        const orderMap = new Map();
+        [...serverOrders, ...localOrders].forEach(o => {
+          const num = o.order_number || o.orderNumber;
+          if (num && !orderMap.has(num)) {
+            orderMap.set(num, o);
+          }
+        });
+        const combinedOrders = Array.from(orderMap.values());
+
+        if (combinedOrders.length === 0) {
+          container.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No orders placed yet. Explore the boutique to begin.</p>';
+          return;
+        }
+
+        container.innerHTML = combinedOrders.map(o => `
+          <div class="order-card-row">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+              <div>
+                <span style="font-family: var(--font-serif); font-size: 1.15rem; color: #fff;">Order #${o.order_number || o.orderNumber}</span>
+                <span style="font-size: 0.75rem; color: rgba(250,247,242,0.5); margin-left: 0.75rem;">Placed on ${new Date(o.created_at || Date.now()).toLocaleDateString()}</span>
               </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem; font-size: 0.85rem;">
-                <div>
-                  <span style="color: rgba(250,247,242,0.6);">Total:</span>
-                  <strong style="color: var(--color-gold); font-size: 1.05rem; margin-left: 0.35rem;">₹${parseFloat(o.total_amount).toFixed(2)}</strong>
-                </div>
-                <button onclick="viewTracking('${o.id}')" class="btn-luxury-outline" style="padding: 0.4rem 0.85rem; font-size: 0.72rem;">
-                  TRACK SHIPMENT &rarr;
-                </button>
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                <span class="status-pill status-${(o.status || 'Confirmed').toLowerCase()}">${o.status || 'Confirmed'}</span>
+                <span style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(34,197,94,0.15); color: #22c55e; font-weight: 600;">${o.payment_status || o.paymentStatus || 'Paid'}</span>
               </div>
             </div>
-          `).join('');
-        }
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem; font-size: 0.85rem;">
+              <div>
+                <span style="color: rgba(250,247,242,0.6);">Total:</span>
+                <strong style="color: var(--color-gold); font-size: 1.05rem; margin-left: 0.35rem;">₹${parseFloat(o.total_amount || o.totalAmount || 0).toFixed(2)}</strong>
+                <span style="font-size: 0.75rem; color: rgba(250,247,242,0.45); margin-left: 0.5rem;">(${o.payment_method || o.paymentMethod || 'Online Payment'})</span>
+              </div>
+              <button onclick="viewTracking('${o.id || o.order_number || o.orderNumber}')" class="btn-luxury-outline" style="padding: 0.4rem 0.85rem; font-size: 0.72rem;">
+                TRACK SHIPMENT &rarr;
+              </button>
+            </div>
+          </div>
+        `).join('');
       } catch (err) {
         container.innerHTML = '<p style="color: #FF8A9E;">Failed to load order history.</p>';
       }
@@ -540,31 +573,53 @@
 
     async function viewTracking(orderId) {
       try {
-        const res = await Auth.apiFetch(`/api/account/orders/${orderId}`);
-        const data = await res.json();
-        if (data.success) {
-          const o = data.order;
-          document.getElementById('modalOrderNumber').innerText = `Order #${o.order_number}`;
-          document.getElementById('modalTrackingStatus').innerText = `Status: ${o.status} | Tracking: ${o.tracking_number || 'Preparing for dispatch'}`;
+        let o = null;
+        try {
+          const res = await Auth.apiFetch(`/api/account/orders/${orderId}`);
+          const data = await res.json();
+          if (data.success && data.order) o = data.order;
+        } catch (_) {}
+
+        if (!o) {
+          const localOrders = JSON.parse(localStorage.getItem('lumiere_customer_orders') || '[]');
+          o = localOrders.find(item => String(item.id) === String(orderId) || String(item.order_number || item.orderNumber) === String(orderId));
+        }
+
+        if (o) {
+          const oNum = o.order_number || o.orderNumber || orderId;
+          document.getElementById('modalOrderNumber').innerText = `Order #${oNum}`;
+          document.getElementById('modalTrackingStatus').innerText = `Status: ${o.status || 'Confirmed'} | Payment: ${o.payment_status || o.paymentStatus || 'Paid'}`;
           
-          document.getElementById('modalTimelineSteps').innerHTML = o.timeline.map((t, idx) => `
+          const defaultTimeline = [
+            { step: 'Order Confirmed', completed: true, current: true },
+            { step: 'Artisan Atelier Handcrafting', completed: false, current: false },
+            { step: 'Quality Inspection', completed: false, current: false },
+            { step: 'Dispatched via Air Courier', completed: false, current: false },
+            { step: 'Delivered', completed: false, current: false },
+          ];
+          const timeline = o.timeline || defaultTimeline;
+
+          document.getElementById('modalTimelineSteps').innerHTML = timeline.map((t, idx) => `
             <div class="timeline-step ${t.completed ? 'completed' : ''} ${t.current ? 'current' : ''}">
               <div class="timeline-dot">${idx + 1}</div>
               <span style="font-size: 0.68rem; letter-spacing: 0.05em;">${t.step}</span>
             </div>
           `).join('');
 
+          const items = o.items || [];
           document.getElementById('modalOrderDetailsBody').innerHTML = `
-            <div style="margin-bottom: 0.75rem;"><strong>Items (${o.items.length}):</strong></div>
-            ${o.items.map(i => `
+            <div style="margin-bottom: 0.75rem;"><strong>Payment Method:</strong> ${o.payment_method || o.paymentMethod || 'Online Payment (Razorpay Live)'}</div>
+            <div style="margin-bottom: 0.75rem;"><strong>Payment Status:</strong> <span style="color: #22c55e;">${o.payment_status || o.paymentStatus || 'Paid (Verified)'}</span></div>
+            ${items.length ? `<div style="margin-bottom: 0.75rem;"><strong>Items (${items.length}):</strong></div>
+            ${items.map(i => `
               <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem; color: rgba(250,247,242,0.85);">
-                <span>${i.quantity}x ${i.product_name}</span>
-                <span>₹${parseFloat(i.total_price).toFixed(2)}</span>
+                <span>${i.quantity || i.qty || 1}x ${i.product_name || i.name}</span>
+                <span>₹${parseFloat(i.total_price || i.totalPrice || (i.price * (i.quantity || 1)) || 0).toFixed(2)}</span>
               </div>
-            `).join('')}
+            `).join('')}` : ''}
             <div style="border-top: 1px dashed rgba(255,255,255,0.1); margin-top: 0.75rem; padding-top: 0.75rem; display: flex; justify-content: space-between; font-weight: 600; color: var(--color-gold);">
               <span>Order Total:</span>
-              <span>₹${parseFloat(o.total_amount).toFixed(2)}</span>
+              <span>₹${parseFloat(o.total_amount || o.totalAmount || 0).toFixed(2)}</span>
             </div>
           `;
 

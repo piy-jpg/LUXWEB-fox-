@@ -186,6 +186,7 @@ async function processOrderCreation({
     paymentMethod: resolvedPaymentMethod,
     items: resolvedItems,
     shippingAddress,
+    createdAt: new Date().toISOString(),
     ownerNotification: {
       whatsAppUrl: whatsAppData.url,
       whatsAppText: whatsAppData.text,
@@ -237,6 +238,7 @@ router.post('/razorpay-create-order', optionalAuth, async (req, res) => {
         amount: amountInPaise,
         currency: currency || 'INR',
         receipt: receipt,
+        payment_capture: 1,
         notes: {
           store: 'Lumiere Beauty / Townhub'
         }

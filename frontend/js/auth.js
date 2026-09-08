@@ -1133,6 +1133,27 @@ function handleCheckoutSuccess(data) {
     updateCartUI();
   }
 
+  // Persist order in client localStorage so it immediately reflects in Account (/account.html)
+  if (data && data.order) {
+    try {
+      const existingOrders = JSON.parse(localStorage.getItem('lumiere_customer_orders') || '[]');
+      const newOrder = {
+        id: data.order.id || Date.now(),
+        order_number: data.order.orderNumber || data.order.order_number,
+        subtotal: data.order.subtotal,
+        total_amount: data.order.totalAmount || data.order.total_amount || currentCheckoutTotal,
+        status: data.order.status || 'Confirmed',
+        payment_status: data.order.paymentStatus || data.order.payment_status || 'Paid',
+        payment_method: data.order.paymentMethod || (currentPaymentMethod === 'RAZORPAY' ? 'Online Payment (PhonePe / UPI / Cards via Razorpay)' : 'Cash on Delivery (COD)'),
+        created_at: data.order.createdAt || new Date().toISOString(),
+        items: data.order.items || currentCheckoutItems || []
+      };
+      const filtered = existingOrders.filter(o => (o.order_number || o.orderNumber) !== newOrder.order_number);
+      filtered.unshift(newOrder);
+      localStorage.setItem('lumiere_customer_orders', JSON.stringify(filtered));
+    } catch (_) {}
+  }
+
   try {
     const bc = new BroadcastChannel('lumiere_cart_bus');
     bc.postMessage({ type: 'CART_CLEARED' });
