@@ -392,11 +392,9 @@
       const urlParams = new URLSearchParams(window.location.search);
       const idParam = urlParams.get('id');
       if (idParam) {
-        document.getElementById('productSelectDropdown').value = idParam;
-        selectProduct(parseInt(idParam, 10));
+        await selectProduct(idParam);
       } else if (productsList.length > 0) {
-        document.getElementById('productSelectDropdown').value = productsList[0].id;
-        selectProduct(productsList[0].id);
+        await selectProduct(productsList[0].id);
       }
     }
 
@@ -425,7 +423,7 @@
           productsList = data.products;
           const select = document.getElementById('productSelectDropdown');
           select.innerHTML = productsList.map(p => `
-            <option value="${p.id}">${p.name} (${p.sku || 'No SKU'}) — ₹${parseFloat(p.price).toFixed(2)} [${p.status}]</option>
+            <option value="${p.id}">${p.name} (${p.sku || 'No SKU'}) — ₹${parseFloat(p.price || 0).toFixed(2)} [${p.status || 'active'}]</option>
           `).join('');
 
           const prodBadge = document.getElementById('subnavProductsBadge');
@@ -438,41 +436,64 @@
 
     function onSelectProductChange(val) {
       if (!val) return;
-      selectProduct(parseInt(val, 10));
+      selectProduct(val);
     }
 
-    function selectProduct(id) {
-      const p = productsList.find(item => item.id === id);
+    async function selectProduct(id) {
+      if (id === undefined || id === null || id === '') return;
+      const qStr = String(id).toLowerCase().trim();
+      let p = productsList.find(item => String(item.id).toLowerCase() === qStr || String(item.sku || '').toLowerCase() === qStr);
+      if (!p) {
+        try {
+          const res = await Auth.apiFetch(`/api/admin/products/${encodeURIComponent(id)}`);
+          const data = await res.json();
+          if (data && data.success && data.product) {
+            p = data.product;
+            productsList.unshift(p);
+            const select = document.getElementById('productSelectDropdown');
+            const opt = document.createElement('option');
+            opt.value = p.id;
+            opt.innerText = `${p.name} (${p.sku || 'No SKU'}) — ₹${parseFloat(p.price || 0).toFixed(2)} [${p.status || 'active'}]`;
+            select.insertBefore(opt, select.firstChild);
+          }
+        } catch (_) {}
+      }
       if (!p) return;
       currentProduct = p;
+
+      const prodSelect = document.getElementById('productSelectDropdown');
+      if (prodSelect) prodSelect.value = p.id;
 
       document.getElementById('editId').value = p.id;
       document.getElementById('editName').value = p.name || '';
       document.getElementById('editSubtitle').value = p.subtitle || '';
       document.getElementById('editCategoryId').value = p.category_id || (categoriesList[0]?.id || '');
       document.getElementById('editStatus').value = p.status || 'active';
-      document.getElementById('editPrice').value = parseFloat(p.price).toFixed(2);
-      document.getElementById('editComparePrice').value = p.compare_at_price ? parseFloat(p.compare_at_price).toFixed(2) : '';
-      document.getElementById('editStock').value = p.stock_quantity ?? 0;
-      document.getElementById('editThreshold').value = p.low_stock_threshold ?? 10;
-      document.getElementById('editImageUrl').value = p.primary_image || '';
-      document.getElementById('editDescription').value = p.description || '';
+      document.getElementById('editPrice').value = parseFloat(p.price || 0).toFixed(2);
+      document.getElementById('editComparePrice').value = p.compare_at_price ? parseFloat(p.compare_at_price).toFixed(2) : (p.oldPrice ? parseFloat(p.oldPrice).toFixed(2) : '');
+      document.getElementById('editStock').value = p.stock_quantity ?? (p.stock ?? 50);
+      document.getElementById('editThreshold').value = p.low_stock_threshold ?? 5;
+      document.getElementById('editImageUrl').value = p.primary_image || p.img || '';
+      document.getElementById('editDescription').value = p.description || p.desc || '';
       document.getElementById('editIngredients').value = p.ingredients || '';
       document.getElementById('editHowToUse').value = p.how_to_use || '';
 
       // Manage Variants link
-      document.getElementById('btnQuickVariants').href = `product-variants.html?productId=${p.id}`;
+      const varLink = document.getElementById('btnQuickVariants');
+      if (varLink) varLink.href = `product-variants.html?productId=${p.id}`;
 
       // Update Archive button label
       const arcBtn = document.getElementById('btnQuickArchive');
-      if (p.status === 'archived') {
-        arcBtn.innerText = '✓ Restore to Active Catalog';
-        arcBtn.style.color = '#2ecc71';
-        arcBtn.style.borderColor = 'rgba(46,204,113,0.3)';
-      } else {
-        arcBtn.innerText = '📦 Archive Product';
-        arcBtn.style.color = '#FF708F';
-        arcBtn.style.borderColor = 'rgba(255,112,143,0.3)';
+      if (arcBtn) {
+        if (p.status === 'archived') {
+          arcBtn.innerText = '✓ Restore to Active Catalog';
+          arcBtn.style.color = '#2ecc71';
+          arcBtn.style.borderColor = 'rgba(46,204,113,0.3)';
+        } else {
+          arcBtn.innerText = '📦 Archive Product';
+          arcBtn.style.color = '#FF708F';
+          arcBtn.style.borderColor = 'rgba(255,112,143,0.3)';
+        }
       }
 
       // Reset custom image state
@@ -697,8 +718,7 @@
           }
 
           await loadProductsList();
-          document.getElementById('productSelectDropdown').value = id;
-          selectProduct(parseInt(id, 10));
+          await selectProduct(id);
         } else {
           alert(data.error || 'Failed to update product.');
         }
@@ -722,7 +742,7 @@
           if (data.success) {
             Admin.toast(`Product "${currentProduct.name}" restored to active catalog.`);
             await loadProductsList();
-            selectProduct(currentProduct.id);
+            await selectProduct(currentProduct.id);
           } else {
             alert(data.error || 'Failed to restore product.');
           }
@@ -738,7 +758,7 @@
           if (data.success) {
             Admin.toast(`Product "${currentProduct.name}" archived.`);
             await loadProductsList();
-            selectProduct(currentProduct.id);
+            await selectProduct(currentProduct.id);
           } else {
             alert(data.error || 'Failed to archive product.');
           }

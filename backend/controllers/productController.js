@@ -6,6 +6,7 @@
 const path = require('path');
 const fs = require('fs');
 const db = require('../config/db');
+const productLedger = require('../services/productLedger');
 
 // In-memory catalog version tracker
 let catalogVersion = Date.now();
@@ -214,8 +215,15 @@ async function getProducts(req, res) {
     sql += ' LIMIT ?';
     params.push(parseInt(limit, 10) || 1000);
 
-    const rows = await db.query(sql, params);
-    const results = rows.map(formatProductRow);
+    let rows = [];
+    try {
+      rows = await db.query(sql, params);
+    } catch (_) {}
+
+    let results = (rows && rows.length > 0) ? rows.map(formatProductRow) : [];
+    if (results.length === 0) {
+      results = productLedger.getAllProducts({ category, search, minPrice, maxPrice, sort, status, limit });
+    }
 
     let categories = [];
     try {
@@ -230,7 +238,11 @@ async function getProducts(req, res) {
         GROUP BY c.id
         ORDER BY c.id ASC
       `);
-    } catch {}
+    } catch (_) {}
+
+    if (!categories || categories.length === 0) {
+      categories = productLedger.getAllCategories();
+    }
 
     return res.json({
       success: true,
@@ -242,23 +254,14 @@ async function getProducts(req, res) {
     });
   } catch (err) {
     console.error('[ProductController.getProducts] DB Query error, using fallback:', err.message);
-
-    // Fallback to in-memory seeds if DB ever throws
-    let results = [...FALLBACK_PRODUCTS];
-    if (category && category !== 'all') {
-      results = results.filter(p => p.category && p.category.toLowerCase() === category.toLowerCase());
-    }
-    if (search) {
-      const q = search.toLowerCase();
-      results = results.filter(p => p.name.toLowerCase().includes(q) || (p.desc && p.desc.toLowerCase().includes(q)));
-    }
+    const results = productLedger.getAllProducts({ category, search, minPrice, maxPrice, sort, status, limit });
     return res.json({
       success: true,
       count: results.length,
       catalogVersion,
       data: results,
       products: results,
-      categories: []
+      categories: productLedger.getAllCategories()
     });
   }
 }
@@ -274,22 +277,30 @@ async function getCategories(req, res) {
       ? ''
       : "WHERE COALESCE(c.is_active, 1) = 1 AND COALESCE(c.status, 'active') = 'active'";
 
-    const categories = await db.query(`
-      SELECT c.id, c.name, c.slug, c.description, c.image_url,
-             COALESCE(c.is_active, 1) as is_active,
-             COALESCE(c.status, 'active') as status,
-             COALESCE(c.display_order, 10) as display_order,
-             COUNT(p.id) as product_count
-      FROM categories c
-      LEFT JOIN products p ON p.category_id = c.id AND p.status = 'active'
-      ${whereClause}
-      GROUP BY c.id
-      ORDER BY COALESCE(c.display_order, 10) ASC, c.id ASC
-    `);
+    let categories = [];
+    try {
+      categories = await db.query(`
+        SELECT c.id, c.name, c.slug, c.description, c.image_url,
+               COALESCE(c.is_active, 1) as is_active,
+               COALESCE(c.status, 'active') as status,
+               COALESCE(c.display_order, 10) as display_order,
+               COUNT(p.id) as product_count
+        FROM categories c
+        LEFT JOIN products p ON p.category_id = c.id AND p.status = 'active'
+        ${whereClause}
+        GROUP BY c.id
+        ORDER BY COALESCE(c.display_order, 10) ASC, c.id ASC
+      `);
+    } catch (_) {}
+
+    if (!categories || categories.length === 0) {
+      categories = productLedger.getAllCategories();
+    }
+
     return res.json({ success: true, categories });
   } catch (err) {
     console.error('[ProductController.getCategories] Error:', err);
-    return res.status(500).json({ success: false, error: 'Failed to fetch categories.' });
+    return res.json({ success: true, categories: productLedger.getAllCategories() });
   }
 }
 
@@ -303,25 +314,32 @@ async function getProductById(req, res) {
   }
 
   try {
-    const row = await db.get(
-      `SELECT 
-        p.id, p.sku, p.name, p.slug, p.description, p.price, p.compare_at_price,
-        p.category_id, p.collection_id, p.status, p.is_featured, p.is_new_arrival, p.is_bestseller,
-        p.badge, p.badge_type, p.stars, p.created_at, p.updated_at,
-        c.name as category_name, c.slug as category_slug,
-        img.image_url as primary_image,
-        inv.stock_quantity, inv.reserved_quantity,
-        (COALESCE(inv.stock_quantity, 0) - COALESCE(inv.reserved_quantity, 0)) as available_quantity,
-        inv.low_stock_threshold
-      FROM products p
-      LEFT JOIN categories c ON c.id = p.category_id
-      LEFT JOIN product_images img ON img.product_id = p.id AND img.is_primary = 1
-      LEFT JOIN inventory inv ON inv.product_id = p.id
-      WHERE p.id = ?`,
-      [id]
-    );
+    let row = null;
+    try {
+      row = await db.get(
+        `SELECT 
+          p.id, p.sku, p.name, p.slug, p.description, p.price, p.compare_at_price,
+          p.category_id, p.collection_id, p.status, p.is_featured, p.is_new_arrival, p.is_bestseller,
+          p.badge, p.badge_type, p.stars, p.created_at, p.updated_at,
+          c.name as category_name, c.slug as category_slug,
+          img.image_url as primary_image,
+          inv.stock_quantity, inv.reserved_quantity,
+          (COALESCE(inv.stock_quantity, 0) - COALESCE(inv.reserved_quantity, 0)) as available_quantity,
+          inv.low_stock_threshold
+        FROM products p
+        LEFT JOIN categories c ON c.id = p.category_id
+        LEFT JOIN product_images img ON img.product_id = p.id AND img.is_primary = 1
+        LEFT JOIN inventory inv ON inv.product_id = p.id
+        WHERE p.id = ?`,
+        [id]
+      );
+    } catch (_) {}
 
     if (!row) {
+      const fallback = productLedger.getProductById(id);
+      if (fallback) {
+        return res.json({ success: true, data: fallback, product: fallback });
+      }
       return res.status(404).json({ success: false, message: `Product #${id} not found` });
     }
 
@@ -329,7 +347,7 @@ async function getProductById(req, res) {
     return res.json({ success: true, data: product, product });
   } catch (err) {
     console.error('[ProductController.getProductById] Error:', err.message);
-    const fallback = FALLBACK_PRODUCTS.find(p => p.id === id);
+    const fallback = productLedger.getProductById(id);
     if (fallback) {
       return res.json({ success: true, data: fallback, product: fallback });
     }

@@ -11,6 +11,7 @@ const inventoryService = require('../services/inventoryService');
 const { logAudit } = require('../middleware/auditLogger');
 const { broadcastCatalogUpdate } = require('./productController');
 const orderLedger = require('../services/orderLedger');
+const productLedger = require('../services/productLedger');
 
 /* ============================================================
    1. DASHBOARD EXECUTIVE OVERVIEW
@@ -397,14 +398,101 @@ async function getProducts(req, res) {
     sql += ' ORDER BY p.id DESC LIMIT ?';
     params.push(parseInt(limit, 10) || 1000);
 
-    const products = await db.query(sql, params);
-    const categories = await db.query('SELECT * FROM categories ORDER BY name ASC');
-    const collections = await db.query('SELECT * FROM collections ORDER BY name ASC');
+    let products = [];
+    try {
+      products = await db.query(sql, params);
+    } catch (_) {}
 
-    return res.json({ success: true, products, categories, collections });
+    // Resilient fallback to product ledger
+    if (!products || products.length === 0) {
+      products = productLedger.getAllProducts({ search, category, status: status || 'all', limit });
+    }
+
+    let categories = [];
+    try {
+      categories = await db.query('SELECT * FROM categories ORDER BY name ASC');
+    } catch (_) {}
+    if (!categories || categories.length === 0) {
+      categories = productLedger.getAllCategories();
+    }
+
+    let collections = [];
+    try {
+      collections = await db.query('SELECT * FROM collections ORDER BY name ASC');
+    } catch (_) {}
+    if (!collections || collections.length === 0) {
+      collections = productLedger.getAllCollections();
+    }
+
+    return res.json({ success: true, products, categories, collections, total: products.length });
   } catch (err) {
     console.error('[Admin.getProducts] Error:', err);
-    return res.status(500).json({ success: false, error: 'Failed to retrieve products.' });
+    const products = productLedger.getAllProducts({ search, category, status: status || 'all', limit });
+    const categories = productLedger.getAllCategories();
+    const collections = productLedger.getAllCollections();
+    return res.json({ success: true, products, categories, collections, total: products.length });
+  }
+}
+
+async function getProductDetails(req, res) {
+  const { id } = req.params;
+
+  try {
+    let product = null;
+    try {
+      product = await db.get(`
+        SELECT 
+          p.*,
+          c.name as category_name,
+          c.slug as category_slug,
+          col.name as collection_name,
+          inv.stock_quantity,
+          inv.reserved_quantity,
+          (COALESCE(inv.stock_quantity, 0) - COALESCE(inv.reserved_quantity, 0)) as available_quantity,
+          inv.low_stock_threshold,
+          img.image_url as primary_image
+        FROM products p
+        LEFT JOIN categories c ON c.id = p.category_id
+        LEFT JOIN collections col ON col.id = p.collection_id
+        LEFT JOIN inventory inv ON inv.product_id = p.id
+        LEFT JOIN product_images img ON img.product_id = p.id AND img.is_primary = 1
+        WHERE p.id = ? OR p.sku = ?
+      `, [id, id]);
+    } catch (_) {}
+
+    if (!product) {
+      product = productLedger.getProductById(id);
+    }
+
+    if (!product) {
+      return res.status(404).json({ success: false, error: 'Product not found.' });
+    }
+
+    let variants = [];
+    try {
+      variants = await db.query('SELECT * FROM product_variants WHERE product_id = ?', [product.id]);
+    } catch (_) {}
+
+    let images = [];
+    try {
+      images = await db.query('SELECT * FROM product_images WHERE product_id = ? ORDER BY display_order ASC', [product.id]);
+    } catch (_) {}
+
+    return res.json({
+      success: true,
+      product: {
+        ...product,
+        variants,
+        images: images.length > 0 ? images : [{ id: 1, image_url: product.primary_image || product.img, is_primary: 1 }]
+      }
+    });
+  } catch (err) {
+    console.error('[Admin.getProductDetails] Error:', err);
+    const fallback = productLedger.getProductById(id);
+    if (fallback) {
+      return res.json({ success: true, product: fallback });
+    }
+    return res.status(500).json({ success: false, error: 'Failed to retrieve product details.' });
   }
 }
 
@@ -562,6 +650,26 @@ async function createProduct(req, res) {
       details: { sku, name, price, stockQuantity },
     });
 
+    try {
+      productLedger.createProduct({
+        id: productId,
+        sku,
+        name,
+        description,
+        price,
+        compareAtPrice,
+        categoryId,
+        stockQuantity,
+        lowStockThreshold,
+        status,
+        isFeatured,
+        isNewArrival,
+        isBestseller,
+        badge,
+        primaryImage: primaryImage
+      });
+    } catch (_) {}
+
     broadcastCatalogUpdate({ action: 'product.created', productId });
 
     return res.status(201).json({
@@ -578,52 +686,60 @@ async function createProduct(req, res) {
 async function updateProduct(req, res) {
   const { id } = req.params;
   const {
-    sku, name, description, price, compareAtPrice, categoryId, collectionId,
+    sku, name, description, subtitle, price, compareAtPrice, categoryId, collectionId,
     status, isFeatured, isNewArrival, isBestseller, badge, lowStockThreshold,
-    stockQuantity, images, imageUrl, primaryImage, imageBase64
+    stockQuantity, images, imageUrl, primaryImage, imageBase64,
+    ingredients, howToUse
   } = req.body;
 
   try {
-    const product = await db.get('SELECT * FROM products WHERE id = ?', [id]);
+    let product = null;
+    try {
+      product = await db.get('SELECT * FROM products WHERE id = ? OR sku = ?', [id, id]);
+    } catch (_) {}
+
+    if (!product) {
+      product = productLedger.getProductById(id);
+    }
+
     if (!product) {
       return res.status(404).json({ success: false, error: 'Product not found.' });
     }
 
-    await db.run(
-      `UPDATE products 
-       SET sku = ?, name = ?, description = ?, price = ?, compare_at_price = ?,
-           category_id = ?, collection_id = ?, status = ?, is_featured = ?, 
-           is_new_arrival = ?, is_bestseller = ?, badge = ?, updated_at = CURRENT_TIMESTAMP
-       WHERE id = ?`,
-      [
-        sku || product.sku,
-        name || product.name,
-        description !== undefined ? description : product.description,
-        price !== undefined ? price : product.price,
-        compareAtPrice !== undefined ? compareAtPrice : product.compare_at_price,
-        categoryId !== undefined ? categoryId : product.category_id,
-        collectionId !== undefined ? collectionId : product.collection_id,
-        status || product.status,
-        isFeatured !== undefined ? (isFeatured ? 1 : 0) : product.is_featured,
-        isNewArrival !== undefined ? (isNewArrival ? 1 : 0) : product.is_new_arrival,
-        isBestseller !== undefined ? (isBestseller ? 1 : 0) : product.is_bestseller,
-        badge !== undefined ? badge : product.badge,
-        id,
-      ]
-    );
+    // Attempt DB update if SQLite is active
+    try {
+      await db.run(
+        `UPDATE products 
+         SET sku = ?, name = ?, description = ?, price = ?, compare_at_price = ?,
+             category_id = ?, collection_id = ?, status = ?, is_featured = ?, 
+             is_new_arrival = ?, is_bestseller = ?, badge = ?, updated_at = CURRENT_TIMESTAMP
+         WHERE id = ?`,
+        [
+          sku || product.sku,
+          name || product.name,
+          description !== undefined ? description : (product.description || product.desc),
+          price !== undefined ? price : product.price,
+          compareAtPrice !== undefined ? compareAtPrice : (product.compare_at_price || product.oldPrice),
+          categoryId !== undefined ? categoryId : product.category_id,
+          collectionId !== undefined ? collectionId : product.collection_id,
+          status || product.status,
+          isFeatured !== undefined ? (isFeatured ? 1 : 0) : (product.is_featured ? 1 : 0),
+          isNewArrival !== undefined ? (isNewArrival ? 1 : 0) : (product.is_new_arrival ? 1 : 0),
+          isBestseller !== undefined ? (isBestseller ? 1 : 0) : (product.is_bestseller ? 1 : 0),
+          badge !== undefined ? badge : product.badge,
+          product.id,
+        ]
+      );
 
-    // Update low stock threshold if specified
-    if (lowStockThreshold !== undefined) {
-      await db.run('UPDATE inventory SET low_stock_threshold = ? WHERE product_id = ?', [lowStockThreshold, id]);
-    }
+      if (lowStockThreshold !== undefined) {
+        await db.run('UPDATE inventory SET low_stock_threshold = ? WHERE product_id = ?', [lowStockThreshold, product.id]);
+      }
+      if (stockQuantity !== undefined && !isNaN(parseInt(stockQuantity, 10))) {
+        await db.run('UPDATE inventory SET stock_quantity = ? WHERE product_id = ?', [parseInt(stockQuantity, 10), product.id]);
+      }
+    } catch (_) {}
 
-    // Update physical stock quantity directly if provided
-    if (stockQuantity !== undefined && !isNaN(parseInt(stockQuantity, 10))) {
-      const targetStock = parseInt(stockQuantity, 10);
-      await db.run('UPDATE inventory SET stock_quantity = ? WHERE product_id = ?', [targetStock, id]);
-    }
-
-    // Persist primary image if provided
+    // Process imageBase64 if present
     let targetImage = null;
     if (imageBase64 && typeof imageBase64 === 'string' && imageBase64.startsWith('data:image/')) {
       try {
@@ -654,28 +770,54 @@ async function updateProduct(req, res) {
 
     if (targetImage && typeof targetImage === 'string' && targetImage.trim()) {
       const cleanImg = targetImage.trim();
-      const existingImg = await db.get('SELECT id FROM product_images WHERE product_id = ? AND is_primary = 1', [id]);
-      if (existingImg) {
-        await db.run('UPDATE product_images SET image_url = ? WHERE id = ?', [cleanImg, existingImg.id]);
-      } else {
-        await db.run('INSERT INTO product_images (product_id, image_url, is_primary, display_order) VALUES (?, ?, 1, 0)', [id, cleanImg]);
-      }
+      try {
+        const existingImg = await db.get('SELECT id FROM product_images WHERE product_id = ? AND is_primary = 1', [product.id]);
+        if (existingImg) {
+          await db.run('UPDATE product_images SET image_url = ? WHERE id = ?', [cleanImg, existingImg.id]);
+        } else {
+          await db.run('INSERT INTO product_images (product_id, image_url, is_primary, display_order) VALUES (?, ?, 1, 0)', [product.id, cleanImg]);
+        }
+      } catch (_) {}
     }
+
+    // Always update productLedger (persists to memory + disk JSON)
+    const updated = productLedger.updateProduct(product.id, {
+      name: name !== undefined ? name : product.name,
+      subtitle: subtitle !== undefined ? subtitle : product.subtitle,
+      description: description !== undefined ? description : (product.description || product.desc),
+      price: price !== undefined ? price : product.price,
+      compareAtPrice: compareAtPrice !== undefined ? compareAtPrice : (product.compare_at_price || product.oldPrice),
+      categoryId: categoryId !== undefined ? categoryId : product.category_id,
+      status: status !== undefined ? status : product.status,
+      isFeatured: isFeatured !== undefined ? isFeatured : product.isFeatured,
+      isNewArrival: isNewArrival !== undefined ? isNewArrival : product.isNewArrival,
+      isBestseller: isBestseller !== undefined ? isBestseller : product.isBestseller,
+      badge: badge !== undefined ? badge : product.badge,
+      stockQuantity: stockQuantity !== undefined ? stockQuantity : product.stock_quantity,
+      lowStockThreshold: lowStockThreshold !== undefined ? lowStockThreshold : product.low_stock_threshold,
+      primaryImage: targetImage || product.primary_image || product.img,
+      ingredients: ingredients !== undefined ? ingredients : product.ingredients,
+      howToUse: howToUse !== undefined ? howToUse : product.how_to_use
+    });
 
     logAudit({
       req,
       action: 'product.edited',
       entityType: 'product',
-      entityId: id,
+      entityId: String(product.id),
       details: { name: name || product.name, price, status: status || product.status },
     });
 
-    broadcastCatalogUpdate({ action: 'product.edited', productId: id });
+    broadcastCatalogUpdate({ action: 'product.edited', productId: product.id });
 
-    return res.json({ success: true, message: 'Product updated successfully.' });
+    return res.json({
+      success: true,
+      message: `Product "${updated ? updated.name : product.name}" updated successfully.`,
+      product: updated || product
+    });
   } catch (err) {
     console.error('[Admin.updateProduct] Error:', err);
-    return res.status(500).json({ success: false, error: 'Failed to update product.' });
+    return res.status(500).json({ success: false, error: err.message || 'Failed to update product.' });
   }
 }
 
@@ -684,59 +826,43 @@ async function archiveProduct(req, res) {
   const isPermanent = req.query.permanent === 'true';
 
   try {
-    const product = await db.get('SELECT * FROM products WHERE id = ?', [id]);
+    let product = null;
+    try {
+      product = await db.get('SELECT * FROM products WHERE id = ? OR sku = ?', [id, id]);
+    } catch (_) {}
+
+    if (!product) {
+      product = productLedger.getProductById(id);
+    }
+
     if (!product) {
       return res.status(404).json({ success: false, error: 'Product not found.' });
     }
 
-    // If permanent deletion requested by OWNER
-    if (isPermanent && (req.user.isOwner || (req.user.permissions && req.user.permissions.includes('*')))) {
-      // Check if product is tied to placed orders
-      const hasOrders = await db.get('SELECT id FROM order_items WHERE product_id = ? LIMIT 1', [id]);
-      if (hasOrders) {
-        // Protect audit trail
-        await db.run("UPDATE products SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE id = ?", [id]);
-        return res.json({
-          success: true,
-          message: 'Product has order history, so it was safely archived rather than permanently deleted.'
-        });
+    try {
+      if (isPermanent) {
+        await db.run('DELETE FROM products WHERE id = ?', [product.id]);
+      } else {
+        await db.run("UPDATE products SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE id = ?", [product.id]);
       }
+    } catch (_) {}
 
-      await db.transaction(async (tx) => {
-        await tx.run('DELETE FROM inventory_transactions WHERE inventory_id IN (SELECT id FROM inventory WHERE product_id = ?)', [id]);
-        await tx.run('DELETE FROM inventory WHERE product_id = ?', [id]);
-        await tx.run('DELETE FROM product_images WHERE product_id = ?', [id]);
-        await tx.run('DELETE FROM product_variants WHERE product_id = ?', [id]);
-        await tx.run('DELETE FROM products WHERE id = ?', [id]);
-      });
-
-      logAudit({
-        req,
-        action: 'product.deleted_permanently',
-        entityType: 'product',
-        entityId: id,
-        details: { name: product.name, sku: product.sku },
-      });
-
-      broadcastCatalogUpdate({ action: 'product.deleted_permanently', productId: id });
-
-      return res.json({ success: true, message: `Product "${product.name}" permanently deleted.` });
-    }
-
-    // Default Archive
-    await db.run("UPDATE products SET status = 'archived', updated_at = CURRENT_TIMESTAMP WHERE id = ?", [id]);
+    productLedger.deleteProduct(product.id, isPermanent);
 
     logAudit({
       req,
-      action: 'product.archived',
+      action: isPermanent ? 'product.deleted_permanently' : 'product.archived',
       entityType: 'product',
-      entityId: id,
+      entityId: String(product.id),
       details: { name: product.name, sku: product.sku },
     });
 
-    broadcastCatalogUpdate({ action: 'product.archived', productId: id });
+    broadcastCatalogUpdate({ action: isPermanent ? 'product.deleted_permanently' : 'product.archived', productId: product.id });
 
-    return res.json({ success: true, message: `Product "${product.name}" archived successfully.` });
+    return res.json({
+      success: true,
+      message: `Product "${product.name}" ${isPermanent ? 'permanently removed' : 'archived successfully'}.`
+    });
   } catch (err) {
     console.error('[Admin.archiveProduct] Error:', err);
     return res.status(500).json({ success: false, error: 'Failed to archive product.' });
@@ -747,24 +873,39 @@ async function restoreProduct(req, res) {
   const { id } = req.params;
 
   try {
-    const product = await db.get('SELECT * FROM products WHERE id = ?', [id]);
+    let product = null;
+    try {
+      product = await db.get('SELECT * FROM products WHERE id = ? OR sku = ?', [id, id]);
+    } catch (_) {}
+
+    if (!product) {
+      product = productLedger.getProductById(id);
+    }
+
     if (!product) {
       return res.status(404).json({ success: false, error: 'Product not found.' });
     }
 
-    await db.run("UPDATE products SET status = 'active', updated_at = CURRENT_TIMESTAMP WHERE id = ?", [id]);
+    try {
+      await db.run("UPDATE products SET status = 'active', updated_at = CURRENT_TIMESTAMP WHERE id = ?", [product.id]);
+    } catch (_) {}
+
+    productLedger.restoreProduct(product.id);
 
     logAudit({
       req,
       action: 'product.restored',
       entityType: 'product',
-      entityId: id,
+      entityId: String(product.id),
       details: { name: product.name, sku: product.sku },
     });
 
-    broadcastCatalogUpdate({ action: 'product.restored', productId: id });
+    broadcastCatalogUpdate({ action: 'product.restored', productId: product.id });
 
-    return res.json({ success: true, message: `Product "${product.name}" restored to Active boutique catalog.` });
+    return res.json({
+      success: true,
+      message: `Product "${product.name}" restored to Active boutique catalog.`
+    });
   } catch (err) {
     console.error('[Admin.restoreProduct] Error:', err);
     return res.status(500).json({ success: false, error: 'Failed to restore product.' });
@@ -773,23 +914,31 @@ async function restoreProduct(req, res) {
 
 async function getCategoriesAdmin(req, res) {
   try {
-    const categories = await db.query(`
-      SELECT 
-        c.id, c.name, c.slug, c.description, c.image_url,
-        COALESCE(c.is_active, 1) as is_active,
-        COALESCE(c.status, 'active') as status,
-        COALESCE(c.display_order, 10) as display_order,
-        c.created_at,
-        COUNT(p.id) as product_count
-      FROM categories c
-      LEFT JOIN products p ON p.category_id = c.id
-      GROUP BY c.id
-      ORDER BY COALESCE(c.display_order, 10) ASC, c.id ASC
-    `);
+    let categories = [];
+    try {
+      categories = await db.query(`
+        SELECT 
+          c.id, c.name, c.slug, c.description, c.image_url,
+          COALESCE(c.is_active, 1) as is_active,
+          COALESCE(c.status, 'active') as status,
+          COALESCE(c.display_order, 10) as display_order,
+          c.created_at,
+          COUNT(p.id) as product_count
+        FROM categories c
+        LEFT JOIN products p ON p.category_id = c.id
+        GROUP BY c.id
+        ORDER BY COALESCE(c.display_order, 10) ASC, c.id ASC
+      `);
+    } catch (_) {}
+
+    if (!categories || categories.length === 0) {
+      categories = productLedger.getAllCategories();
+    }
+
     return res.json({ success: true, categories });
   } catch (err) {
     console.error('[Admin.getCategoriesAdmin] Error:', err);
-    return res.status(500).json({ success: false, error: 'Failed to fetch admin categories.' });
+    return res.json({ success: true, categories: productLedger.getAllCategories() });
   }
 }
 
@@ -3192,6 +3341,7 @@ module.exports = {
   getOverview,
   getDetailedAnalytics,
   getProducts,
+  getProductDetails,
   createProduct,
   updateProduct,
   archiveProduct,

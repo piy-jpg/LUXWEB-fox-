@@ -19,6 +19,7 @@ router.get('/analytics/detailed', requirePermission('analytics.view'), adminCont
 
 // 2. Products Management
 router.get('/products', requirePermission('products.view'), adminController.getProducts);
+router.get('/products/:id', requirePermission('products.view'), adminController.getProductDetails);
 router.post('/products', requirePermission('products.create'), adminController.createProduct);
 router.put('/products/:id', requirePermission('products.edit'), adminController.updateProduct);
 router.put('/products/:id/restore', requirePermission('products.edit'), adminController.restoreProduct);
