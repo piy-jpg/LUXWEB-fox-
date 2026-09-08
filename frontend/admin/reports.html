@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Executive Reports &amp; Archives — Lumière Atelier</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .period-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(250, 247, 242, 0.7);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .period-btn:hover {
+      border-color: rgba(201, 169, 110, 0.5);
+      color: var(--color-gold);
+    }
+    .period-btn.active {
+      background: var(--color-gold);
+      color: #0a0a0b;
+      border-color: var(--color-gold);
+      font-weight: 600;
+    }
+    .register-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .register-card {
+      background: rgba(18, 18, 20, 0.7);
+      border: 1px solid var(--admin-border);
+      border-radius: 4px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .register-card:hover {
+      border-color: rgba(201, 169, 110, 0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+    .register-icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.75rem;
+      display: inline-block;
+    }
+    .register-title {
+      font-family: var(--font-serif);
+      font-size: 1.3rem;
+      font-weight: 400;
+      color: var(--color-cream);
+      margin: 0 0 0.5rem 0;
+    }
+    .register-desc {
+      font-size: 0.75rem;
+      line-height: 1.5;
+      color: rgba(250, 247, 242, 0.6);
+      margin-bottom: 1.25rem;
+      flex-grow: 1;
+    }
+    .register-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      padding-top: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .edit-bar {
+      display: none;
+      background: rgba(201, 169, 110, 0.15);
+      border: 1px solid var(--color-gold);
+      padding: 0.75rem 1.25rem;
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .edit-bar.active {
+      display: flex;
+    }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      background: #121214;
+      border: 1px solid var(--color-gold);
+      border-radius: 6px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header & Real-Time Telemetry -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1.25rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Executive Business Intelligence</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <span id="roleAccessBadge" class="badge badge-owner" style="font-size: 0.65rem;">OWNER ARCHIVE ACCESS</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator">
+              <span class="live-dot"></span>
+              <span>LIVE REGISTRY REPOSITORY</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;">Executive Reports &amp; Registers</h1>
+        </div>
+
+        <div class="report-actions">
+          <div style="display: flex; gap: 0.35rem; background: rgba(0,0,0,0.3); padding: 0.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
+            <button class="period-btn" onclick="setPeriod('today', this)">Today</button>
+            <button class="period-btn" onclick="setPeriod('7d', this)">7D</button>
+            <button class="period-btn active" onclick="setPeriod('30d', this)">30D</button>
+            <button class="period-btn" onclick="setPeriod('1y', this)">1Y</button>
+            <button class="period-btn" onclick="setPeriod('all', this)">All</button>
+          </div>
+          <button onclick="toggleEditMode()" id="btnToggleEdit" class="btn-report-action" style="color: var(--color-gold); border-color: rgba(201,169,110,0.4);">
+            <span>✏️</span> Edit in Report
+          </button>
+          <button onclick="shareArchivesViaWhatsApp()" class="btn-report-action btn-report-whatsapp">
+            <span>💬</span> Share via WhatsApp
+          </button>
+          <button onclick="downloadAsPDF()" id="btnDownloadPdf" class="btn-report-action btn-report-primary">
+            <span>📥</span> Download PDF
+          </button>
+          <button onclick="window.print()" class="btn-report-action">
+            <span>🖨️</span> Print
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared Executive Reports Sub-Navbar Strip -->
+      <div class="subnav-strip">
+        <a href="reports.html" class="subnav-tab active">
+          <span>📋</span> Overview &amp; Archives
+        </a>
+        <a href="reports-sales.html" class="subnav-tab">
+          <span>📈</span> Sales Register
+        </a>
+        <a href="reports-inventory.html" class="subnav-tab">
+          <span>📦</span> Inventory Register
+        </a>
+        <a href="reports-orders.html" class="subnav-tab">
+          <span>🛍️</span> Orders Register
+        </a>
+        <a href="reports-customers.html" class="subnav-tab">
+          <span>👑</span> Patron Register
+        </a>
+        <a href="reports-tax.html" class="subnav-tab">
+          <span>🧮</span> Tax &amp; GST Register
+        </a>
+        <a href="reports-audit.html" class="subnav-tab">
+          <span>🛡️</span> Audit Register
+        </a>
+        <a href="reports-create.html" class="subnav-tab">
+          <span>➕</span> Create Custom Report
+          <span class="subnav-badge badge-accent">+ New</span>
+        </a>
+      </div>
+
+      <!-- Live Inline Editing Banner -->
+      <div class="edit-bar" id="editBar">
+        <div style="font-size: 0.8rem; color: var(--color-cream); display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1rem;">✏️</span>
+          <span><strong>Inline Edit Mode Active:</strong> Click any highlighted field (Title, Commentary, Signatory) to modify live text before archiving.</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button onclick="saveEditedReport()" class="btn-report-action btn-report-primary" style="font-size: 0.72rem; padding: 0.35rem 0.75rem;">
+            💾 Save to Archives
+          </button>
+          <button onclick="toggleEditMode(false)" class="btn-report-action" style="font-size: 0.72rem; padding: 0.35rem 0.75rem;">
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Overview Container -->
+      <div class="report-paper" id="printableReport">
+        <div class="report-watermark">LUMIÈRE</div>
+
+        <!-- Official Header Block -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid rgba(201,169,110,0.3); padding-bottom: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-gold); font-weight: 600;">Lumière Haute Couture &amp; Atelier</div>
+            <h2 id="editableTitle" class="editable-field" style="font-family: var(--font-serif); font-size: 1.8rem; font-weight: 400; margin: 0.25rem 0; color: var(--color-cream);">
+              Executive Commerce Master Register
+            </h2>
+            <div style="font-size: 0.75rem; color: rgba(250,247,242,0.5);">Consolidated Operational Intelligence, Valuation &amp; Statutory Archives</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-family: monospace; font-size: 0.9rem; color: var(--color-gold); font-weight: 600;" id="reportRefNum">REG-OVR-2026-001</div>
+            <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.25rem;">Issued: <span id="reportIssueDate">Today</span></div>
+            <span class="badge badge-active" style="margin-top: 0.35rem;">VERIFIED ARCHIVE</span>
+          </div>
+        </div>
+
+        <!-- Document Metadata -->
+        <div class="report-meta-grid">
+          <div class="report-meta-item">
+            <label>Fiscal Period</label>
+            <div class="val" id="metaPeriodLabel">Last 30 Days</div>
+          </div>
+          <div class="report-meta-item">
+            <label>Reporting Role</label>
+            <div class="val" id="metaRoleLabel">OWNER</div>
+          </div>
+          <div class="report-meta-item">
+            <label>Prepared By</label>
+            <div class="val editable-field" id="editablePreparedBy">Executive Controller</div>
+          </div>
+          <div class="report-meta-item">
+            <label>Governance Standard</label>
+            <div class="val">Certified Audit Ledger</div>
+          </div>
+        </div>
+
+        <!-- Executive Commentary / Notes -->
+        <div style="background: rgba(255,255,255,0.02); border-left: 3px solid var(--color-gold); padding: 1rem 1.25rem; border-radius: 0 4px 4px 0; margin-bottom: 2rem;">
+          <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-gold); font-weight: 600; margin-bottom: 0.35rem;">Executive Overview &amp; Auditor Notes</div>
+          <div id="editableSummary" class="editable-field" style="font-size: 0.85rem; line-height: 1.6; color: rgba(250,247,242,0.85);">
+            All executive commerce registers are synchronized in real time with relational database ledgers. Revenue captures reflect cleared transaction receipts, warehouse inventories are reconciled against physical vault balances, and tax provisions adhere to 18% statutory luxury GST standards.
+          </div>
+        </div>
+
+        <!-- Summary KPI Ribbon -->
+        <div class="stat-card-grid" style="margin-bottom: 2rem;">
+          <div class="stat-card">
+            <div class="stat-title">Period Gross Revenue</div>
+            <div class="stat-number" id="ovGrossRev" style="color: var(--color-gold);">₹0.00</div>
+            <span style="font-size: 0.72rem; color: #7bed9f;" id="ovPaidOrders">0 fulfilled checkouts</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Inventory Asset Value</div>
+            <div class="stat-number" id="ovAssetVal">₹0.00</div>
+            <span style="font-size: 0.72rem; color: rgba(250,247,242,0.6);" id="ovTotalUnits">0 physical units</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Active Patrons</div>
+            <div class="stat-number" id="ovTotalPatrons">0</div>
+            <span style="font-size: 0.72rem; color: #7bed9f;" id="ovActiveClients">Client directory</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Statutory GST Output</div>
+            <div class="stat-number" id="ovTaxAccrued" style="color: #ff9f43;">₹0.00</div>
+            <span style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">18% Statutory Rate</span>
+          </div>
+        </div>
+
+        <!-- Register Launchpad Grid -->
+        <h2 style="font-family: var(--font-serif); font-size: 1.4rem; font-weight: 400; margin-bottom: 1rem; color: var(--color-cream);">Official Registers Directory</h2>
+        <div class="register-card-grid">
+          <!-- Sales -->
+          <div class="register-card" id="cardRegSales">
+            <div>
+              <span class="register-icon">📈</span>
+              <h3 class="register-title">Sales &amp; Revenue Register</h3>
+              <p class="register-desc">Complete financial ledger of customer checkouts, gateway settlements, daily run-rates, and net operating margins.</p>
+            </div>
+            <div class="register-footer">
+              <span style="font-size: 0.68rem; color: var(--color-gold); font-weight: 500;">FORM REG-SLS</span>
+              <a href="reports-sales.html" class="btn-action-sm">Open Register →</a>
+            </div>
+          </div>
+
+          <!-- Inventory -->
+          <div class="register-card" id="cardRegInventory">
+            <div>
+              <span class="register-icon">📦</span>
+              <h3 class="register-title">Inventory Valuation Register</h3>
+              <p class="register-desc">Real-time asset valuation, SKU unit balances, low-stock thresholds, depletions, and warehouse ledger audits.</p>
+            </div>
+            <div class="register-footer">
+              <span style="font-size: 0.68rem; color: var(--color-gold); font-weight: 500;">FORM REG-INV</span>
+              <a href="reports-inventory.html" class="btn-action-sm">Open Register →</a>
+            </div>
+          </div>
+
+          <!-- Orders -->
+          <div class="register-card" id="cardRegOrders">
+            <div>
+              <span class="register-icon">🛍️</span>
+              <h3 class="register-title">Orders &amp; Dispatch Register</h3>
+              <p class="register-desc">Fulfillment pipeline audit, dispatch schedules, courier tracking numbers, and delivery confirmations.</p>
+            </div>
+            <div class="register-footer">
+              <span style="font-size: 0.68rem; color: var(--color-gold); font-weight: 500;">FORM REG-ORD</span>
+              <a href="reports-orders.html" class="btn-action-sm">Open Register →</a>
+            </div>
+          </div>
+
+          <!-- Customers -->
+          <div class="register-card" id="cardRegCustomers">
+            <div>
+              <span class="register-icon">👑</span>
+              <h3 class="register-title">Patron &amp; Client Register</h3>
+              <p class="register-desc">VIP customer directory, lifetime purchasing velocity, loyalty status, and account security verification.</p>
+            </div>
+            <div class="register-footer">
+              <span style="font-size: 0.68rem; color: var(--color-gold); font-weight: 500;">FORM REG-CUS</span>
+              <a href="reports-customers.html" class="btn-action-sm">Open Register →</a>
+            </div>
+          </div>
+
+          <!-- Tax -->
+          <div class="register-card" id="cardRegTax">
+            <div>
+              <span class="register-icon">🧮</span>
+              <h3 class="register-title">Tax &amp; GST Fiscal Register</h3>
+              <p class="register-desc">Statutory GST compliance ledger, CGST (9%) &amp; SGST (9%) bifurcation, taxable base calculation, and reconciliation.</p>
+            </div>
+            <div class="register-footer">
+              <span style="font-size: 0.68rem; color: var(--color-gold); font-weight: 500;">FORM REG-TAX</span>
+              <a href="reports-tax.html" class="btn-action-sm">Open Register →</a>
+            </div>
+          </div>
+
+          <!-- Audit -->
+          <div class="register-card" id="cardRegAudit">
+            <div>
+              <span class="register-icon">🛡️</span>
+              <h3 class="register-title">System Audit Register</h3>
+              <p class="register-desc">Chronological event log of administrative actions, role updates, setting changes, and compliance events.</p>
+            </div>
+            <div class="register-footer">
+              <span style="font-size: 0.68rem; color: var(--color-gold); font-weight: 500;">FORM REG-AUD</span>
+              <a href="reports-audit.html" class="btn-action-sm">Open Register →</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Saved Reports & Archives Section -->
+        <div class="data-card" style="margin-top: 2.5rem;">
+          <div class="data-card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+            <div>
+              <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin: 0;">Archived &amp; Custom Saved Reports</h3>
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Saved executive audits, custom snapshots, and regulatory submissions</span>
+            </div>
+            <div style="display: flex; gap: 0.5rem;">
+              <a href="reports-create.html" class="btn-action-sm" style="color: var(--color-gold);">+ New Custom Report</a>
+              <button onclick="loadSavedReports()" class="btn-outline" style="font-size: 0.7rem; padding: 0.35rem 0.65rem;">
+                ⟳ Refresh Archives
+              </button>
+            </div>
+          </div>
+          <div class="data-table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Report Number</th>
+                  <th>Title &amp; Type</th>
+                  <th>Period</th>
+                  <th>Prepared By</th>
+                  <th>Status</th>
+                  <th>Archived Date</th>
+                  <th style="text-align: right;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="savedReportsBody">
+                <tr>
+                  <td colspan="7" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2rem;">
+                    Loading archived reports...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Print Sign-Off Footer -->
+        <div class="print-sign-off">
+          <div>
+            <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 2rem;">PREPARED BY:</div>
+            <div style="border-bottom: 1px solid #000; width: 220px; margin-bottom: 0.35rem;"></div>
+            <div style="font-size: 0.75rem; color: #444;" id="signatoryPrepared">Executive Controller</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 2rem;">AUDITED &amp; APPROVED BY:</div>
+            <div style="border-bottom: 1px solid #000; width: 220px; margin-bottom: 0.35rem; margin-left: auto;"></div>
+            <div style="font-size: 0.75rem; color: #444;">Managing Partner / Owner</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- WhatsApp Modal -->
+  <div class="modal-overlay" id="whatsappModal">
+    <div class="modal-box">
+      <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--color-cream); margin-top: 0; margin-bottom: 0.5rem;">
+        💬 Share Executive Report via WhatsApp
+      </h3>
+      <p style="font-size: 0.78rem; color: rgba(250,247,242,0.7); margin-bottom: 1.25rem;">
+        Enter recipient WhatsApp phone number with country code (e.g. +91 9876543210), or leave blank to open WhatsApp Web and choose recipient manually:
+      </p>
+      <input type="text" id="waRecipientPhone" placeholder="+91 9876543210 (Optional)" style="width: 100%; background: #1a1a1d; border: 1px solid var(--admin-border); color: #fff; padding: 0.6rem 0.8rem; border-radius: 4px; font-size: 0.85rem; margin-bottom: 1.25rem; box-sizing: border-box;" />
+      <div style="display: flex; justify-content: flex-end; gap: 0.6rem;">
+        <button onclick="closeWhatsAppModal()" class="btn-report-action">Cancel</button>
+        <button onclick="dispatchWhatsAppMessage()" class="btn-report-action btn-report-whatsapp">Launch WhatsApp →</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/html2pdf.bundle.min.js"></script>
+  <script src="js/reports-export.js"></script>
+  <script>
+    let activePeriod = '30d';
+    let isEditing = false;
+    let globalOverviewData = null;
+    let pendingWhatsAppText = '';
+    let currentUserRole = 'STAFF';
+
+    function setPeriod(p, btn) {
+      activePeriod = p;
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.getElementById('metaPeriodLabel').innerText = p.toUpperCase();
+      loadOverview();
+    }
+
+    async function loadOverview() {
+      const user = Auth.getUser();
+      if (user) {
+        currentUserRole = (user.role || 'STAFF').toUpperCase();
+        const roleEl = document.getElementById('roleAccessBadge');
+        if (roleEl) {
+          roleEl.innerText = `${currentUserRole} ACCESS`;
+          roleEl.className = Auth.isOwner() ? 'badge badge-owner' : 'badge badge-active';
+        }
+        document.getElementById('metaRoleLabel').innerText = currentUserRole;
+        if (user.name) {
+          document.getElementById('editablePreparedBy').innerText = `${user.name} (${currentUserRole})`;
+          document.getElementById('signatoryPrepared').innerText = `${user.name} — ${currentUserRole}`;
+        }
+      }
+
+      document.getElementById('reportRefNum').innerText = `REG-OVR-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
+      document.getElementById('reportIssueDate').innerText = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+      try {
+        // Sales summary
+        const res = await Auth.apiFetch(`/api/admin/reports/data?type=sales&period=${activePeriod}`);
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.summary) {
+            globalOverviewData = json;
+            document.getElementById('ovGrossRev').innerText = `₹${parseFloat(json.summary.grossRevenue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('ovPaidOrders').innerText = `${json.summary.totalOrders || 0} fulfilled checkouts`;
+          }
+        }
+      } catch (err) {
+        console.warn('Sales data unavailable for role');
+      }
+
+      try {
+        // Inventory summary
+        const invRes = await Auth.apiFetch(`/api/admin/reports/data?type=inventory&period=${activePeriod}`);
+        if (invRes.ok) {
+          const invJson = await invRes.json();
+          if (invJson.success && invJson.summary) {
+            document.getElementById('ovAssetVal').innerText = `₹${parseFloat(invJson.summary.totalValuation || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            document.getElementById('ovTotalUnits').innerText = `${invJson.summary.totalPhysicalUnits || 0} physical units`;
+          }
+        }
+      } catch (err) {
+        console.warn('Inventory data unavailable for role');
+      }
+
+      try {
+        // Customers summary
+        const cusRes = await Auth.apiFetch(`/api/admin/reports/data?type=customers&period=${activePeriod}`);
+        if (cusRes.ok) {
+          const cusJson = await cusRes.json();
+          if (cusJson.success && cusJson.summary) {
+            document.getElementById('ovTotalPatrons').innerText = cusJson.summary.totalPatrons || 0;
+            document.getElementById('ovActiveClients').innerText = `${cusJson.summary.activeBuyers || 0} active transacting`;
+          }
+        }
+      } catch (err) {
+        console.warn('Customers data unavailable for role');
+      }
+
+      try {
+        // Tax summary
+        const taxRes = await Auth.apiFetch(`/api/admin/reports/data?type=tax&period=${activePeriod}`);
+        if (taxRes.ok) {
+          const taxJson = await taxRes.json();
+          if (taxJson.success && taxJson.summary) {
+            document.getElementById('ovTaxAccrued').innerText = `₹${parseFloat(taxJson.summary.totalGST || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+          }
+        }
+      } catch (err) {
+        console.warn('Tax data unavailable for role');
+      }
+    }
+
+    async function loadSavedReports() {
+      const tbody = document.getElementById('savedReportsBody');
+      const isOwnerOrManager = Auth.isOwner() || Auth.isManager();
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/reports/saved');
+        const json = await res.json();
+        if (json.success) {
+          const reports = json.reports || [];
+          if (reports.length === 0) {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="7" style="text-align: center; color: rgba(250,247,242,0.4); padding: 2rem;">
+                  No archived custom reports yet. Click "Create Custom Report" to draft and archive one.
+                </td>
+              </tr>
+            `;
+            return;
+          }
+
+          tbody.innerHTML = reports.map(r => `
+            <tr>
+              <td><span style="font-family: monospace; color: var(--color-gold); font-size: 0.8rem;">${r.report_number}</span></td>
+              <td>
+                <div style="font-weight: 500; color: var(--color-cream);">${escapeHtml(r.title)}</div>
+                <div style="font-size: 0.68rem; color: rgba(250,247,242,0.4); text-transform: uppercase;">Type: ${r.report_type}</div>
+              </td>
+              <td><span class="badge badge-active">${(r.period || 'all').toUpperCase()}</span></td>
+              <td style="font-size: 0.8rem;">${escapeHtml(r.prepared_by || 'Executive')}</td>
+              <td><span class="badge ${r.status === 'FINAL' ? 'badge-active' : 'badge-owner'}">${r.status}</span></td>
+              <td style="font-size: 0.75rem; color: rgba(250,247,242,0.6);">${new Date(r.created_at).toLocaleString()}</td>
+              <td style="text-align: right; white-space: nowrap;">
+                <button onclick="shareSavedReportWhatsApp(${r.id})" class="btn-action-sm" title="Share on WhatsApp">💬</button>
+                <button onclick="printSavedReport(${r.id})" class="btn-action-sm" title="Print Report">🖨️</button>
+                ${isOwnerOrManager ? `<button onclick="deleteSavedReport(${r.id})" class="btn-danger" style="margin-left: 0.35rem;" title="Delete Archive">🗑️</button>` : ''}
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" style="color: #ff6b6b; text-align: center;">Error loading archives.</td></tr>`;
+      }
+    }
+
+    function toggleEditMode(force) {
+      isEditing = (typeof force === 'boolean') ? force : !isEditing;
+      const editBar = document.getElementById('editBar');
+      const editableFields = document.querySelectorAll('.editable-field');
+      
+      if (isEditing) {
+        editBar.classList.add('active');
+        editableFields.forEach(el => el.setAttribute('contenteditable', 'true'));
+      } else {
+        editBar.classList.remove('active');
+        editableFields.forEach(el => el.removeAttribute('contenteditable'));
+      }
+    }
+
+    async function saveEditedReport() {
+      const title = document.getElementById('editableTitle').innerText.trim();
+      const summary = document.getElementById('editableSummary').innerText.trim();
+      const preparedBy = document.getElementById('editablePreparedBy').innerText.trim();
+      const refNum = document.getElementById('reportRefNum').innerText.trim();
+
+      const payload = {
+        report_number: refNum,
+        report_type: 'overview',
+        title: title,
+        period: activePeriod,
+        executive_summary: summary,
+        prepared_by: preparedBy,
+        status: 'FINAL',
+        data_json: {
+          grossRevenue: document.getElementById('ovGrossRev').innerText,
+          inventoryValuation: document.getElementById('ovAssetVal').innerText,
+          patrons: document.getElementById('ovTotalPatrons').innerText,
+          tax: document.getElementById('ovTaxAccrued').innerText
+        }
+      };
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/reports/save', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert('Executive Master Register snapshot saved to archives!');
+          toggleEditMode(false);
+          loadSavedReports();
+        } else {
+          alert(json.message || 'Failed to save report.');
+        }
+      } catch (err) {
+        alert('Network error saving report.');
+      }
+    }
+
+    async function deleteSavedReport(id) {
+      if (!confirm('Are you sure you want to permanently delete this archived report?')) return;
+      try {
+        const res = await Auth.apiFetch(`/api/admin/reports/${id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (json.success) {
+          loadSavedReports();
+        } else {
+          alert(json.message || 'Failed to delete report');
+        }
+      } catch (err) {
+        alert('Network error deleting report');
+      }
+    }
+
+    function downloadAsPDF() {
+      downloadReportPDF('Master_Digest', activePeriod);
+    }
+
+    function shareArchivesViaWhatsApp() {
+      const grossRev = document.getElementById('ovGrossRev').innerText;
+      const assetVal = document.getElementById('ovAssetVal').innerText;
+      const patrons = document.getElementById('ovTotalPatrons').innerText;
+      const tax = document.getElementById('ovTaxAccrued').innerText;
+      const ref = document.getElementById('reportRefNum').innerText;
+
+      pendingWhatsAppText = 
+`📑 *LUMIÈRE ATELIER — MASTER EXECUTIVE DIGEST*
+*Report Ref:* ${ref}
+*Period:* ${activePeriod.toUpperCase()}
+*Date:* ${new Date().toLocaleDateString()}
+
+*Key Commerce Indicators:*
+• Gross Revenue: ${grossRev}
+• Inventory Valuation: ${assetVal}
+• Registered Patrons: ${patrons}
+• Statutory GST Accrued: ${tax}
+
+*Executive Summary:*
+${document.getElementById('editableSummary').innerText.trim()}
+
+_Dispatched from Lumière Atelier Operating System._`;
+
+      document.getElementById('whatsappModal').classList.add('active');
+    }
+
+    async function printSavedReport(id) {
+      try {
+        const res = await Auth.apiFetch('/api/admin/reports/saved');
+        const json = await res.json();
+        const rep = (json.reports || []).find(r => r.id === id);
+        if (!rep) return;
+        const w = window.open('', '_blank');
+        w.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>${rep.title} - ${rep.report_number}</title>
+            <style>
+              body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #111; }
+              h1 { font-size: 24px; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 5px; }
+              .meta { font-size: 12px; color: #555; margin-bottom: 25px; }
+              .summary { background: #f8f9fa; border-left: 4px solid #C9A96E; padding: 15px; margin-bottom: 25px; font-style: italic; }
+              .signature { margin-top: 60px; display: flex; justify-content: space-between; border-top: 1px solid #ccc; padding-top: 20px; font-size: 13px; }
+            </style>
+          </head>
+          <body>
+            <h1>LUMIÈRE ATELIER — ${rep.title.toUpperCase()}</h1>
+            <div class="meta">
+              <strong>Report #:</strong> ${rep.report_number} | 
+              <strong>Period:</strong> ${rep.period} | 
+              <strong>Prepared By:</strong> ${rep.prepared_by} | 
+              <strong>Date:</strong> ${new Date(rep.created_at).toLocaleString()}
+            </div>
+            <div class="summary">
+              <strong>Executive Summary:</strong><br/>
+              ${rep.executive_summary || 'No summary provided.'}
+            </div>
+            <div class="signature">
+              <div>Prepared By: ___________________ (${rep.prepared_by})</div>
+              <div>Executive Sign-Off: ___________________ (Date: ________)</div>
+            </div>
+          </body>
+          </html>
+        `);
+        w.document.close();
+        w.focus();
+        setTimeout(() => { w.print(); }, 500);
+      } catch (err) {
+        alert('Could not generate print view.');
+      }
+    }
+
+    async function shareSavedReportWhatsApp(id) {
+      try {
+        const res = await Auth.apiFetch('/api/admin/reports/saved');
+        const json = await res.json();
+        const rep = (json.reports || []).find(r => r.id === id);
+        if (!rep) return;
+
+        pendingWhatsAppText = 
+`📑 *LUMIÈRE ATELIER — OFFICIAL EXECUTIVE REPORT*
+*Title:* ${rep.title}
+*Report Ref:* ${rep.report_number}
+*Period:* ${(rep.period || 'all').toUpperCase()}
+*Status:* ${rep.status}
+*Prepared By:* ${rep.prepared_by}
+*Date:* ${new Date(rep.created_at).toLocaleDateString()}
+
+*Executive Summary:*
+${rep.executive_summary || 'N/A'}
+
+_Verified and dispatched from Lumière Executive Intelligence System._`;
+
+        document.getElementById('whatsappModal').classList.add('active');
+      } catch (err) {
+        alert('Could not prepare WhatsApp dispatch.');
+      }
+    }
+
+    function closeWhatsAppModal() {
+      document.getElementById('whatsappModal').classList.remove('active');
+    }
+
+    function dispatchWhatsAppMessage() {
+      const phoneInput = document.getElementById('waRecipientPhone').value.trim();
+      const cleanPhone = phoneInput.replace(/[^0-9]/g, '');
+      let url = `https://api.whatsapp.com/send?text=${encodeURIComponent(pendingWhatsAppText)}`;
+      if (cleanPhone) {
+        url += `&phone=${cleanPhone}`;
+      }
+      window.open(url, '_blank');
+      closeWhatsAppModal();
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadOverview();
+      loadSavedReports();
+    });
+  </script>
+</body>
+</html>

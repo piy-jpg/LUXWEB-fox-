@@ -49,10 +49,10 @@ const Admin = {
       badgeKey: 'products',
       children: [
         { title: 'All Products', url: 'products.html', badgeKey: 'products' },
-        { title: 'Add Product', url: 'products.html?action=new', badgeText: '+ New', badgeType: 'accent' },
-        { title: 'Edit Product', url: 'products.html?action=edit' },
-        { title: 'Categories', url: 'products.html?action=categories' },
-        { title: 'Product Variants', url: 'products.html?action=variants' }
+        { title: 'Add Product', url: 'product-add.html', badgeText: '+ New', badgeType: 'accent' },
+        { title: 'Edit Product', url: 'product-edit.html' },
+        { title: 'Categories', url: 'categories.html' },
+        { title: 'Product Variants', url: 'product-variants.html' }
       ]
     },
     {
@@ -65,12 +65,12 @@ const Admin = {
       badgeType: 'alert',
       children: [
         { title: 'Stock Overview', url: 'inventory.html' },
-        { title: 'Stock Movements', url: 'inventory.html?action=movements' },
-        { title: 'Low Stock', url: 'inventory.html?filter=low_stock', badgeKey: 'lowStock', badgeType: 'warn' },
-        { title: 'Out of Stock', url: 'inventory.html?filter=out_of_stock', badgeKey: 'outStock', badgeType: 'danger' },
-        { title: 'Purchase / Stock In', url: 'inventory.html?action=stock_in', badgeText: 'Receive', badgeType: 'accent' },
-        { title: 'Stock Adjustment', url: 'inventory.html?action=adjust' },
-        { title: 'Inventory History', url: 'inventory.html?action=history' }
+        { title: 'Stock Movements', url: 'inventory-movements.html' },
+        { title: 'Low Stock', url: 'inventory-low-stock.html', badgeKey: 'lowStock', badgeType: 'warn' },
+        { title: 'Out of Stock', url: 'inventory-out-of-stock.html', badgeKey: 'outStock', badgeType: 'danger' },
+        { title: 'Purchase / Stock In', url: 'inventory-stock-in.html', badgeText: 'Receive', badgeType: 'accent' },
+        { title: 'Stock Adjustment', url: 'inventory-adjust.html' },
+        { title: 'Inventory History', url: 'inventory-history.html' }
       ]
     },
     {
@@ -88,7 +88,8 @@ const Admin = {
         { title: 'Processing', url: 'orders.html?status=Processing', badgeKey: 'status_Processing' },
         { title: 'Shipped', url: 'orders.html?status=Shipped', badgeKey: 'status_Shipped' },
         { title: 'Delivered', url: 'orders.html?status=Delivered', badgeKey: 'status_Delivered' },
-        { title: 'Cancelled', url: 'orders.html?status=Cancelled', badgeKey: 'status_Cancelled' }
+        { title: 'Cancelled', url: 'orders.html?status=Cancelled', badgeKey: 'status_Cancelled' },
+        { title: 'Deleted Orders', url: 'orders.html?status=Deleted', badgeKey: 'status_Deleted', badgeType: 'danger' }
       ]
     },
     {
@@ -100,8 +101,8 @@ const Admin = {
       badgeKey: 'customers',
       children: [
         { title: 'Customers', url: 'customers.html', badgeKey: 'customers' },
-        { title: 'Customer Details', url: 'customers.html?action=details' },
-        { title: 'Order History', url: 'customers.html?action=orders' }
+        { title: 'Customer Details', url: 'customer-details.html' },
+        { title: 'Order History', url: 'customer-orders.html' }
       ]
     },
     {
@@ -110,11 +111,13 @@ const Admin = {
       icon: '🛡️',
       url: 'staff.html',
       perm: 'staff.manage',
-      badgeKey: null,
+      badgeKey: 'staff',
+      badgeType: 'accent',
       children: [
-        { title: 'Staff', url: 'staff.html' },
-        { title: 'Roles', url: 'staff.html#roles' },
-        { title: 'Permissions', url: 'staff.html#permissions' }
+        { title: 'Staff Directory', url: 'staff.html', badgeKey: 'staff' },
+        { title: 'Roles Hierarchy', url: 'roles.html', badgeKey: 'totalRoles' },
+        { title: 'Permissions Matrix', url: 'permissions.html', badgeKey: 'totalPermissions' },
+        { title: 'Security Audit Log', url: 'audit.html' }
       ]
     },
     {
@@ -125,10 +128,10 @@ const Admin = {
       perm: 'analytics.view',
       badgeKey: null,
       children: [
-        { title: 'Sales', url: 'analytics.html#sales' },
-        { title: 'Products', url: 'analytics.html#products' },
-        { title: 'Customers', url: 'analytics.html#customers' },
-        { title: 'Inventory', url: 'analytics.html#inventory' }
+        { title: 'Sales', url: 'analytics.html' },
+        { title: 'Products', url: 'analytics-products.html' },
+        { title: 'Customers', url: 'analytics-customers.html' },
+        { title: 'Inventory', url: 'analytics-inventory.html' }
       ]
     },
     {
@@ -138,7 +141,42 @@ const Admin = {
       url: 'settings.html',
       perm: 'settings.manage',
       badgeKey: null,
-      children: []
+      children: [
+        { title: 'General Store', url: 'settings.html#general', icon: '🏪' },
+        { title: 'Branding & Appearance', url: 'settings.html#branding', icon: '🎨' },
+        { title: 'Website & Domain', url: 'settings.html#website', icon: '🌐' },
+        { title: 'Storefront', url: 'settings.html#storefront', icon: '🛒' },
+        { title: 'Payments', url: 'settings.html#payments', icon: '💳' },
+        { title: 'Shipping & Delivery', url: 'settings.html#shipping', icon: '📦' },
+        { title: 'Inventory Settings', url: 'settings.html#inventory', icon: '📊' },
+        { title: 'Orders & Checkout', url: 'settings.html#orders', icon: '🧾' },
+        { title: 'Notifications', url: 'settings.html#notifications', icon: '🔔' },
+        { title: 'Email & Communication', url: 'settings.html#email', icon: '📧' },
+        { title: 'Customer Settings', url: 'settings.html#customers', icon: '👥' },
+        { title: 'Taxes', url: 'settings.html#taxes', icon: '🧮' },
+        { title: 'Integrations', url: 'settings.html#integrations', icon: '🔗' },
+        { title: 'Security', url: 'settings.html#security', icon: '🔐' },
+        { title: 'Data & Privacy', url: 'settings.html#privacy', icon: '🗑️' },
+        { title: 'Advanced', url: 'settings.html#advanced', icon: '⚠️' }
+      ]
+    },
+    {
+      id: 'reports',
+      title: 'Executive Reports',
+      icon: '📑',
+      url: 'reports.html',
+      perm: 'analytics.view',
+      badgeKey: null,
+      children: [
+        { title: 'Overview & Archives', url: 'reports.html', icon: '📋' },
+        { title: 'Sales Register', url: 'reports-sales.html', icon: '📈', perm: 'analytics.view' },
+        { title: 'Inventory Register', url: 'reports-inventory.html', icon: '📦', perm: 'inventory.view' },
+        { title: 'Orders Register', url: 'reports-orders.html', icon: '🛍️', perm: 'orders.view' },
+        { title: 'Patron Register', url: 'reports-customers.html', icon: '👑', perm: 'customers.view' },
+        { title: 'Tax & GST Register', url: 'reports-tax.html', icon: '🧮', perm: 'analytics.view' },
+        { title: 'Audit Register', url: 'reports-audit.html', icon: '🛡️', perm: 'settings.manage' },
+        { title: 'Create Custom Report', url: 'reports-create.html', icon: '➕', badgeText: '+ New', badgeType: 'accent', perm: 'analytics.view' }
+      ]
     }
   ],
 
@@ -159,7 +197,13 @@ const Admin = {
     const user = this.currentUser;
     const isOwner = Auth.isOwner();
 
-    const allowedGroups = this.menuTree.filter(item => isOwner || Auth.hasPermission(item.perm));
+    const allowedGroups = this.menuTree.filter(item => {
+      if (isOwner) return true;
+      if (item.id === 'reports') {
+        return Auth.isStaff() || Auth.hasPermission('analytics.view');
+      }
+      return Auth.hasPermission(item.perm);
+    });
 
     sidebar.innerHTML = `
       <div class="sidebar-header">
@@ -177,12 +221,18 @@ const Admin = {
 
       <ul class="sidebar-nav" id="sidebarNavTree">
         ${allowedGroups.map(group => {
-          const isCurrentGroup = (currentPath === group.url.split('?')[0].split('#')[0]);
-          const hasChildren = group.children && group.children.length > 0;
+          const visibleChildren = (group.children || []).filter(sub => {
+            if (isOwner) return true;
+            if (!sub.perm) return true;
+            return Auth.hasPermission(sub.perm) || Auth.hasPermission('analytics.view');
+          });
+          const isCurrentGroup = (currentPath === group.url.split('?')[0].split('#')[0]) ||
+            (visibleChildren.some(sub => sub.url.split('?')[0].split('#')[0] === currentPath));
+          const hasChildren = visibleChildren.length > 0;
 
           return `
             <li class="nav-group ${isCurrentGroup ? 'expanded active-page' : ''}" data-group-id="${group.id}">
-              <div class="nav-parent-row ${isCurrentGroup && !window.location.hash && !window.location.search ? 'active' : ''}" onclick="Admin.handleParentClick(event, '${group.id}', '${group.url}', ${hasChildren})">
+              <div class="nav-parent-row ${isCurrentGroup && !window.location.hash && !window.location.search && currentPath === group.url ? 'active' : ''}" onclick="Admin.handleParentClick(event, '${group.id}', '${group.url}', ${hasChildren})">
                 <div class="nav-parent-main">
                   <span class="nav-parent-icon">${group.icon}</span>
                   <span class="nav-parent-title">${group.title}</span>
@@ -195,12 +245,24 @@ const Admin = {
 
               ${hasChildren ? `
                 <ul class="nav-sub-tree">
-                  ${group.children.map(sub => {
-                    const isSubActive = (currentFullUrl === sub.url || (currentPath === sub.url.split('?')[0].split('#')[0] && window.location.search === sub.url.substring(sub.url.indexOf('?')) && sub.url.includes('?')));
+                  ${visibleChildren.map(sub => {
+                    const subPath = sub.url.split('?')[0].split('#')[0];
+                    const subHash = sub.url.includes('#') ? sub.url.substring(sub.url.indexOf('#')) : '';
+                    const subSearch = sub.url.includes('?') ? sub.url.substring(sub.url.indexOf('?')).split('#')[0] : '';
+                    let isSubActive = false;
+                    if (currentPath === subPath) {
+                      if (subHash) {
+                        isSubActive = (window.location.hash.toLowerCase() === subHash.toLowerCase()) || (!window.location.hash && subHash === '#general');
+                      } else if (subSearch) {
+                        isSubActive = (window.location.search === subSearch);
+                      } else {
+                        isSubActive = (!window.location.search && !window.location.hash);
+                      }
+                    }
                     return `
                       <li>
                         <a href="${sub.url}" class="nav-sub-item ${isSubActive ? 'active' : ''}" data-sub-url="${sub.url}">
-                          <span>${sub.title}</span>
+                          <span>${sub.icon ? `<span style="margin-right: 0.35rem; font-size: 0.85rem;">${sub.icon}</span>` : ''}${sub.title}</span>
                           ${sub.badgeKey ? `<span class="live-nav-badge badge-${sub.badgeType || 'orders'}" data-badge-key="${sub.badgeKey}">-</span>` : ''}
                           ${sub.badgeText ? `<span class="live-nav-badge badge-${sub.badgeType || 'accent'}">${sub.badgeText}</span>` : ''}
                         </a>
@@ -300,11 +362,14 @@ const Admin = {
         if (data.success && data.metrics) {
           const m = data.metrics;
           const map = {
-            revenue: `$${Math.round(m.totalRevenue || 0).toLocaleString()}`,
+            revenue: `₹${Math.round(m.totalRevenue || 0).toLocaleString('en-IN')}`,
             orders: m.totalOrders || 0,
             todayOrders: m.todayOrders || 0,
-            todayRev: `$${(m.todayRevenue || 0).toFixed(0)}`,
+            todayRev: `₹${(m.todayRevenue || 0).toFixed(0)}`,
             customers: m.totalCustomers || 0,
+            staff: m.totalStaff || 0,
+            totalRoles: 4,
+            totalPermissions: 12,
             products: m.totalProducts || 0,
             lowStock: m.lowStockCount || 0,
             outStock: m.outOfStockCount || 0,
@@ -352,6 +417,13 @@ const Admin = {
           if (Number(val) > 0) {
             badgeEl.style.display = 'inline-flex';
             if (key === 'stockAlerts') badgeEl.innerText = `⚠️ ${val}`;
+          } else {
+            badgeEl.style.display = 'none';
+          }
+        }
+        if (key === 'status_Deleted') {
+          if (Number(val) > 0) {
+            badgeEl.style.display = 'inline-flex';
           } else {
             badgeEl.style.display = 'none';
           }

@@ -115,6 +115,17 @@
       <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About <span>&rarr;</span></a></li>
       <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews <span>&rarr;</span></a></li>
     </ul>
+
+    <!-- Real-Time Shop by Category Section in Side Navbar -->
+    <div class="side-nav-category-section">
+      <div class="side-nav-category-header">
+        <span class="side-nav-category-title">SHOP BY CATEGORY</span>
+        <span class="side-nav-live-badge">LIVE</span>
+      </div>
+      <ul class="side-nav-category-list" id="sideNavCategoriesList">
+        <!-- Rendered dynamically and synchronized in real time -->
+      </ul>
+    </div>
   </aside>
 
   <main>
@@ -160,45 +171,69 @@
             <span>CATEGORY</span>
             <span class="filter-toggle-icon">&#9650;</span>
           </div>
-          <div class="filter-section-content">
+          <div class="filter-section-content" id="sidebarCatContainer">
             <label class="filter-checkbox-label">
               <div class="checkbox-inner-wrap">
                 <input type="checkbox" name="cat" value="all" id="catAll" checked class="filter-checkbox-input" />
                 <span>All Products</span>
               </div>
-              <span class="filter-count-num" id="countAll">(150)</span>
+              <span class="filter-count-num" id="countAll">(155)</span>
             </label>
 
             <label class="filter-checkbox-label">
               <div class="checkbox-inner-wrap">
-                <input type="checkbox" name="cat" value="skincare" id="catSkincare" class="filter-checkbox-input" />
+                <input type="checkbox" name="cat" value="skincare" id="cat_skincare" class="filter-checkbox-input" />
                 <span>Skincare</span>
               </div>
-              <span class="filter-count-num" id="countSkincare">(45)</span>
+              <span class="filter-count-num" id="count_skincare">(45)</span>
             </label>
 
             <label class="filter-checkbox-label">
               <div class="checkbox-inner-wrap">
-                <input type="checkbox" name="cat" value="makeup" id="catMakeup" class="filter-checkbox-input" />
+                <input type="checkbox" name="cat" value="makeup" id="cat_makeup" class="filter-checkbox-input" />
                 <span>Makeup</span>
               </div>
-              <span class="filter-count-num" id="countMakeup">(43)</span>
+              <span class="filter-count-num" id="count_makeup">(43)</span>
             </label>
 
             <label class="filter-checkbox-label">
               <div class="checkbox-inner-wrap">
-                <input type="checkbox" name="cat" value="fragrance" id="catFragrance" class="filter-checkbox-input" />
+                <input type="checkbox" name="cat" value="fragrance" id="cat_fragrance" class="filter-checkbox-input" />
                 <span>Fragrance</span>
               </div>
-              <span class="filter-count-num" id="countFragrance">(32)</span>
+              <span class="filter-count-num" id="count_fragrance">(32)</span>
             </label>
 
             <label class="filter-checkbox-label">
               <div class="checkbox-inner-wrap">
-                <input type="checkbox" name="cat" value="haircare" id="catHaircare" class="filter-checkbox-input" />
+                <input type="checkbox" name="cat" value="haircare" id="cat_haircare" class="filter-checkbox-input" />
                 <span>Hair Care</span>
               </div>
-              <span class="filter-count-num" id="countHaircare">(30)</span>
+              <span class="filter-count-num" id="count_haircare">(32)</span>
+            </label>
+
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="cat" value="bath-body" id="cat_bath-body" class="filter-checkbox-input" />
+                <span>Bath &amp; Body</span>
+              </div>
+              <span class="filter-count-num" id="count_bath-body">(2)</span>
+            </label>
+
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="cat" value="sets" id="cat_sets" class="filter-checkbox-input" />
+                <span>Sets &amp; Gifts</span>
+              </div>
+              <span class="filter-count-num" id="count_sets">(0)</span>
+            </label>
+
+            <label class="filter-checkbox-label">
+              <div class="checkbox-inner-wrap">
+                <input type="checkbox" name="cat" value="tony" id="cat_tony" class="filter-checkbox-input" />
+                <span>Tony</span>
+              </div>
+              <span class="filter-count-num" id="count_tony">(1)</span>
             </label>
           </div>
         </div>
@@ -211,8 +246,8 @@
           </div>
           <div class="filter-section-content price-slider-wrap">
             <div class="price-values-row">
-              <span>$0</span>
-              <span>$<span id="priceMax">300</span></span>
+              <span>₹0</span>
+              <span>₹<span id="priceMax">300</span></span>
             </div>
             <input type="range" id="priceSlider" min="0" max="300" value="300" class="custom-price-slider" aria-label="Price range filter" />
           </div>
@@ -299,7 +334,7 @@
           <div>
             <h1 class="shop-headline-title">ALL BEAUTY</h1>
             <p class="shop-headline-subtitle">Curated beauty essentials for your everyday ritual.</p>
-            <span class="shop-products-count"><span id="resultCount">150</span> PRODUCTS</span>
+            <span class="shop-products-count"><span id="resultCount">151</span> PRODUCTS</span>
           </div>
 
           <div class="shop-top-controls">
@@ -368,41 +403,62 @@
         <div class="filter-section-title">
           <span>CATEGORY</span>
         </div>
-        <div class="filter-section-content">
+        <div class="filter-section-content" id="mSidebarCatContainer">
           <label class="filter-checkbox-label">
             <div class="checkbox-inner-wrap">
               <input type="checkbox" name="cat" value="all" id="mCatAll" checked class="filter-checkbox-input" />
               <span>All Products</span>
             </div>
-            <span class="filter-count-num" id="mCountAll">(150)</span>
+            <span class="filter-count-num" id="mCountAll">(155)</span>
           </label>
           <label class="filter-checkbox-label">
             <div class="checkbox-inner-wrap">
-              <input type="checkbox" name="cat" value="skincare" id="mCatSkincare" class="filter-checkbox-input" />
+              <input type="checkbox" name="cat" value="skincare" id="mCat_skincare" class="filter-checkbox-input" />
               <span>Skincare</span>
             </div>
-            <span class="filter-count-num" id="mCountSkincare">(45)</span>
+            <span class="filter-count-num" id="mCount_skincare">(45)</span>
           </label>
           <label class="filter-checkbox-label">
             <div class="checkbox-inner-wrap">
-              <input type="checkbox" name="cat" value="makeup" id="mCatMakeup" class="filter-checkbox-input" />
+              <input type="checkbox" name="cat" value="makeup" id="mCat_makeup" class="filter-checkbox-input" />
               <span>Makeup</span>
             </div>
-            <span class="filter-count-num" id="mCountMakeup">(43)</span>
+            <span class="filter-count-num" id="mCount_makeup">(43)</span>
           </label>
           <label class="filter-checkbox-label">
             <div class="checkbox-inner-wrap">
-              <input type="checkbox" name="cat" value="fragrance" id="mCatFragrance" class="filter-checkbox-input" />
+              <input type="checkbox" name="cat" value="fragrance" id="mCat_fragrance" class="filter-checkbox-input" />
               <span>Fragrance</span>
             </div>
-            <span class="filter-count-num" id="mCountFragrance">(32)</span>
+            <span class="filter-count-num" id="mCount_fragrance">(32)</span>
           </label>
           <label class="filter-checkbox-label">
             <div class="checkbox-inner-wrap">
-              <input type="checkbox" name="cat" value="haircare" id="mCatHaircare" class="filter-checkbox-input" />
+              <input type="checkbox" name="cat" value="haircare" id="mCat_haircare" class="filter-checkbox-input" />
               <span>Hair Care</span>
             </div>
-            <span class="filter-count-num" id="mCountHaircare">(30)</span>
+            <span class="filter-count-num" id="mCount_haircare">(32)</span>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="cat" value="bath-body" id="mCat_bath-body" class="filter-checkbox-input" />
+              <span>Bath &amp; Body</span>
+            </div>
+            <span class="filter-count-num" id="mCount_bath-body">(2)</span>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="cat" value="sets" id="mCat_sets" class="filter-checkbox-input" />
+              <span>Sets &amp; Gifts</span>
+            </div>
+            <span class="filter-count-num" id="mCount_sets">(0)</span>
+          </label>
+          <label class="filter-checkbox-label">
+            <div class="checkbox-inner-wrap">
+              <input type="checkbox" name="cat" value="tony" id="mCat_tony" class="filter-checkbox-input" />
+              <span>Tony</span>
+            </div>
+            <span class="filter-count-num" id="mCount_tony">(1)</span>
           </label>
         </div>
       </div>
@@ -414,8 +470,8 @@
         </div>
         <div class="filter-section-content price-slider-wrap">
           <div class="price-values-row">
-            <span>$0</span>
-            <span>$<span id="mPriceMax">300</span></span>
+            <span>₹0</span>
+            <span>₹<span id="mPriceMax">300</span></span>
           </div>
           <input type="range" id="mPriceSlider" min="0" max="300" value="300" class="custom-price-slider" aria-label="Mobile price range filter" />
         </div>
@@ -608,7 +664,7 @@
         </div>
         <div class="footer-currency-picker">
           <span class="currency-star">✦</span>
-          <span>International / USD ($)</span>
+          <span>India / INR (₹)</span>
         </div>
       </div>
     </div>
@@ -628,7 +684,7 @@
 
     <div class="shipping-meter-wrap">
       <div class="shipping-meter-text" id="shippingMeterText">
-        Add <strong>$100.00</strong> more for complimentary delivery.
+        Add <strong>₹100.00</strong> more for complimentary delivery.
       </div>
       <div class="shipping-meter-bar">
         <div class="shipping-meter-fill" id="shippingMeterFill"></div>
@@ -646,7 +702,7 @@
     <div class="cart-drawer-footer">
       <div class="cart-subtotal-row">
         <span>Subtotal</span>
-        <span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span>
+        <span class="cart-subtotal-val" id="cartSubtotalAmount">₹0.00</span>
       </div>
       <button class="btn-luxury-primary" style="width: 100%; margin-bottom: 0.75rem;" onclick="processCheckout()">CHECKOUT &rarr;</button>
       <button class="btn-luxury-outline" style="width: 100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
@@ -684,7 +740,7 @@
       <div class="quick-modal-details">
         <span class="quick-modal-brand" id="quickModalBrand">LUMIÈRE</span>
         <h2 class="quick-modal-title" id="quickModalTitle">Radiance Glow Serum</h2>
-        <div class="quick-modal-price" id="quickModalPrice">$128.00</div>
+        <div class="quick-modal-price" id="quickModalPrice">₹128.00</div>
         <p class="quick-modal-desc" id="quickModalDesc">Description</p>
         
         <div style="margin-bottom: 1.5rem;">
@@ -718,8 +774,8 @@
 
   <!-- Scripts -->
   <script src="js/auth.js"></script>
-  <script src="js/lumiere-cinematic.js"></script>
   <script src="js/shared.js"></script>
+  <script src="js/lumiere-cinematic.js"></script>
   <script src="js/shop.js"></script>
 
   <script>

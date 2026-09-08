@@ -29,8 +29,8 @@ initDatabase().catch(err => console.error('[Server] DB Init error:', err.message
 
 // Core Middleware
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 app.use(logger);
 
 // Health Check Endpoint
@@ -50,9 +50,18 @@ app.use('/api/account', accountRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
+app.get('/api/categories', (req, res) => require('./controllers/productController').getCategories(req, res));
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/inquiries', inquiryRoutes);
+
+// Fallback for unmatched API routes to always return JSON (never HTML)
+app.all('/api/*', (req, res) => {
+  res.status(404).json({
+    success: false,
+    error: `API endpoint not found: ${req.method} ${req.originalUrl}`
+  });
+});
 
 // Serve Frontend Static Assets
 const frontendPath = path.resolve(__dirname, '../frontend');

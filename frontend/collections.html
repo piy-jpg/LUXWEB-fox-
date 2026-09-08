@@ -94,6 +94,17 @@
       <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About <span>&rarr;</span></a></li>
       <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews <span>&rarr;</span></a></li>
     </ul>
+
+    <!-- Real-Time Shop by Category Section in Side Navbar -->
+    <div class="side-nav-category-section">
+      <div class="side-nav-category-header">
+        <span class="side-nav-category-title">SHOP BY CATEGORY</span>
+        <span class="side-nav-live-badge">LIVE</span>
+      </div>
+      <ul class="side-nav-category-list" id="sideNavCategoriesList">
+        <!-- Rendered dynamically and synchronized in real time -->
+      </ul>
+    </div>
   </aside>
 
 <!-- CINEMATIC HERO -->
@@ -128,105 +139,351 @@
     </div>
   </div>
 
-  <!-- FEATURED COLLECTION -->
+  <!-- 1. FEATURED COLLECTION ATELIER SHOWCASE -->
   <section class="feat-coll" id="featured-collection">
     <div class="feat-coll-inner" id="featCollInner">
-      <!-- Injected by JS -->
+      <!-- Dynamically rendered and interactive via collections.js (with initial fallback content) -->
+      <div class="fc-media-container">
+        <div class="fc-hero-frame">
+          <div class="fc-location-pill"><span class="dot"></span><span>Place Vendôme, Paris</span></div>
+          <div class="fc-paris-stamp">PARIS ATELIER</div>
+          <img src="images/hero_banner_1788328324240.jpg" alt="The Golden Hour Collection" class="fc-hero-img" />
+        </div>
+        <div class="fc-inset-frame">
+          <img src="images/model_portrait_1788328392448.jpg" alt="Twilight Formulation" />
+          <div class="fc-inset-caption">✦ Twilight Formulation Nº 01</div>
+        </div>
+      </div>
+      <div class="fc-editorial-deck">
+        <div class="fc-badges-row">
+          <span class="fc-season-badge">AW 2026 — Featured Collection</span>
+          <span class="fc-batch-badge">Limited Run • Batch Nº 082</span>
+        </div>
+        <h2 class="fc-title">The Golden Hour<br/><em>Collection</em></h2>
+        <p class="fc-desc">Inspired by warm amber evenings in Paris, this collection merges luminous skincare with bold, candlelit makeup. Think molten gold highlighters, velvet lips, and serums that glow like the setting sun.</p>
+        <div class="fc-accords-wrap">
+          <span class="fc-accord-chip">✦ 24K Molten Gold Mica</span>
+          <span class="fc-accord-chip">✦ Bulgarian Damask Rose</span>
+          <span class="fc-accord-chip">✦ Smoked Ambergris</span>
+          <span class="fc-accord-chip">✦ Cold-Pressed Camellia Seed</span>
+        </div>
+        <div class="fc-products-section-header">
+          <span>Curated Collection Stars (3)</span>
+        </div>
+        <div class="fc-products-deck">
+          <div class="fc-product-card">
+            <img src="images/skincare_products_1788328338930.jpg" alt="Radiance Glow Serum" class="fc-product-thumb" />
+            <div class="fc-product-info">
+              <div class="fc-product-name">Radiance Glow Serum <span style="font-size:0.75rem; color:var(--color-gold); font-weight:normal;">5.0 ★</span></div>
+              <div class="fc-product-sub">Hydra-Luminance Elixir • 30ml</div>
+            </div>
+            <div class="fc-product-price">₹128.00</div>
+            <button type="button" class="fc-add-bag-btn" onclick="addCollectionProductToBag(1, 'Radiance Glow Serum', 128, 'images/skincare_products_1788328338930.jpg')">+ ADD TO BAG</button>
+          </div>
+          <div class="fc-product-card">
+            <img src="images/makeup_products_1788328354838.jpg" alt="Gold Highlighter" class="fc-product-thumb" />
+            <div class="fc-product-info">
+              <div class="fc-product-name">Gold Highlighter <span style="font-size:0.75rem; color:var(--color-gold); font-weight:normal;">4.9 ★</span></div>
+              <div class="fc-product-sub">Molten 24K Velvet Compact • 10g</div>
+            </div>
+            <div class="fc-product-price">₹46.00</div>
+            <button type="button" class="fc-add-bag-btn" onclick="addCollectionProductToBag(8, 'Gold Highlighter', 46, 'images/makeup_products_1788328354838.jpg')">+ ADD TO BAG</button>
+          </div>
+          <div class="fc-product-card">
+            <img src="images/perfume_collection_1788328378783.jpg" alt="Noir d'Or Parfum" class="fc-product-thumb" />
+            <div class="fc-product-info">
+              <div class="fc-product-name">Noir d'Or Parfum <span style="font-size:0.75rem; color:var(--color-gold); font-weight:normal;">5.0 ★</span></div>
+              <div class="fc-product-sub">Haute Amber Extract • 100ml</div>
+            </div>
+            <div class="fc-product-price">₹215.00</div>
+            <button type="button" class="fc-add-bag-btn" onclick="addCollectionProductToBag(3, 'Noir d\'Or Parfum', 215, 'images/perfume_collection_1788328378783.jpg')">+ ADD TO BAG</button>
+          </div>
+        </div>
+        <div class="fc-actions-row">
+          <a href="shop.html" class="btn-luxury-primary" style="padding:0.95rem 2rem;"><span>✦</span> Shop Golden Hour &rarr;</a>
+          <a href="#campaign-lookbook" class="btn-luxury-outline" style="padding:0.95rem 1.6rem;">VIEW LOOKBOOK ARCHIVE &darr;</a>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- COLLECTION LOOKBOOK GRID -->
-  <section class="lookbook">
+  <!-- 2. COLLECTION LOOKBOOK GRID (EDITORIAL CAMPAIGN MOMENTS) -->
+  <section class="lookbook" id="campaign-lookbook">
     <div class="container">
       <div class="section-header reveal">
-        <span class="section-label">Lookbook</span>
+        <span class="editorial-badge">✦ ATELIER ARCHIVE &bull; VOL. IX</span>
         <h2 class="section-title">Campaign Moments</h2>
-        <p class="section-desc">Behind the lens — editorial beauty captured in light and texture.</p>
+        <p class="section-desc">Behind the lens — editorial beauty captured in light, shadow, and golden hour texture.</p>
       </div>
+
+      <!-- Filter chips -->
+      <div class="lb-filter-bar reveal">
+        <button type="button" class="lb-filter-chip active" onclick="filterLookbook('all', this)">All Moments (5)</button>
+        <button type="button" class="lb-filter-chip" onclick="filterLookbook('muse', this)">The Muse</button>
+        <button type="button" class="lb-filter-chip" onclick="filterLookbook('ritual', this)">Skincare Ritual</button>
+        <button type="button" class="lb-filter-chip" onclick="filterLookbook('drama', this)">Couture Makeup</button>
+        <button type="button" class="lb-filter-chip" onclick="filterLookbook('fragrance', this)">Haute Parfumerie</button>
+      </div>
+
+      <!-- Masonry Grid -->
       <div class="lookbook-masonry">
-        <div class="lb-item lb-tall reveal">
-          <img src="images/model_portrait_1788328392448.jpg" alt="Model" />
-          <div class="lb-caption"><span>The Muse</span><p>Golden Hour Campaign</p></div>
+        <!-- 01: The Muse -->
+        <div class="lb-item lb-tall reveal" data-moment-cat="muse" onclick="openLookbookModal(0)">
+          <img src="images/model_portrait_1788328392448.jpg" alt="The Muse - Golden Hour Campaign" />
+          <div class="lb-moment-tag">MOMENT 01 &bull; 35MM FILM</div>
+          <div class="lb-caption">
+            <span class="lb-caption-sub">GOLDEN HOUR CAMPAIGN</span>
+            <h3 class="lb-caption-title">The Muse</h3>
+            <p style="font-size:0.75rem; color:rgba(250,247,242,0.65); line-height:1.5;">Captured at Place des Vosges during twilight. Ambient amber skin luminosity.</p>
+            <div class="lb-caption-cta"><span>✦ VIEW EDITORIAL LIGHTBOX &rarr;</span></div>
+          </div>
         </div>
-        <div class="lb-item reveal" style="transition-delay:.1s">
-          <img src="images/skincare_products_1788328338930.jpg" alt="Skincare" />
-          <div class="lb-caption"><span>Ritual</span><p>Skincare Edit</p></div>
+
+        <!-- 02: Ritual -->
+        <div class="lb-item reveal" data-moment-cat="ritual" style="transition-delay:.1s" onclick="openLookbookModal(1)">
+          <img src="images/skincare_products_1788328338930.jpg" alt="Ritual - Skincare Edit" />
+          <div class="lb-moment-tag">MOMENT 02 &bull; BOTANICAL</div>
+          <div class="lb-caption">
+            <span class="lb-caption-sub">SKINCARE EDIT</span>
+            <h3 class="lb-caption-title">Ritual</h3>
+            <p style="font-size:0.75rem; color:rgba(250,247,242,0.65); line-height:1.5;">Cold-pressed active botanical extraction preserving cell integrity.</p>
+            <div class="lb-caption-cta"><span>✦ VIEW EDITORIAL &rarr;</span></div>
+          </div>
         </div>
-        <div class="lb-item reveal" style="transition-delay:.15s">
-          <img src="images/makeup_products_1788328354838.jpg" alt="Makeup" />
-          <div class="lb-caption"><span>Drama</span><p>Makeup Collection</p></div>
+
+        <!-- 03: Drama -->
+        <div class="lb-item reveal" data-moment-cat="drama" style="transition-delay:.15s" onclick="openLookbookModal(2)">
+          <img src="images/makeup_products_1788328354838.jpg" alt="Drama - Makeup Collection" />
+          <div class="lb-moment-tag">MOMENT 03 &bull; 24K PIGMENT</div>
+          <div class="lb-caption">
+            <span class="lb-caption-sub">MAKEUP COLLECTION</span>
+            <h3 class="lb-caption-title">Drama</h3>
+            <p style="font-size:0.75rem; color:rgba(250,247,242,0.65); line-height:1.5;">Molten gold highlighter &amp; crushed velvet lip pigment in candlelight.</p>
+            <div class="lb-caption-cta"><span>✦ VIEW EDITORIAL &rarr;</span></div>
+          </div>
         </div>
-        <div class="lb-item lb-wide reveal" style="transition-delay:.2s">
-          <img src="images/collections_hero.jpg" alt="Campaign" />
-          <div class="lb-caption"><span>The House</span><p>Autumn / Winter 2026</p></div>
+
+        <!-- 04: The House -->
+        <div class="lb-item lb-wide reveal" data-moment-cat="all" style="transition-delay:.2s" onclick="openLookbookModal(3)">
+          <img src="images/collections_hero.jpg" alt="The House - Autumn / Winter 2026" />
+          <div class="lb-moment-tag">MOMENT 04 &bull; SALON PRIVÉ</div>
+          <div class="lb-caption">
+            <span class="lb-caption-sub">AUTUMN / WINTER 2026</span>
+            <h3 class="lb-caption-title">The House</h3>
+            <p style="font-size:0.75rem; color:rgba(250,247,242,0.65); line-height:1.5;">Inside the Paris salon atelier. Where high perfumery and couture skincare converge.</p>
+            <div class="lb-caption-cta"><span>✦ VIEW EDITORIAL &rarr;</span></div>
+          </div>
         </div>
-        <div class="lb-item reveal" style="transition-delay:.25s">
-          <img src="images/perfume_collection_1788328378783.jpg" alt="Fragrance" />
-          <div class="lb-caption"><span>Signature</span><p>Fragrance Edit</p></div>
+
+        <!-- 05: Signature -->
+        <div class="lb-item reveal" data-moment-cat="fragrance" style="transition-delay:.25s" onclick="openLookbookModal(4)">
+          <img src="images/perfume_collection_1788328378783.jpg" alt="Signature - Fragrance Edit" />
+          <div class="lb-moment-tag">MOMENT 05 &bull; PARFUMERIE</div>
+          <div class="lb-caption">
+            <span class="lb-caption-sub">FRAGRANCE EDIT</span>
+            <h3 class="lb-caption-title">Signature</h3>
+            <p style="font-size:0.75rem; color:rgba(250,247,242,0.65); line-height:1.5;">Rare smoked ambergris and Bulgarian damask rose crystal flacons.</p>
+            <div class="lb-caption-cta"><span>✦ VIEW EDITORIAL &rarr;</span></div>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ALL COLLECTIONS GRID -->
-  <section class="all-colls">
+  <!-- LOOKBOOK LIGHTBOX MODAL -->
+  <div class="lb-modal" id="lookbookModal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="lb-modal-backdrop" onclick="closeLookbookModal()"></div>
+    <div class="lb-modal-content">
+      <button class="lb-modal-close" onclick="closeLookbookModal()" aria-label="Close Lookbook">&times;</button>
+      <button class="lb-modal-nav lb-prev" onclick="navLookbook(-1)" aria-label="Previous Moment">&#10094;</button>
+      <button class="lb-modal-nav lb-next" onclick="navLookbook(1)" aria-label="Next Moment">&#10095;</button>
+      
+      <div class="lb-modal-body">
+        <div class="lb-modal-img-wrap">
+          <img id="lbModalImg" src="images/model_portrait_1788328392448.jpg" alt="Lookbook Moment" />
+          <div class="lb-modal-meta-pill" id="lbModalTag">MOMENT 01 &bull; 35MM FILM</div>
+        </div>
+        <div class="lb-modal-info">
+          <div class="lb-modal-cat" id="lbModalCat">GOLDEN HOUR CAMPAIGN</div>
+          <h3 class="lb-modal-title" id="lbModalTitle">The Muse</h3>
+          <p class="lb-modal-desc" id="lbModalDesc">Behind the lens in Paris twilight. The golden hour illuminates the skin with amber luminescence.</p>
+          <div class="lb-modal-quote" id="lbModalQuote">"Light in Paris at dusk creates an atmosphere that transforms beauty into living poetry."</div>
+          <div class="lb-modal-product">
+            <span class="lb-mp-label">FEATURED IN THIS LOOK:</span>
+            <div class="lb-mp-card">
+              <img id="lbModalProdImg" src="images/skincare_products_1788328338930.jpg" alt="Product" />
+              <div>
+                <strong id="lbModalProdName">Radiance Glow Serum</strong>
+                <span id="lbModalProdPrice" style="color:var(--color-gold);display:block;font-size:0.85rem;">₹128.00</span>
+              </div>
+              <button type="button" class="btn-luxury-primary" id="lbModalProdBtn" style="margin-left:auto;padding:0.45rem 1rem;font-size:0.75rem;">+ Add to Bag</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ALL SEASONS: EVERY COLLECTION ARCHIVE -->
+  <section class="all-colls" id="all-seasons">
     <div class="container">
       <div class="section-header reveal">
-        <span class="section-label">All Seasons</span>
+        <span class="editorial-badge">✦ CHRONICLES OF BEAUTY &bull; 2025–2026</span>
         <h2 class="section-title">Every Collection</h2>
+        <p class="section-desc">Four distinct seasons. Each formulated in finite atelier runs in Paris and archived with care.</p>
       </div>
+
+      <!-- Filter tabs -->
+      <div class="seasons-filter-bar reveal">
+        <button type="button" class="season-filter-btn active" onclick="filterSeasons('all', this)">All Seasons (4)</button>
+        <button type="button" class="season-filter-btn" onclick="filterSeasons('aw', this)">Autumn / Winter (2)</button>
+        <button type="button" class="season-filter-btn" onclick="filterSeasons('ss', this)">Spring / Summer (2)</button>
+      </div>
+
       <div class="all-colls-grid">
-        <div class="ac-card reveal" id="acGolden">
-          <div class="ac-img-wrap"><img src="images/hero_banner_1788328324240.jpg" alt="Golden Hour" /></div>
+        <!-- AW 2026: Golden Hour -->
+        <div class="ac-card reveal" id="acGolden" data-season-type="aw">
+          <div class="ac-img-wrap">
+            <span class="ac-status-badge">● IN STOCK &bull; CURRENT</span>
+            <img src="images/hero_banner_1788328324240.jpg" alt="Golden Hour" />
+          </div>
           <div class="ac-info">
-            <span class="ac-season">AW 2026</span>
+            <span class="ac-season-tag">AW 2026</span>
             <h3 class="ac-title">Golden Hour</h3>
             <p class="ac-desc">Warm amber tones, candlelit skin, and the magic of twilight — bottled.</p>
-            <a href="shop.html" class="btn-outline-gold" id="acGoldenBtn">Shop Collection →</a>
+            <div class="ac-palette-row">
+              <span class="ac-palette-chip">✦ Molten Amber</span>
+              <span class="ac-palette-chip">✦ 24K Gold</span>
+              <span class="ac-palette-chip">✦ Candlelit Skin</span>
+            </div>
+            <div class="ac-hero-prod">Star Piece: <strong>Radiance Glow Serum (₹128)</strong></div>
+            <div class="ac-buttons-row">
+              <a href="shop.html" class="btn-luxury-primary" style="padding:0.55rem 1.15rem; font-size:0.75rem;" id="acGoldenBtn">Shop Collection &rarr;</a>
+              <button type="button" class="btn-preview-atelier" onclick="switchColl('golden'); document.getElementById('featured-collection').scrollIntoView({behavior:'smooth'});">Preview Atelier ✦</button>
+            </div>
           </div>
         </div>
-        <div class="ac-card reveal" style="transition-delay:.1s" id="acBloom">
-          <div class="ac-img-wrap"><img src="images/skincare_products_1788328338930.jpg" alt="Spring Bloom" /></div>
+
+        <!-- SS 2026: Spring Bloom -->
+        <div class="ac-card reveal" style="transition-delay:.1s" id="acBloom" data-season-type="ss">
+          <div class="ac-img-wrap">
+            <span class="ac-status-badge">✦ FORTHCOMING &bull; MARCH</span>
+            <img src="images/skincare_products_1788328338930.jpg" alt="Spring Bloom" />
+          </div>
           <div class="ac-info">
-            <span class="ac-season">SS 2026</span>
+            <span class="ac-season-tag">SS 2026</span>
             <h3 class="ac-title">Spring Bloom</h3>
             <p class="ac-desc">Fresh botanicals, dewy finishes, and the lightest touch of colour.</p>
-            <a href="shop.html?cat=skincare" class="btn-outline-gold" id="acBloomBtn">Shop Collection →</a>
+            <div class="ac-palette-row">
+              <span class="ac-palette-chip">✦ Wild Rose</span>
+              <span class="ac-palette-chip">✦ Dewy Nectar</span>
+              <span class="ac-palette-chip">✦ Fresh Peony</span>
+            </div>
+            <div class="ac-hero-prod">Star Piece: <strong>Rosehip Facial Oil (₹74)</strong></div>
+            <div class="ac-buttons-row">
+              <a href="shop.html?cat=skincare" class="btn-luxury-primary" style="padding:0.55rem 1.15rem; font-size:0.75rem;" id="acBloomBtn">Shop Collection &rarr;</a>
+              <button type="button" class="btn-preview-atelier" onclick="switchColl('bloom'); document.getElementById('featured-collection').scrollIntoView({behavior:'smooth'});">Preview Atelier ✦</button>
+            </div>
           </div>
         </div>
-        <div class="ac-card reveal" style="transition-delay:.2s" id="acNoir">
-          <div class="ac-img-wrap"><img src="images/makeup_products_1788328354838.jpg" alt="Noir Edition" /></div>
+
+        <!-- AW 2025: Noir Edition -->
+        <div class="ac-card reveal" style="transition-delay:.2s" id="acNoir" data-season-type="aw">
+          <div class="ac-img-wrap">
+            <span class="ac-status-badge">✦ VAULT ARCHIVE &bull; FEW LEFT</span>
+            <img src="images/makeup_products_1788328354838.jpg" alt="Noir Edition" />
+          </div>
           <div class="ac-info">
-            <span class="ac-season">AW 2025</span>
+            <span class="ac-season-tag">AW 2025</span>
             <h3 class="ac-title">Noir Edition</h3>
             <p class="ac-desc">Bold jewel tones, dramatic eyes, and midnight luxury at its finest.</p>
-            <a href="shop.html?cat=makeup" class="btn-outline-gold" id="acNoirBtn">Shop Collection →</a>
+            <div class="ac-palette-row">
+              <span class="ac-palette-chip">✦ Midnight Velvet</span>
+              <span class="ac-palette-chip">✦ Obsidian</span>
+              <span class="ac-palette-chip">✦ Smoked Berry</span>
+            </div>
+            <div class="ac-hero-prod">Star Piece: <strong>Velvet Lip Collection (₹58)</strong></div>
+            <div class="ac-buttons-row">
+              <a href="shop.html?cat=makeup" class="btn-luxury-primary" style="padding:0.55rem 1.15rem; font-size:0.75rem;" id="acNoirBtn">Shop Collection &rarr;</a>
+              <button type="button" class="btn-preview-atelier" onclick="switchColl('noir'); document.getElementById('featured-collection').scrollIntoView({behavior:'smooth'});">Preview Atelier ✦</button>
+            </div>
           </div>
         </div>
-        <div class="ac-card reveal" style="transition-delay:.3s" id="acCrystal">
-          <div class="ac-img-wrap"><img src="images/perfume_collection_1788328378783.jpg" alt="Crystal Clear" /></div>
+
+        <!-- SS 2025: Crystal Clear -->
+        <div class="ac-card reveal" style="transition-delay:.3s" id="acCrystal" data-season-type="ss">
+          <div class="ac-img-wrap">
+            <span class="ac-status-badge">✦ HERITAGE ARCHIVE</span>
+            <img src="images/perfume_collection_1788328378783.jpg" alt="Crystal Clear" />
+          </div>
           <div class="ac-info">
-            <span class="ac-season">SS 2025</span>
+            <span class="ac-season-tag">SS 2025</span>
             <h3 class="ac-title">Crystal Clear</h3>
             <p class="ac-desc">Clean scents, glass-skin formulas, and pure transparency in beauty.</p>
-            <a href="shop.html?cat=fragrance" class="btn-outline-gold" id="acCrystalBtn">Shop Collection →</a>
+            <div class="ac-palette-row">
+              <span class="ac-palette-chip">✦ Pure Jasmine</span>
+              <span class="ac-palette-chip">✦ Glacial Quartz</span>
+              <span class="ac-palette-chip">✦ Marine Peptide</span>
+            </div>
+            <div class="ac-hero-prod">Star Piece: <strong>Jasmin Noir Parfum (₹195)</strong></div>
+            <div class="ac-buttons-row">
+              <a href="shop.html?cat=fragrance" class="btn-luxury-primary" style="padding:0.55rem 1.15rem; font-size:0.75rem;" id="acCrystalBtn">Shop Collection &rarr;</a>
+              <button type="button" class="btn-preview-atelier" onclick="switchColl('crystal'); document.getElementById('featured-collection').scrollIntoView({behavior:'smooth'});">Preview Atelier ✦</button>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- NEWSLETTER IN COLLECTIONS -->
-  <section class="coll-newsletter">
-    <div class="cn-inner">
-      <div class="reveal">
-        <span class="section-label">Stay in the Know</span>
-        <h2 class="cn-title">Be First for Every Launch</h2>
-        <p class="cn-desc">Join the inner circle and receive exclusive collection previews before anyone else.</p>
-        <form class="cn-form" onsubmit="handleCollNL(event)" id="cnForm">
-          <input type="email" class="cn-input" id="cnEmail" placeholder="Your email address" required aria-label="Email" />
-          <button type="submit" class="btn-primary" id="cnSubmit">Notify Me</button>
-        </form>
+  <!-- 4. NEWSLETTER IN COLLECTIONS (SALON PRIVÉ VIP INVITATION) -->
+  <section class="coll-newsletter" id="collection-newsletter">
+    <div class="cn-vip-card reveal">
+      <div class="cn-monogram">✦</div>
+      <span class="cn-eyebrow">LUMIÈRE SALON PRIVÉ &bull; INNER CIRCLE</span>
+      <h2 class="cn-title">Be First for Every Launch</h2>
+      <p class="cn-desc">
+        Join the inner circle and receive exclusive collection previews, private batch allocations, and invitations to Paris salon debuts before anyone else.
+      </p>
+
+      <!-- Privileges Row -->
+      <div class="cn-privileges-row">
+        <div class="cn-privilege-pill"><span>✦</span> 48h Early Launch Access</div>
+        <div class="cn-privilege-pill"><span>✦</span> Complimentary Discovery Flacon</div>
+        <div class="cn-privilege-pill"><span>✦</span> Private Atelier Invitations</div>
+      </div>
+
+      <!-- Interest Category Bar -->
+      <div class="cn-interest-bar">
+        <span class="cn-interest-label">Your Preferred Edits:</span>
+        <span class="cn-interest-chip active" onclick="this.classList.toggle('active')">All Releases</span>
+        <span class="cn-interest-chip" onclick="this.classList.toggle('active')">Skincare</span>
+        <span class="cn-interest-chip" onclick="this.classList.toggle('active')">Makeup</span>
+        <span class="cn-interest-chip" onclick="this.classList.toggle('active')">Haute Parfumerie</span>
+      </div>
+
+      <!-- Newsletter Form -->
+      <form class="cn-form" onsubmit="handleCollNL(event)" id="cnForm">
+        <div class="cn-input-wrapper">
+          <span class="cn-input-icon">✉</span>
+          <input type="email" class="cn-input" id="cnEmail" placeholder="Enter your email for private salon access..." required aria-label="Email Address" />
+        </div>
+        <button type="submit" class="btn-luxury-primary cn-submit-btn" id="cnSubmit">
+          <span>✦</span> NOTIFY ME &rarr;
+        </button>
+      </form>
+      <div class="cn-disclaimer">
+        🔒 Discretion guaranteed. Unsubscribe at any time. Complimentary white-glove communications only.
+      </div>
+
+      <!-- VIP Member Pass (displayed dynamically after submit) -->
+      <div id="cnVipPass" class="cn-vip-pass" style="display:none;">
+        <div class="vip-pass-star">✦</div>
+        <div class="vip-pass-status">SALON PRIVÉ MEMBERSHIP CONFIRMED</div>
+        <div class="vip-pass-id" id="cnVipPassId">VIP-ATELIER-2026-8921</div>
+        <div class="vip-pass-desc">
+          Welcome to the inner circle. Your private preview credentials will be dispatched to <strong id="cnVipEmail" style="color:var(--color-gold);"></strong>.
+        </div>
       </div>
     </div>
   </section>
@@ -343,7 +600,7 @@
         </div>
         <div class="footer-currency-picker">
           <span class="currency-star">✦</span>
-          <span>International / USD ($)</span>
+          <span>India / INR (₹)</span>
         </div>
       </div>
     </div>
@@ -359,7 +616,7 @@
       <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
     </div>
     <div class="shipping-meter-wrap">
-      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>$100.00</strong> more for complimentary delivery.</div>
+      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>₹100.00</strong> more for complimentary delivery.</div>
       <div class="shipping-meter-bar"><div class="shipping-meter-fill" id="shippingMeterFill"></div></div>
     </div>
     <div class="cart-items-container" id="cartItemsList"></div>
@@ -369,7 +626,7 @@
       <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Discover our luxury edits to get started.</span>
     </div>
     <div class="cart-drawer-footer">
-      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span></div>
+      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">₹0.00</span></div>
       <button class="btn-luxury-primary" style="width:100%;margin-bottom:0.75rem;" onclick="processCheckout()">CHECKOUT &rarr;</button>
       <button class="btn-luxury-outline" style="width:100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
     </div>
@@ -412,8 +669,8 @@
 
   <!-- Scripts -->
   <script src="js/auth.js"></script>
-  <script src="js/lumiere-cinematic.js"></script>
   <script src="js/shared.js"></script>
+  <script src="js/lumiere-cinematic.js"></script>
   <script src="js/collections.js"></script>
 
   <script>

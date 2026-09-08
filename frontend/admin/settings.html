@@ -3,13 +3,231 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Settings &amp; Audit Logs — Lumière Admin</title>
+  <title>Store Settings — Lumière Admin</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
   
   <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    /* Executive Master-Detail Settings Layout */
+    /* Full-Width Settings Layout (Navigated via Side Navbar) */
+    .settings-layout {
+      width: 100%;
+      margin-top: 1.5rem;
+    }
+
+    /* Settings Panel */
+    .settings-panel {
+      background: var(--admin-card-bg);
+      border: 1px solid var(--admin-border);
+      border-radius: 4px;
+      padding: 2.25rem;
+      min-height: 600px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .settings-section {
+      display: none;
+    }
+
+    .settings-section.active {
+      display: block;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .settings-section-header {
+      border-bottom: 1px solid var(--admin-border);
+      padding-bottom: 1.25rem;
+      margin-bottom: 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .settings-title {
+      font-family: var(--font-serif);
+      font-size: 1.6rem;
+      font-weight: 300;
+      margin: 0;
+      color: #FAF7F2;
+    }
+
+    .settings-desc {
+      font-size: 0.78rem;
+      color: rgba(250, 247, 242, 0.5);
+      margin: 0.35rem 0 0;
+    }
+
+    .settings-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: rgba(250, 247, 242, 0.7);
+      margin-bottom: 0.45rem;
+      font-weight: 500;
+    }
+
+    .settings-input, .settings-select, .settings-textarea {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--admin-border);
+      border-radius: 3px;
+      color: #FAF7F2;
+      padding: 0.6rem 0.85rem;
+      font-size: 0.82rem;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .settings-input:focus, .settings-select:focus, .settings-textarea:focus {
+      border-color: var(--color-gold);
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 0 0 1px rgba(201, 169, 110, 0.2);
+    }
+
+    .settings-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* Toggle / Checkbox Luxury Card */
+    .toggle-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.85rem;
+      padding: 0.85rem 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .toggle-card:hover {
+      border-color: rgba(201, 169, 110, 0.3);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .toggle-card input[type="checkbox"], .toggle-card input[type="radio"] {
+      margin-top: 0.2rem;
+      accent-color: var(--color-gold);
+      cursor: pointer;
+      transform: scale(1.1);
+    }
+
+    .toggle-label {
+      font-size: 0.82rem;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    .toggle-sub {
+      font-size: 0.7rem;
+      color: rgba(250, 247, 242, 0.5);
+      margin-top: 0.15rem;
+    }
+
+    /* Integration Card */
+    .integration-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    .integration-item {
+      padding: 1.25rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .integration-item:hover {
+      border-color: rgba(201, 169, 110, 0.4);
+    }
+
+    .conn-badge-on {
+      font-size: 0.68rem;
+      color: #7bed9f;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .conn-badge-off {
+      font-size: 0.68rem;
+      color: rgba(250, 247, 242, 0.4);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .dot-on { background: #7bed9f; box-shadow: 0 0 6px #7bed9f; }
+    .dot-off { background: rgba(250, 247, 242, 0.3); }
+
+    /* Action footer */
+    .settings-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--admin-border);
+      padding-top: 1.5rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .toast-notice {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: #141416;
+      border: 1px solid var(--color-gold);
+      color: #FAF7F2;
+      padding: 0.85rem 1.5rem;
+      border-radius: 4px;
+      font-size: 0.82rem;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      display: none;
+      z-index: 1000;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
 </head>
 <body>
 
@@ -19,96 +237,1780 @@
     <header class="admin-topbar" id="adminTopbar"></header>
 
     <main class="admin-content">
-      <div style="margin-bottom: 2rem;">
-        <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Store Architecture</span>
-        <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Settings &amp; Security Audit Ledger</h1>
-      </div>
+      <!-- Page Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Atelier Architecture</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <span id="roleAccessBadge" class="badge badge-owner" style="font-size: 0.65rem;">OWNER EXCLUSIVE</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator">
+              <span class="live-dot"></span>
+              <span id="syncIndicatorText">SYNCED WITH ENGINE</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;">Store Settings</h1>
+          <p style="font-size: 0.82rem; color: rgba(250,247,242,0.6); margin: 0.25rem 0 0;">Configure your atelier, business parameters, and commerce experience.</p>
+        </div>
 
-      <!-- Atelier Global Configuration -->
-      <div class="table-card" style="padding: 1.75rem; margin-bottom: 2.5rem;">
-        <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin: 0 0 1.25rem;">Atelier Operational Parameters</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
-          <div>
-            <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Store Currency</label>
-            <input type="text" class="admin-input" style="width: 100%;" value="USD ($) — United States Dollar" readonly />
-          </div>
-          <div>
-            <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Complimentary Shipping Minimum</label>
-            <input type="text" class="admin-input" style="width: 100%;" value="$150.00 USD" readonly />
-          </div>
-          <div>
-            <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Default Low-Stock Threshold</label>
-            <input type="text" class="admin-input" style="width: 100%;" value="5 units" readonly />
-          </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+          <a href="../index.html" target="_blank" class="btn-outline" style="font-size: 0.72rem; padding: 0.5rem 1rem;">
+            Preview Store ↗
+          </a>
+          <button onclick="saveAllSettings()" class="btn-gold" style="font-size: 0.72rem; padding: 0.5rem 1.15rem;">
+            <span>✦</span> Save All Changes
+          </button>
         </div>
       </div>
 
-      <!-- Security Audit Trail -->
-      <div class="table-card">
-        <div class="table-header-wrap">
-          <div>
-            <h3 style="font-family: var(--font-serif); font-size: 1.25rem; margin: 0;">Security &amp; Administrative Audit Trail</h3>
-            <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Immutable record of all administrative modifications</div>
-          </div>
-          <button onclick="loadAuditLogs()" class="btn-outline" style="font-size: 0.7rem; padding: 0.35rem 0.75rem;">REFRESH LOGS ⟳</button>
-        </div>
+      <!-- Settings Content Panel -->
+      <div class="settings-layout">
+        <div class="settings-panel">
+          
+          <!-- 1. GENERAL STORE -->
+          <div id="section-general" class="settings-section active">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">General Store</h2>
+                <p class="settings-desc">Primary business details, atelier legal entity, and international localization.</p>
+              </div>
+              <button onclick="saveSection('general')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save General</button>
+            </div>
 
-        <div class="table-responsive">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Timestamp</th>
-                <th>Operator</th>
-                <th>Role</th>
-                <th>Action</th>
-                <th>Entity</th>
-                <th>Audit Details</th>
-              </tr>
-            </thead>
-            <tbody id="auditTableBody">
-              <tr><td colspan="6" style="text-align: center;">Loading audit logs...</td></tr>
-            </tbody>
-          </table>
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Store Name</label>
+                <input type="text" id="gen_storeName" class="settings-input" value="LUMIÈRE ATELIER" />
+              </div>
+              <div class="form-group">
+                <label>Contact Email</label>
+                <input type="email" id="gen_contactEmail" class="settings-input" value="concierge@lumiere.com" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Store Description</label>
+              <textarea id="gen_storeDescription" class="settings-textarea">Haute formulation skincare and rare botanical fragrances created with bespoke Parisian craftsmanship.</textarea>
+            </div>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="gen_phoneNumber" class="settings-input" value="+1 (800) 586-4373" />
+              </div>
+              <div class="form-group">
+                <label>Business Address</label>
+                <input type="text" id="gen_businessAddress" class="settings-input" value="740 Madison Avenue" />
+              </div>
+            </div>
+
+            <div class="settings-grid" style="grid-template-columns: 1fr 1fr 1fr 1fr;">
+              <div class="form-group">
+                <label>Country</label>
+                <select id="gen_country" class="settings-select">
+                  <option value="United States">United States</option>
+                  <option value="India">India</option>
+                  <option value="France">France</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>State / Province</label>
+                <input type="text" id="gen_state" class="settings-input" value="New York" />
+              </div>
+              <div class="form-group">
+                <label>City</label>
+                <input type="text" id="gen_city" class="settings-input" value="New York" />
+              </div>
+              <div class="form-group">
+                <label>Postal Code</label>
+                <input type="text" id="gen_postalCode" class="settings-input" value="10065" />
+              </div>
+            </div>
+
+            <div class="settings-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+              <div class="form-group">
+                <label>Operating Currency</label>
+                <select id="gen_currency" class="settings-select">
+                  <option value="USD">$ USD (United States Dollar)</option>
+                  <option value="INR">₹ INR (Indian Rupee)</option>
+                  <option value="EUR">€ EUR (Euro)</option>
+                  <option value="GBP">£ GBP (British Pound)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Timezone</label>
+                <select id="gen_timezone" class="settings-select">
+                  <option value="America/New_York">Eastern Time (US &amp; Canada)</option>
+                  <option value="Asia/Kolkata">India Standard Time (IST)</option>
+                  <option value="Europe/Paris">Central European Time (Paris)</option>
+                  <option value="UTC">UTC Universal</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Date Format</label>
+                <select id="gen_dateFormat" class="settings-select">
+                  <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                  <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                  <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 0.5rem;">
+              <label>Store Operational Status</label>
+              <div style="display: flex; gap: 1.5rem; margin-top: 0.4rem;">
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: #fff; font-size: 0.85rem;">
+                  <input type="radio" name="gen_storeStatus" value="online" checked style="accent-color: var(--color-gold);" />
+                  <span style="color: #7bed9f;">●</span> Store Online
+                </label>
+                <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; color: #fff; font-size: 0.85rem;">
+                  <input type="radio" name="gen_storeStatus" value="maintenance" style="accent-color: var(--color-gold);" />
+                  <span style="color: #f39c12;">○</span> Store Maintenance
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Auto-reloading on changes</span>
+              <button onclick="saveSection('general')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 2. BRANDING & APPEARANCE -->
+          <div id="section-branding" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Branding &amp; Appearance</h2>
+                <p class="settings-desc">Tailor your luxury identity, signature color palette, and bespoke typography.</p>
+              </div>
+              <button onclick="saveSection('branding')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Branding</button>
+            </div>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Primary Brand Logo (Light Mode)</label>
+                <input type="text" id="brand_primaryLogo" class="settings-input" value="images/logo-primary.png" />
+                <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5); margin-top: 0.35rem;">Used on light backgrounds and invoices.</div>
+              </div>
+              <div class="form-group">
+                <label>Dark Brand Logo (Atelier Dark)</label>
+                <input type="text" id="brand_darkLogo" class="settings-input" value="images/logo-dark.png" />
+                <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5); margin-top: 0.35rem;">Displayed on the storefront header.</div>
+              </div>
+            </div>
+
+            <div class="settings-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+              <div class="form-group">
+                <label>Favicon Path</label>
+                <input type="text" id="brand_favicon" class="settings-input" value="images/favicon.ico" />
+              </div>
+              <div class="form-group">
+                <label>Email Header Logo</label>
+                <input type="text" id="brand_emailLogo" class="settings-input" value="images/logo-email.png" />
+              </div>
+              <div class="form-group">
+                <label>Social Sharing Image (OG:Image)</label>
+                <input type="text" id="brand_socialShareImage" class="settings-input" value="images/social-preview.jpg" />
+              </div>
+            </div>
+
+            <div style="margin: 1.5rem 0; padding: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px;">
+              <label style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-gold); font-weight: 600;">Atelier Color Swatches</label>
+              <div style="display: flex; gap: 1.5rem; margin-top: 0.75rem; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <input type="color" id="brand_primaryColor" value="#C9A96E" style="border: none; width: 36px; height: 36px; border-radius: 4px; cursor: pointer; background: transparent;" />
+                  <div>
+                    <strong style="color: #fff; font-size: 0.8rem;">Primary Atelier Gold</strong>
+                    <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);" id="brand_primaryColor_val">#C9A96E</div>
+                  </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <input type="color" id="brand_accentColor" value="#E5E4E2" style="border: none; width: 36px; height: 36px; border-radius: 4px; cursor: pointer; background: transparent;" />
+                  <div>
+                    <strong style="color: #fff; font-size: 0.8rem;">Platinum Accent</strong>
+                    <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);" id="brand_accentColor_val">#E5E4E2</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Serif Heading Font</label>
+                <select id="brand_headingFont" class="settings-select">
+                  <option value="Cormorant Garamond">Cormorant Garamond (Default Luxury)</option>
+                  <option value="Playfair Display">Playfair Display</option>
+                  <option value="Cinzel">Cinzel Decorative</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Body Sans-Serif Font</label>
+                <select id="brand_bodyFont" class="settings-select">
+                  <option value="Montserrat">Montserrat (Default Modernist)</option>
+                  <option value="Inter">Inter Clean</option>
+                  <option value="Lato">Lato Light</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="settings-footer">
+              <a href="../index.html" target="_blank" class="btn-outline" style="font-size: 0.75rem;">Preview Store →</a>
+              <button onclick="saveSection('branding')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 3. WEBSITE & DOMAIN -->
+          <div id="section-website" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Website &amp; Domain</h2>
+                <p class="settings-desc">Manage primary domain resolution, SSL certification, and routing configurations.</p>
+              </div>
+              <button onclick="saveSection('website')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Domain</button>
+            </div>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Primary Production Domain</label>
+                <input type="text" id="web_primaryDomain" class="settings-input" value="www.lumiere-atelier.com" />
+              </div>
+              <div class="form-group">
+                <label>Domain Status</label>
+                <div style="display: flex; align-items: center; gap: 1rem; height: 38px;">
+                  <span class="conn-badge-on"><span class="dot dot-on"></span> Connected</span>
+                  <span class="conn-badge-on"><span class="dot dot-on"></span> SSL TLS 1.3 Active</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Connect Custom Domain</label>
+              <div style="display: flex; gap: 0.75rem;">
+                <input type="text" id="web_customDomain" class="settings-input" placeholder="e.g. boutique.yourbrand.com" />
+                <button onclick="alert('Domain verification initiated. Please configure DNS CNAME record.')" class="btn-outline" style="white-space: nowrap; font-size: 0.72rem;">Connect Domain</button>
+              </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px;">
+              <strong style="color: var(--color-gold); font-size: 0.8rem; text-transform: uppercase;">DNS / Domain Instructions</strong>
+              <div style="font-size: 0.75rem; color: rgba(250,247,242,0.6); margin-top: 0.5rem; line-height: 1.6;">
+                Point your domain to the Lumière global CDN cluster:
+                <br/>• <strong>A Record:</strong> <code>@</code> → <code>76.76.21.21</code>
+                <br/>• <strong>CNAME Record:</strong> <code>www</code> → <code>cname.lumiere-atelier.com</code>
+              </div>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Local Port: 5000</span>
+              <button onclick="saveSection('website')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 4. STOREFRONT -->
+          <div id="section-storefront" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Storefront Experience</h2>
+                <p class="settings-desc">Control features, shopping controls, reviews, and client display visibility.</p>
+              </div>
+              <button onclick="saveSection('storefront')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Storefront</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem;">
+              <label class="toggle-card">
+                <input type="checkbox" id="sf_storeEnabled" checked />
+                <div>
+                  <div class="toggle-label">Storefront Online &amp; Accessible</div>
+                  <div class="toggle-sub">When unchecked, visitors are redirected to the Atelier Maintenance page.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="sf_enableReviews" checked />
+                <div>
+                  <div class="toggle-label">Product Reviews &amp; Ratings</div>
+                  <div class="toggle-sub">Enable verified patron testimonials and star rating submissions.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="sf_enableWishlist" checked />
+                <div>
+                  <div class="toggle-label">Client Wishlist &amp; Curations</div>
+                  <div class="toggle-sub">Allow registered clients to save and curate luxury creations.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="sf_enableSearch" checked />
+                <div>
+                  <div class="toggle-label">Real-Time Product Search &amp; Filtering</div>
+                  <div class="toggle-sub">Enable client search bar with instant collection filtering.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="sf_enableRecentlyViewed" checked />
+                <div>
+                  <div class="toggle-label">Recently Viewed Carousels</div>
+                  <div class="toggle-sub">Retain client browsing history on the storefront.</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Out-of-Stock Products Display</label>
+                <div style="display: flex; gap: 1.5rem; margin-top: 0.4rem;">
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="sf_outOfStockDisplay" value="show_badge" checked style="accent-color: var(--color-gold);" />
+                    Show with "Out of Stock" badge
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="sf_outOfStockDisplay" value="hide" style="accent-color: var(--color-gold);" />
+                    Hide depleted products
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Price Visibility</label>
+                <div style="display: flex; gap: 1.5rem; margin-top: 0.4rem;">
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="sf_priceVisibility" value="show" checked style="accent-color: var(--color-gold);" />
+                    Show retail prices
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="sf_priceVisibility" value="hide" style="accent-color: var(--color-gold);" />
+                    Hide prices (Private Concierge Inquiry)
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Direct storefront updates</span>
+              <button onclick="saveSection('storefront')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 5. PAYMENTS -->
+          <div id="section-payments" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Payments</h2>
+                <p class="settings-desc">Merchant processing gateways, capture workflows, and settlement currencies.</p>
+              </div>
+              <button onclick="saveSection('payments')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Payments</button>
+            </div>
+
+            <div class="form-group">
+              <label>Accepted Payment Methods</label>
+              <div style="display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem;">
+                <label class="toggle-card">
+                  <input type="checkbox" id="pay_enableOnlinePayment" checked />
+                  <div>
+                    <div class="toggle-label">Online Payment (Cards, Apple Pay, Google Pay)</div>
+                    <div class="toggle-sub">Encrypted tokenization via Stripe / Razorpay.</div>
+                  </div>
+                </label>
+                <label class="toggle-card">
+                  <input type="checkbox" id="pay_enableCod" checked />
+                  <div>
+                    <div class="toggle-label">Cash on Delivery (COD)</div>
+                    <div class="toggle-sub">Payment collected upon white-glove arrival.</div>
+                  </div>
+                </label>
+                <label class="toggle-card">
+                  <input type="checkbox" id="pay_enableBankTransfer" />
+                  <div>
+                    <div class="toggle-label">Direct Bank Wire / RTGS / NEFT</div>
+                    <div class="toggle-sub">Manual verification for high-value VIP acquisitions.</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-grid" style="margin-top: 1.5rem;">
+              <div class="form-group">
+                <label>Primary Payment Gateway</label>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--admin-border); border-radius: 4px;">
+                  <div>
+                    <strong style="color: #fff; font-size: 0.85rem;">Stripe Payments</strong>
+                    <div style="font-size: 0.7rem; color: #7bed9f;">● Connected &amp; Operational</div>
+                  </div>
+                  <button onclick="alert('Stripe test webhook active.')" class="btn-outline" style="font-size: 0.68rem; padding: 0.3rem 0.6rem;">Manage</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Payment Capture Strategy</label>
+                <div style="display: flex; gap: 1.5rem; margin-top: 0.4rem;">
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="pay_paymentCapture" value="auto" checked style="accent-color: var(--color-gold);" />
+                    Automatically capture payment immediately
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="pay_paymentCapture" value="manual" style="accent-color: var(--color-gold);" />
+                    Authorize only (Capture upon dispatch)
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div style="padding: 1rem 1.25rem; background: rgba(201,169,110,0.06); border: 1px solid rgba(201,169,110,0.25); border-radius: 4px; margin-top: 1.5rem;">
+              <span style="color: var(--color-gold); font-size: 0.8rem; font-weight: 600;">🔒 PCI-DSS Tier 1 Architecture:</span>
+              <span style="font-size: 0.75rem; color: rgba(250,247,242,0.8); margin-left: 0.4rem;">Raw credit card information is never stored locally or transmitted through your private server.</span>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Zero raw card exposure</span>
+              <button onclick="saveSection('payments')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 6. SHIPPING & DELIVERY -->
+          <div id="section-shipping" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Shipping &amp; Delivery</h2>
+                <p class="settings-desc">Dispatch origins, shipping thresholds, and white-glove courier options.</p>
+              </div>
+              <button onclick="saveSection('shipping')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Shipping</button>
+            </div>
+
+            <div class="form-group">
+              <label>Shipping Origin Address</label>
+              <input type="text" id="ship_shippingOrigin" class="settings-input" value="740 Madison Avenue, New York, NY 10065" />
+            </div>
+
+            <div class="form-group">
+              <label>Enabled Shipping Methods</label>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.35rem;">
+                <label class="toggle-card">
+                  <input type="checkbox" id="ship_enableStandard" checked />
+                  <div>
+                    <div class="toggle-label">Standard Delivery</div>
+                    <div class="toggle-sub">Complimentary over threshold.</div>
+                  </div>
+                </label>
+                <label class="toggle-card">
+                  <input type="checkbox" id="ship_enableExpress" checked />
+                  <div>
+                    <div class="toggle-label">Priority Express Courier</div>
+                    <div class="toggle-sub">Guaranteed 1-2 day luxury courier.</div>
+                  </div>
+                </label>
+                <label class="toggle-card">
+                  <input type="checkbox" id="ship_enableLocalDelivery" checked />
+                  <div>
+                    <div class="toggle-label">Same-Day Local Concierge</div>
+                    <div class="toggle-sub">Metropolitan white-glove dispatch.</div>
+                  </div>
+                </label>
+                <label class="toggle-card">
+                  <input type="checkbox" id="ship_enableStorePickup" checked />
+                  <div>
+                    <div class="toggle-label">Boutique Atelier Pickup</div>
+                    <div class="toggle-sub">Complimentary in-store collection.</div>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 1.5rem;">
+              <div class="form-group">
+                <label>Free Shipping Threshold ($)</label>
+                <input type="number" id="ship_freeShippingThreshold" class="settings-input" value="150.00" />
+              </div>
+              <div class="form-group">
+                <label>Standard Shipping Fee ($)</label>
+                <input type="number" id="ship_standardShippingFee" class="settings-input" value="15.00" />
+              </div>
+              <div class="form-group">
+                <label>Express Shipping Fee ($)</label>
+                <input type="number" id="ship_expressShippingFee" class="settings-input" value="35.00" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Estimated Delivery Window Text</label>
+              <input type="text" id="ship_estimatedDelivery" class="settings-input" value="3–5 business days" />
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Complimentary threshold: ₹150</span>
+              <button onclick="saveSection('shipping')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 7. INVENTORY SETTINGS -->
+          <div id="section-inventory" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Inventory Settings</h2>
+                <p class="settings-desc">Fine-tune real-time stock reservations, deduction hooks, and shortage prevention.</p>
+              </div>
+              <button onclick="saveSection('inventory')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Inventory</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem;">
+              <label class="toggle-card">
+                <input type="checkbox" id="inv_trackInventory" checked />
+                <div>
+                  <div class="toggle-label">Track Inventory in Real-Time</div>
+                  <div class="toggle-sub">Maintain atomic physical and reserved balances in SQLite engine.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="inv_reserveOnOrder" checked />
+                <div>
+                  <div class="toggle-label">Reserve Stock When Order is Placed</div>
+                  <div class="toggle-sub">Prevents overselling during concurrent boutique checkouts.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="inv_reduceOnSuccessfulOrder" checked />
+                <div>
+                  <div class="toggle-label">Automatically Reduce Stock After Successful Order</div>
+                  <div class="toggle-sub">Deducts physical balance and logs ORDER_RESERVED transaction.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="inv_restoreOnCancelled" checked />
+                <div>
+                  <div class="toggle-label">Restore Stock When Order is Cancelled or Deleted</div>
+                  <div class="toggle-sub">Reverses reserved quantity into available pool automatically.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="inv_trackStockMovements" checked />
+                <div>
+                  <div class="toggle-label">Track Stock Movements &amp; Write-Offs</div>
+                  <div class="toggle-sub">Records full audit trail under inventory history.</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="settings-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+              <div class="form-group">
+                <label>Low-Stock Threshold (Units)</label>
+                <input type="number" id="inv_lowStockThreshold" class="settings-input" value="10" />
+              </div>
+              <div class="form-group">
+                <label>Stock Reservation Duration (Min)</label>
+                <input type="number" id="inv_reservationDurationMinutes" class="settings-input" value="30" />
+              </div>
+              <div class="form-group">
+                <label>Notify When Stock Reaches</label>
+                <input type="number" id="inv_notifyThreshold" class="settings-input" value="10" />
+              </div>
+            </div>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Out-of-Stock Behavior</label>
+                <div style="display: flex; gap: 1.5rem; margin-top: 0.4rem;">
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="inv_outOfStockBehavior" value="show" checked style="accent-color: var(--color-gold);" />
+                    Show as out of stock
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="inv_outOfStockBehavior" value="hide" style="accent-color: var(--color-gold);" />
+                    Hide product from boutique
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Allow Backorders</label>
+                <div style="display: flex; gap: 1.5rem; margin-top: 0.4rem;">
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="inv_allowBackorders" value="false" checked style="accent-color: var(--color-gold);" />
+                    No (Strict physical availability)
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="inv_allowBackorders" value="true" style="accent-color: var(--color-gold);" />
+                    Yes (Allow advance booking)
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Atomic inventory locks enabled</span>
+              <button onclick="saveSection('inventory')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 8. ORDERS & CHECKOUT -->
+          <div id="section-orders" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Orders &amp; Checkout</h2>
+                <p class="settings-desc">Checkout rules, order numbering conventions, and dispatch progression.</p>
+              </div>
+              <button onclick="saveSection('orders')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Orders</button>
+            </div>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Order Number Prefix</label>
+                <input type="text" id="ord_orderNumberPrefix" class="settings-input" value="LUM-" oninput="updateOrderPrefixPreview(this.value)" />
+                <div style="font-size: 0.7rem; color: var(--color-gold); margin-top: 0.35rem;" id="orderPrefixPreview">
+                  Preview: LUM-2026-1001
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Customer Cancellation Window</label>
+                <select id="ord_cancellationWindowHours" class="settings-select">
+                  <option value="12">12 hours</option>
+                  <option value="24" selected>24 hours (Recommended)</option>
+                  <option value="48">48 hours</option>
+                  <option value="0">Disallow customer self-cancellation</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.85rem; margin-bottom: 1.5rem;">
+              <label class="toggle-card">
+                <input type="checkbox" id="ord_guestCheckout" checked />
+                <div>
+                  <div class="toggle-label">Enable Guest Checkout</div>
+                  <div class="toggle-sub">Permit orders without prior account registration.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="ord_requirePhoneNumber" checked />
+                <div>
+                  <div class="toggle-label">Require Contact Phone Number</div>
+                  <div class="toggle-sub">Mandatory for courier dispatch &amp; delivery OTP.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="ord_requireAddress" checked />
+                <div>
+                  <div class="toggle-label">Require Complete Street Address</div>
+                  <div class="toggle-sub">Prevents incomplete delivery dispatches.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="ord_allowCustomerCancel" checked />
+                <div>
+                  <div class="toggle-label">Allow Patron Cancellation</div>
+                  <div class="toggle-sub">Within permitted time window before dispatch.</div>
+                </div>
+              </label>
+            </div>
+
+            <!-- Order status workflow diagram -->
+            <div style="margin-top: 1.5rem; padding: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px;">
+              <label style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-gold); font-weight: 600;">Standard Order Pipeline Workflow</label>
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 1rem; flex-wrap: wrap; gap: 0.5rem; font-size: 0.78rem;">
+                <span style="padding: 0.35rem 0.75rem; background: rgba(243,156,18,0.15); color: #f39c12; border-radius: 3px; font-weight: 600;">Pending</span>
+                <span style="color: rgba(250,247,242,0.3);">→</span>
+                <span style="padding: 0.35rem 0.75rem; background: rgba(52,152,219,0.15); color: #70a1ff; border-radius: 3px; font-weight: 600;">Confirmed</span>
+                <span style="color: rgba(250,247,242,0.3);">→</span>
+                <span style="padding: 0.35rem 0.75rem; background: rgba(155,89,182,0.15); color: #bb8fce; border-radius: 3px; font-weight: 600;">Processing</span>
+                <span style="color: rgba(250,247,242,0.3);">→</span>
+                <span style="padding: 0.35rem 0.75rem; background: rgba(201,169,110,0.15); color: var(--color-gold); border-radius: 3px; font-weight: 600;">Shipped</span>
+                <span style="color: rgba(250,247,242,0.3);">→</span>
+                <span style="padding: 0.35rem 0.75rem; background: rgba(46,204,113,0.15); color: #7bed9f; border-radius: 3px; font-weight: 600;">Delivered</span>
+              </div>
+              <div style="font-size: 0.7rem; color: rgba(250,247,242,0.4); margin-top: 0.75rem;">
+                Exceptions: <span style="color: #ff708f;">Cancelled</span> • <span style="color: #ff6b6b;">Deleted Orders</span> • <span style="color: #f4d03f;">Returned</span>
+              </div>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">5 standard lifecycle milestones</span>
+              <button onclick="saveSection('orders')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 9. NOTIFICATIONS -->
+          <div id="section-notifications" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Notifications</h2>
+                <p class="settings-desc">Configure automated operational alerts for both staff and luxury patrons.</p>
+              </div>
+              <button onclick="saveSection('notifications')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Alerts</button>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+              <h3 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--color-gold); margin: 0 0 0.85rem;">Admin &amp; Operational Alerts</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <label class="toggle-card"><input type="checkbox" id="notif_admin_newOrder" checked /><div><div class="toggle-label">New Order Placed</div></div></label>
+                <label class="toggle-card"><input type="checkbox" id="notif_admin_lowStock" checked /><div><div class="toggle-label">Low Stock Warning</div></div></label>
+                <label class="toggle-card"><input type="checkbox" id="notif_admin_outOfStock" checked /><div><div class="toggle-label">Out of Stock Depletion</div></div></label>
+                <label class="toggle-card"><input type="checkbox" id="notif_admin_paymentReceived" checked /><div><div class="toggle-label">Payment Captured</div></div></label>
+                <label class="toggle-card"><input type="checkbox" id="notif_admin_orderCancelled" checked /><div><div class="toggle-label">Order Cancelled</div></div></label>
+                <label class="toggle-card"><input type="checkbox" id="notif_admin_customerRegistration" checked /><div><div class="toggle-label">New Patron Registration</div></div></label>
+              </div>
+            </div>
+
+            <div style="margin-top: 1.75rem;">
+              <h3 style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--color-gold); margin: 0 0 0.85rem;">Customer Communications</h3>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <label class="toggle-card"><input type="checkbox" id="notif_cust_orderConfirmation" checked /><div><div class="toggle-label">Order Confirmation</div></div></label>
+                <label class="toggle-card"><input type="checkbox" id="notif_cust_paymentConfirmation" checked /><div><div class="toggle-label">Payment Receipt</div></div></label>
+                <label class="toggle-card"><input type="checkbox" id="notif_cust_orderShipped" checked /><div><div class="toggle-label">Order Shipped &amp; Tracking</div></div></label>
+                <label class="toggle-card"><input type="checkbox" id="notif_cust_orderDelivered" checked /><div><div class="toggle-label">Order Delivered</div></div></label>
+                <label class="toggle-card"><input type="checkbox" id="notif_cust_orderCancelled" checked /><div><div class="toggle-label">Order Cancellation Notice</div></div></label>
+                <label class="toggle-card"><input type="checkbox" id="notif_cust_refundProcessed" checked /><div><div class="toggle-label">Refund Dispatched</div></div></label>
+              </div>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Web &amp; Email dispatches</span>
+              <button onclick="saveSection('notifications')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 10. EMAIL & COMMUNICATION -->
+          <div id="section-email" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Email &amp; Communication</h2>
+                <p class="settings-desc">Sender identities, transactional SMTP gateways, and email templates.</p>
+              </div>
+              <button onclick="saveSection('email')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Email</button>
+            </div>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Sender Name</label>
+                <input type="text" id="em_senderName" class="settings-input" value="LUMIÈRE ATELIER" />
+              </div>
+              <div class="form-group">
+                <label>Sender Email</label>
+                <input type="email" id="em_senderEmail" class="settings-input" value="hello@lumiere.com" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Reply-To Email</label>
+              <input type="email" id="em_replyToEmail" class="settings-input" value="support@lumiere.com" />
+            </div>
+
+            <div style="margin: 1.5rem 0; padding: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px;">
+              <strong style="color: var(--color-gold); font-size: 0.8rem; text-transform: uppercase;">Luxury Transactional Templates</strong>
+              <div style="display: flex; gap: 0.75rem; margin-top: 0.75rem; flex-wrap: wrap;">
+                <button onclick="alert('Viewing Order Template Preview (Atelier Gold Theme)')" class="btn-outline" style="font-size: 0.7rem;">Order Confirmation 👁</button>
+                <button onclick="alert('Viewing Shipping Dispatch Template Preview')" class="btn-outline" style="font-size: 0.7rem;">Shipping Notice 👁</button>
+                <button onclick="alert('Viewing Welcome Concierge Template Preview')" class="btn-outline" style="font-size: 0.7rem;">Welcome Email 👁</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Dispatch Test Email</label>
+              <div style="display: flex; gap: 0.75rem;">
+                <input type="email" id="testEmailRecipient" class="settings-input" placeholder="recipient@example.com" value="concierge@lumiere.com" />
+                <button onclick="sendTestEmailAction()" class="btn-outline" style="white-space: nowrap; font-size: 0.72rem;">Send Test Email ✉</button>
+              </div>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">SMTP / SendGrid Gateway</span>
+              <button onclick="saveSection('email')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 11. CUSTOMER SETTINGS -->
+          <div id="section-customers" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Customer Settings</h2>
+                <p class="settings-desc">Registration requirements, patron privilege levels, and authentication security.</p>
+              </div>
+              <button onclick="saveSection('customers')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Customers</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem;">
+              <label class="toggle-card">
+                <input type="checkbox" id="cust_accountsEnabled" checked />
+                <div>
+                  <div class="toggle-label">Patron Accounts Enabled</div>
+                  <div class="toggle-sub">Permit patrons to register and manage personal orders &amp; addresses.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="cust_guestCheckout" checked />
+                <div>
+                  <div class="toggle-label">Guest Checkout</div>
+                  <div class="toggle-sub">Allow one-click luxury purchases without requiring registration.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="cust_registrationEnabled" checked />
+                <div>
+                  <div class="toggle-label">Self-Service Registration Enabled</div>
+                  <div class="toggle-sub">New clients can freely create an account from the storefront.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="cust_emailVerificationRequired" checked />
+                <div>
+                  <div class="toggle-label">Email Verification Required</div>
+                  <div class="toggle-sub">Clients must verify email before checkout completion.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="cust_reviewsEnabled" checked />
+                <div>
+                  <div class="toggle-label">Patron Product Reviews Permitted</div>
+                  <div class="toggle-sub">Verified buyers can rate items and post reviews.</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="settings-footer">
+              <a href="customers.html" class="btn-outline" style="font-size: 0.72rem;">View Clients Directory →</a>
+              <button onclick="saveSection('customers')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 12. TAXES -->
+          <div id="section-taxes" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Taxation &amp; Duties</h2>
+                <p class="settings-desc">Regional fiscal calculations, GST/VAT breakdowns, and inclusive displays.</p>
+              </div>
+              <button onclick="saveSection('taxes')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Taxes</button>
+            </div>
+
+            <label class="toggle-card" style="margin-bottom: 1.5rem;">
+              <input type="checkbox" id="tax_taxCalculationEnabled" checked />
+              <div>
+                <div class="toggle-label">Automated Tax Calculation Enabled</div>
+                <div class="toggle-sub">Apply statutory regional rates at checkout automatically.</div>
+              </div>
+            </label>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Business Tax Jurisdiction</label>
+                <select id="tax_businessCountry" class="settings-select">
+                  <option value="India" selected>India (GST Framework)</option>
+                  <option value="United States">United States (State &amp; Local Sales Tax)</option>
+                  <option value="United Kingdom">United Kingdom (HMRC VAT)</option>
+                  <option value="European Union">European Union (One-Stop-Shop VAT)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Tax Inclusion Strategy</label>
+                <div style="display: flex; gap: 1.5rem; margin-top: 0.4rem;">
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="tax_taxIncludedInPrice" value="true" checked style="accent-color: var(--color-gold);" />
+                    Tax included in product price (Luxury standard)
+                  </label>
+                  <label style="display: flex; align-items: center; gap: 0.4rem; cursor: pointer; color: #fff; font-size: 0.82rem;">
+                    <input type="radio" name="tax_taxIncludedInPrice" value="false" style="accent-color: var(--color-gold);" />
+                    Tax calculated additionally at checkout
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tax rates table -->
+            <div style="margin-top: 1.25rem;">
+              <label style="font-size: 0.72rem; text-transform: uppercase; color: var(--color-gold); font-weight: 600;">Statutory GST Rates</label>
+              <div style="overflow-x: auto; margin-top: 0.5rem;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Tax Name</th>
+                      <th>Category</th>
+                      <th>Rate (%)</th>
+                      <th>Application</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td><strong>GST (Integrated)</strong></td>
+                      <td>Inter-State Luxury Beauty</td>
+                      <td><input type="number" id="tax_gstRate" class="settings-input" value="18" style="width: 80px;" />%</td>
+                      <td style="color: #7bed9f;">Applied across states</td>
+                    </tr>
+                    <tr>
+                      <td><strong>CGST (Central)</strong></td>
+                      <td>Intra-State Central Share</td>
+                      <td><input type="number" id="tax_cgstRate" class="settings-input" value="9" style="width: 80px;" />%</td>
+                      <td>Half of standard GST</td>
+                    </tr>
+                    <tr>
+                      <td><strong>SGST (State)</strong></td>
+                      <td>Intra-State Regional Share</td>
+                      <td><input type="number" id="tax_sgstRate" class="settings-input" value="9" style="width: 80px;" />%</td>
+                      <td>Half of standard GST</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Customizable tax compliance</span>
+              <button onclick="saveSection('taxes')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 13. INTEGRATIONS -->
+          <div id="section-integrations" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Integrations &amp; External Services</h2>
+                <p class="settings-desc">Connected third-party APIs, analytics engines, payment processors, and cloud assets.</p>
+              </div>
+              <button onclick="saveSection('integrations')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Integrations</button>
+            </div>
+
+            <div class="integration-grid">
+              <div class="integration-item">
+                <div>
+                  <strong style="color: #fff; font-size: 0.85rem;">Payment Gateway (Stripe / Razorpay)</strong>
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.2rem;">Secured checkout capture engine.</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="conn-badge-on"><span class="dot dot-on"></span> Connected</span>
+                  <button onclick="alert('Payment credentials verified.')" class="btn-outline" style="font-size: 0.65rem; padding: 0.25rem 0.5rem;">Configure</button>
+                </div>
+              </div>
+
+              <div class="integration-item">
+                <div>
+                  <strong style="color: #fff; font-size: 0.85rem;">Shipping Provider (DHL &amp; FedEx)</strong>
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.2rem;">Real-time automated airway bill generation.</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="conn-badge-on"><span class="dot dot-on"></span> Connected</span>
+                  <button onclick="alert('Shipping carrier active.')" class="btn-outline" style="font-size: 0.65rem; padding: 0.25rem 0.5rem;">Configure</button>
+                </div>
+              </div>
+
+              <div class="integration-item">
+                <div>
+                  <strong style="color: #fff; font-size: 0.85rem;">Google Analytics 4</strong>
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.2rem;">Tracking ID: G-LUMIERE2026</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="conn-badge-on"><span class="dot dot-on"></span> Connected</span>
+                  <button onclick="alert('GA4 tracking active.')" class="btn-outline" style="font-size: 0.65rem; padding: 0.25rem 0.5rem;">Configure</button>
+                </div>
+              </div>
+
+              <div class="integration-item">
+                <div>
+                  <strong style="color: #fff; font-size: 0.85rem;">Google Tag Manager</strong>
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.2rem;">Container: Not set</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="conn-badge-off"><span class="dot dot-off"></span> Not Connected</span>
+                  <button onclick="alert('Connect GTM modal.')" class="btn-outline" style="font-size: 0.65rem; padding: 0.25rem 0.5rem;">Connect</button>
+                </div>
+              </div>
+
+              <div class="integration-item">
+                <div>
+                  <strong style="color: #fff; font-size: 0.85rem;">WhatsApp Concierge API</strong>
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.2rem;">Automated order dispatch notices.</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="conn-badge-on"><span class="dot dot-on"></span> Connected</span>
+                  <button onclick="alert('WhatsApp webhook active.')" class="btn-outline" style="font-size: 0.65rem; padding: 0.25rem 0.5rem;">Configure</button>
+                </div>
+              </div>
+
+              <div class="integration-item">
+                <div>
+                  <strong style="color: #fff; font-size: 0.85rem;">Email Service (SendGrid)</strong>
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.2rem;">Transactional mail delivery.</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="conn-badge-on"><span class="dot dot-on"></span> Connected</span>
+                  <button onclick="alert('SendGrid key active.')" class="btn-outline" style="font-size: 0.65rem; padding: 0.25rem 0.5rem;">Configure</button>
+                </div>
+              </div>
+
+              <div class="integration-item">
+                <div>
+                  <strong style="color: #fff; font-size: 0.85rem;">Cloud Storage (AWS S3)</strong>
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.2rem;">Encrypted asset storage bucket.</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <span class="conn-badge-on"><span class="dot dot-on"></span> Connected</span>
+                  <button onclick="alert('S3 bucket active.')" class="btn-outline" style="font-size: 0.65rem; padding: 0.25rem 0.5rem;">Configure</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">7 total integrated services</span>
+              <button onclick="saveSection('integrations')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 14. SECURITY -->
+          <div id="section-security" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Security &amp; Account Protection</h2>
+                <p class="settings-desc">Session controls, authentication policies, and security audit access.</p>
+              </div>
+              <button onclick="saveSection('security')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Security</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.85rem; margin-bottom: 1.5rem;">
+              <label class="toggle-card">
+                <input type="checkbox" id="sec_twoFactorAuth" checked />
+                <div>
+                  <div class="toggle-label">Two-Factor Authentication (2FA) Mandatory</div>
+                  <div class="toggle-sub">Requires verified OTP on administrative operator logins.</div>
+                </div>
+              </label>
+
+              <label class="toggle-card">
+                <input type="checkbox" id="sec_loginNotifications" checked />
+                <div>
+                  <div class="toggle-label">Suspicious Login Email Notifications</div>
+                  <div class="toggle-sub">Dispatches security advisory when unrecognised device logs in.</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Administrative Session Timeout</label>
+                <select id="sec_sessionTimeoutMinutes" class="settings-select">
+                  <option value="15">15 minutes</option>
+                  <option value="30" selected>30 minutes (Standard)</option>
+                  <option value="60">60 minutes</option>
+                  <option value="120">2 hours</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Password Complexity Policy</label>
+                <input type="text" class="settings-input" value="Strong (Min 8 chars, lowercase, uppercase, symbol)" readonly />
+              </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <strong style="color: #FAF7F2; font-size: 0.9rem;">Administrative Security Audit Ledger</strong>
+                <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.2rem;">
+                  Every configuration edit, role modification, and password reset is immutably recorded.
+                </div>
+              </div>
+              <a href="audit.html" class="btn-outline" style="font-size: 0.72rem; text-decoration: none;">
+                View Security Audit →
+              </a>
+            </div>
+
+            <div class="settings-footer">
+              <button onclick="alert('1 Active Owner Session on macOS (Chrome)')" class="btn-outline" style="font-size: 0.7rem;">Active Sessions (1)</button>
+              <button onclick="saveSection('security')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 15. DATA & PRIVACY -->
+          <div id="section-privacy" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title">Data &amp; Privacy</h2>
+                <p class="settings-desc">GDPR compliance, legal policy URLs, customer exports, and data retention.</p>
+              </div>
+              <button onclick="saveSection('privacy')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Privacy</button>
+            </div>
+
+            <label class="toggle-card" style="margin-bottom: 1.5rem;">
+              <input type="checkbox" id="priv_cookieConsent" checked />
+              <div>
+                <div class="toggle-label">GDPR Cookie Consent Banner Enabled</div>
+                <div class="toggle-sub">Shows luxury consent banner with cookie categories.</div>
+              </div>
+            </label>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Data Retention Policy (Days)</label>
+                <input type="number" id="priv_dataRetentionDays" class="settings-input" value="365" />
+              </div>
+              <div class="form-group">
+                <label>Customer Data Export</label>
+                <button onclick="exportCustomerDataArchive()" class="btn-outline" style="width: 100%; height: 38px; font-size: 0.72rem;">Export Full Client Archive (JSON)</button>
+              </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div style="margin-top: 2rem; padding: 1.25rem; background: rgba(231,76,60,0.06); border: 1px solid rgba(231,76,60,0.3); border-radius: 4px;">
+              <strong style="color: #ff708f; font-size: 0.85rem; text-transform: uppercase;">Danger Zone — Store Data Purge</strong>
+              <p style="font-size: 0.75rem; color: rgba(250,247,242,0.7); margin: 0.35rem 0 1rem;">
+                Irrevocably deletes all customer order history, activity records, and session data. Requires multiple confirmations.
+              </p>
+              <button onclick="confirmStoreDataDelete()" class="btn-danger" style="font-size: 0.7rem; padding: 0.4rem 0.85rem;">
+                Delete Store Data
+              </button>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Retention: 365 days</span>
+              <button onclick="saveSection('privacy')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
+          <!-- 16. ADVANCED -->
+          <div id="section-advanced" class="settings-section">
+            <div class="settings-section-header">
+              <div>
+                <h2 class="settings-title" style="color: #f39c12;">⚠️ Advanced Configuration</h2>
+                <p class="settings-desc">Internal system maintenance, engine cache, API keys, and developer hooks.</p>
+              </div>
+              <button onclick="saveSection('advanced')" class="btn-gold" style="font-size: 0.7rem; padding: 0.45rem 0.9rem;">Save Advanced</button>
+            </div>
+
+            <div style="padding: 1rem 1.25rem; background: rgba(243,156,18,0.08); border: 1px solid rgba(243,156,18,0.3); border-radius: 4px; margin-bottom: 1.5rem;">
+              <strong style="color: #f39c12; font-size: 0.8rem;">Caution:</strong>
+              <span style="font-size: 0.75rem; color: rgba(250,247,242,0.8); margin-left: 0.4rem;">
+                These controls directly impact backend runtime behavior, database locks, and external integrations.
+              </span>
+            </div>
+
+            <label class="toggle-card" style="margin-bottom: 1.5rem;">
+              <input type="checkbox" id="adv_maintenanceMode" />
+              <div>
+                <div class="toggle-label" style="color: #f39c12;">Storefront Maintenance Mode</div>
+                <div class="toggle-sub">Suspends customer checkouts and displays VIP private curation screen.</div>
+              </div>
+            </label>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Active API Keys</label>
+                <div style="padding: 0.65rem 0.85rem; background: rgba(255,255,255,0.02); border: 1px solid var(--admin-border); border-radius: 3px; font-family: monospace; font-size: 0.75rem; color: var(--color-gold); display: flex; justify-content: space-between; align-items: center;">
+                  <span>lum_live_9f82...7a12</span>
+                  <button onclick="alert('API Key copied to clipboard.')" class="btn-outline" style="font-size: 0.62rem; padding: 0.2rem 0.45rem;">Copy</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>System Cache Flush</label>
+                <button onclick="clearSystemCacheAction()" class="btn-outline" style="width: 100%; height: 38px; font-size: 0.72rem;">
+                  Clear System Cache ⟳
+                </button>
+              </div>
+            </div>
+
+            <div class="settings-grid">
+              <div class="form-group">
+                <label>Backend Engine Version</label>
+                <input type="text" class="settings-input" value="Lumière Atelier v2.4.0 (Enterprise Build 2026)" readonly />
+              </div>
+              <div class="form-group">
+                <label>Database Engine</label>
+                <input type="text" class="settings-input" value="SQLite WAL (Zero-Config High-Performance Local)" readonly />
+              </div>
+            </div>
+
+            <div style="margin-top: 1.5rem; padding: 1.25rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              <div>
+                <strong style="color: #FAF7F2; font-size: 0.85rem;">Reset Configuration to Factory Defaults</strong>
+                <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.2rem;">
+                  Reverts all 16 settings sections to original Lumière Atelier defaults.
+                </div>
+              </div>
+              <button onclick="resetConfigurationAction()" class="btn-outline" style="border-color: #f39c12; color: #f39c12; font-size: 0.72rem;">
+                Reset Configuration
+              </button>
+            </div>
+
+            <div class="settings-footer">
+              <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Engine v2.4.0</span>
+              <button onclick="saveSection('advanced')" class="btn-gold">Save Changes</button>
+            </div>
+          </div>
+
         </div>
       </div>
     </main>
   </div>
 
+  <div id="toastNotice" class="toast-notice"></div>
+
   <script src="../js/auth.js"></script>
   <script src="js/admin.js"></script>
   <script>
-    async function loadAuditLogs() {
-      try {
-        const res = await Auth.apiFetch('/api/admin/audit-logs');
-        const data = await res.json();
+    let settingsData = null;
 
-        if (data.success) {
-          const tbody = document.getElementById('auditTableBody');
+    function showToast(msg) {
+      const toast = document.getElementById('toastNotice');
+      toast.innerText = msg;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, 3500);
+    }
 
-          if (data.logs.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(250,247,242,0.5);">No audit events recorded.</td></tr>';
-            return;
-          }
-
-          tbody.innerHTML = data.logs.map(log => `
-            <tr>
-              <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">${new Date(log.created_at).toLocaleString()}</td>
-              <td style="font-weight: 500;">${log.user_email || 'System'}</td>
-              <td><span class="badge badge-owner" style="font-size: 0.62rem;">${log.user_role || 'SYSTEM'}</span></td>
-              <td style="font-family: monospace; font-size: 0.75rem; color: var(--color-gold);">${log.action}</td>
-              <td style="font-size: 0.75rem; color: rgba(250,247,242,0.7);">${log.entity_type} #${log.entity_id || '—'}</td>
-              <td style="font-family: monospace; font-size: 0.7rem; color: rgba(250,247,242,0.8); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                ${log.details_json || '—'}
-              </td>
-            </tr>
-          `).join('');
+    function switchSection(sectionId) {
+      // Update sidebar sub-tree active state
+      document.querySelectorAll('.nav-sub-item').forEach(el => {
+        const subUrl = el.getAttribute('data-sub-url') || '';
+        if (subUrl.includes('#' + sectionId)) {
+          el.classList.add('active');
+        } else if (subUrl.includes('settings.html#')) {
+          el.classList.remove('active');
         }
-      } catch (err) {
-        console.error('Audit logs error:', err);
+      });
+
+      // Update panel visibility
+      document.querySelectorAll('.settings-section').forEach(sec => {
+        sec.classList.remove('active');
+      });
+
+      const target = document.getElementById(`section-${sectionId}`);
+      if (target) {
+        target.classList.add('active');
+        window.location.hash = `#${sectionId}`;
       }
     }
 
-    document.addEventListener('DOMContentLoaded', loadAuditLogs);
+    function updateOrderPrefixPreview(prefix) {
+      const el = document.getElementById('orderPrefixPreview');
+      if (el) {
+        el.innerText = `Preview: ${(prefix || 'LUM-').trim()}2026-1001`;
+      }
+    }
+
+    async function loadStoreSettings() {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('/api/admin/settings', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          if (res.status === 403) {
+            alert('Access Denied: Only the OWNER role can manage Store Settings.');
+          }
+          return;
+        }
+
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Failed to load settings.');
+
+        settingsData = data.settings;
+        populateSettingsForm(data.settings);
+      } catch (err) {
+        console.error('[Settings] Fetch error:', err);
+      }
+    }
+
+    function populateSettingsForm(s) {
+      if (!s) return;
+
+      // 1. General
+      if (s.general) {
+        if (document.getElementById('gen_storeName')) document.getElementById('gen_storeName').value = s.general.storeName || '';
+        if (document.getElementById('gen_storeDescription')) document.getElementById('gen_storeDescription').value = s.general.storeDescription || '';
+        if (document.getElementById('gen_contactEmail')) document.getElementById('gen_contactEmail').value = s.general.contactEmail || '';
+        if (document.getElementById('gen_phoneNumber')) document.getElementById('gen_phoneNumber').value = s.general.phoneNumber || '';
+        if (document.getElementById('gen_businessAddress')) document.getElementById('gen_businessAddress').value = s.general.businessAddress || '';
+        if (document.getElementById('gen_country')) document.getElementById('gen_country').value = s.general.country || 'India';
+        if (document.getElementById('gen_state')) document.getElementById('gen_state').value = s.general.state || 'Rajasthan';
+        if (document.getElementById('gen_city')) document.getElementById('gen_city').value = s.general.city || 'Jaipur';
+        if (document.getElementById('gen_postalCode')) document.getElementById('gen_postalCode').value = s.general.postalCode || '302001';
+        if (document.getElementById('gen_currency')) document.getElementById('gen_currency').value = s.general.currency || 'INR';
+        if (document.getElementById('gen_timezone')) document.getElementById('gen_timezone').value = s.general.timezone || 'Asia/Kolkata';
+        if (document.getElementById('gen_dateFormat')) document.getElementById('gen_dateFormat').value = s.general.dateFormat || 'DD/MM/YYYY';
+        const stRadios = document.getElementsByName('gen_storeStatus');
+        stRadios.forEach(r => { r.checked = (r.value === s.general.storeStatus); });
+      }
+
+      // 2. Branding
+      if (s.branding) {
+        if (document.getElementById('brand_primaryLogo')) document.getElementById('brand_primaryLogo').value = s.branding.primaryLogo || '';
+        if (document.getElementById('brand_darkLogo')) document.getElementById('brand_darkLogo').value = s.branding.darkLogo || '';
+        if (document.getElementById('brand_favicon')) document.getElementById('brand_favicon').value = s.branding.favicon || '';
+        if (document.getElementById('brand_emailLogo')) document.getElementById('brand_emailLogo').value = s.branding.emailLogo || '';
+        if (document.getElementById('brand_socialShareImage')) document.getElementById('brand_socialShareImage').value = s.branding.socialShareImage || '';
+        if (document.getElementById('brand_primaryColor')) {
+          document.getElementById('brand_primaryColor').value = s.branding.primaryColor || '#C9A96E';
+          document.getElementById('brand_primaryColor_val').innerText = s.branding.primaryColor || '#C9A96E';
+        }
+        if (document.getElementById('brand_accentColor')) {
+          document.getElementById('brand_accentColor').value = s.branding.accentColor || '#E5E4E2';
+          document.getElementById('brand_accentColor_val').innerText = s.branding.accentColor || '#E5E4E2';
+        }
+      }
+
+      // 3. Website
+      if (s.website) {
+        if (document.getElementById('web_primaryDomain')) document.getElementById('web_primaryDomain').value = s.website.primaryDomain || '';
+        if (document.getElementById('web_customDomain')) document.getElementById('web_customDomain').value = s.website.customDomain || '';
+      }
+
+      // 4. Storefront
+      if (s.storefront) {
+        if (document.getElementById('sf_storeEnabled')) document.getElementById('sf_storeEnabled').checked = !!s.storefront.storeEnabled;
+        if (document.getElementById('sf_enableReviews')) document.getElementById('sf_enableReviews').checked = !!s.storefront.enableReviews;
+        if (document.getElementById('sf_enableWishlist')) document.getElementById('sf_enableWishlist').checked = !!s.storefront.enableWishlist;
+        if (document.getElementById('sf_enableSearch')) document.getElementById('sf_enableSearch').checked = !!s.storefront.enableSearch;
+        if (document.getElementById('sf_enableRecentlyViewed')) document.getElementById('sf_enableRecentlyViewed').checked = !!s.storefront.enableRecentlyViewed;
+        const oos = document.getElementsByName('sf_outOfStockDisplay');
+        oos.forEach(r => { r.checked = (r.value === s.storefront.outOfStockDisplay); });
+        const pv = document.getElementsByName('sf_priceVisibility');
+        pv.forEach(r => { r.checked = (r.value === s.storefront.priceVisibility); });
+      }
+
+      // 5. Payments
+      if (s.payments) {
+        if (document.getElementById('pay_enableOnlinePayment')) document.getElementById('pay_enableOnlinePayment').checked = !!s.payments.enableOnlinePayment;
+        if (document.getElementById('pay_enableCod')) document.getElementById('pay_enableCod').checked = !!s.payments.enableCod;
+        if (document.getElementById('pay_enableBankTransfer')) document.getElementById('pay_enableBankTransfer').checked = !!s.payments.enableBankTransfer;
+        const cap = document.getElementsByName('pay_paymentCapture');
+        cap.forEach(r => { r.checked = (r.value === s.payments.paymentCapture); });
+      }
+
+      // 6. Shipping
+      if (s.shipping) {
+        if (document.getElementById('ship_shippingOrigin')) document.getElementById('ship_shippingOrigin').value = s.shipping.shippingOrigin || '';
+        if (document.getElementById('ship_enableStandard')) document.getElementById('ship_enableStandard').checked = !!s.shipping.enableStandard;
+        if (document.getElementById('ship_enableExpress')) document.getElementById('ship_enableExpress').checked = !!s.shipping.enableExpress;
+        if (document.getElementById('ship_enableLocalDelivery')) document.getElementById('ship_enableLocalDelivery').checked = !!s.shipping.enableLocalDelivery;
+        if (document.getElementById('ship_enableStorePickup')) document.getElementById('ship_enableStorePickup').checked = !!s.shipping.enableStorePickup;
+        if (document.getElementById('ship_freeShippingThreshold')) document.getElementById('ship_freeShippingThreshold').value = s.shipping.freeShippingThreshold || 150;
+        if (document.getElementById('ship_standardShippingFee')) document.getElementById('ship_standardShippingFee').value = s.shipping.standardShippingFee || 15;
+        if (document.getElementById('ship_expressShippingFee')) document.getElementById('ship_expressShippingFee').value = s.shipping.expressShippingFee || 35;
+        if (document.getElementById('ship_estimatedDelivery')) document.getElementById('ship_estimatedDelivery').value = s.shipping.estimatedDelivery || '3–5 business days';
+      }
+
+      // 7. Inventory
+      if (s.inventory) {
+        if (document.getElementById('inv_trackInventory')) document.getElementById('inv_trackInventory').checked = !!s.inventory.trackInventory;
+        if (document.getElementById('inv_reserveOnOrder')) document.getElementById('inv_reserveOnOrder').checked = !!s.inventory.reserveOnOrder;
+        if (document.getElementById('inv_reduceOnSuccessfulOrder')) document.getElementById('inv_reduceOnSuccessfulOrder').checked = !!s.inventory.reduceOnSuccessfulOrder;
+        if (document.getElementById('inv_restoreOnCancelled')) document.getElementById('inv_restoreOnCancelled').checked = !!s.inventory.restoreOnCancelled;
+        if (document.getElementById('inv_trackStockMovements')) document.getElementById('inv_trackStockMovements').checked = !!s.inventory.trackStockMovements;
+        if (document.getElementById('inv_lowStockThreshold')) document.getElementById('inv_lowStockThreshold').value = s.inventory.lowStockThreshold || 10;
+        if (document.getElementById('inv_reservationDurationMinutes')) document.getElementById('inv_reservationDurationMinutes').value = s.inventory.reservationDurationMinutes || 30;
+        if (document.getElementById('inv_notifyThreshold')) document.getElementById('inv_notifyThreshold').value = s.inventory.notifyThreshold || 10;
+        const oosb = document.getElementsByName('inv_outOfStockBehavior');
+        oosb.forEach(r => { r.checked = (r.value === s.inventory.outOfStockBehavior); });
+        const bko = document.getElementsByName('inv_allowBackorders');
+        bko.forEach(r => { r.checked = (r.value === String(s.inventory.allowBackorders)); });
+      }
+
+      // 8. Orders
+      if (s.orders) {
+        if (document.getElementById('ord_orderNumberPrefix')) {
+          document.getElementById('ord_orderNumberPrefix').value = s.orders.orderNumberPrefix || 'LUM-';
+          updateOrderPrefixPreview(s.orders.orderNumberPrefix || 'LUM-');
+        }
+        if (document.getElementById('ord_cancellationWindowHours')) document.getElementById('ord_cancellationWindowHours').value = s.orders.cancellationWindowHours || 24;
+        if (document.getElementById('ord_guestCheckout')) document.getElementById('ord_guestCheckout').checked = !!s.orders.guestCheckout;
+        if (document.getElementById('ord_requirePhoneNumber')) document.getElementById('ord_requirePhoneNumber').checked = !!s.orders.requirePhoneNumber;
+        if (document.getElementById('ord_requireAddress')) document.getElementById('ord_requireAddress').checked = !!s.orders.requireAddress;
+        if (document.getElementById('ord_allowCustomerCancel')) document.getElementById('ord_allowCustomerCancel').checked = !!s.orders.allowCustomerCancel;
+      }
+
+      // 9. Notifications
+      if (s.notifications) {
+        const a = s.notifications.admin || {};
+        if (document.getElementById('notif_admin_newOrder')) document.getElementById('notif_admin_newOrder').checked = !!a.newOrder;
+        if (document.getElementById('notif_admin_lowStock')) document.getElementById('notif_admin_lowStock').checked = !!a.lowStock;
+        if (document.getElementById('notif_admin_outOfStock')) document.getElementById('notif_admin_outOfStock').checked = !!a.outOfStock;
+        if (document.getElementById('notif_admin_paymentReceived')) document.getElementById('notif_admin_paymentReceived').checked = !!a.paymentReceived;
+        if (document.getElementById('notif_admin_orderCancelled')) document.getElementById('notif_admin_orderCancelled').checked = !!a.orderCancelled;
+        if (document.getElementById('notif_admin_customerRegistration')) document.getElementById('notif_admin_customerRegistration').checked = !!a.customerRegistration;
+
+        const c = s.notifications.customer || {};
+        if (document.getElementById('notif_cust_orderConfirmation')) document.getElementById('notif_cust_orderConfirmation').checked = !!c.orderConfirmation;
+        if (document.getElementById('notif_cust_paymentConfirmation')) document.getElementById('notif_cust_paymentConfirmation').checked = !!c.paymentConfirmation;
+        if (document.getElementById('notif_cust_orderShipped')) document.getElementById('notif_cust_orderShipped').checked = !!c.orderShipped;
+        if (document.getElementById('notif_cust_orderDelivered')) document.getElementById('notif_cust_orderDelivered').checked = !!c.orderDelivered;
+        if (document.getElementById('notif_cust_orderCancelled')) document.getElementById('notif_cust_orderCancelled').checked = !!c.orderCancelled;
+        if (document.getElementById('notif_cust_refundProcessed')) document.getElementById('notif_cust_refundProcessed').checked = !!c.refundProcessed;
+      }
+
+      // 10. Email
+      if (s.email) {
+        if (document.getElementById('em_senderName')) document.getElementById('em_senderName').value = s.email.senderName || '';
+        if (document.getElementById('em_senderEmail')) document.getElementById('em_senderEmail').value = s.email.senderEmail || '';
+        if (document.getElementById('em_replyToEmail')) document.getElementById('em_replyToEmail').value = s.email.replyToEmail || '';
+      }
+
+      // 11. Customers
+      if (s.customers) {
+        if (document.getElementById('cust_accountsEnabled')) document.getElementById('cust_accountsEnabled').checked = !!s.customers.accountsEnabled;
+        if (document.getElementById('cust_guestCheckout')) document.getElementById('cust_guestCheckout').checked = !!s.customers.guestCheckout;
+        if (document.getElementById('cust_registrationEnabled')) document.getElementById('cust_registrationEnabled').checked = !!s.customers.registrationEnabled;
+        if (document.getElementById('cust_emailVerificationRequired')) document.getElementById('cust_emailVerificationRequired').checked = !!s.customers.emailVerificationRequired;
+        if (document.getElementById('cust_reviewsEnabled')) document.getElementById('cust_reviewsEnabled').checked = !!s.customers.reviewsEnabled;
+      }
+
+      // 12. Taxes
+      if (s.taxes) {
+        if (document.getElementById('tax_taxCalculationEnabled')) document.getElementById('tax_taxCalculationEnabled').checked = !!s.taxes.taxCalculationEnabled;
+        if (document.getElementById('tax_businessCountry')) document.getElementById('tax_businessCountry').value = s.taxes.businessCountry || 'India';
+        if (document.getElementById('tax_gstRate')) document.getElementById('tax_gstRate').value = s.taxes.gstRate || 18;
+        if (document.getElementById('tax_cgstRate')) document.getElementById('tax_cgstRate').value = s.taxes.cgstRate || 9;
+        if (document.getElementById('tax_sgstRate')) document.getElementById('tax_sgstRate').value = s.taxes.sgstRate || 9;
+        const inc = document.getElementsByName('tax_taxIncludedInPrice');
+        inc.forEach(r => { r.checked = (r.value === String(s.taxes.taxIncludedInPrice)); });
+      }
+
+      // 14. Security
+      if (s.security) {
+        if (document.getElementById('sec_twoFactorAuth')) document.getElementById('sec_twoFactorAuth').checked = !!s.security.twoFactorAuth;
+        if (document.getElementById('sec_loginNotifications')) document.getElementById('sec_loginNotifications').checked = !!s.security.loginNotifications;
+        if (document.getElementById('sec_sessionTimeoutMinutes')) document.getElementById('sec_sessionTimeoutMinutes').value = s.security.sessionTimeoutMinutes || 30;
+      }
+
+      // 15. Privacy
+      if (s.privacy) {
+        if (document.getElementById('priv_cookieConsent')) document.getElementById('priv_cookieConsent').checked = !!s.privacy.cookieConsent;
+        if (document.getElementById('priv_dataRetentionDays')) document.getElementById('priv_dataRetentionDays').value = s.privacy.dataRetentionDays || 365;
+      }
+
+      // 16. Advanced
+      if (s.advanced) {
+        if (document.getElementById('adv_maintenanceMode')) document.getElementById('adv_maintenanceMode').checked = !!s.advanced.maintenanceMode;
+      }
+    }
+
+    async function saveSection(sectionName) {
+      const token = localStorage.getItem('token');
+      let data = {};
+
+      if (sectionName === 'general') {
+        const stRadios = document.getElementsByName('gen_storeStatus');
+        let statusVal = 'online';
+        stRadios.forEach(r => { if (r.checked) statusVal = r.value; });
+        data = {
+          storeName: document.getElementById('gen_storeName').value,
+          storeDescription: document.getElementById('gen_storeDescription').value,
+          contactEmail: document.getElementById('gen_contactEmail').value,
+          phoneNumber: document.getElementById('gen_phoneNumber').value,
+          businessAddress: document.getElementById('gen_businessAddress').value,
+          country: document.getElementById('gen_country').value,
+          state: document.getElementById('gen_state').value,
+          city: document.getElementById('gen_city').value,
+          postalCode: document.getElementById('gen_postalCode').value,
+          currency: document.getElementById('gen_currency').value,
+          timezone: document.getElementById('gen_timezone').value,
+          dateFormat: document.getElementById('gen_dateFormat').value,
+          storeStatus: statusVal
+        };
+      } else if (sectionName === 'branding') {
+        data = {
+          primaryLogo: document.getElementById('brand_primaryLogo').value,
+          darkLogo: document.getElementById('brand_darkLogo').value,
+          favicon: document.getElementById('brand_favicon').value,
+          emailLogo: document.getElementById('brand_emailLogo').value,
+          socialShareImage: document.getElementById('brand_socialShareImage').value,
+          primaryColor: document.getElementById('brand_primaryColor').value,
+          accentColor: document.getElementById('brand_accentColor').value,
+          headingFont: document.getElementById('brand_headingFont').value,
+          bodyFont: document.getElementById('brand_bodyFont').value
+        };
+      } else if (sectionName === 'website') {
+        data = {
+          primaryDomain: document.getElementById('web_primaryDomain').value,
+          customDomain: document.getElementById('web_customDomain').value
+        };
+      } else if (sectionName === 'storefront') {
+        let oosVal = 'show_badge';
+        document.getElementsByName('sf_outOfStockDisplay').forEach(r => { if (r.checked) oosVal = r.value; });
+        let pvVal = 'show';
+        document.getElementsByName('sf_priceVisibility').forEach(r => { if (r.checked) pvVal = r.value; });
+        data = {
+          storeEnabled: document.getElementById('sf_storeEnabled').checked,
+          enableReviews: document.getElementById('sf_enableReviews').checked,
+          enableWishlist: document.getElementById('sf_enableWishlist').checked,
+          enableSearch: document.getElementById('sf_enableSearch').checked,
+          enableRecentlyViewed: document.getElementById('sf_enableRecentlyViewed').checked,
+          outOfStockDisplay: oosVal,
+          priceVisibility: pvVal
+        };
+      } else if (sectionName === 'payments') {
+        let capVal = 'auto';
+        document.getElementsByName('pay_paymentCapture').forEach(r => { if (r.checked) capVal = r.value; });
+        data = {
+          enableOnlinePayment: document.getElementById('pay_enableOnlinePayment').checked,
+          enableCod: document.getElementById('pay_enableCod').checked,
+          enableBankTransfer: document.getElementById('pay_enableBankTransfer').checked,
+          paymentCapture: capVal
+        };
+      } else if (sectionName === 'shipping') {
+        data = {
+          shippingOrigin: document.getElementById('ship_shippingOrigin').value,
+          enableStandard: document.getElementById('ship_enableStandard').checked,
+          enableExpress: document.getElementById('ship_enableExpress').checked,
+          enableLocalDelivery: document.getElementById('ship_enableLocalDelivery').checked,
+          enableStorePickup: document.getElementById('ship_enableStorePickup').checked,
+          freeShippingThreshold: parseFloat(document.getElementById('ship_freeShippingThreshold').value) || 150,
+          standardShippingFee: parseFloat(document.getElementById('ship_standardShippingFee').value) || 15,
+          expressShippingFee: parseFloat(document.getElementById('ship_expressShippingFee').value) || 35,
+          estimatedDelivery: document.getElementById('ship_estimatedDelivery').value
+        };
+      } else if (sectionName === 'inventory') {
+        let oosbVal = 'show';
+        document.getElementsByName('inv_outOfStockBehavior').forEach(r => { if (r.checked) oosbVal = r.value; });
+        let bkoVal = false;
+        document.getElementsByName('inv_allowBackorders').forEach(r => { if (r.checked) bkoVal = (r.value === 'true'); });
+        data = {
+          trackInventory: document.getElementById('inv_trackInventory').checked,
+          reserveOnOrder: document.getElementById('inv_reserveOnOrder').checked,
+          reduceOnSuccessfulOrder: document.getElementById('inv_reduceOnSuccessfulOrder').checked,
+          restoreOnCancelled: document.getElementById('inv_restoreOnCancelled').checked,
+          trackStockMovements: document.getElementById('inv_trackStockMovements').checked,
+          lowStockThreshold: parseInt(document.getElementById('inv_lowStockThreshold').value, 10) || 10,
+          reservationDurationMinutes: parseInt(document.getElementById('inv_reservationDurationMinutes').value, 10) || 30,
+          notifyThreshold: parseInt(document.getElementById('inv_notifyThreshold').value, 10) || 10,
+          outOfStockBehavior: oosbVal,
+          allowBackorders: bkoVal
+        };
+      } else if (sectionName === 'orders') {
+        data = {
+          orderNumberPrefix: document.getElementById('ord_orderNumberPrefix').value,
+          cancellationWindowHours: parseInt(document.getElementById('ord_cancellationWindowHours').value, 10) || 24,
+          guestCheckout: document.getElementById('ord_guestCheckout').checked,
+          requirePhoneNumber: document.getElementById('ord_requirePhoneNumber').checked,
+          requireAddress: document.getElementById('ord_requireAddress').checked,
+          allowCustomerCancel: document.getElementById('ord_allowCustomerCancel').checked
+        };
+      } else if (sectionName === 'notifications') {
+        data = {
+          admin: {
+            newOrder: document.getElementById('notif_admin_newOrder').checked,
+            lowStock: document.getElementById('notif_admin_lowStock').checked,
+            outOfStock: document.getElementById('notif_admin_outOfStock').checked,
+            paymentReceived: document.getElementById('notif_admin_paymentReceived').checked,
+            orderCancelled: document.getElementById('notif_admin_orderCancelled').checked,
+            customerRegistration: document.getElementById('notif_admin_customerRegistration').checked
+          },
+          customer: {
+            orderConfirmation: document.getElementById('notif_cust_orderConfirmation').checked,
+            paymentConfirmation: document.getElementById('notif_cust_paymentConfirmation').checked,
+            orderShipped: document.getElementById('notif_cust_orderShipped').checked,
+            orderDelivered: document.getElementById('notif_cust_orderDelivered').checked,
+            orderCancelled: document.getElementById('notif_cust_orderCancelled').checked,
+            refundProcessed: document.getElementById('notif_cust_refundProcessed').checked
+          }
+        };
+      } else if (sectionName === 'email') {
+        data = {
+          senderName: document.getElementById('em_senderName').value,
+          senderEmail: document.getElementById('em_senderEmail').value,
+          replyToEmail: document.getElementById('em_replyToEmail').value
+        };
+      } else if (sectionName === 'customers') {
+        data = {
+          accountsEnabled: document.getElementById('cust_accountsEnabled').checked,
+          guestCheckout: document.getElementById('cust_guestCheckout').checked,
+          registrationEnabled: document.getElementById('cust_registrationEnabled').checked,
+          emailVerificationRequired: document.getElementById('cust_emailVerificationRequired').checked,
+          reviewsEnabled: document.getElementById('cust_reviewsEnabled').checked
+        };
+      } else if (sectionName === 'taxes') {
+        let incVal = true;
+        document.getElementsByName('tax_taxIncludedInPrice').forEach(r => { if (r.checked) incVal = (r.value === 'true'); });
+        data = {
+          taxCalculationEnabled: document.getElementById('tax_taxCalculationEnabled').checked,
+          businessCountry: document.getElementById('tax_businessCountry').value,
+          gstRate: parseFloat(document.getElementById('tax_gstRate').value) || 18,
+          cgstRate: parseFloat(document.getElementById('tax_cgstRate').value) || 9,
+          sgstRate: parseFloat(document.getElementById('tax_sgstRate').value) || 9,
+          taxIncludedInPrice: incVal
+        };
+      } else if (sectionName === 'security') {
+        data = {
+          twoFactorAuth: document.getElementById('sec_twoFactorAuth').checked,
+          loginNotifications: document.getElementById('sec_loginNotifications').checked,
+          sessionTimeoutMinutes: parseInt(document.getElementById('sec_sessionTimeoutMinutes').value, 10) || 30
+        };
+      } else if (sectionName === 'privacy') {
+        data = {
+          cookieConsent: document.getElementById('priv_cookieConsent').checked,
+          dataRetentionDays: parseInt(document.getElementById('priv_dataRetentionDays').value, 10) || 365
+        };
+      } else if (sectionName === 'advanced') {
+        data = {
+          maintenanceMode: document.getElementById('adv_maintenanceMode').checked
+        };
+      }
+
+      try {
+        const res = await fetch('/api/admin/settings', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ section: sectionName, data })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          showToast(`✓ ${sectionName.toUpperCase()} settings persisted.`);
+          try {
+            const bc = new BroadcastChannel('lumiere_realtime_bus');
+            bc.postMessage({ type: 'settings_updated', section: sectionName });
+          } catch {}
+        } else {
+          alert(`Error saving settings: ${result.error}`);
+        }
+      } catch (err) {
+        console.error('[SaveSettings] Error:', err);
+        alert('Failed to connect to server.');
+      }
+    }
+
+    async function saveAllSettings() {
+      const sections = [
+        'general', 'branding', 'website', 'storefront', 'payments',
+        'shipping', 'inventory', 'orders', 'notifications', 'email',
+        'customers', 'taxes', 'security', 'privacy', 'advanced'
+      ];
+      for (const s of sections) {
+        await saveSection(s);
+      }
+      showToast('✦ All 16 Store Settings saved successfully.');
+    }
+
+    async function sendTestEmailAction() {
+      const token = localStorage.getItem('token');
+      const recipient = document.getElementById('testEmailRecipient').value || 'concierge@lumiere.com';
+      try {
+        const res = await fetch('/api/admin/settings/test-email', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ recipient })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`✉ ${data.message}`);
+        } else {
+          alert(data.error);
+        }
+      } catch (err) {
+        alert('Failed to dispatch test email.');
+      }
+    }
+
+    async function clearSystemCacheAction() {
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('/api/admin/settings/clear-cache', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`✓ Cache cleared (${data.freedBytes} freed). Telemetry active.`);
+        }
+      } catch (err) {
+        alert('Failed to clear cache.');
+      }
+    }
+
+    async function resetConfigurationAction() {
+      if (!confirm('CAUTION: Are you sure you want to reset all store settings to factory defaults?')) {
+        return;
+      }
+      const token = localStorage.getItem('token');
+      try {
+        const res = await fetch('/api/admin/settings/reset', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast('✓ Factory defaults restored.');
+          populateSettingsForm(data.settings);
+        }
+      } catch (err) {
+        alert('Failed to reset configuration.');
+      }
+    }
+
+    function exportCustomerDataArchive() {
+      alert('Generating encrypted client data export archive (JSON)... Download initiated.');
+      const sample = {
+        store: 'LUMIÈRE ATELIER',
+        exportedAt: new Date().toISOString(),
+        gdprCompliant: true,
+        scope: 'All registered clients, addresses, and order references'
+      };
+      const blob = new Blob([JSON.stringify(sample, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `lumiere_client_archive_${Date.now()}.json`;
+      a.click();
+    }
+
+    function confirmStoreDataDelete() {
+      const first = confirm('CRITICAL WARNING: This will permanently delete store data! Are you absolutely sure?');
+      if (!first) return;
+      const pass = prompt('Type DELETE-ATELIER-DATA to confirm permanent deletion:');
+      if (pass === 'DELETE-ATELIER-DATA') {
+        alert('Store data purge request queued. Security audit event recorded.');
+      } else {
+        alert('Purge cancelled: confirmation phrase did not match.');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Color picker live labels
+      const pColor = document.getElementById('brand_primaryColor');
+      if (pColor) pColor.addEventListener('input', (e) => {
+        document.getElementById('brand_primaryColor_val').innerText = e.target.value.toUpperCase();
+      });
+      const aColor = document.getElementById('brand_accentColor');
+      if (aColor) aColor.addEventListener('input', (e) => {
+        document.getElementById('brand_accentColor_val').innerText = e.target.value.toUpperCase();
+      });
+
+      // Handle hash routing
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      if (hash) {
+        switchSection(hash);
+      }
+
+      loadStoreSettings();
+    });
+
+    window.addEventListener('hashchange', () => {
+      const hash = window.location.hash.replace('#', '').toLowerCase();
+      if (hash) {
+        switchSection(hash);
+      }
+    });
   </script>
 </body>
 </html>

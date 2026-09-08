@@ -129,4 +129,44 @@ function makeHttpsRequest(options, postData = null) {
   });
 }
 
-module.exports = { sendRealSms };
+/**
+ * Send real-time order alert SMS to Atelier Owner (7300212948)
+ */
+async function sendOrderAlertSmsToOwner({ orderNumber, totalAmount, customerName }) {
+  const ownerPhone = process.env.ATELIER_OWNER_WHATSAPP || '7300212948';
+  const fast2smsKey = process.env.FAST2SMS_API_KEY || 'Aim3HE7cHJXLDVBKyycjY438KWiMrGG7bbiapw0yCqEPRckC7Auz7yc1VbzM';
+  const rawDigits = String(ownerPhone).replace(/\D/g, '');
+  const last10 = rawDigits.slice(-10);
+
+  if (fast2smsKey) {
+    try {
+      const payload = JSON.stringify({
+        message: `Lumiere Atelier: New Order #${orderNumber} received (₹${totalAmount}) from ${customerName}. Check WhatsApp/Email for details.`,
+        language: 'english',
+        route: 'q',
+        numbers: last10,
+      });
+
+      const options = {
+        hostname: 'www.fast2sms.com',
+        path: '/dev/bulkV2',
+        method: 'POST',
+        headers: {
+          'authorization': fast2smsKey,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(payload),
+        },
+      };
+
+      const result = await makeHttpsRequest(options, payload);
+      console.log(`[SMS Gateway] Order alert SMS dispatched to owner ${last10}:`, result);
+      return { success: true, result };
+    } catch (err) {
+      console.error('[SMS Gateway] Error dispatching order alert to owner:', err.message);
+      return { success: false, error: err.message };
+    }
+  }
+  return { success: false, message: 'No Fast2SMS key configured' };
+}
+
+module.exports = { sendRealSms, sendOrderAlertSmsToOwner };

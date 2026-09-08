@@ -233,6 +233,31 @@ body.shop-page main {
   font-variant-numeric: tabular-nums;
 }
 
+.filter-checkbox-label.category-just-added {
+  color: var(--color-gold, #C9A96E) !important;
+  animation: categoryGlowIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.filter-checkbox-label.category-just-added .filter-count-num {
+  color: var(--color-gold, #C9A96E) !important;
+  opacity: 0.85;
+}
+
+.side-nav-new-badge {
+  font-family: var(--font-sans, system-ui, sans-serif);
+  font-size: 0.55rem;
+  background: linear-gradient(135deg, #DFB15B, #9E7D3B);
+  color: #0D0A0E;
+  font-weight: 700;
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  margin-left: 0.4rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 /* Price Range Slider */
 .price-slider-wrap {
   padding-top: 0.2rem;
@@ -468,6 +493,21 @@ body.shop-page main {
   position: relative;
   cursor: pointer;
   background: transparent;
+}
+
+/* Real-Time Just Added Live Highlight */
+.editorial-product-card.card-just-added .card-visual-container {
+  box-shadow: 0 0 0 2px var(--color-gold, #C9A96E), 0 0 28px rgba(201, 169, 110, 0.45) !important;
+  animation: pulseGoldGlow 2.5s ease-in-out infinite alternate !important;
+}
+
+@keyframes pulseGoldGlow {
+  0% {
+    box-shadow: 0 0 0 2px rgba(201, 169, 110, 0.6), 0 0 10px rgba(201, 169, 110, 0.25);
+  }
+  100% {
+    box-shadow: 0 0 0 2px rgba(201, 169, 110, 1), 0 0 32px rgba(201, 169, 110, 0.7);
+  }
 }
 
 /* ------------------- ZONE 1: WIDE COMPACT VISUAL CONTAINER ------------------- */

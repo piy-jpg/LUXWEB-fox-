@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Low Stock Alerts — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Real-Time Headline Banner -->
+      <div class="total-stock-header-card" style="background: linear-gradient(135deg, rgba(28, 22, 14, 0.95), rgba(45, 32, 18, 0.95)); border: 1px solid rgba(243, 156, 18, 0.45); border-radius: 6px; padding: 1.1rem 1.6rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); flex-wrap: wrap; gap: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+          <div style="width: 48px; height: 48px; border-radius: 8px; background: rgba(243, 156, 18, 0.15); border: 1px solid rgba(243, 156, 18, 0.5); display: flex; align-items: center; justify-content: center; font-size: 1.45rem; color: #f39c12;">
+            ⚠️
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span style="font-size: 0.72rem; letter-spacing: 0.14em; color: #f39c12; text-transform: uppercase; font-weight: 600;">Replenishment Priority Queue</span>
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #f39c12; box-shadow: 0 0 10px #f39c12;" title="Live Low Stock Watch"></span>
+              <span style="font-size: 0.65rem; color: #f39c12; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500;">Buffer Depletion Watch</span>
+            </div>
+            <div style="font-family: var(--font-serif); font-size: 2.35rem; font-weight: 400; color: #FAF7F2; line-height: 1.1; margin-top: 0.25rem;">
+              <span id="topLowStockCount">0</span> <span style="font-size: 0.9rem; font-family: var(--font-sans, system-ui); color: rgba(250, 247, 242, 0.6); font-weight: 300;">SKUs Near Depletion</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1.75rem; align-items: center; flex-wrap: wrap;">
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <div style="font-size: 0.68rem; color: rgba(250, 247, 242, 0.55); text-transform: uppercase; letter-spacing: 0.08em;">Units on Shelves</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: #f39c12; margin-top: 0.2rem;" id="topLowStockUnits">0</div>
+          </div>
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <div style="font-size: 0.68rem; color: rgba(250, 247, 242, 0.55); text-transform: uppercase; letter-spacing: 0.08em;">Deficit to Par</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: #e74c3c; margin-top: 0.2rem;" id="topLowStockDeficit">0</div>
+          </div>
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <button onclick="loadLowStock(false)" class="btn-outline" style="font-size: 0.72rem; padding: 0.55rem 0.95rem;" title="Immediate Real-Time Inventory Sync">
+              <span id="lowSyncSpinIcon" style="display: inline-block;">⟳</span> REFRESH ALERTS
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Title -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+        <div>
+          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Stock Watch</span>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Low Stock Replenishment Alerts</h1>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <a href="inventory-stock-in.html" class="btn-gold" style="font-size: 0.75rem; text-decoration: none; padding: 0.55rem 1rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+            <span>📥</span> BATCH STOCK INBOUND
+          </a>
+        </div>
+      </div>
+
+      <!-- Shared Inventory Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="inventory.html" class="subnav-tab">
+          <span>📦</span> Stock Overview
+        </a>
+        <a href="inventory-movements.html" class="subnav-tab">
+          <span>🔄</span> Stock Movements
+        </a>
+        <a href="inventory-low-stock.html" class="subnav-tab active">
+          <span>⚠️</span> Low Stock <span class="subnav-badge badge-warn" id="subnavLowStockBadge">-</span>
+        </a>
+        <a href="inventory-out-of-stock.html" class="subnav-tab">
+          <span>🚫</span> Out of Stock <span class="subnav-badge badge-danger" id="subnavOutStockBadge">-</span>
+        </a>
+        <a href="inventory-stock-in.html" class="subnav-tab">
+          <span>📥</span> Purchase / Stock In <span class="subnav-badge badge-accent">Receive</span>
+        </a>
+        <a href="inventory-adjust.html" class="subnav-tab">
+          <span>⚖️</span> Stock Adjustment
+        </a>
+        <a href="inventory-history.html" class="subnav-tab">
+          <span>📜</span> Inventory History
+        </a>
+      </div>
+
+      <!-- Search & Filters -->
+      <div class="table-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <input type="text" id="lowStockSearch" class="admin-input" placeholder="Search low stock product or SKU..." style="flex: 2; min-width: 220px;" oninput="debounceLowStockSearch()" />
+      </div>
+
+      <!-- Low Stock Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Physical Stock</th>
+                <th>Reserved</th>
+                <th>Available</th>
+                <th>Alert Threshold</th>
+                <th>Health Status</th>
+                <th style="text-align: right;">1-Click Quick Restock</th>
+              </tr>
+            </thead>
+            <tbody id="lowStockTableBody">
+              <tr><td colspan="8" style="text-align: center;">Scanning inventory balances for low stock alerts...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let lowStockItems = [];
+    let searchTimeout = null;
+
+    function debounceLowStockSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => renderLowStock(), 250);
+    }
+
+    async function loadLowStock(isSilent = false) {
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory?filter=low_stock');
+        const data = await res.json();
+
+        if (data.success) {
+          lowStockItems = data.inventory || [];
+
+          // Also update badges
+          const lowCount = data.summary?.low_stock_count ?? lowStockItems.length;
+          const outCount = data.summary?.out_of_stock_count ?? 0;
+
+          const topCount = document.getElementById('topLowStockCount');
+          if (topCount) topCount.textContent = lowStockItems.length.toString();
+
+          const lowBadge = document.getElementById('subnavLowStockBadge');
+          if (lowBadge) lowBadge.textContent = lowCount.toString();
+          const outBadge = document.getElementById('subnavOutStockBadge');
+          if (outBadge) outBadge.textContent = outCount.toString();
+
+          let totalUnits = 0;
+          let totalDeficit = 0;
+          lowStockItems.forEach(i => {
+            const avail = parseInt(i.available_quantity, 10) || 0;
+            const thresh = parseInt(i.low_stock_threshold, 10) || 5;
+            totalUnits += avail;
+            if (thresh > avail) totalDeficit += (thresh - avail);
+          });
+
+          const unitsEl = document.getElementById('topLowStockUnits');
+          if (unitsEl) unitsEl.textContent = totalUnits.toLocaleString();
+
+          const defEl = document.getElementById('topLowStockDeficit');
+          if (defEl) defEl.textContent = totalDeficit.toLocaleString();
+
+          renderLowStock();
+        }
+      } catch (err) {
+        console.error('Error loading low stock:', err);
+      }
+    }
+
+    function renderLowStock() {
+      const q = (document.getElementById('lowStockSearch')?.value || '').toLowerCase().trim();
+      const tbody = document.getElementById('lowStockTableBody');
+
+      const filtered = lowStockItems.filter(item => {
+        if (!q) return true;
+        const name = (item.product_name || '').toLowerCase();
+        const sku = (item.sku || '').toLowerCase();
+        return name.includes(q) || sku.includes(q);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; padding: 2.5rem 1rem;">
+              <div style="font-size: 1.8rem; margin-bottom: 0.5rem; color: #7bed9f;">✓</div>
+              <strong style="color: #FAF7F2; font-size: 1rem;">No Low Stock Alerts at this Time</strong>
+              <p style="color: rgba(250,247,242,0.5); font-size: 0.8rem; margin-top: 0.25rem;">All boutique products meet or exceed safety threshold balances.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      const canAdjust = Auth.hasPermission('inventory.adjust');
+
+      tbody.innerHTML = filtered.map(item => {
+        const avail = parseInt(item.available_quantity, 10) || 0;
+        const thresh = parseInt(item.low_stock_threshold, 10) || 5;
+        const deficit = Math.max(0, thresh - avail);
+
+        return `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <img src="../${item.primary_image || 'images/skincare_products_1788328338930.jpg'}" alt="${item.product_name}" style="width: 42px; height: 42px; object-fit: cover; border-radius: 2px;" />
+                <div>
+                  <strong style="color: #fff; font-size: 0.88rem;">${item.product_name}</strong>
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Target Safety Buffer: ${thresh} units</div>
+                </div>
+              </div>
+            </td>
+            <td style="font-family: monospace; font-size: 0.78rem; color: var(--color-gold);">${item.sku}</td>
+            <td style="font-weight: 600;">${item.stock_quantity}</td>
+            <td style="color: #bb8fce;">${item.reserved_quantity}</td>
+            <td style="font-weight: 700; color: #f39c12; font-size: 0.95rem;">
+              ${item.available_quantity}
+            </td>
+            <td style="color: rgba(250,247,242,0.6);">${item.low_stock_threshold}</td>
+            <td>
+              <span class="badge badge-low-stock" style="padding: 0.3rem 0.6rem; font-size: 0.68rem;">
+                ⚠️ Low Stock (${deficit} below par)
+              </span>
+            </td>
+            <td style="text-align: right;">
+              ${canAdjust ? `
+                <div style="display: inline-flex; gap: 0.4rem; justify-content: flex-end;">
+                  <button onclick="executeQuickRestock(${item.inventory_id}, 25, '${item.product_name.replace(/'/g, "\\'")}')" class="btn-gold" style="padding: 0.35rem 0.65rem; font-size: 0.7rem;" title="Immediate intake of 25 units">
+                    +25 Restock
+                  </button>
+                  <button onclick="executeQuickRestock(${item.inventory_id}, 50, '${item.product_name.replace(/'/g, "\\'")}')" class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.7rem; border-color: rgba(201,169,110,0.4);" title="Immediate intake of 50 units">
+                    +50 Restock
+                  </button>
+                  <a href="inventory-adjust.html?id=${item.inventory_id}" class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.7rem; text-decoration: none;" title="Custom balance reconciliation">
+                    Custom &plusmn;
+                  </a>
+                </div>
+              ` : `
+                <span style="font-size: 0.7rem; color: rgba(250,247,242,0.4);">Requires restock role</span>
+              `}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function executeQuickRestock(inventoryId, qty, productName) {
+      if (!confirm(`Confirm immediate quick restock of +${qty} units for "${productName}"?`)) {
+        return;
+      }
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory/adjust', {
+          method: 'POST',
+          body: JSON.stringify({
+            inventoryId,
+            quantityDelta: qty,
+            transactionType: 'STOCK_RECEIVED',
+            reason: `Quick Replenishment Restock (+${qty} units)`
+          })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.toast(`Restocked +${qty} units for ${productName}`);
+          // Broadcast to other tabs
+          try {
+            const bc = new BroadcastChannel('lumiere_realtime_bus');
+            bc.postMessage({ type: 'inventory_update' });
+          } catch {}
+          loadLowStock(false);
+        } else {
+          alert(data.error || 'Failed to restock');
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadLowStock(false);
+
+      // Real-time broadcast
+      try {
+        const bc = new BroadcastChannel('lumiere_realtime_bus');
+        bc.onmessage = () => loadLowStock(true);
+      } catch {}
+
+      // Fallback Polling
+      setInterval(() => {
+        const active = document.activeElement;
+        if (!active || (active.tagName !== 'INPUT' && active.tagName !== 'SELECT')) {
+          loadLowStock(true);
+        }
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Product Variants — Lumière Atelier Administration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body class="admin-body">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header & Breadcrumbs -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Product Configuration &amp; Options</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.68rem; color: #7bed9f;">
+              <span class="live-dot"></span>
+              <span>LIVE VARIANT LEDGER</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0; color: #FAF7F2;">Product Variants &amp; Options</h1>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+          <a href="products.html" class="btn-outline" style="font-size: 0.72rem;">
+            <span>✨</span> VIEW ALL PRODUCTS
+          </a>
+        </div>
+      </div>
+
+      <!-- Shared Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="products.html" class="subnav-tab">
+          <span>✨</span> All Products <span class="subnav-badge" id="subnavProductsBadge">-</span>
+        </a>
+        <a href="product-add.html" class="subnav-tab">
+          <span>➕</span> Add Product <span class="subnav-badge">+ New</span>
+        </a>
+        <a href="product-edit.html" class="subnav-tab">
+          <span>✏️</span> Edit Product
+        </a>
+        <a href="categories.html" class="subnav-tab">
+          <span>🏷️</span> Categories <span class="subnav-badge" id="subnavCategoriesBadge">-</span>
+        </a>
+        <a href="product-variants.html" class="subnav-tab active">
+          <span>🎨</span> Product Variants <span class="subnav-badge badge-accent" id="subnavVariantsBadge">-</span>
+        </a>
+      </div>
+
+      <!-- Live KPI Strip -->
+      <div class="stat-card-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-title">Total Defined Variants</div>
+          <div class="stat-number" id="statTotalVariants" style="color: var(--color-gold);">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Active SKU options</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Multi-Variant Products</div>
+          <div class="stat-number" id="statMultiProducts" style="color: #7bed9f;">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Formulas with child SKUs</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Variant Option Dimensions</div>
+          <div class="stat-number" style="color: #bb8fce;">4</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Volume, Shade, Scent, Size</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Sync Architecture</div>
+          <div class="stat-number" style="font-size: 1.35rem; color: #7bed9f; line-height: 1.8;">Real-Time Connected</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Transactional ledger sync</span>
+        </div>
+      </div>
+
+      <!-- Add New Variant Form Suite -->
+      <div class="table-card" style="padding: 1.5rem; margin-bottom: 2rem;">
+        <div style="border-bottom: 1px solid var(--admin-border); padding-bottom: 0.75rem; margin-bottom: 1.25rem;">
+          <h3 style="font-family: var(--font-serif); font-size: 1.3rem; margin: 0; color: #FAF7F2;">Define New Product Variant</h3>
+          <p style="margin: 0.2rem 0 0; font-size: 0.74rem; color: rgba(250,247,242,0.6);">Assign size, shade, or concentration options with distinct SKUs and price overrides.</p>
+        </div>
+
+        <form id="createVariantForm" onsubmit="handleCreateVariant(event)">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.25rem; margin-bottom: 1.25rem;">
+            <div>
+              <label class="form-label" style="display: block; margin-bottom: 0.35rem; font-size: 0.72rem; text-transform: uppercase;">Parent Product *</label>
+              <select id="varProductId" class="admin-select" style="width: 100%;" required onchange="autoSuggestVariantSku()">
+                <option value="">Select Parent Product...</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" style="display: block; margin-bottom: 0.35rem; font-size: 0.72rem; text-transform: uppercase;">Variant Name *</label>
+              <input type="text" id="varName" class="admin-input" placeholder="e.g. 50 mL / 1.7 oz or Shade 02" required oninput="autoSuggestVariantSku()" />
+            </div>
+            <div>
+              <label class="form-label" style="display: block; margin-bottom: 0.35rem; font-size: 0.72rem; text-transform: uppercase;">Option Dimension</label>
+              <select id="varType" class="admin-select" style="width: 100%;">
+                <option value="Volume">Volume / Size</option>
+                <option value="Shade">Color / Shade</option>
+                <option value="Scent">Scent / Fragrance Note</option>
+                <option value="Packaging">Boutique Packaging</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" style="display: block; margin-bottom: 0.35rem; font-size: 0.72rem; text-transform: uppercase;">Variant SKU *</label>
+              <input type="text" id="varSku" class="admin-input" placeholder="LUM-001-50ML" required style="font-family: monospace;" />
+            </div>
+            <div>
+              <label class="form-label" style="display: block; margin-bottom: 0.35rem; font-size: 0.72rem; text-transform: uppercase;">Price Override (₹ INR)</label>
+              <input type="number" step="0.01" min="0" id="varPriceOverride" class="admin-input" placeholder="Optional price override" />
+            </div>
+          </div>
+          <div style="display: flex; justify-content: flex-end;">
+            <button type="submit" id="btnSubmitVariant" class="btn-owner-action btn-owner-gold" style="font-size: 0.74rem;">
+              <span>+</span> ADD VARIANT TO PRODUCT
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Variants Filter & Table -->
+      <div class="table-card">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--admin-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+          <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+            <select id="filterProductSelect" class="admin-select" style="min-width: 220px;" onchange="loadVariantsData()">
+              <option value="">All Parent Products</option>
+            </select>
+            <input type="text" id="variantSearchInput" class="admin-input" placeholder="Search variant SKU or title..." style="min-width: 200px;" oninput="applyVariantFilters()" />
+          </div>
+          <span id="variantShowingCount" style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Showing 0 variants</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Parent Product</th>
+                <th>Variant Name</th>
+                <th>Variant SKU</th>
+                <th>Option Type</th>
+                <th>Price Override</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="variantsTableBody">
+              <tr><td colspan="7" style="text-align: center; padding: 2.5rem;">Loading product variants...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let productsList = [];
+    let variantsList = [];
+
+    async function initPage() {
+      if (!Auth.requireAuth('products.view')) return;
+      Admin.init();
+
+      await loadProducts();
+
+      // Check URL query param ?productId=
+      const urlParams = new URLSearchParams(window.location.search);
+      const prodParam = urlParams.get('productId');
+      if (prodParam) {
+        document.getElementById('varProductId').value = prodParam;
+        document.getElementById('filterProductSelect').value = prodParam;
+      }
+
+      await loadVariantsData();
+    }
+
+    async function loadProducts() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/products?limit=1000');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.products)) {
+          productsList = data.products;
+
+          const createSelect = document.getElementById('varProductId');
+          createSelect.innerHTML = '<option value="">Select Parent Product...</option>' + 
+            productsList.map(p => `<option value="${p.id}" data-sku="${p.sku}">${p.name} (${p.sku || 'No SKU'})</option>`).join('');
+
+          const filterSelect = document.getElementById('filterProductSelect');
+          filterSelect.innerHTML = '<option value="">All Parent Products</option>' + 
+            productsList.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+
+          const pBadge = document.getElementById('subnavProductsBadge');
+          if (pBadge) pBadge.innerText = productsList.length;
+        }
+      } catch (e) {
+        console.error('Failed to load products list:', e);
+      }
+    }
+
+    async function loadVariantsData() {
+      const prodId = document.getElementById('filterProductSelect').value;
+      const url = prodId ? `/api/admin/variants?productId=${prodId}` : '/api/admin/variants';
+
+      try {
+        const res = await Auth.apiFetch(url);
+        const data = await res.json();
+        if (data.success && Array.isArray(data.variants)) {
+          variantsList = data.variants;
+          updateKPIs();
+          applyVariantFilters();
+        }
+      } catch (e) {
+        console.error('Failed to load variants:', e);
+      }
+    }
+
+    function updateKPIs() {
+      document.getElementById('statTotalVariants').innerText = variantsList.length;
+
+      const uniqueParents = new Set(variantsList.map(v => v.product_id));
+      document.getElementById('statMultiProducts').innerText = uniqueParents.size;
+
+      const vBadge = document.getElementById('subnavVariantsBadge');
+      if (vBadge) vBadge.innerText = variantsList.length;
+    }
+
+    function applyVariantFilters() {
+      const q = (document.getElementById('variantSearchInput').value || '').trim().toLowerCase();
+      const tbody = document.getElementById('variantsTableBody');
+
+      const filtered = variantsList.filter(v => {
+        const text = `${v.product_name || ''} ${v.variant_name || ''} ${v.sku || ''}`.toLowerCase();
+        return !q || text.includes(q);
+      });
+
+      document.getElementById('variantShowingCount').innerText = `Showing ${filtered.length} of ${variantsList.length} variants`;
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2.5rem;">No product variants found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(v => `
+        <tr>
+          <td style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">#${v.id}</td>
+          <td>
+            <div style="font-weight: 500; font-size: 0.8rem; color: #FAF7F2;">${v.product_name || 'Product #' + v.product_id}</div>
+            <div style="font-family: monospace; font-size: 0.68rem; color: rgba(250,247,242,0.5);">${v.product_sku || ''}</div>
+          </td>
+          <td style="font-weight: 600; color: var(--color-gold); font-size: 0.8rem;">
+            ${v.variant_name}
+          </td>
+          <td style="font-family: monospace; font-size: 0.75rem; color: #FAF7F2;">
+            ${v.sku}
+          </td>
+          <td>
+            <span class="badge badge-accent" style="font-size: 0.65rem;">${v.variant_type || 'Volume'}</span>
+          </td>
+          <td>
+            ${v.price_override ? `<strong style="color: var(--color-gold);">₹${parseFloat(v.price_override).toFixed(2)}</strong>` : '<span style="color: rgba(250,247,242,0.4);">Base Price</span>'}
+          </td>
+          <td style="text-align: right; white-space: nowrap;">
+            <a href="product-edit.html?id=${v.product_id}" class="btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.65rem; margin-right: 0.25rem;">Parent &rarr;</a>
+            <button onclick="deleteVariantItem(${v.id}, '${v.variant_name}')" class="btn-danger" style="padding: 0.25rem 0.45rem; font-size: 0.65rem;" title="Delete Variant">✕</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function autoSuggestVariantSku() {
+      const select = document.getElementById('varProductId');
+      const selectedOpt = select.options[select.selectedIndex];
+      const parentSku = selectedOpt?.getAttribute('data-sku') || 'LUM';
+      const varName = document.getElementById('varName').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+      if (varName) {
+        document.getElementById('varSku').value = `${parentSku}-${varName}`;
+      }
+    }
+
+    async function handleCreateVariant(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmitVariant');
+      btn.disabled = true;
+
+      const payload = {
+        productId: parseInt(document.getElementById('varProductId').value, 10),
+        variantName: document.getElementById('varName').value.trim(),
+        variantType: document.getElementById('varType').value,
+        sku: document.getElementById('varSku').value.trim(),
+        priceOverride: document.getElementById('varPriceOverride').value ? parseFloat(document.getElementById('varPriceOverride').value) : null
+      };
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/variants', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.toast(`✦ Variant "${payload.variantName}" added successfully.`);
+          if (typeof BroadcastChannel !== 'undefined') {
+            const bus = new BroadcastChannel('lumiere_realtime_bus');
+            bus.postMessage({ action: 'variant_created', variant: data.variant, timestamp: Date.now() });
+          }
+
+          document.getElementById('varName').value = '';
+          document.getElementById('varSku').value = '';
+          document.getElementById('varPriceOverride').value = '';
+          await loadVariantsData();
+        } else {
+          alert(data.error || 'Failed to create variant.');
+        }
+      } catch (err) {
+        alert(err.message || 'Network error.');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function deleteVariantItem(id, name) {
+      if (!confirm(`Delete variant "${name}"?`)) return;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/variants/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(`Variant "${name}" deleted.`);
+          if (typeof BroadcastChannel !== 'undefined') {
+            const bus = new BroadcastChannel('lumiere_realtime_bus');
+            bus.postMessage({ action: 'variant_deleted', variantId: id, timestamp: Date.now() });
+          }
+          await loadVariantsData();
+        } else {
+          alert(data.error || 'Failed to delete variant.');
+        }
+      } catch (e) {
+        alert(e.message);
+      }
+    }
+
+    // Real-time listener
+    const realtimeBus = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('lumiere_realtime_bus') : null;
+    if (realtimeBus) {
+      realtimeBus.onmessage = (e) => {
+        if (['variant_created', 'variant_deleted', 'product_created', 'product_updated'].includes(e.data?.action)) {
+          loadVariantsData();
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

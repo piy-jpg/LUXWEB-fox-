@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Roles & Authority Hierarchy — Lumière Atelier Administration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+    }
+    .role-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--admin-border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+    .role-card:hover {
+      border-color: var(--color-gold);
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .role-card.role-card-owner {
+      border-color: rgba(201, 169, 110, 0.45);
+      background: linear-gradient(145deg, rgba(201, 169, 110, 0.06), rgba(10, 10, 11, 0.8));
+    }
+    .role-card.role-card-owner::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--color-gold), #f39c12);
+    }
+    .role-card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    .role-icon-box {
+      width: 44px;
+      height: 44px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .role-title {
+      font-family: var(--font-serif);
+      font-size: 1.45rem;
+      font-weight: 400;
+      color: #FAF7F2;
+      margin: 0.35rem 0 0.15rem;
+    }
+    .role-tier-badge {
+      font-size: 0.62rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.5rem;
+      border-radius: 3px;
+      font-weight: 600;
+    }
+    .tier-owner { background: rgba(201, 169, 110, 0.2); color: var(--color-gold); border: 1px solid rgba(201, 169, 110, 0.4); }
+    .tier-manager { background: rgba(52, 152, 219, 0.15); color: #3498db; border: 1px solid rgba(52, 152, 219, 0.3); }
+    .tier-inventory { background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); }
+    .tier-order { background: rgba(243, 156, 18, 0.15); color: #f39c12; border: 1px solid rgba(243, 156, 18, 0.3); }
+    
+    .personnel-chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+      max-height: 110px;
+      overflow-y: auto;
+    }
+    .personnel-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      padding: 0.2rem 0.6rem;
+      font-size: 0.68rem;
+      color: rgba(250, 247, 242, 0.85);
+    }
+    .personnel-chip-avatar {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--color-gold);
+      color: #0A0A0B;
+      font-size: 0.55rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  </style>
+</head>
+<body class="admin-body">
+  <!-- Navigation Sidebar -->
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header & Breadcrumbs -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Governance &amp; Authority Architecture</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.68rem; color: #7bed9f;">
+              <span class="live-dot"></span>
+              <span>LIVE SYNC ACTIVE</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0; color: #FAF7F2;">Roles &amp; Authority Hierarchy</h1>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+          <a href="permissions.html" class="btn-owner-action btn-owner-gold" style="font-size: 0.72rem;">
+            <span>🛡️</span> CONFIGURE PERMISSIONS MATRIX
+          </a>
+          <a href="staff.html" class="btn-outline" style="font-size: 0.72rem;">
+            <span>👥</span> STAFF DIRECTORY &rarr;
+          </a>
+          <button onclick="loadRoleData(false)" class="btn-outline" style="font-size: 0.72rem; padding: 0.55rem 0.85rem;" title="Force immediate database sync">
+            <span id="roleSyncSpinIcon" style="display: inline-block;">⟳</span> SYNC NOW
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="staff.html" class="subnav-tab">
+          <span>👥</span> Staff Directory <span class="subnav-badge" id="subnavStaffBadge">-</span>
+        </a>
+        <a href="roles.html" class="subnav-tab active">
+          <span>👑</span> Roles Hierarchy <span class="subnav-badge badge-accent" id="subnavRolesBadge">4</span>
+        </a>
+        <a href="permissions.html" class="subnav-tab">
+          <span>🛡️</span> Permissions Matrix <span class="subnav-badge" id="subnavPermsBadge">12</span>
+        </a>
+        <a href="audit.html" class="subnav-tab">
+          <span>📜</span> Security Audit Log <span class="subnav-badge" id="subnavAuditBadge">Live</span>
+        </a>
+      </div>
+
+      <!-- Live KPI Strip -->
+      <div class="stat-card-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-title">System Authority Roles</div>
+          <div class="stat-number" id="statTotalRoles" style="color: var(--color-gold);">4</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Hierarchical governance tiers</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Total Active Staff Assigned</div>
+          <div class="stat-number" id="statAssignedStaff">0</div>
+          <span style="font-size: 0.72rem; color: #7bed9f;" id="statStaffCoverage">Active credentials assigned</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Full Privilege Roles</div>
+          <div class="stat-number" style="color: #7bed9f;">1</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Atelier Owner (Immutable)</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Governance Standard</div>
+          <div class="stat-number" style="font-size: 1.35rem; color: #bb8fce; line-height: 1.8;">RBAC v2.4</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Strict server-side enforcement</span>
+        </div>
+      </div>
+
+      <!-- Visual Role Cards Grid -->
+      <div class="role-grid" id="rolesCardGrid">
+        <!-- Rendered dynamically -->
+        <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: rgba(250,247,242,0.4);">
+          Loading role hierarchy...
+        </div>
+      </div>
+
+      <!-- Comparative Capabilities Overview Table -->
+      <div class="table-card" style="margin-bottom: 2.5rem;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--admin-border); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.3rem; margin: 0; color: #FAF7F2;">Comparative Domain Privilege Overview</h3>
+            <p style="margin: 0.2rem 0 0; font-size: 0.74rem; color: rgba(250,247,242,0.6);">High-level operational scope comparison across functional atelier domains.</p>
+          </div>
+          <a href="permissions.html" class="btn-outline" style="font-size: 0.7rem; padding: 0.4rem 0.8rem;">
+            Edit Granular Privileges &rarr;
+          </a>
+        </div>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Domain Category</th>
+                <th>Owner (Founder)</th>
+                <th>Manager (Director)</th>
+                <th>Inventory Staff</th>
+                <th>Order Staff</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>✨ Catalog &amp; Editorial</strong><br><span style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">View, create, edit, archive products</span></td>
+                <td><span class="badge badge-active" style="background: rgba(46,204,113,0.15); color: #2ecc71;">✓ Full Access (4/4)</span></td>
+                <td><span class="badge badge-active" style="background: rgba(46,204,113,0.15); color: #2ecc71;">✓ Full Access (4/4)</span></td>
+                <td><span class="badge" style="color: rgba(250,247,242,0.5);">View Only (1/4)</span></td>
+                <td><span class="badge" style="color: rgba(250,247,242,0.5);">View Only (1/4)</span></td>
+              </tr>
+              <tr>
+                <td><strong>📦 Inventory &amp; Stock</strong><br><span style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">Ledger, purchase intake, adjustments</span></td>
+                <td><span class="badge badge-active" style="background: rgba(46,204,113,0.15); color: #2ecc71;">✓ Full Access (2/2)</span></td>
+                <td><span class="badge badge-active" style="background: rgba(46,204,113,0.15); color: #2ecc71;">✓ Full Access (2/2)</span></td>
+                <td><span class="badge badge-active" style="background: rgba(46,204,113,0.15); color: #2ecc71;">✓ Full Access (2/2)</span></td>
+                <td><span class="badge" style="color: #ff708f;">✕ Restricted</span></td>
+              </tr>
+              <tr>
+                <td><strong>🛍️ Orders &amp; Dispatch</strong><br><span style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">Fulfillment, tracking, dispatch ledger</span></td>
+                <td><span class="badge badge-active" style="background: rgba(46,204,113,0.15); color: #2ecc71;">✓ Full Access (2/2)</span></td>
+                <td><span class="badge badge-active" style="background: rgba(46,204,113,0.15); color: #2ecc71;">✓ Full Access (2/2)</span></td>
+                <td><span class="badge" style="color: #ff708f;">✕ Restricted</span></td>
+                <td><span class="badge badge-active" style="background: rgba(46,204,113,0.15); color: #2ecc71;">✓ Full Access (2/2)</span></td>
+              </tr>
+              <tr>
+                <td><strong>👑 Customer Relations</strong><br><span style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">Patron directory, order histories</span></td>
+                <td><span class="badge badge-active" style="background: rgba(46,204,113,0.15); color: #2ecc71;">✓ Full Access (1/1)</span></td>
+                <td><span class="badge badge-active" style="background: rgba(46,204,113,0.15); color: #2ecc71;">✓ Full Access (1/1)</span></td>
+                <td><span class="badge" style="color: #ff708f;">✕ Restricted</span></td>
+                <td><span class="badge" style="color: #ff708f;">✕ Restricted</span></td>
+              </tr>
+              <tr>
+                <td><strong>🛡️ Governance &amp; Security</strong><br><span style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">Analytics, staff management, store settings</span></td>
+                <td><span class="badge badge-active" style="background: rgba(201,169,110,0.25); color: var(--color-gold);">✓ Universal Superuser (3/3)</span></td>
+                <td><span class="badge" style="color: rgba(250,247,242,0.5);">Analytics Only (1/3)</span></td>
+                <td><span class="badge" style="color: #ff708f;">✕ Restricted</span></td>
+                <td><span class="badge" style="color: #ff708f;">✕ Restricted</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let rawStaffList = [];
+    let rolesList = [];
+    let permissionsList = [];
+    let rolePermissionsList = [];
+
+    const ROLE_CONFIGS = {
+      'OWNER': {
+        icon: '👑',
+        tier: 'Tier 1 — Ultimate Authority',
+        tierClass: 'tier-owner',
+        cardClass: 'role-card-owner',
+        desc: 'Atelier founder with complete and unrestricted administrative governance over catalog, inventory, clients, staff, and settings.',
+        immutable: true,
+      },
+      'MANAGER': {
+        icon: '⭐',
+        tier: 'Tier 2 — Executive Operations',
+        tierClass: 'tier-manager',
+        cardClass: '',
+        desc: 'Executive boutique director overseeing day-to-day operations, products, orders, customers, and analytics reports.',
+        immutable: false,
+      },
+      'INVENTORY_STAFF': {
+        icon: '📦',
+        tier: 'Tier 3 — Supply & Logistics',
+        tierClass: 'tier-inventory',
+        cardClass: '',
+        desc: 'Warehouse specialist responsible for physical stock intake, manual adjustments, replenishment monitoring, and inventory ledgers.',
+        immutable: false,
+      },
+      'ORDER_STAFF': {
+        icon: '🛍️',
+        tier: 'Tier 4 — Order Fulfillment',
+        tierClass: 'tier-order',
+        cardClass: '',
+        desc: 'Fulfillment and logistics specialist handling order verification, dispatch status transitions, shipping carriers, and tracking numbers.',
+        immutable: false,
+      }
+    };
+
+    async function loadRoleData(isSilent = false) {
+      const spinIcon = document.getElementById('roleSyncSpinIcon');
+      if (spinIcon && !isSilent) spinIcon.style.animation = 'spin 0.6s linear infinite';
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/staff');
+        const data = await res.json();
+        if (data.success) {
+          rawStaffList = data.staff || [];
+          rolesList = data.roles || [];
+          permissionsList = data.permissions || [];
+          rolePermissionsList = data.rolePermissions || [];
+
+          renderRoleCards();
+          updateKPIs();
+        } else {
+          console.warn('[roles.html] API response not successful:', data);
+          if (rolesList.length === 0) {
+            renderErrorState(data.error || 'Failed to load authority hierarchy.');
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load role data:', err);
+        if (rolesList.length === 0) {
+          renderErrorState(err.message || 'Connection error while contacting atelier engine.');
+        }
+      } finally {
+        if (spinIcon) spinIcon.style.animation = '';
+      }
+    }
+
+    function renderErrorState(msg) {
+      const container = document.getElementById('rolesCardGrid');
+      if (container) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 2.5rem; background: rgba(231,76,60,0.06); border: 1px solid rgba(231,76,60,0.3); border-radius: 6px;">
+            <div style="font-size: 1.5rem; color: #ff708f; margin-bottom: 0.5rem;">⚠️</div>
+            <div style="color: #FAF7F2; font-weight: 500; font-size: 0.95rem;">Unable to load role hierarchy</div>
+            <div style="font-size: 0.75rem; color: rgba(250,247,242,0.6); margin: 0.25rem 0 1rem;">${msg}</div>
+            <button onclick="loadRoleData(false)" class="btn-gold" style="font-size: 0.72rem; padding: 0.45rem 0.9rem;">
+              ⟳ RETRY NOW
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    function updateKPIs() {
+      const totalRoles = rolesList.length || 4;
+      const totalStaff = rawStaffList.length;
+      const activeStaff = rawStaffList.filter(s => s.status === 'active').length;
+
+      const elTotalRoles = document.getElementById('statTotalRoles');
+      if (elTotalRoles) elTotalRoles.innerText = totalRoles;
+
+      const elAssigned = document.getElementById('statAssignedStaff');
+      if (elAssigned) elAssigned.innerText = totalStaff;
+
+      const elCoverage = document.getElementById('statStaffCoverage');
+      if (elCoverage) elCoverage.innerText = `${activeStaff} active credentials assigned`;
+      
+      const staffBadge = document.getElementById('subnavStaffBadge');
+      if (staffBadge) staffBadge.innerText = totalStaff;
+
+      const rolesBadge = document.getElementById('subnavRolesBadge');
+      if (rolesBadge) rolesBadge.innerText = totalRoles;
+
+      const permBadge = document.getElementById('subnavPermsBadge');
+      if (permBadge) permBadge.innerText = permissionsList.length || 12;
+    }
+
+    function renderRoleCards() {
+      const container = document.getElementById('rolesCardGrid');
+      if (!container) return;
+
+      // Fallback baseline roles if database query returned empty
+      const displayRoles = rolesList.length > 0 ? rolesList : [
+        { id: 1, name: 'OWNER', description: 'Atelier founder with complete governance.' },
+        { id: 2, name: 'MANAGER', description: 'Executive boutique director.' },
+        { id: 3, name: 'INVENTORY_STAFF', description: 'Warehouse and logistics specialist.' },
+        { id: 4, name: 'ORDER_STAFF', description: 'Order fulfillment specialist.' }
+      ];
+
+      const html = displayRoles.map(role => {
+        const cfg = ROLE_CONFIGS[role.name] || {
+          icon: '🛡️',
+          tier: 'Authority Tier',
+          tierClass: 'tier-manager',
+          cardClass: '',
+          desc: role.description || 'Administrative role.',
+          immutable: false
+        };
+
+        const assignedStaff = rawStaffList.filter(s => s.role_name === role.name || s.role_id === role.id);
+        const rolePermLinks = rolePermissionsList.filter(rp => rp.role_id === role.id);
+        const totalPermsCount = permissionsList.length || 12;
+        const permCount = role.name === 'OWNER' ? totalPermsCount : rolePermLinks.length;
+
+        return `
+          <div class="role-card ${cfg.cardClass}">
+            <div class="role-card-header">
+              <div class="role-icon-box">${cfg.icon}</div>
+              <span class="role-tier-badge ${cfg.tierClass}">${cfg.tier}</span>
+            </div>
+
+            <h3 class="role-title">${role.name}</h3>
+            <p style="font-size: 0.74rem; color: rgba(250,247,242,0.65); line-height: 1.45; margin: 0 0 1rem; flex: 1;">
+              ${cfg.desc}
+            </p>
+
+            <div style="background: rgba(0,0,0,0.25); border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.04);">
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem; margin-bottom: 0.35rem;">
+                <span style="color: rgba(250,247,242,0.5);">Active Permissions</span>
+                <span style="font-weight: 600; color: var(--color-gold);">${permCount} of ${totalPermsCount}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.7rem;">
+                <span style="color: rgba(250,247,242,0.5);">Assigned Personnel</span>
+                <span style="font-weight: 600; color: #FAF7F2;">${assignedStaff.length} member(s)</span>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <span style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.08em; color: rgba(201,169,110,0.8); font-weight: 600;">
+                  Assigned Personnel (${assignedStaff.length}):
+                </span>
+                ${assignedStaff.length > 0 ? `<a href="staff.html" style="font-size: 0.65rem; color: var(--color-gold); text-decoration: none;">View All &rarr;</a>` : ''}
+              </div>
+              <div class="personnel-chip-list">
+                ${assignedStaff.length === 0 ? '<span style="font-size: 0.68rem; color: rgba(250,247,242,0.4);">No staff assigned yet</span>' : ''}
+                ${assignedStaff.map(s => {
+                  const initials = ((s.first_name ? s.first_name[0] : '') + (s.last_name ? s.last_name[0] : '')).toUpperCase() || '✦';
+                  const isActive = s.status === 'active';
+                  return `
+                    <a href="staff.html?search=${encodeURIComponent(s.email)}" class="personnel-chip" title="${s.email} (${s.status})" style="text-decoration: none; color: inherit;">
+                      <span class="personnel-chip-avatar">${initials}</span>
+                      <span>${s.first_name} ${s.last_name || ''}</span>
+                      <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: ${isActive ? '#7bed9f' : '#ff708f'}; margin-left: 2px;" title="${s.status}"></span>
+                    </a>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+
+            <div style="margin-top: 1.25rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+              ${cfg.immutable ? `
+                <div style="flex: 1; text-align: center; padding: 0.5rem; font-size: 0.7rem; color: var(--color-gold); background: rgba(201,169,110,0.1); border-radius: 3px; border: 1px solid rgba(201,169,110,0.25);">
+                  🔒 Universal Founder Authority Locked
+                </div>
+              ` : `
+                <a href="permissions.html" class="btn-outline" style="flex: 1; justify-content: center; font-size: 0.68rem; padding: 0.45rem; text-decoration: none; text-align: center;">
+                  Configure Privileges &rarr;
+                </a>
+                <a href="staff.html" class="btn-gold" style="font-size: 0.68rem; padding: 0.45rem 0.65rem; text-decoration: none;" title="Assign new personnel to this role">
+                  + Add Staff
+                </a>
+              `}
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      container.innerHTML = html;
+    }
+
+    // Real-Time Event Bus
+    try {
+      const realtimeBus = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('lumiere_realtime_bus') : null;
+      if (realtimeBus) {
+        realtimeBus.onmessage = () => {
+          loadRoleData(true);
+        };
+      }
+    } catch {}
+
+    // SSE Real-Time Stream for Instantaneous Catalog/Staff Sync
+    try {
+      const base = (typeof Auth !== 'undefined' && typeof Auth.getBaseUrl === 'function') ? Auth.getBaseUrl() : '';
+      const sse = new EventSource(base + '/api/products/stream');
+      sse.addEventListener('catalog_mutation', () => loadRoleData(true));
+    } catch {}
+
+    window.addEventListener('focus', () => loadRoleData(true));
+
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        if (typeof Auth !== 'undefined' && typeof Auth.requireAuth === 'function') {
+          if (!Auth.requireAuth('staff.manage')) return;
+        }
+      } catch (e) {
+        console.warn('Auth check error:', e);
+      }
+
+      try {
+        if (typeof Admin !== 'undefined' && typeof Admin.init === 'function') {
+          Admin.init();
+        }
+      } catch (e) {
+        console.warn('Admin init error:', e);
+      }
+
+      loadRoleData(false);
+
+      // Non-intrusive 4s background sync (pauses if user is interacting with inputs)
+      setInterval(() => {
+        const activeEl = document.activeElement;
+        const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT');
+        if (!isTyping) {
+          loadRoleData(true);
+        }
+      }, 4000);
+    });
+  </script>
+</body>
+</html>

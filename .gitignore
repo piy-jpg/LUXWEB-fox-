@@ -62,3 +62,4 @@ tmp/
 *.db-wal
 .vercel
 .env*
+scratch_cache/

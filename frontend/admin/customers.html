@@ -3,13 +3,160 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Client Directory — Lumière Admin</title>
+  <title>Prestige Client Directory — Lumière Admin</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
   
   <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .avatar-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(201, 169, 110, 0.2) 0%, rgba(201, 169, 110, 0.05) 100%);
+      border: 1px solid var(--color-gold);
+      color: var(--color-gold);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.82rem;
+      flex-shrink: 0;
+    }
+    .action-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+    }
+    .delete-option-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--admin-border);
+      border-radius: 4px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      transition: border-color 0.2s;
+    }
+    .delete-option-card:hover {
+      border-color: rgba(201, 169, 110, 0.4);
+    }
+    .delete-option-danger {
+      border-color: rgba(231, 76, 60, 0.3);
+      background: rgba(231, 76, 60, 0.03);
+    }
+    .delete-option-danger:hover {
+      border-color: rgba(231, 76, 60, 0.6);
+    }
+    .dossier-kpi {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--admin-border);
+      border-radius: 4px;
+      padding: 0.85rem 1rem;
+      text-align: center;
+    }
+    .dossier-kpi-val {
+      font-family: var(--font-serif);
+      font-size: 1.4rem;
+      color: var(--color-gold);
+      margin-top: 0.2rem;
+    }
+    .dossier-kpi-lbl {
+      font-size: 0.68rem;
+      color: rgba(250, 247, 242, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    /* Inline Customer Orders Drawer */
+    .orders-drawer-row {
+      background: rgba(18, 13, 15, 0.75);
+    }
+    .orders-drawer-cell {
+      padding: 1.25rem 1.75rem 1.75rem !important;
+      border-top: none !important;
+      border-bottom: 2px solid rgba(201, 169, 110, 0.4) !important;
+      background: linear-gradient(180deg, rgba(201, 169, 110, 0.05) 0%, rgba(22, 17, 19, 0.98) 100%);
+    }
+    .orders-drawer-container {
+      border: 1px solid rgba(201, 169, 110, 0.25);
+      border-radius: 6px;
+      background: #140f11;
+      padding: 1.25rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.06);
+    }
+    .order-summary-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--admin-border);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.85rem;
+      transition: all 0.2s ease;
+    }
+    .order-summary-card:hover {
+      border-color: rgba(201, 169, 110, 0.5);
+      background: rgba(255, 255, 255, 0.035);
+    }
+    .item-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      padding: 0.35rem 0.65rem;
+      margin: 0.25rem 0.35rem 0.25rem 0;
+      font-size: 0.74rem;
+    }
+    .item-chip-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 2px;
+      object-fit: cover;
+      background: #251e21;
+    }
+    .bulk-action-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: linear-gradient(135deg, rgba(30, 22, 25, 0.98), rgba(18, 14, 16, 0.98));
+      border: 1px solid var(--color-gold);
+      border-radius: 4px;
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 1.25rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 15px rgba(201, 169, 110, 0.15);
+      animation: fadeInSlide 0.25s ease forwards;
+    }
+    .btn-danger-sm {
+      background: rgba(231, 76, 60, 0.12);
+      color: #ff708f;
+      border: 1px solid rgba(231, 76, 60, 0.4);
+      padding: 0.28rem 0.55rem;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      text-decoration: none;
+    }
+    .btn-danger-sm:hover {
+      background: rgba(231, 76, 60, 0.28);
+      border-color: #ff708f;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    @keyframes fadeInSlide {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
 
@@ -19,16 +166,136 @@
     <header class="admin-topbar" id="adminTopbar"></header>
 
     <main class="admin-content">
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+      <!-- Header Section & Real-Time Telemetry -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Customer Relations</span>
-          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Prestige Client Directory</h1>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Customer Relations</span>
+            <div class="live-indicator" id="liveIndicator">
+              <span class="live-dot"></span>
+              <span id="liveStatusText">LIVE REAL-TIME (3s)</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;">Prestige Client Directory</h1>
+        </div>
+
+        <!-- Telemetry Controls -->
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <span id="lastSyncedTime" style="font-size: 0.7rem; color: rgba(250,247,242,0.5); font-family: monospace;">Synced: Just now</span>
+          <button class="btn-outline" id="btnToggleLive" onclick="toggleRealTime()" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="Pause / Resume Live 3-Second Heartbeat">
+            ⏸ PAUSE LIVE
+          </button>
+          <button class="btn-outline" onclick="loadCustomers(true)" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="Force immediate database sync">
+            ⟳ SYNC NOW
+          </button>
+          <button class="btn-outline" onclick="exportClientsCSV()" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="Export VIP Client Directory to CSV">
+            📊 EXPORT CSV
+          </button>
         </div>
       </div>
 
-      <!-- Search Toolbar -->
+      <!-- Shared Customers Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="customers.html" class="subnav-tab active">
+          <span>👑</span> Customers <span class="subnav-badge badge-accent" id="subnavCustBadge">-</span>
+        </a>
+        <a href="customer-details.html" class="subnav-tab">
+          <span>🔍</span> Customer Details
+        </a>
+        <a href="customer-orders.html" class="subnav-tab">
+          <span>🛍️</span> Order History
+        </a>
+      </div>
+
+      <!-- Executive KPI Cards (Real-Time Synchronized) -->
+      <div class="stat-card-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-title">Total Registered Patrons</div>
+          <div class="stat-number" id="statTotalClients">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">✦ Lumière Atelier clientele</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Active VIP Clients</div>
+          <div class="stat-number" id="statActiveClients" style="color: #7bed9f;">0</div>
+          <span style="font-size: 0.72rem; color: #7bed9f; margin-top: 0.5rem;">✦ In good standing</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Suspended Accounts</div>
+          <div class="stat-number" id="statSuspendedClients" style="color: #ff708f;">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">✦ Restricted / on hold</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Lifetime Patronage Spend</div>
+          <div class="stat-number" id="statTotalSpend">₹0.00</div>
+          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;">✦ Total verified purchases</span>
+        </div>
+      </div>
+
+      <!-- Search & Filters Toolbar -->
       <div class="table-card" style="padding: 1.25rem; margin-bottom: 1.5rem;">
-        <input type="text" id="custSearch" class="admin-input" placeholder="Search clients by name, email, or telephone..." style="width: 100%; max-width: 450px;" oninput="debounceCustSearch()" />
+        <div style="display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 280px; max-width: 480px; position: relative;">
+            <input
+              type="text"
+              id="custSearch"
+              class="admin-input"
+              placeholder="Search by client name, email, or telephone..."
+              style="width: 100%; padding-left: 2.2rem;"
+              oninput="debounceCustSearch()"
+            />
+            <span style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: rgba(250,247,242,0.4); font-size: 0.85rem;">🔍</span>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+            <div>
+              <label style="font-size: 0.68rem; color: rgba(250,247,242,0.5); text-transform: uppercase; margin-right: 0.4rem;">Status:</label>
+              <select id="custStatusFilter" class="admin-select" onchange="loadCustomers(true)" style="font-size: 0.75rem; padding: 0.45rem 0.75rem;">
+                <option value="all">All Statuses</option>
+                <option value="active">Active Only</option>
+                <option value="suspended">Suspended Only</option>
+                <option value="archived">Archived Only</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="font-size: 0.68rem; color: rgba(250,247,242,0.5); text-transform: uppercase; margin-right: 0.4rem;">Sort:</label>
+              <select id="custSortSelector" class="admin-select" onchange="loadCustomers(true)" style="font-size: 0.75rem; padding: 0.45rem 0.75rem;">
+                <option value="spend_desc">Highest Spend</option>
+                <option value="orders_desc">Most Orders</option>
+                <option value="newest">Newest Registration</option>
+                <option value="name_asc">Client Name (A–Z)</option>
+              </select>
+            </div>
+
+            <button class="btn-outline" onclick="resetFilters()" style="font-size: 0.72rem; padding: 0.45rem 0.75rem;" title="Reset filters">
+              Clear
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bulk Selection Action Bar -->
+      <div id="bulkActionBar" class="bulk-action-bar" style="display: none;">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <span style="font-size: 0.85rem; color: #FAF7F2; font-weight: 500;">
+            Selected: <span id="selectedCountBadge" style="color: var(--color-gold); font-weight: 700;">0</span> client(s)
+          </span>
+          <span style="font-size: 0.72rem; color: rgba(250, 247, 242, 0.5);">✦ Batch governance</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap;">
+          <button type="button" class="btn-archive" onclick="executeBulkAction(false)" title="Soft-archive selected patrons (preserves order history)">
+            📦 Archive Selected
+          </button>
+          <button type="button" class="btn-danger" onclick="executeBulkAction(true)" title="Permanently wipe selected patrons from database">
+            🗑 Wipe Selected
+          </button>
+          <button type="button" class="btn-outline" onclick="deselectAllCustomers()" style="font-size: 0.68rem; padding: 0.35rem 0.65rem;">
+            ✕ Clear
+          </button>
+        </div>
       </div>
 
       <!-- Client Table -->
@@ -37,17 +304,26 @@
           <table class="admin-table">
             <thead>
               <tr>
+                <th style="width: 40px; text-align: center;">
+                  <input
+                    type="checkbox"
+                    id="selectAllCustCheckbox"
+                    onchange="toggleSelectAllCustomers(this.checked)"
+                    title="Select all patrons for bulk actions"
+                    style="cursor: pointer; accent-color: var(--color-gold);"
+                  />
+                </th>
                 <th>Client</th>
-                <th>Phone</th>
-                <th>Total Orders</th>
+                <th>Telephone</th>
+                <th>Orders Placed</th>
                 <th>Lifetime Spend</th>
                 <th>Member Since</th>
                 <th>Status</th>
-                <th style="text-align: right;">Action</th>
+                <th style="text-align: right; min-width: 380px;">Atelier Actions</th>
               </tr>
             </thead>
             <tbody id="customersTableBody">
-              <tr><td colspan="7" style="text-align: center;">Loading client directory...</td></tr>
+              <tr><td colspan="8" style="text-align: center; padding: 2rem;">Loading client directory...</td></tr>
             </tbody>
           </table>
         </div>
@@ -55,71 +331,686 @@
     </main>
   </div>
 
-  <!-- CUSTOMER DETAILS MODAL -->
-  <div class="admin-modal" id="customerModal" style="max-width: 650px;">
+  <!-- 1. CUSTOMER DOSSIER MODAL -->
+  <div class="admin-modal" id="customerModal" style="max-width: 820px;">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
-      <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;" id="custModalName">Client Profile</h3>
+      <div style="display: flex; align-items: center; gap: 0.85rem;">
+        <div class="avatar-circle" id="custModalAvatar">CL</div>
+        <div>
+          <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;" id="custModalName">Client Profile</h3>
+          <span id="custModalEmail" style="font-size: 0.75rem; color: rgba(250,247,242,0.6);">email@example.com</span>
+        </div>
+      </div>
       <button onclick="Admin.closeModal('customerModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
     </div>
+
+    <!-- Quick Action Bar inside modal -->
+    <div id="custModalActionBar" style="display: flex; gap: 0.5rem; justify-content: flex-end; margin-bottom: 1.25rem; flex-wrap: wrap;"></div>
+
     <div id="custModalBody">Loading details...</div>
   </div>
 
-  <div class="admin-backdrop" id="adminBackdrop" onclick="Admin.closeModal('customerModal')"></div>
+  <!-- 2. EDIT CUSTOMER MODAL -->
+  <div class="admin-modal" id="editCustomerModal" style="max-width: 520px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <div>
+        <span style="font-size: 0.68rem; color: var(--color-gold); text-transform: uppercase; letter-spacing: 0.08em;">Administrative Action</span>
+        <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin: 0.2rem 0 0;">Edit Client Profile</h3>
+      </div>
+      <button onclick="Admin.closeModal('editCustomerModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <form id="editCustomerForm" onsubmit="handleSaveCustomerEdit(event)">
+      <input type="hidden" id="editCustId" />
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; color: rgba(250,247,242,0.7); text-transform: uppercase; margin-bottom: 0.4rem;">First Name</label>
+          <input type="text" id="editCustFirstName" class="admin-input" style="width: 100%;" required />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; color: rgba(250,247,242,0.7); text-transform: uppercase; margin-bottom: 0.4rem;">Last Name</label>
+          <input type="text" id="editCustLastName" class="admin-input" style="width: 100%;" required />
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.72rem; color: rgba(250,247,242,0.7); text-transform: uppercase; margin-bottom: 0.4rem;">Email Address</label>
+        <input type="email" id="editCustEmail" class="admin-input" style="width: 100%; opacity: 0.6; cursor: not-allowed;" readonly title="Email serves as primary identifier" />
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.72rem; color: rgba(250,247,242,0.7); text-transform: uppercase; margin-bottom: 0.4rem;">Telephone</label>
+        <input type="text" id="editCustPhone" class="admin-input" style="width: 100%;" placeholder="+1 (555) 000-0000" />
+      </div>
+
+      <div style="margin-bottom: 1.75rem;">
+        <label style="display: block; font-size: 0.72rem; color: rgba(250,247,242,0.7); text-transform: uppercase; margin-bottom: 0.4rem;">Account Standing / Status</label>
+        <select id="editCustStatus" class="admin-select" style="width: 100%;">
+          <option value="active">Active (Normal Access)</option>
+          <option value="suspended">Suspended (Access Temporarily Restricted)</option>
+          <option value="archived">Archived (Deactivated from Active Directory)</option>
+        </select>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" class="btn-outline" onclick="Admin.closeModal('editCustomerModal')">Cancel</button>
+        <button type="submit" class="btn-gold" id="btnSaveCust">Save Changes</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 3. DELETE / ARCHIVE CONFIRMATION MODAL -->
+  <div class="admin-modal" id="deleteCustomerModal" style="max-width: 580px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <div>
+        <span style="font-size: 0.68rem; color: #ff708f; text-transform: uppercase; letter-spacing: 0.08em;">Account Governance</span>
+        <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin: 0.2rem 0 0;">Remove or Archive Patron</h3>
+      </div>
+      <button onclick="Admin.closeModal('deleteCustomerModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <input type="hidden" id="deleteCustId" />
+
+    <div style="margin-bottom: 1.25rem; background: rgba(255, 255, 255, 0.03); padding: 0.85rem 1rem; border-radius: 4px; border-left: 3px solid var(--color-gold);">
+      <div style="font-size: 0.84rem; color: #FAF7F2;">
+        Selected Client: <strong id="deleteCustTargetName" style="color: var(--color-gold);"></strong>
+      </div>
+      <div style="font-size: 0.75rem; color: rgba(250, 247, 242, 0.6); margin-top: 0.2rem;" id="deleteCustTargetEmail"></div>
+    </div>
+
+    <!-- Option A: Soft Archive -->
+    <div class="delete-option-card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem;">
+        <div>
+          <div style="font-weight: 600; color: #FAF7F2; font-size: 0.88rem; margin-bottom: 0.25rem;">
+            📦 Option A: Soft Archive Account (Recommended)
+          </div>
+          <p style="font-size: 0.76rem; color: rgba(250, 247, 242, 0.65); line-height: 1.4; margin: 0;">
+            Deactivates this client account and disables login while preserving all historic invoices, orders, and financial transaction records for store accounting.
+          </p>
+        </div>
+        <button type="button" id="btnOptionArchive" class="btn-outline" style="border-color: var(--color-gold); color: var(--color-gold); flex-shrink: 0;" onclick="executeDeleteCustomer(false)">
+          Archive Client
+        </button>
+      </div>
+    </div>
+
+    <!-- Option B: Permanent Erasure -->
+    <div class="delete-option-card delete-option-danger">
+      <div style="font-weight: 600; color: #ff708f; font-size: 0.88rem; margin-bottom: 0.25rem;">
+        🗑 Option B: Permanent Erasure (GDPR / Right to be Forgotten)
+      </div>
+      <p style="font-size: 0.76rem; color: rgba(250, 247, 242, 0.65); line-height: 1.4; margin: 0 0 0.85rem;">
+        Permanently deletes customer profile, saved addresses, and wishlists from the database. Order records will be anonymized to protect bookkeeping integrity. <strong style="color: #ff708f;">This cannot be undone.</strong>
+      </p>
+
+      <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+        <label style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.74rem; color: rgba(250, 247, 242, 0.8); cursor: pointer;">
+          <input type="checkbox" id="confirmPermanentDelete" onchange="document.getElementById('btnPermDelete').disabled = !this.checked; document.getElementById('btnPermDelete').style.opacity = this.checked ? '1' : '0.5';" />
+          I confirm irreversible erasure of this client
+        </label>
+
+        <button type="button" id="btnPermDelete" class="btn-danger" style="opacity: 0.5;" disabled onclick="executeDeleteCustomer(true)">
+          Permanently Wipe
+        </button>
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+      <button type="button" class="btn-outline" onclick="Admin.closeModal('deleteCustomerModal')">Cancel</button>
+    </div>
+  </div>
+
+  <div class="admin-backdrop" id="adminBackdrop" onclick="closeAllModals()"></div>
 
   <script src="../js/auth.js"></script>
   <script src="js/admin.js"></script>
   <script>
     let customersList = [];
     let custSearchTimeout = null;
+    let realTimeInterval = null;
+    let isRealTimePaused = false;
+    let openDrawers = new Set();
+    const customerOrdersCache = {};
+    const selectedCustomerIds = new Set();
 
-    function debounceCustSearch() {
-      clearTimeout(custSearchTimeout);
-      custSearchTimeout = setTimeout(loadCustomers, 300);
+    // Real-Time Event Bus (BroadcastChannel across open tabs)
+    const realtimeBus = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('lumiere_realtime_bus') : null;
+    if (realtimeBus) {
+      realtimeBus.onmessage = (event) => {
+        const msg = event.data;
+        if (!msg) return;
+
+        // On order placed, customer updated/deleted, or status changed, sync instantly!
+        if (['order_placed', 'order_status_changed', 'order_status_updated', 'customer_updated', 'customer_status_changed', 'customer_deleted', 'customer_archived', 'customer_restored', 'customers_bulk_deleted', 'catalog_mutation'].includes(msg.action)) {
+          silentSyncCustomers();
+          // If the mutated customer has an open orders drawer, reload it live
+          if (msg.customerId && openDrawers.has(Number(msg.customerId))) {
+            fetchAndRenderCustomerOrders(Number(msg.customerId), true);
+          }
+        }
+      };
     }
 
-    async function loadCustomers() {
-      const search = document.getElementById('custSearch').value.trim();
-
-      try {
-        const q = search ? `?search=${encodeURIComponent(search)}` : '';
-        const res = await Auth.apiFetch(`/api/admin/customers${q}`);
-        const data = await res.json();
-
-        if (data.success) {
-          customersList = data.customers;
-          const tbody = document.getElementById('customersTableBody');
-
-          if (customersList.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(250,247,242,0.5);">No registered clients found.</td></tr>';
-            return;
-          }
-
-          tbody.innerHTML = customersList.map(c => `
-            <tr>
-              <td>
-                <div style="font-weight: 600; color: #fff;">${c.first_name || ''} ${c.last_name || ''}</div>
-                <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">${c.email}</div>
-              </td>
-              <td style="color: rgba(250,247,242,0.7);">${c.phone || '—'}</td>
-              <td style="font-weight: 500;">${c.order_count} order(s)</td>
-              <td style="color: var(--color-gold); font-weight: 600; font-size: 0.95rem;">$${parseFloat(c.total_spent).toFixed(2)}</td>
-              <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">${new Date(c.created_at).toLocaleDateString()}</td>
-              <td><span class="badge badge-active">${c.status}</span></td>
-              <td style="text-align: right;">
-                <button onclick="viewCustomerDetails(${c.id})" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.68rem;">View Dossier &rarr;</button>
-              </td>
-            </tr>
-          `).join('');
-        }
-      } catch (err) {
-        console.error('Customers error:', err);
+    function broadcastEvent(action, payload = {}) {
+      if (realtimeBus) {
+        try {
+          realtimeBus.postMessage({
+            source: 'customers_admin',
+            action,
+            timestamp: Date.now(),
+            ...payload
+          });
+        } catch (e) {}
       }
     }
 
+    function toggleRealTime() {
+      const btn = document.getElementById('btnToggleLive');
+      const indicator = document.getElementById('liveIndicator');
+      const text = document.getElementById('liveStatusText');
+
+      if (isRealTimePaused) {
+        isRealTimePaused = false;
+        if (btn) btn.innerText = '⏸ PAUSE LIVE';
+        if (indicator) indicator.classList.remove('paused');
+        if (text) text.innerText = 'LIVE REAL-TIME (3s)';
+        startRealTimeLoop();
+        Admin.toast('Real-time sync resumed.');
+      } else {
+        isRealTimePaused = true;
+        if (btn) btn.innerText = '▶ RESUME LIVE';
+        if (indicator) indicator.classList.add('paused');
+        if (text) text.innerText = 'PAUSED';
+        if (realTimeInterval) clearInterval(realTimeInterval);
+        Admin.toast('Real-time sync paused.');
+      }
+    }
+
+    function startRealTimeLoop() {
+      if (realTimeInterval) clearInterval(realTimeInterval);
+      realTimeInterval = setInterval(() => {
+        if (!isRealTimePaused) {
+          silentSyncCustomers();
+        }
+      }, 3500);
+    }
+
+    function closeAllModals() {
+      Admin.closeModal('customerModal');
+      Admin.closeModal('editCustomerModal');
+      Admin.closeModal('deleteCustomerModal');
+    }
+
+    function debounceCustSearch() {
+      clearTimeout(custSearchTimeout);
+      custSearchTimeout = setTimeout(() => loadCustomers(false), 300);
+    }
+
+    function resetFilters() {
+      document.getElementById('custSearch').value = '';
+      document.getElementById('custStatusFilter').value = 'all';
+      document.getElementById('custSortSelector').value = 'spend_desc';
+      loadCustomers(true);
+    }
+
+    function updateSyncedTimestamp() {
+      const el = document.getElementById('lastSyncedTime');
+      if (el) {
+        const now = new Date();
+        el.innerText = `Synced: ${now.toLocaleTimeString()}`;
+      }
+    }
+
+    async function loadCustomers(force = false) {
+      const search = document.getElementById('custSearch')?.value.trim() || '';
+      const status = document.getElementById('custStatusFilter')?.value || 'all';
+      const sort = document.getElementById('custSortSelector')?.value || 'spend_desc';
+
+      try {
+        const params = new URLSearchParams();
+        if (search) params.set('search', search);
+        if (status && status !== 'all') params.set('status', status);
+        if (sort) params.set('sort', sort);
+
+        const res = await Auth.apiFetch(`/api/admin/customers?${params.toString()}`);
+        const data = await res.json();
+
+        if (data.success) {
+          customersList = data.customers || [];
+          renderSummaryCards(data.summary, customersList);
+          renderTable(customersList);
+          updateSyncedTimestamp();
+
+          // Refresh any drawers that were previously opened
+          openDrawers.forEach(id => {
+            fetchAndRenderCustomerOrders(id, true);
+          });
+        }
+      } catch (err) {
+        console.error('Customers load error:', err);
+      }
+    }
+
+    // Silent background sync that avoids resetting user focus or modals
+    async function silentSyncCustomers() {
+      const search = document.getElementById('custSearch')?.value.trim() || '';
+      const status = document.getElementById('custStatusFilter')?.value || 'all';
+      const sort = document.getElementById('custSortSelector')?.value || 'spend_desc';
+
+      try {
+        const params = new URLSearchParams();
+        if (search) params.set('search', search);
+        if (status && status !== 'all') params.set('status', status);
+        if (sort) params.set('sort', sort);
+
+        const res = await Auth.apiFetch(`/api/admin/customers?${params.toString()}`);
+        const data = await res.json();
+
+        if (data.success) {
+          customersList = data.customers || [];
+          renderSummaryCards(data.summary, customersList);
+          renderTable(customersList);
+          updateSyncedTimestamp();
+
+          // Re-render open drawers seamlessly
+          openDrawers.forEach(id => {
+            fetchAndRenderCustomerOrders(id, true);
+          });
+        }
+      } catch (err) {}
+    }
+
+    function renderSummaryCards(summary, list) {
+      const totalClients = summary?.total_clients ?? list.length;
+      const activeClients = summary?.active_clients ?? list.filter(c => c.status === 'active').length;
+      const suspendedClients = summary?.suspended_clients ?? list.filter(c => c.status === 'suspended').length;
+      const totalSpent = summary?.total_spent ?? list.reduce((acc, c) => acc + (parseFloat(c.total_spent) || 0), 0);
+
+      const elTotal = document.getElementById('statTotalClients');
+      const elActive = document.getElementById('statActiveClients');
+      const elSuspended = document.getElementById('statSuspendedClients');
+      const elSpend = document.getElementById('statTotalSpend');
+
+      if (elTotal) elTotal.innerText = totalClients;
+      if (elActive) elActive.innerText = activeClients;
+      if (elSuspended) elSuspended.innerText = suspendedClients;
+      if (elSpend) elSpend.innerText = `₹${parseFloat(totalSpent).toFixed(2)}`;
+
+      const subBadge = document.getElementById('subnavCustBadge');
+      if (subBadge) subBadge.innerText = totalClients;
+    }
+
+    function renderTable(clients) {
+      const tbody = document.getElementById('customersTableBody');
+      if (!tbody) return;
+
+      if (!clients || clients.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2.5rem;">No matching client records found.</td></tr>';
+        updateBulkActionBar();
+        return;
+      }
+
+      tbody.innerHTML = clients.map(c => {
+        const fullName = `${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Valued Patron';
+        const initials = ((c.first_name?.[0] || '') + (c.last_name?.[0] || 'C')).toUpperCase();
+        const escName = fullName.replace(/'/g, "\\'");
+        const escEmail = (c.email || '').replace(/'/g, "\\'");
+        const isStaff = Number(c.is_staff) > 0;
+        const isDrawerOpen = openDrawers.has(c.id);
+        const isSelected = selectedCustomerIds.has(c.id);
+
+        let badgeClass = 'badge-active';
+        if (c.status === 'suspended') badgeClass = 'badge-suspended';
+        else if (c.status === 'archived') badgeClass = 'badge-archived';
+
+        return `
+          <tr id="custRow-${c.id}" style="${isSelected ? 'background: rgba(201,169,110,0.06);' : ''}">
+            <td style="text-align: center;">
+              <input
+                type="checkbox"
+                class="cust-row-checkbox"
+                value="${c.id}"
+                data-name="${escName}"
+                ${isSelected ? 'checked' : ''}
+                onchange="handleRowCheckboxChange()"
+                ${isStaff ? 'disabled title="Protected executive atelier account"' : ''}
+                style="cursor: ${isStaff ? 'not-allowed' : 'pointer'}; accent-color: var(--color-gold);"
+              />
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="avatar-circle">${initials}</div>
+                <div>
+                  <div style="font-weight: 600; color: #fff; display: flex; align-items: center; gap: 0.45rem;">
+                    <span>${fullName}</span>
+                    ${isStaff ? '<span class="badge badge-owner" style="font-size: 0.58rem; padding: 0.15rem 0.4rem;">Atelier Staff</span>' : ''}
+                  </div>
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">${c.email}</div>
+                </div>
+              </div>
+            </td>
+            <td style="color: rgba(250,247,242,0.75); font-size: 0.8rem;">${c.phone || '—'}</td>
+            <td>
+              <!-- Interactive Orders Drawer Toggle -->
+              <div style="display: inline-flex; align-items: center; gap: 0.35rem;">
+                <button
+                  onclick="toggleOrdersDrawer(${c.id})"
+                  class="btn-action-sm"
+                  id="btnOrdersToggle-${c.id}"
+                  style="border-color: ${isDrawerOpen ? 'var(--color-gold)' : 'rgba(201,169,110,0.45)'}; color: var(--color-gold); background: ${isDrawerOpen ? 'rgba(201,169,110,0.15)' : 'transparent'};"
+                  title="Click to reveal all orders placed by this client in real time">
+                  🛍️ Orders (${c.order_count}) ${isDrawerOpen ? '▴' : '▾'}
+                </button>
+                <a href="customer-orders.html?id=${c.id}" class="btn-action-sm" style="text-decoration: none; border-color: rgba(201,169,110,0.3); font-size: 0.65rem; padding: 0.25rem 0.45rem;" title="Open full history ledger for this customer">↗</a>
+              </div>
+            </td>
+            <td style="color: var(--color-gold); font-weight: 600; font-size: 0.95rem; font-family: var(--font-serif);">
+              ₹${parseFloat(c.total_spent || 0).toFixed(2)}
+            </td>
+            <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">
+              <div>${new Date(c.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</div>
+            </td>
+            <td><span class="badge ${badgeClass}">${c.status}</span></td>
+            <td style="text-align: right;">
+              <div class="action-group">
+                <!-- 1. View Dossier -->
+                <a
+                  href="customer-details.html?id=${c.id}"
+                  class="btn-action-sm"
+                  style="text-decoration: none;"
+                  title="View full customer dossier and account history">
+                  Dossier ↗
+                </a>
+
+                <!-- 2. Edit Profile -->
+                <button
+                  onclick="openEditCustomerModal(${c.id})"
+                  class="btn-action-sm"
+                  style="border-color: rgba(201,169,110,0.5); color: var(--color-gold);"
+                  title="Modify client profile details">
+                  ✎ Edit
+                </button>
+
+                <!-- 3. Status Toggle -->
+                ${c.status === 'active' ? `
+                  <button
+                    id="btnStatusToggle-${c.id}"
+                    onclick="toggleCustomerStatus(${c.id}, 'suspended', '${escName}')"
+                    class="btn-warning"
+                    title="Temporarily suspend client account">
+                    ⊘ Suspend
+                  </button>
+                ` : `
+                  <button
+                    id="btnStatusToggle-${c.id}"
+                    onclick="toggleCustomerStatus(${c.id}, 'active', '${escName}')"
+                    class="btn-success-sm"
+                    title="Restore client account to active standing">
+                    ✓ Activate
+                  </button>
+                `}
+
+                <!-- 4. Soft Archive / Restore Button -->
+                ${isStaff ? '' : (c.status === 'archived' ? `
+                  <button
+                    id="btnRestoreCust-${c.id}"
+                    onclick="quickRestoreCustomer(${c.id}, '${escName}')"
+                    class="btn-success-sm"
+                    title="Restore archived client back to active directory">
+                    ✓ Restore
+                  </button>
+                ` : `
+                  <button
+                    id="btnArchiveCust-${c.id}"
+                    onclick="quickArchiveCustomer(${c.id}, '${escName}')"
+                    class="btn-archive"
+                    title="Soft archive patron (disables login, preserves past orders)">
+                    📦 Archive
+                  </button>
+                `)}
+
+                <!-- 5. Direct Permanent Wipe & Options Modal -->
+                ${isStaff ? `
+                  <button
+                    class="btn-action-sm"
+                    disabled
+                    style="opacity: 0.35; cursor: not-allowed; border-color: rgba(255,255,255,0.15);"
+                    title="Executive Atelier account protected from deletion">
+                    🔒 Protected
+                  </button>
+                ` : `
+                  <button
+                    id="btnWipeCust-${c.id}"
+                    onclick="quickWipeCustomer(${c.id}, '${escName}', '${escEmail}')"
+                    class="btn-danger"
+                    title="Permanently erase patron profile from database (GDPR / Irreversible)">
+                    🗑 Wipe
+                  </button>
+                  <button
+                    onclick="openDeleteCustomerModal(${c.id}, '${escName}', '${escEmail}')"
+                    class="btn-action-sm"
+                    style="border-color: rgba(255,112,143,0.4); color: #ff708f;"
+                    title="View deletion and archiving options...">
+                    ⚠️ Options...
+                  </button>
+                `}
+              </div>
+            </td>
+          </tr>
+
+          <!-- Inline Orders Drawer for this Customer -->
+          <tr id="ordersDrawerRow-${c.id}" class="orders-drawer-row" style="display: ${isDrawerOpen ? 'table-row' : 'none'};">
+            <td colspan="8" class="orders-drawer-cell">
+              <div class="orders-drawer-container" id="ordersDrawerContent-${c.id}">
+                <div style="text-align: center; padding: 1rem; color: rgba(250,247,242,0.6);">
+                  Loading orders placed by ${fullName}...
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      updateBulkActionBar();
+    }
+
+    /* ==========================================================
+       ALL ORDERS PLACED BY CUSTOMER (INLINE DRAWER & REAL-TIME)
+       ========================================================== */
+    function toggleOrdersDrawer(customerId) {
+      const drawerRow = document.getElementById(`ordersDrawerRow-${customerId}`);
+      const toggleBtn = document.getElementById(`btnOrdersToggle-${customerId}`);
+      if (!drawerRow) return;
+
+      if (openDrawers.has(customerId)) {
+        openDrawers.delete(customerId);
+        drawerRow.style.display = 'none';
+        if (toggleBtn) {
+          const client = customersList.find(c => c.id === customerId);
+          toggleBtn.innerHTML = `🛍️ Orders (${client?.order_count || 0}) ▾`;
+          toggleBtn.style.background = 'transparent';
+          toggleBtn.style.borderColor = 'rgba(201,169,110,0.45)';
+        }
+      } else {
+        openDrawers.add(customerId);
+        drawerRow.style.display = 'table-row';
+        if (toggleBtn) {
+          const client = customersList.find(c => c.id === customerId);
+          toggleBtn.innerHTML = `🛍️ Orders (${client?.order_count || 0}) ▴`;
+          toggleBtn.style.background = 'rgba(201,169,110,0.15)';
+          toggleBtn.style.borderColor = 'var(--color-gold)';
+        }
+        fetchAndRenderCustomerOrders(customerId);
+      }
+    }
+
+    async function fetchAndRenderCustomerOrders(customerId, isSilent = false) {
+      const container = document.getElementById(`ordersDrawerContent-${customerId}`);
+      if (!container) return;
+
+      if (!isSilent) {
+        container.innerHTML = `
+          <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 1.5rem; color: rgba(250,247,242,0.6); font-size: 0.8rem;">
+            <span>⏳ Fetching all verified orders placed by client...</span>
+          </div>
+        `;
+      }
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/customers/${customerId}/orders`);
+        const data = await res.json();
+
+        if (data.success) {
+          customerOrdersCache[customerId] = data.orders || [];
+          renderOrdersInDrawer(customerId, data.customer, data.orders || []);
+        } else {
+          container.innerHTML = `<div style="color: #ff708f; padding: 1rem;">Failed to retrieve orders: ${data.error || 'Server error'}</div>`;
+        }
+      } catch (err) {
+        console.error('Error fetching customer orders:', err);
+        container.innerHTML = `<div style="color: #ff708f; padding: 1rem;">Network error fetching customer orders.</div>`;
+      }
+    }
+
+    function renderOrdersInDrawer(customerId, customer, orders) {
+      const container = document.getElementById(`ordersDrawerContent-${customerId}`);
+      if (!container) return;
+
+      const fullName = `${customer.first_name || ''} ${customer.last_name || ''}`.trim() || 'Client';
+      const totalSpent = orders.reduce((sum, o) => sum + (parseFloat(o.total_amount) || 0), 0);
+
+      if (orders.length === 0) {
+        container.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <div>
+              <span style="font-size: 0.7rem; color: var(--color-gold); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Client Order Ledger</span>
+              <h4 style="font-family: var(--font-serif); font-size: 1.25rem; margin: 0.2rem 0 0; color: #FAF7F2;">Orders Placed by ${fullName} (0)</h4>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <button class="btn-outline" onclick="fetchAndRenderCustomerOrders(${customerId})" style="font-size: 0.68rem; padding: 0.35rem 0.65rem;">
+                ⟳ Refresh
+              </button>
+            </div>
+          </div>
+          <div style="text-align: center; padding: 2rem 1rem; color: rgba(250,247,242,0.5);">
+            <div style="font-size: 1.8rem; margin-bottom: 0.5rem;">🛍️</div>
+            <div style="font-size: 0.85rem; color: #FAF7F2; margin-bottom: 0.25rem;">No Purchases Recorded Yet</div>
+            <div style="font-size: 0.75rem; max-width: 420px; margin: 0 auto 1rem;">
+              When ${fullName} places an order on the storefront, its item details, invoice total, and fulfillment status will appear here in real-time.
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.75rem; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <span style="font-size: 0.7rem; color: var(--color-gold); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600;">Verified Customer Order Ledger</span>
+            <h4 style="font-family: var(--font-serif); font-size: 1.25rem; margin: 0.2rem 0 0; color: #FAF7F2;">
+              All Orders Placed by ${fullName} 
+              <span style="font-size: 0.82rem; font-family: var(--font-sans); color: rgba(250,247,242,0.5); font-weight: normal; margin-left: 0.5rem;">
+                (${orders.length} orders • Cumulative Total: <strong style="color: var(--color-gold);">₹${totalSpent.toFixed(2)}</strong>)
+              </span>
+            </h4>
+          </div>
+
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <button class="btn-outline" onclick="fetchAndRenderCustomerOrders(${customerId})" style="font-size: 0.68rem; padding: 0.35rem 0.65rem;" title="Refresh orders for this client">
+              ⟳ Refresh Orders
+            </button>
+            <button class="btn-outline" onclick="toggleOrdersDrawer(${customerId})" style="font-size: 0.68rem; padding: 0.35rem 0.65rem;">
+              ✕ Close
+            </button>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          ${orders.map(o => {
+            const orderDate = new Date(o.created_at);
+            const timeString = orderDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const dateString = orderDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+
+            let badgeClass = 'badge-active';
+            if (o.status === 'Pending') badgeClass = 'badge-pending';
+            else if (o.status === 'Cancelled') badgeClass = 'badge-out-stock';
+            else if (o.status === 'Processing') badgeClass = 'badge-manager';
+            else if (o.status === 'Shipped') badgeClass = 'badge-staff';
+
+            return `
+              <div class="order-summary-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 0.5rem;">
+                  <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-family: var(--font-serif); font-size: 1.15rem; font-weight: 600; color: #FAF7F2;">
+                      Order #${o.order_number}
+                    </span>
+                    <span class="badge ${badgeClass}">${o.status}</span>
+                  </div>
+
+                  <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div style="font-size: 0.72rem; color: rgba(250,247,242,0.6); font-family: monospace;">
+                      📅 ${dateString} at ${timeString}
+                    </div>
+                    <div style="font-family: var(--font-serif); font-size: 1.1rem; color: var(--color-gold); font-weight: 600;">
+                      ₹${parseFloat(o.total_amount).toFixed(2)}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.45rem;">
+                      ${o.status !== 'Cancelled' && o.status !== 'Delivered' ? `
+                        <button
+                          type="button"
+                          class="btn-danger-sm"
+                          onclick="cancelCustomerOrder(${o.id}, '${o.order_number}', ${customerId})"
+                          title="Cancel this order immediately and return reserved stock">
+                          ✕ Cancel Order
+                        </button>
+                      ` : ''}
+                      <a href="orders.html#order-${o.id}" class="btn-action-sm" style="font-size: 0.65rem; padding: 0.25rem 0.55rem;">
+                        Inspect &rarr;
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Itemized Product Ledger for this Order -->
+                <div style="border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.6rem;">
+                  <div style="font-size: 0.68rem; color: rgba(250,247,242,0.5); text-transform: uppercase; margin-bottom: 0.35rem;">
+                    Purchased Items (${o.items?.length || 0}):
+                  </div>
+                  <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    ${(!o.items || o.items.length === 0) ? `
+                      <span style="font-size: 0.75rem; color: rgba(250,247,242,0.4);">Order summary recorded without item breakdown.</span>
+                    ` : o.items.map(item => `
+                      <div class="item-chip">
+                        ${item.product_image ? `
+                          <img src="${item.product_image}" class="item-chip-thumb" alt="${item.product_title || 'Item'}" />
+                        ` : `
+                          <span style="font-size: 0.9rem;">💎</span>
+                        `}
+                        <strong style="color: #fff;">${item.product_title || item.product_name || 'Product'}</strong>
+                        <span style="color: rgba(250,247,242,0.5);">×${item.quantity}</span>
+                        <span style="color: var(--color-gold); margin-left: 0.2rem;">₹${parseFloat(item.total_price || (item.unit_price * item.quantity)).toFixed(2)}</span>
+                      </div>
+                    `).join('')}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    /* ==========================================================
+       VIEW DOSSIER
+       ========================================================== */
     async function viewCustomerDetails(id) {
       Admin.openModal('customerModal');
       const body = document.getElementById('custModalBody');
-      body.innerHTML = '<p style="text-align: center;">Loading client dossier...</p>';
+      const actionBar = document.getElementById('custModalActionBar');
+      body.innerHTML = '<p style="text-align: center; padding: 2rem;">Loading client dossier...</p>';
+      actionBar.innerHTML = '';
 
       try {
         const res = await Auth.apiFetch(`/api/admin/customers/${id}`);
@@ -127,37 +1018,143 @@
 
         if (data.success) {
           const c = data.customer;
-          document.getElementById('custModalName').innerText = `${c.first_name || ''} ${c.last_name || ''}`;
+          const fullName = `${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Valued Patron';
+          const initials = ((c.first_name?.[0] || '') + (c.last_name?.[0] || 'C')).toUpperCase();
+          const escName = fullName.replace(/'/g, "\\'");
+          const escEmail = (c.email || '').replace(/'/g, "\\'");
+          const totalSpent = (c.orders || []).reduce((acc, o) => acc + (parseFloat(o.total_amount) || 0), 0);
+
+          document.getElementById('custModalName').innerText = fullName;
+          document.getElementById('custModalEmail').innerText = c.email;
+          document.getElementById('custModalAvatar').innerText = initials;
+
+          // Action bar inside modal
+          const isStaff = Number(c.is_staff) > 0;
+          actionBar.innerHTML = `
+            <button class="btn-action-sm" style="border-color: var(--color-gold); color: var(--color-gold);" onclick="Admin.closeModal('customerModal'); openEditCustomerModal(${c.id})">
+              ✎ Edit Profile
+            </button>
+            ${c.status === 'active' ? `
+              <button class="btn-warning" onclick="Admin.closeModal('customerModal'); toggleCustomerStatus(${c.id}, 'suspended', '${escName}')">
+                ⊘ Suspend Account
+              </button>
+            ` : `
+              <button class="btn-success-sm" onclick="Admin.closeModal('customerModal'); toggleCustomerStatus(${c.id}, 'active', '${escName}')">
+                ✓ Reactivate Account
+              </button>
+            `}
+            ${isStaff ? '' : (c.status === 'archived' ? `
+              <button class="btn-success-sm" onclick="Admin.closeModal('customerModal'); quickRestoreCustomer(${c.id}, '${escName}')">
+                ✓ Restore Patron
+              </button>
+            ` : `
+              <button class="btn-archive" onclick="Admin.closeModal('customerModal'); quickArchiveCustomer(${c.id}, '${escName}')">
+                📦 Archive Patron
+              </button>
+            `)}
+            ${isStaff ? `
+              <button class="btn-action-sm" disabled style="opacity: 0.4;">🔒 Protected</button>
+            ` : `
+              <button class="btn-danger" onclick="Admin.closeModal('customerModal'); quickWipeCustomer(${c.id}, '${escName}', '${escEmail}')">
+                🗑 Permanent Wipe
+              </button>
+              <button class="btn-action-sm" style="border-color: rgba(255,112,143,0.4); color: #ff708f;" onclick="Admin.closeModal('customerModal'); openDeleteCustomerModal(${c.id}, '${escName}', '${escEmail}')">
+                ⚠️ All Options...
+              </button>
+            `}
+          `;
 
           body.innerHTML = `
-            <div style="margin-bottom: 1.5rem; background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 4px;">
-              <div style="font-size: 0.8rem; margin-bottom: 0.35rem;"><strong>Email:</strong> ${c.email}</div>
-              <div style="font-size: 0.8rem; margin-bottom: 0.35rem;"><strong>Telephone:</strong> ${c.phone || 'Not provided'}</div>
-              <div style="font-size: 0.8rem;"><strong>Member Since:</strong> ${new Date(c.created_at).toLocaleDateString()}</div>
+            <!-- Dossier KPI Row -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; margin-bottom: 1.5rem;">
+              <div class="dossier-kpi">
+                <div class="dossier-kpi-lbl">Lifetime Spend</div>
+                <div class="dossier-kpi-val">₹${totalSpent.toFixed(2)}</div>
+              </div>
+              <div class="dossier-kpi">
+                <div class="dossier-kpi-lbl">Orders Placed</div>
+                <div class="dossier-kpi-val">${c.orders.length}</div>
+              </div>
+              <div class="dossier-kpi">
+                <div class="dossier-kpi-lbl">Standing</div>
+                <div class="dossier-kpi-val" style="font-size: 1.1rem; text-transform: capitalize;">${c.status}</div>
+              </div>
+              <div class="dossier-kpi">
+                <div class="dossier-kpi-lbl">Client Since</div>
+                <div class="dossier-kpi-val" style="font-size: 0.95rem;">${new Date(c.created_at).toLocaleDateString()}</div>
+              </div>
             </div>
 
+            <!-- Contact & Registry Info -->
+            <div style="margin-bottom: 1.5rem; background: rgba(255,255,255,0.03); padding: 1.1rem; border-radius: 4px; border: 1px solid var(--admin-border);">
+              <div style="font-size: 0.72rem; color: var(--color-gold); text-transform: uppercase; font-weight: 600; margin-bottom: 0.75rem;">Contact & Account Particulars</div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; font-size: 0.8rem;">
+                <div><span style="color: rgba(250,247,242,0.5);">Direct Telephone:</span> <strong>${c.phone || 'Not provided'}</strong></div>
+                <div><span style="color: rgba(250,247,242,0.5);">Verified Email:</span> <strong>${c.email}</strong></div>
+                <div><span style="color: rgba(250,247,242,0.5);">Account ID:</span> <code>#${c.id}</code></div>
+                <div><span style="color: rgba(250,247,242,0.5);">Last Authentication:</span> <strong>${c.last_login_at ? new Date(c.last_login_at).toLocaleString() : 'Never'}</strong></div>
+              </div>
+            </div>
+
+            <!-- Saved Addresses -->
             <div style="margin-bottom: 1.5rem;">
-              <div style="font-size: 0.72rem; color: var(--color-gold); text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">Purchase History (${c.orders.length})</div>
-              ${c.orders.length === 0 ? '<p style="font-size: 0.8rem; color: rgba(250,247,242,0.5);">No purchases recorded yet.</p>' : `
+              <div style="font-size: 0.72rem; color: var(--color-gold); text-transform: uppercase; font-weight: 600; margin-bottom: 0.5rem;">
+                Registered Delivery Addresses (${c.addresses?.length || 0})
+              </div>
+              ${(!c.addresses || c.addresses.length === 0) ? '<p style="font-size: 0.78rem; color: rgba(250,247,242,0.5);">No delivery addresses saved on file.</p>' : `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0.75rem;">
+                  ${c.addresses.map(a => `
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--admin-border); padding: 0.85rem; border-radius: 4px; font-size: 0.78rem;">
+                      <div style="display: flex; justify-content: space-between; margin-bottom: 0.35rem;">
+                        <strong style="color: #fff;">${a.full_name || 'Recipient'}</strong>
+                        ${a.is_default ? '<span class="badge badge-active" style="font-size: 0.55rem; padding: 0.1rem 0.35rem;">Default</span>' : ''}
+                      </div>
+                      <div style="color: rgba(250,247,242,0.7);">${a.address_line1}</div>
+                      ${a.address_line2 ? `<div style="color: rgba(250,247,242,0.7);">${a.address_line2}</div>` : ''}
+                      <div style="color: rgba(250,247,242,0.7);">${a.city}, ${a.state} ${a.postal_code}</div>
+                      <div style="color: rgba(250,247,242,0.5); font-size: 0.72rem; margin-top: 0.2rem;">${a.country} • ${a.phone || ''}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              `}
+            </div>
+
+            <!-- Purchase History Ledger -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                <div style="font-size: 0.72rem; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">
+                  Order History & Ledger (${c.orders.length})
+                </div>
+              </div>
+              ${c.orders.length === 0 ? '<p style="font-size: 0.78rem; color: rgba(250,247,242,0.5);">No purchases recorded in boutique ledger yet.</p>' : `
                 <div class="table-responsive">
-                  <table class="admin-table">
+                  <table class="admin-table" style="font-size: 0.8rem;">
                     <thead>
                       <tr>
-                        <th>Order</th>
+                        <th>Order Ref</th>
+                        <th>Date & Time</th>
                         <th>Total</th>
+                        <th>Payment</th>
                         <th>Status</th>
-                        <th>Date</th>
+                        <th style="text-align: right;">Action</th>
                       </tr>
                     </thead>
                     <tbody>
-                      ${c.orders.map(o => `
-                        <tr>
-                          <td><strong>#${o.order_number}</strong></td>
-                          <td style="color: var(--color-gold); font-weight: 500;">$${parseFloat(o.total_amount).toFixed(2)}</td>
-                          <td><span class="badge badge-active">${o.status}</span></td>
-                          <td style="font-size: 0.72rem;">${new Date(o.created_at).toLocaleDateString()}</td>
-                        </tr>
-                      `).join('')}
+                      ${c.orders.map(o => {
+                        const ordTime = new Date(o.created_at).toLocaleString();
+                        return `
+                          <tr>
+                            <td><strong>#${o.order_number}</strong></td>
+                            <td style="font-size: 0.74rem; color: rgba(250,247,242,0.7);">${ordTime}</td>
+                            <td style="color: var(--color-gold); font-weight: 600; font-family: var(--font-serif);">₹${parseFloat(o.total_amount).toFixed(2)}</td>
+                            <td style="font-size: 0.74rem; text-transform: uppercase; color: rgba(250,247,242,0.6);">${o.payment_method || 'Online'}</td>
+                            <td><span class="badge badge-active">${o.status}</span></td>
+                            <td style="text-align: right;">
+                              <a href="orders.html#order-${o.id}" class="btn-action-sm" style="font-size: 0.65rem; padding: 0.25rem 0.55rem;">Inspect &rarr;</a>
+                            </td>
+                          </tr>
+                        `;
+                      }).join('')}
                     </tbody>
                   </table>
                 </div>
@@ -166,11 +1163,452 @@
           `;
         }
       } catch (err) {
-        body.innerHTML = '<p style="color: #FF8A9E;">Failed to load customer dossier.</p>';
+        body.innerHTML = '<p style="color: #FF8A9E; text-align: center; padding: 2rem;">Failed to load customer dossier.</p>';
       }
     }
 
-    document.addEventListener('DOMContentLoaded', loadCustomers);
+    /* ==========================================================
+       EDIT CUSTOMER PROFILE (REAL-TIME)
+       ========================================================== */
+    function openEditCustomerModal(id) {
+      const client = customersList.find(c => c.id === id);
+      if (!client) return;
+
+      document.getElementById('editCustId').value = client.id;
+      document.getElementById('editCustFirstName').value = client.first_name || '';
+      document.getElementById('editCustLastName').value = client.last_name || '';
+      document.getElementById('editCustEmail').value = client.email || '';
+      document.getElementById('editCustPhone').value = client.phone || '';
+      document.getElementById('editCustStatus').value = client.status || 'active';
+
+      Admin.openModal('editCustomerModal');
+    }
+
+    async function handleSaveCustomerEdit(e) {
+      e.preventDefault();
+      const id = document.getElementById('editCustId').value;
+      const firstName = document.getElementById('editCustFirstName').value.trim();
+      const lastName = document.getElementById('editCustLastName').value.trim();
+      const phone = document.getElementById('editCustPhone').value.trim();
+      const status = document.getElementById('editCustStatus').value;
+
+      const btn = document.getElementById('btnSaveCust');
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/customers/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ firstName, lastName, phone, status })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const actionTime = new Date().toLocaleTimeString();
+          Admin.toast(`Client profile updated at ${actionTime}.`);
+          Admin.closeModal('editCustomerModal');
+
+          // Broadcast real-time mutation
+          broadcastEvent('customer_updated', { customerId: id });
+          await loadCustomers(true);
+        } else {
+          alert(data.error || 'Failed to update client profile.');
+        }
+      } catch (err) {
+        console.error('Customer update error:', err);
+        alert('Network or server error while updating client.');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save Changes';
+      }
+    }
+
+    /* ==========================================================
+       TOGGLE STATUS (SUSPEND / ACTIVATE - REAL-TIME)
+       ========================================================== */
+    async function toggleCustomerStatus(id, newStatus, clientName) {
+      const actionWord = newStatus === 'active' ? 'activate' : 'suspend';
+      const promptConfirm = confirm(`Are you sure you wish to ${actionWord} client "${clientName}"?`);
+      if (!promptConfirm) return;
+
+      const btn = document.getElementById(`btnStatusToggle-${id}`);
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Updating...';
+      }
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/customers/${id}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const actionTime = new Date().toLocaleTimeString();
+          Admin.toast(`Client status changed to "${newStatus}" at ${actionTime}.`);
+
+          // Broadcast real-time mutation
+          broadcastEvent('customer_status_changed', { customerId: id, status: newStatus });
+          await loadCustomers(true);
+        } else {
+          alert(data.error || `Failed to update status to ${newStatus}.`);
+        }
+      } catch (err) {
+        console.error('Toggle status error:', err);
+        alert('Network error while updating status.');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    /* ==========================================================
+       DELETE / ARCHIVE MODAL & REAL-TIME EXECUTION
+       ========================================================== */
+    function openDeleteCustomerModal(id, clientName, clientEmail) {
+      document.getElementById('deleteCustId').value = id;
+      document.getElementById('deleteCustTargetName').innerText = clientName;
+      document.getElementById('deleteCustTargetEmail').innerText = clientEmail;
+      document.getElementById('confirmPermanentDelete').checked = false;
+      document.getElementById('btnPermDelete').disabled = true;
+      document.getElementById('btnPermDelete').style.opacity = '0.5';
+
+      Admin.openModal('deleteCustomerModal');
+    }
+
+    async function executeDeleteCustomer(permanent) {
+      const id = document.getElementById('deleteCustId').value;
+      if (!id) return;
+
+      if (permanent) {
+        const checked = document.getElementById('confirmPermanentDelete').checked;
+        if (!checked) {
+          alert('Please tick the confirmation checkbox before proceeding with permanent erasure.');
+          return;
+        }
+        const secondCheck = confirm('FINAL CONFIRMATION: Are you completely certain you want to permanently delete this account? This action is irreversible.');
+        if (!secondCheck) return;
+      }
+
+      const activeBtn = permanent ? document.getElementById('btnPermDelete') : document.getElementById('btnOptionArchive');
+      if (activeBtn) {
+        activeBtn.disabled = true;
+        activeBtn.innerText = permanent ? '⏳ Purging...' : '⏳ Archiving...';
+      }
+
+      try {
+        const url = `/api/admin/customers/${id}${permanent ? '?permanent=true' : ''}`;
+        const res = await Auth.apiFetch(url, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const actionTime = new Date().toLocaleTimeString();
+          Admin.toast(`${data.message || 'Client record successfully removed'} at ${actionTime}.`);
+          Admin.closeModal('deleteCustomerModal');
+
+          // Close any open drawer for this customer
+          openDrawers.delete(Number(id));
+
+          // Broadcast real-time deletion
+          broadcastEvent('customer_deleted', { customerId: id, permanent });
+          await loadCustomers(true);
+        } else {
+          alert(data.error || 'Failed to remove client record.');
+        }
+      } catch (err) {
+        console.error('Delete customer error:', err);
+        alert('Error communicating with server while deleting client.');
+      } finally {
+        if (activeBtn) {
+          activeBtn.disabled = false;
+          activeBtn.innerText = permanent ? 'Permanently Wipe' : 'Archive Client';
+        }
+      }
+    }
+
+    /* ==========================================================
+       DIRECT ACTION BUTTONS (ARCHIVE, RESTORE, QUICK WIPE)
+       ========================================================== */
+    async function quickArchiveCustomer(id, clientName) {
+      const confirmed = confirm(
+        `Are you sure you want to ARCHIVE patron "${clientName}"?\n\n` +
+        `✦ Client login will be deactivated.\n` +
+        `✦ All past orders, invoices, and payment records will be preserved for store accounting.`
+      );
+      if (!confirmed) return;
+
+      const btn = document.getElementById(`btnArchiveCust-${id}`);
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Archiving...';
+      }
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/customers/${id}`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const actionTime = new Date().toLocaleTimeString();
+          Admin.toast(`Patron "${clientName}" archived at ${actionTime}.`);
+          broadcastEvent('customer_archived', { customerId: id });
+          await loadCustomers(true);
+        } else {
+          alert(data.error || 'Failed to archive patron account.');
+        }
+      } catch (err) {
+        console.error('Quick archive error:', err);
+        alert('Network error while archiving patron.');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    async function quickRestoreCustomer(id, clientName) {
+      const confirmed = confirm(`Restore patron "${clientName}" back to active standing in the boutique directory?`);
+      if (!confirmed) return;
+
+      const btn = document.getElementById(`btnRestoreCust-${id}`);
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Restoring...';
+      }
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/customers/${id}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'active' })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const actionTime = new Date().toLocaleTimeString();
+          Admin.toast(`Patron "${clientName}" restored to Active at ${actionTime}.`);
+          broadcastEvent('customer_restored', { customerId: id });
+          await loadCustomers(true);
+        } else {
+          alert(data.error || 'Failed to restore patron.');
+        }
+      } catch (err) {
+        console.error('Quick restore error:', err);
+        alert('Network error while restoring patron.');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    async function quickWipeCustomer(id, clientName, clientEmail) {
+      const confirmed = confirm(
+        `PERMANENT DELETION WARNING (GDPR):\n\n` +
+        `Are you completely certain you want to PERMANENTLY ERASE patron "${clientName}" (${clientEmail})?\n\n` +
+        `✦ Client profile, saved delivery addresses, and wishlists will be removed forever.\n` +
+        `✦ Order invoices are safely anonymized to preserve store bookkeeping integrity.\n` +
+        `✦ THIS ACTION IS PERMANENT AND CANNOT BE UNDONE.`
+      );
+      if (!confirmed) return;
+
+      const btn = document.getElementById(`btnWipeCust-${id}`);
+      if (btn) {
+        btn.disabled = true;
+        btn.innerText = 'Wiping...';
+      }
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/customers/${id}?permanent=true`, {
+          method: 'DELETE'
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const actionTime = new Date().toLocaleTimeString();
+          Admin.toast(`Patron "${clientName}" permanently erased at ${actionTime}.`);
+          openDrawers.delete(Number(id));
+          selectedCustomerIds.delete(Number(id));
+          broadcastEvent('customer_deleted', { customerId: id, permanent: true });
+          await loadCustomers(true);
+        } else {
+          alert(data.error || 'Failed to delete client record.');
+        }
+      } catch (err) {
+        console.error('Quick wipe error:', err);
+        alert('Network error while permanently deleting patron.');
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+
+    /* ==========================================================
+       CANCEL CUSTOMER ORDER (DRAWER ACTION)
+       ========================================================== */
+    async function cancelCustomerOrder(orderId, orderNumber, customerId) {
+      const confirmed = confirm(
+        `Are you sure you wish to CANCEL order #${orderNumber}?\n\n` +
+        `✦ Reserved item inventory will be automatically restored to warehouse stock.`
+      );
+      if (!confirmed) return;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/orders/${orderId}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'Cancelled', notes: 'Cancelled via Customer Directory Action' })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const actionTime = new Date().toLocaleTimeString();
+          Admin.toast(`Order #${orderNumber} cancelled at ${actionTime}. Inventory restored.`);
+          broadcastEvent('order_status_updated', { orderId, status: 'Cancelled', customerId });
+          await fetchAndRenderCustomerOrders(customerId);
+          await loadCustomers(true);
+        } else {
+          alert(data.error || 'Failed to cancel order.');
+        }
+      } catch (err) {
+        console.error('Cancel order error:', err);
+        alert('Network error while cancelling order.');
+      }
+    }
+
+    /* ==========================================================
+       BULK ACTIONS (MULTI-SELECT ARCHIVE & WIPE)
+       ========================================================== */
+    function handleRowCheckboxChange() {
+      selectedCustomerIds.clear();
+      const checkboxes = document.querySelectorAll('.cust-row-checkbox:checked');
+      checkboxes.forEach(cb => {
+        selectedCustomerIds.add(parseInt(cb.value, 10));
+      });
+      updateBulkActionBar();
+    }
+
+    function toggleSelectAllCustomers(checked) {
+      const checkboxes = document.querySelectorAll('.cust-row-checkbox:not(:disabled)');
+      checkboxes.forEach(cb => {
+        cb.checked = checked;
+        const id = parseInt(cb.value, 10);
+        if (checked) {
+          selectedCustomerIds.add(id);
+        } else {
+          selectedCustomerIds.delete(id);
+        }
+      });
+      updateBulkActionBar();
+    }
+
+    function deselectAllCustomers() {
+      selectedCustomerIds.clear();
+      const master = document.getElementById('selectAllCustCheckbox');
+      if (master) {
+        master.checked = false;
+        master.indeterminate = false;
+      }
+      const checkboxes = document.querySelectorAll('.cust-row-checkbox');
+      checkboxes.forEach(cb => { cb.checked = false; });
+      updateBulkActionBar();
+    }
+
+    function updateBulkActionBar() {
+      const bar = document.getElementById('bulkActionBar');
+      const badge = document.getElementById('selectedCountBadge');
+      const count = selectedCustomerIds.size;
+      if (badge) badge.innerText = count;
+
+      if (bar) {
+        bar.style.display = count > 0 ? 'flex' : 'none';
+      }
+
+      // Sync master checkbox state
+      const master = document.getElementById('selectAllCustCheckbox');
+      const enabledCheckboxes = document.querySelectorAll('.cust-row-checkbox:not(:disabled)');
+      if (master && enabledCheckboxes.length > 0) {
+        master.checked = count > 0 && count === enabledCheckboxes.length;
+        master.indeterminate = count > 0 && count < enabledCheckboxes.length;
+      } else if (master) {
+        master.checked = false;
+        master.indeterminate = false;
+      }
+    }
+
+    async function executeBulkAction(permanent) {
+      const ids = Array.from(selectedCustomerIds);
+      if (ids.length === 0) {
+        alert('Please select at least one customer account.');
+        return;
+      }
+
+      const warningMsg = permanent
+        ? `FINAL GDPR PURGE WARNING:\n\nAre you completely certain you want to PERMANENTLY ERASE ${ids.length} selected patron account(s)?\n\nAll personal profiles and addresses will be deleted. Order logs will be anonymized.\nTHIS ACTION CANNOT BE UNDONE.`
+        : `Are you sure you want to ARCHIVE ${ids.length} selected patron account(s)?\n\nTheir login access will be deactivated while preserving all order history.`;
+
+      if (!confirm(warningMsg)) return;
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/customers/bulk-delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids, permanent })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const actionTime = new Date().toLocaleTimeString();
+          Admin.toast(`${data.message || `Processed ${ids.length} clients.`} at ${actionTime}`);
+          deselectAllCustomers();
+          broadcastEvent('customers_bulk_deleted', { count: ids.length, permanent });
+          await loadCustomers(true);
+        } else {
+          alert(data.error || 'Failed to complete bulk operation.');
+        }
+      } catch (err) {
+        console.error('Bulk action error:', err);
+        alert('Network error while processing bulk action.');
+      }
+    }
+
+    /* ==========================================================
+       EXPORT CSV
+       ========================================================== */
+    function exportClientsCSV() {
+      if (!customersList || customersList.length === 0) {
+        alert('No client records available to export.');
+        return;
+      }
+
+      const headers = ['Client ID', 'First Name', 'Last Name', 'Email', 'Telephone', 'Total Orders', 'Lifetime Spend ($)', 'Status', 'Registered Date'];
+      const rows = customersList.map(c => [
+        c.id,
+        `"${(c.first_name || '').replace(/"/g, '""')}"`,
+        `"${(c.last_name || '').replace(/"/g, '""')}"`,
+        `"${(c.email || '').replace(/"/g, '""')}"`,
+        `"${(c.phone || '').replace(/"/g, '""')}"`,
+        c.order_count || 0,
+        parseFloat(c.total_spent || 0).toFixed(2),
+        c.status,
+        new Date(c.created_at).toISOString().split('T')[0]
+      ]);
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `Lumiere_Prestige_Clients_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      Admin.toast('Prestige Client Directory exported to CSV.');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCustomers(true);
+      startRealTimeLoop();
+    });
   </script>
 </body>
 </html>

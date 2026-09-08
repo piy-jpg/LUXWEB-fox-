@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory Valuation &amp; Turnover — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .stock-badge-depleted {
+      background: rgba(255, 107, 107, 0.15);
+      color: #ff6b6b;
+      border: 1px solid rgba(255, 107, 107, 0.35);
+      font-size: 0.65rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 2px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .stock-badge-low {
+      background: rgba(243, 156, 18, 0.15);
+      color: #f39c12;
+      border: 1px solid rgba(243, 156, 18, 0.35);
+      font-size: 0.65rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 2px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .stock-badge-healthy {
+      background: rgba(123, 237, 159, 0.12);
+      color: #7bed9f;
+      border: 1px solid rgba(123, 237, 159, 0.3);
+      font-size: 0.65rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 2px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header Section -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1.25rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Supply Chain &amp; Asset Intelligence</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <span id="roleAccessBadge" class="badge badge-owner" style="font-size: 0.65rem;">OWNER ACCESS</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator">
+              <span class="live-dot"></span>
+              <span>LIVE ASSET MONITOR</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;">Inventory Valuation &amp; Stock Health</h1>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+          <button onclick="exportInventoryCSV()" class="btn-outline" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;">
+            📊 Export CSV
+          </button>
+          <button onclick="loadInventoryAnalytics(false)" class="btn-outline" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="Force immediate database sync">
+            <span id="syncSpinIcon" style="display: inline-block;">⟳</span> SYNC NOW
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared Commerce Analytics Sub-Navbar Strip -->
+      <div class="subnav-strip">
+        <a href="analytics.html" class="subnav-tab">
+          <span>📈</span> Sales &amp; Revenue
+        </a>
+        <a href="analytics-products.html" class="subnav-tab">
+          <span>💎</span> Product Performance
+        </a>
+        <a href="analytics-customers.html" class="subnav-tab">
+          <span>👑</span> Customer Cohorts
+        </a>
+        <a href="analytics-inventory.html" class="subnav-tab active">
+          <span>📦</span> Inventory Valuation
+        </a>
+      </div>
+
+      <!-- Executive Inventory KPIs -->
+      <div class="stat-card-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-title">Total Asset Valuation</div>
+          <div class="stat-number" id="invTotalValuation" style="color: var(--color-gold);">₹0.00</div>
+          <span style="font-size: 0.72rem; color: #7bed9f; margin-top: 0.5rem;" id="invValuationSubtitle">Aggregate retail value</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Physical Stock Volume</div>
+          <div class="stat-number" id="invTotalUnits" style="color: #FAF7F2;">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;" id="invSkusSubtitle">Across 0 catalog SKUs</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Turnover Velocity</div>
+          <div class="stat-number" id="invTurnover" style="color: #70a1ff;">0.00x</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Sales-to-inventory turnover</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Depletion Risk SKUs</div>
+          <div class="stat-number" id="invDepletionRisk" style="color: #ff6b6b;">0</div>
+          <span style="font-size: 0.72rem; color: #ff708f; margin-top: 0.5rem;" id="invDepletionSubtitle">0 low stock · 0 depleted</span>
+        </div>
+      </div>
+
+      <!-- Asset Allocation & Stock Health Alerts -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- Stock Allocation Card -->
+        <div class="table-card" style="padding: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 0.75rem;">
+            <div>
+              <h3 style="font-family: var(--font-serif); font-size: 1.4rem; margin: 0; color: #FAF7F2;">Asset Allocation &amp; Reservation</h3>
+              <p style="font-size: 0.75rem; color: rgba(250,247,242,0.5); margin: 0.2rem 0 0;">Breakdown of physical warehouse units vs active order reservations.</p>
+            </div>
+            <a href="inventory.html" class="btn-outline" style="font-size: 0.7rem; padding: 0.35rem 0.7rem; text-decoration: none;">Overview &rarr;</a>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem;">
+                <span style="color: #fff; font-weight: 500;">Available for Direct Purchase</span>
+                <strong id="availBarValue" style="color: #7bed9f; font-family: monospace;">0 units (0%)</strong>
+              </div>
+              <div style="height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                <div id="availBar" style="height: 100%; width: 0%; background: #7bed9f; border-radius: 4px; transition: width 0.4s ease;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem;">
+                <span style="color: #fff; font-weight: 500;">Reserved in Pending Fulfillment</span>
+                <strong id="resBarValue" style="color: #f39c12; font-family: monospace;">0 units (0%)</strong>
+              </div>
+              <div style="height: 8px; background: rgba(255,255,255,0.06); border-radius: 4px; overflow: hidden;">
+                <div id="resBar" style="height: 100%; width: 0%; background: #f39c12; border-radius: 4px; transition: width 0.4s ease;"></div>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.5rem;">
+              <div style="padding: 0.85rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px;">
+                <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5); text-transform: uppercase;">Available Capital</div>
+                <div id="availCapitalVal" style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--color-gold); margin-top: 0.2rem;">₹0.00</div>
+              </div>
+              <div style="padding: 0.85rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 4px;">
+                <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5); text-transform: uppercase;">Committed Capital</div>
+                <div id="resCapitalVal" style="font-family: var(--font-serif); font-size: 1.15rem; color: #7bed9f; margin-top: 0.2rem;">₹0.00</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stock Health & Restock Triggers -->
+        <div class="table-card" style="padding: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 0.75rem;">
+            <div>
+              <h3 style="font-family: var(--font-serif); font-size: 1.4rem; margin: 0; color: #FAF7F2;">Health &amp; Replenishment</h3>
+              <p style="font-size: 0.75rem; color: rgba(250,247,242,0.5); margin: 0.2rem 0 0;">Immediate replenishment requirements &amp; damaged unit tracking.</p>
+            </div>
+            <a href="inventory-stock-in.html" class="btn-outline" style="font-size: 0.7rem; padding: 0.35rem 0.7rem; text-decoration: none;">Stock In &rarr;</a>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem; background: rgba(255, 107, 107, 0.05); border: 1px solid rgba(255, 107, 107, 0.2); border-radius: 4px;">
+              <div>
+                <strong style="color: #ff6b6b; font-size: 0.85rem;">Out-of-Stock Products</strong>
+                <div style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">Immediate customer purchase block</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span id="healthOutOfStockCount" style="font-family: monospace; font-size: 1.1rem; color: #ff6b6b; font-weight: 700;">0</span>
+                <a href="inventory-out-of-stock.html" class="btn-outline" style="font-size: 0.65rem; padding: 0.25rem 0.5rem; text-decoration: none; border-color: rgba(255, 107, 107, 0.4); color: #ff6b6b;">Resolve</a>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem; background: rgba(243, 156, 18, 0.05); border: 1px solid rgba(243, 156, 18, 0.2); border-radius: 4px;">
+              <div>
+                <strong style="color: #f39c12; font-size: 0.85rem;">Low-Stock Threshold Alerts</strong>
+                <div style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">Approaching supplier replenishment limit</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span id="healthLowStockCount" style="font-family: monospace; font-size: 1.1rem; color: #f39c12; font-weight: 700;">0</span>
+                <a href="inventory-low-stock.html" class="btn-outline" style="font-size: 0.65rem; padding: 0.25rem 0.5rem; text-decoration: none; border-color: rgba(243, 156, 18, 0.4); color: #f39c12;">Review</a>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.85rem; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 4px;">
+              <div>
+                <strong style="color: #FAF7F2; font-size: 0.85rem;">Damaged &amp; Write-Off Loss</strong>
+                <div style="font-size: 0.72rem; color: rgba(250,247,242,0.6);" id="healthWriteOffSubtitle">0 units written off</div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <span id="healthWriteOffEvents" style="font-family: monospace; font-size: 1.1rem; color: #ff708f; font-weight: 700;">0 events</span>
+                <a href="inventory-history.html" class="btn-outline" style="font-size: 0.65rem; padding: 0.25rem 0.5rem; text-decoration: none;">Audit Log</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Capital Allocation SKUs Table -->
+      <div class="table-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <h2 style="font-family: var(--font-serif); font-size: 1.3rem; margin: 0; color: #FAF7F2;">High Capital Allocation SKUs</h2>
+            <p style="font-size: 0.75rem; color: rgba(250,247,242,0.5); margin: 0.2rem 0 0;">Ranked by total financial asset valuation in physical inventory.</p>
+          </div>
+          <div style="display: flex; gap: 0.5rem;">
+            <a href="inventory-stock-in.html" class="btn-outline" style="font-size: 0.7rem; padding: 0.35rem 0.65rem; text-decoration: none;">+ Stock In</a>
+            <a href="inventory-adjust.html" class="btn-outline" style="font-size: 0.7rem; padding: 0.35rem 0.65rem; text-decoration: none;">Adjust Stock</a>
+          </div>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Unit Price</th>
+                <th>Physical Stock</th>
+                <th>Reserved</th>
+                <th>Available</th>
+                <th>Asset Valuation</th>
+                <th>Status</th>
+                <th style="text-align: right;">Action</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryValuationTableBody">
+              <tr>
+                <td colspan="9" style="text-align: center; color: rgba(250,247,242,0.5);">Loading inventory valuation breakdown...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let currentData = null;
+
+    async function loadInventoryAnalytics(silent = false) {
+      const spin = document.getElementById('syncSpinIcon');
+      if (!silent && spin) spin.style.animation = 'spin 0.8s linear infinite';
+
+      try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/admin/analytics/detailed?period=all', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Accept': 'application/json'
+          }
+        });
+
+        if (res.status === 401 || res.status === 403) {
+          if (res.status === 403) {
+            alert('Access denied: You do not have permission to view inventory analytics.');
+          }
+          return;
+        }
+
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Failed to load analytics.');
+
+        currentData = data;
+        renderInventoryAnalytics(data);
+      } catch (err) {
+        console.error('[InventoryAnalytics] Fetch error:', err);
+      } finally {
+        if (spin) spin.style.animation = '';
+      }
+    }
+
+    function renderInventoryAnalytics(data) {
+      const inv = data.inventory || {};
+      const prods = data.products || {};
+      const userRole = data.userRole || 'OWNER';
+
+      // Role badge
+      const roleBadge = document.getElementById('roleAccessBadge');
+      if (roleBadge) {
+        roleBadge.innerText = `${userRole} ACCESS`;
+        roleBadge.className = `badge badge-${userRole.toLowerCase()}`;
+      }
+
+      // KPIs
+      const valuation = inv.totalValuation || 0;
+      const physical = inv.totalPhysical || 0;
+      const reserved = inv.totalReserved || 0;
+      const available = inv.totalAvailable || 0;
+      const skus = inv.totalSkus || 0;
+      const lowCount = inv.lowStockCount || 0;
+      const oosCount = inv.outOfStockCount || 0;
+      const turnover = inv.turnoverRatio || 0;
+
+      document.getElementById('invTotalValuation').innerText = `₹${parseFloat(valuation).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('invTotalUnits').innerText = physical.toLocaleString();
+      document.getElementById('invSkusSubtitle').innerText = `Across ${skus} catalog SKUs`;
+      document.getElementById('invTurnover').innerText = `${turnover}x`;
+      document.getElementById('invDepletionRisk').innerText = (lowCount + oosCount);
+      document.getElementById('invDepletionSubtitle').innerText = `${lowCount} low stock · ${oosCount} depleted`;
+
+      // Allocation Bars
+      const availPct = physical > 0 ? Math.round((available / physical) * 100) : 0;
+      const resPct = physical > 0 ? Math.round((reserved / physical) * 100) : 0;
+
+      document.getElementById('availBarValue').innerText = `${available} units (${availPct}%)`;
+      document.getElementById('availBar').style.width = `${availPct}%`;
+      document.getElementById('resBarValue').innerText = `${reserved} units (${resPct}%)`;
+      document.getElementById('resBar').style.width = `${resPct}%`;
+
+      const avgUnitPrice = physical > 0 ? (valuation / physical) : 0;
+      document.getElementById('availCapitalVal').innerText = `₹${(available * avgUnitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('resCapitalVal').innerText = `₹${(reserved * avgUnitPrice).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+      // Health box
+      document.getElementById('healthOutOfStockCount').innerText = oosCount;
+      document.getElementById('healthLowStockCount').innerText = lowCount;
+
+      const writeOffs = prods.writeOffs || { events: 0, units: 0 };
+      document.getElementById('healthWriteOffSubtitle').innerText = `${writeOffs.units} units written off`;
+      document.getElementById('healthWriteOffEvents').innerText = `${writeOffs.events} events`;
+
+      // Top valued SKUs table
+      const tbody = document.getElementById('inventoryValuationTableBody');
+      const topItems = inv.topValuedSkus || [];
+      if (topItems.length > 0) {
+        tbody.innerHTML = topItems.map(item => {
+          const avail = item.available_quantity;
+          const threshold = item.low_stock_threshold || 5;
+          let badgeHtml = '<span class="stock-badge-healthy">Optimal</span>';
+          if (avail <= 0) {
+            badgeHtml = '<span class="stock-badge-depleted">Depleted</span>';
+          } else if (avail <= threshold) {
+            badgeHtml = '<span class="stock-badge-low">Low Stock</span>';
+          }
+
+          return `
+            <tr>
+              <td>
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                  <img src="../${item.primary_image || 'images/skincare_products_1788328338930.jpg'}" alt="${item.name}" style="width: 32px; height: 32px; object-fit: cover; border-radius: 2px;" />
+                  <strong style="color: #fff; font-size: 0.85rem;">${item.name}</strong>
+                </div>
+              </td>
+              <td style="font-family: monospace; font-size: 0.78rem; color: var(--color-gold);">${item.sku}</td>
+              <td style="font-weight: 500;">₹${parseFloat(item.price).toFixed(2)}</td>
+              <td style="font-weight: 600;">${item.stock_quantity}</td>
+              <td style="color: #f39c12;">${item.reserved_quantity}</td>
+              <td style="font-weight: 600; color: #7bed9f;">${avail}</td>
+              <td style="font-weight: 600; color: var(--color-gold); font-family: var(--font-serif); font-size: 1.05rem;">
+                ₹${parseFloat(item.asset_value || 0).toFixed(2)}
+              </td>
+              <td>${badgeHtml}</td>
+              <td style="text-align: right;">
+                <a href="inventory-stock-in.html?product_id=${item.id}" class="btn-outline" style="font-size: 0.65rem; padding: 0.25rem 0.5rem; text-decoration: none;">
+                  Stock In
+                </a>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } else {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: rgba(250,247,242,0.5);">No inventory valuation records found.</td></tr>';
+      }
+    }
+
+    function exportInventoryCSV() {
+      if (!currentData || !currentData.inventory || !currentData.inventory.topValuedSkus) {
+        alert('No inventory valuation data loaded.');
+        return;
+      }
+
+      const items = currentData.inventory.topValuedSkus;
+      const headers = ['ID', 'Product Name', 'SKU', 'Unit Price', 'Stock Quantity', 'Reserved', 'Available', 'Asset Value'];
+      const rows = items.map(item => [
+        item.id,
+        `"${item.name.replace(/"/g, '""')}"`,
+        `"${item.sku}"`,
+        item.price,
+        item.stock_quantity,
+        item.reserved_quantity,
+        item.available_quantity,
+        parseFloat(item.asset_value || 0).toFixed(2)
+      ]);
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `lumiere_inventory_valuation_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadInventoryAnalytics(false);
+
+      try {
+        const bc = new BroadcastChannel('lumiere_realtime_bus');
+        bc.onmessage = () => loadInventoryAnalytics(true);
+      } catch {}
+
+      setInterval(() => {
+        const activeEl = document.activeElement;
+        const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT');
+        if (!isTyping) {
+          loadInventoryAnalytics(true);
+        }
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

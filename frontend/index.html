@@ -114,6 +114,17 @@
       <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About <span>&rarr;</span></a></li>
       <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews <span>&rarr;</span></a></li>
     </ul>
+
+    <!-- Real-Time Shop by Category Section in Side Navbar -->
+    <div class="side-nav-category-section">
+      <div class="side-nav-category-header">
+        <span class="side-nav-category-title">SHOP BY CATEGORY</span>
+        <span class="side-nav-live-badge">LIVE</span>
+      </div>
+      <ul class="side-nav-category-list" id="sideNavCategoriesList">
+        <!-- Rendered dynamically and synchronized in real time -->
+      </ul>
+    </div>
   </aside>
 
   <main>
@@ -1249,7 +1260,7 @@
         </div>
         <div class="footer-currency-picker">
           <span class="currency-star">✦</span>
-          <span>International / USD ($)</span>
+          <span>India / INR (₹)</span>
         </div>
       </div>
     </div>
@@ -1271,7 +1282,7 @@
     <!-- Free Shipping Meter -->
     <div class="shipping-meter-wrap">
       <div class="shipping-meter-text" id="shippingMeterText">
-        Add <strong>$100.00</strong> more for complimentary delivery.
+        Add <strong>₹100.00</strong> more for complimentary delivery.
       </div>
       <div class="shipping-meter-bar">
         <div class="shipping-meter-fill" id="shippingMeterFill"></div>
@@ -1294,7 +1305,7 @@
     <div class="cart-drawer-footer">
       <div class="cart-subtotal-row">
         <span>Subtotal</span>
-        <span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span>
+        <span class="cart-subtotal-val" id="cartSubtotalAmount">₹0.00</span>
       </div>
       <button class="btn-luxury-primary" style="width: 100%; margin-bottom: 0.75rem;" onclick="processCheckout()">CHECKOUT &rarr;</button>
       <button class="btn-luxury-outline" style="width: 100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
@@ -1337,7 +1348,7 @@
       <div class="quick-modal-details">
         <span class="quick-modal-brand" id="quickModalBrand">LUMIÈRE</span>
         <h2 class="quick-modal-title" id="quickModalTitle">Radiance Glow Serum</h2>
-        <div class="quick-modal-price" id="quickModalPrice">$128.00</div>
+        <div class="quick-modal-price" id="quickModalPrice">₹128.00</div>
         <p class="quick-modal-desc" id="quickModalDesc">Description</p>
         
         <div style="margin-bottom: 1.5rem;">
@@ -1371,6 +1382,8 @@
 
   <!-- Auth & Session Engine -->
   <script src="js/auth.js"></script>
+  <!-- Shared Catalog & Real-Time Engine -->
+  <script src="js/shared.js"></script>
   <!-- Main Luxury JavaScript Engine -->
   <script src="js/lumiere-cinematic.js?v=26.0"></script>
   <script>

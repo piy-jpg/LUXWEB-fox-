@@ -6,7 +6,11 @@ const db = require('../config/db');
 
 async function logAudit({ req, userId, userEmail, userRole, action, entityType, entityId, details }) {
   try {
-    const effectiveUserId = userId || (req && req.user ? req.user.id : null);
+    let effectiveUserId = userId || (req && req.user ? req.user.id : null);
+    if (effectiveUserId) {
+      const userExists = await db.get('SELECT id FROM users WHERE id = ?', [effectiveUserId]);
+      if (!userExists) effectiveUserId = null;
+    }
     const effectiveEmail = userEmail || (req && req.user ? req.user.email : null);
     const effectiveRole = userRole || (req && req.user && req.user.roles ? req.user.roles[0] : 'SYSTEM');
     const ipAddress = req && req.headers ? (req.headers['x-forwarded-for'] || (req.socket ? req.socket.remoteAddress : null) || null) : null;

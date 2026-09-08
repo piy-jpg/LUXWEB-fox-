@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add New Product — Lumière Atelier Administration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .form-section {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--admin-border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-section-title {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      color: #FAF7F2;
+      margin: 0 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 0.5rem;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .form-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(250, 247, 242, 0.75);
+      font-weight: 500;
+    }
+    .form-helper {
+      font-size: 0.68rem;
+      color: rgba(250, 247, 242, 0.4);
+    }
+    .preset-chip-list {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+    .image-preview-box {
+      width: 100%;
+      height: 200px;
+      border: 1px dashed rgba(201, 169, 110, 0.35);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 0, 0, 0.3);
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+    .image-preview-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+    }
+    .btn-direct-upload {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--color-gold);
+      color: #FAF7F2;
+      padding: 0.65rem 1.15rem;
+      border-radius: 5px;
+      font-size: 0.74rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      transition: all 0.25s ease;
+    }
+    .btn-direct-upload:hover {
+      background: rgba(201, 169, 110, 0.16);
+      border-color: #e5c382;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+    .product-img-dropzone {
+      border: 1px dashed rgba(201, 169, 110, 0.35);
+      border-radius: 6px;
+      padding: 1.25rem;
+      background: rgba(201, 169, 110, 0.02);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+    .product-img-dropzone:hover, .product-img-dropzone.dragover {
+      border-color: var(--color-gold);
+      background: rgba(201, 169, 110, 0.08);
+      transform: translateY(-1px);
+    }
+    .reg-preset-chip.active {
+      background: rgba(201, 169, 110, 0.25) !important;
+      border-color: var(--color-gold) !important;
+      color: var(--color-gold) !important;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="admin-body">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header & Breadcrumbs -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Executive Product Registration</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <span class="badge badge-accent" style="font-size: 0.65rem;">NEW FORMULA REGISTRATION</span>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0; color: #FAF7F2;">Add New Product</h1>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+          <a href="products.html" class="btn-outline" style="font-size: 0.72rem;">
+            &larr; Return to All Products
+          </a>
+        </div>
+      </div>
+
+      <!-- Shared Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="products.html" class="subnav-tab">
+          <span>✨</span> All Products <span class="subnav-badge" id="subnavProductsBadge">-</span>
+        </a>
+        <a href="product-add.html" class="subnav-tab active">
+          <span>➕</span> Add Product <span class="subnav-badge badge-accent">+ New</span>
+        </a>
+        <a href="product-edit.html" class="subnav-tab">
+          <span>✏️</span> Edit Product
+        </a>
+        <a href="categories.html" class="subnav-tab">
+          <span>🏷️</span> Categories <span class="subnav-badge" id="subnavCategoriesBadge">-</span>
+        </a>
+        <a href="product-variants.html" class="subnav-tab">
+          <span>🎨</span> Product Variants <span class="subnav-badge" id="subnavVariantsBadge">-</span>
+        </a>
+      </div>
+
+      <!-- Registration Form -->
+      <form id="addProductForm" onsubmit="handleCreateProduct(event)">
+        <!-- Section 1: Basic Information -->
+        <div class="form-section">
+          <div class="form-section-title">
+            <span>✨</span> 1. Product Identity &amp; Classification
+          </div>
+
+          <!-- Quick Presets -->
+          <div style="margin-bottom: 1.25rem;">
+            <span class="form-label">Luxury Formulation Presets:</span>
+            <div class="preset-chip-list">
+              <button type="button" class="reg-preset-chip" onclick="applyPreset('serum')">✨ Velvet Youth Elixir (Serum)</button>
+              <button type="button" class="reg-preset-chip" onclick="applyPreset('cream')">🧴 Crème Prodigieuse (Moisturizer)</button>
+              <button type="button" class="reg-preset-chip" onclick="applyPreset('parfum')">🌹 Extrait de Parfum (Fragrance)</button>
+              <button type="button" class="reg-preset-chip" onclick="applyPreset('lipstick')">💄 Rouge Couture Satin (Lipstick)</button>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label">Product Name *</label>
+              <input type="text" id="addName" class="admin-input" placeholder="e.g. L'Élixir Sublime Hydrating Nectar" required oninput="autoGenerateSlug(this.value)" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Category *</label>
+              <select id="addCategoryId" class="admin-select" required>
+                <option value="">Select Category...</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Subtitle / Formula Tagline</label>
+              <input type="text" id="addSubtitle" class="admin-input" placeholder="e.g. Botanical Bio-Ferment Refining Infusion" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">URL Slug</label>
+              <input type="text" id="addSlug" class="admin-input" placeholder="e.g. elixir-sublime-hydrating-nectar" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Brand / Maison</label>
+              <input type="text" id="addBrand" class="admin-input" value="Lumière Haute Beauté" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Pricing & Inventory Economics -->
+        <div class="form-section">
+          <div class="form-section-title">
+            <span>💎</span> 2. Pricing, Valuation &amp; Stock Engine
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Retail Price (₹ INR) *</label>
+              <input type="number" step="0.01" min="0" id="addPrice" class="admin-input" placeholder="185.00" required oninput="calculateMargin()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Compare-at Price (₹ INR)</label>
+              <input type="number" step="0.01" min="0" id="addComparePrice" class="admin-input" placeholder="225.00" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cost of Goods (₹ INR)</label>
+              <input type="number" step="0.01" min="0" id="addCostPrice" class="admin-input" placeholder="38.50" oninput="calculateMargin()" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gross Margin Preview</label>
+              <div id="addMarginPreview" style="font-family: var(--font-serif); font-size: 1.4rem; color: #7bed9f; margin-top: 0.2rem;">—</div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">SKU (Stock Keeping Unit) *</label>
+              <div style="display: flex; gap: 0.5rem;">
+                <input type="text" id="addSku" class="admin-input" placeholder="LUM-HAUTE-001" required style="font-family: monospace;" />
+                <button type="button" onclick="generateSku()" class="btn-outline" style="font-size: 0.68rem; padding: 0.4rem 0.65rem;">Auto</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Physical Vault Stock Units *</label>
+              <input type="number" min="0" id="addStock" class="admin-input" value="50" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Low Stock Replenishment Threshold</label>
+              <input type="number" min="0" id="addThreshold" class="admin-input" value="10" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Media & Imagery -->
+        <div class="form-section">
+          <div class="form-section-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <div><span>🖼️</span> 3. Visual Presentation &amp; Imagery</div>
+            <span style="font-size: 0.7rem; color: rgba(250,247,242,0.5); font-weight: normal;">Upload directly from camera, photo gallery, or boutique presets</span>
+          </div>
+
+          <!-- Hidden Native File Inputs for Camera & Gallery -->
+          <input type="file" id="cameraFileInput" accept="image/*" capture="environment" style="display: none;" onchange="handleProductImageFile(event, 'camera')" />
+          <input type="file" id="galleryFileInput" accept="image/*" style="display: none;" onchange="handleProductImageFile(event, 'gallery')" />
+
+          <div class="form-row" style="align-items: flex-start;">
+            <div class="form-group" style="flex: 2;">
+              <!-- Direct Upload Action Bar -->
+              <label class="form-label" style="display: block; margin-bottom: 0.5rem; text-transform: uppercase;">
+                Direct Image Capture &amp; Upload (No URL Required)
+              </label>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+                <button type="button" class="btn-direct-upload" onclick="document.getElementById('cameraFileInput').click()" title="Open device camera to capture photo directly">
+                  <span style="font-size: 1.2rem; line-height: 1;">📸</span>
+                  <span>Take Photo with Camera</span>
+                </button>
+                <button type="button" class="btn-direct-upload" onclick="document.getElementById('galleryFileInput').click()" title="Select photo directly from local device gallery or files">
+                  <span style="font-size: 1.2rem; line-height: 1;">🖼️</span>
+                  <span>Choose from Gallery / Files</span>
+                </button>
+              </div>
+
+              <!-- Clickable & Drag-Drop Dropzone -->
+              <div class="product-img-dropzone" id="productImageDropzone" onclick="document.getElementById('galleryFileInput').click()">
+                <div style="font-size: 1.5rem; line-height: 1;">📷</div>
+                <div style="font-size: 0.76rem; color: #FAF7F2; font-weight: 500;">
+                  Click to Browse or Drag &amp; Drop Image Here
+                </div>
+                <div style="font-size: 0.66rem; color: rgba(250,247,242,0.5);">
+                  Supports JPG, PNG, WEBP, GIF (Up to 25MB)
+                </div>
+                <div id="productFileBadge" style="display: none; background: rgba(201,169,110,0.2); border: 1px solid var(--color-gold); color: var(--color-gold); font-size: 0.68rem; padding: 0.2rem 0.65rem; border-radius: 12px; margin-top: 0.4rem;"></div>
+              </div>
+
+              <!-- Curated Presets -->
+              <div style="margin-top: 1rem;">
+                <label class="form-label" style="display: block; margin-bottom: 0.35rem; font-size: 0.68rem; text-transform: uppercase; color: rgba(250,247,242,0.6);">
+                  Or select high-res boutique presets:
+                </label>
+                <div class="preset-chip-list">
+                  <button type="button" class="reg-preset-chip active" onclick="setPresetImage('images/skincare_products_1788328338930.jpg', this)">Asset 1 (Cream)</button>
+                  <button type="button" class="reg-preset-chip" onclick="setPresetImage('images/luxurious_packaging_and_1788328352636.jpg', this)">Asset 2 (Packaging)</button>
+                  <button type="button" class="reg-preset-chip" onclick="setPresetImage('images/artistic_shot_of_cosm_1788328373300.jpg', this)">Asset 3 (Botanical)</button>
+                  <button type="button" class="reg-preset-chip" onclick="setPresetImage('images/makeup_products_1788328354838.jpg', this)">Asset 4 (Lipstick)</button>
+                  <button type="button" class="reg-preset-chip" onclick="setPresetImage('images/perfume_collection_1788328378783.jpg', this)">Asset 5 (Parfum)</button>
+                </div>
+              </div>
+
+              <!-- Optional Manual URL Toggle -->
+              <div style="margin-top: 0.85rem;">
+                <button type="button" onclick="toggleProductUrlInput()" style="background: none; border: none; color: rgba(250,247,242,0.5); font-size: 0.68rem; cursor: pointer; text-decoration: underline; padding: 0;">
+                  Or enter manual image URL / local path
+                </button>
+                <div id="manualUrlRow" style="display: none; margin-top: 0.5rem;">
+                  <input type="text" id="addImageUrl" class="admin-input" placeholder="images/skincare_products_1788328338930.jpg or https://..." value="images/skincare_products_1788328338930.jpg" oninput="previewManualProductUrl(this.value)" />
+                  <span class="form-helper">Enter a local boutique path (images/...) or full image URL</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Preview Card -->
+            <div class="form-group" style="flex: 1; min-width: 210px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+                <label class="form-label" style="margin: 0;">Image Preview</label>
+                <button type="button" id="btnClearProductImg" onclick="clearProductImage(event)" style="display: none; background: rgba(231,76,60,0.18); border: 1px solid rgba(231,76,60,0.4); color: #ff7675; font-size: 0.65rem; border-radius: 4px; padding: 0.15rem 0.5rem; cursor: pointer;">
+                  ✕ Discard
+                </button>
+              </div>
+              <div class="image-preview-box" style="position: relative; border-radius: 6px; overflow: hidden; border: 1px solid var(--admin-border); height: 210px; background: #0c0c0e; margin: 0;">
+                <img id="imagePreviewEl" src="../images/skincare_products_1788328338930.jpg" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.src='../images/skincare_products_1788328338930.jpg'" />
+                <div id="imageSourceTag" style="position: absolute; bottom: 0.45rem; left: 0.45rem; background: rgba(0,0,0,0.75); color: var(--color-gold); font-size: 0.58rem; font-weight: 600; padding: 0.15rem 0.45rem; border-radius: 3px; letter-spacing: 0.06em; text-transform: uppercase;">
+                  PRESET VISUAL
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Formulation & Editorial Details -->
+        <div class="form-section">
+          <div class="form-section-title">
+            <span>📜</span> 4. Editorial Description &amp; Formula Notes
+          </div>
+          <div class="form-row">
+            <div class="form-group" style="grid-column: span 2;">
+              <label class="form-label">Description &amp; Atelier Story</label>
+              <textarea id="addDescription" class="admin-textarea" rows="4" placeholder="Rich description of formulation, sensory profile, and atelier craftsmanship..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Key Active Ingredients / Olfactory Notes</label>
+              <textarea id="addIngredients" class="admin-textarea" rows="3" placeholder="e.g. 24K Gold Leaf, Damascus Rose Distillate, Hyaluronic Ferment..."></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Application Ritual / How to Use</label>
+              <textarea id="addHowToUse" class="admin-textarea" rows="3" placeholder="e.g. Warm 3-4 drops between fingertips, gently press into clean skin morning and evening..."></textarea>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Volume / Net Weight</label>
+              <input type="text" id="addVolume" class="admin-input" placeholder="e.g. 50 mL / 1.7 fl. oz." />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Boutique Status</label>
+              <select id="addStatus" class="admin-select">
+                <option value="active">Active (Visible in Storefront)</option>
+                <option value="draft">Draft (Private in Atelier)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Bar -->
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1rem; margin-bottom: 3rem;">
+          <a href="products.html" class="btn-outline">Cancel</a>
+          <button type="submit" id="btnSubmitAddProduct" class="btn-owner-action btn-owner-gold" style="font-size: 0.8rem; padding: 0.75rem 2rem;">
+            <span>✨</span> REGISTER PRODUCT IN CATALOG
+          </button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let categoriesList = [];
+
+    const PRESETS = {
+      serum: {
+        name: "L'Élixir Sublime Youth Serum",
+        subtitle: "Concentrated Botanical Bio-Ferment Anti-Aging Complex",
+        price: "195.00",
+        comparePrice: "240.00",
+        cost: "34.00",
+        category: "Skincare",
+        volume: "30 mL / 1.0 fl. oz.",
+        description: "A transformative cellular rejuvenation serum infused with rare botanical extracts and micro-encapsulated hyaluronic acid for luminous skin density.",
+        ingredients: "Alpine Rose Stem Cells, Camellia Sinensis Bio-Ferment, Low-Molecular Hyaluronic Acid, Niacinamide 5%, Squalane.",
+        howToUse: "Dispense 3 to 4 drops into the palm. Warm gently and press into face and décolletage every evening.",
+        image: "images/skincare_products_1788328338930.jpg"
+      },
+      cream: {
+        name: "Crème Prodigieuse Nuit",
+        subtitle: "Velvet Restorative Night Cream",
+        price: "245.00",
+        comparePrice: "295.00",
+        cost: "45.00",
+        category: "Skincare",
+        volume: "50 mL / 1.7 fl. oz.",
+        description: "An opulent, enveloping night barrier cream that deeply nourishes and accelerates overnight cellular repair while sealing in vital moisture.",
+        ingredients: "Shea Butter Butterfat, Centella Asiatica Extrait, Ceramide NP/AP, Peptide-8 Complex, Colloidal Gold.",
+        howToUse: "Smooth over cleansed face and neck as the final ritual step before sleep.",
+        image: "images/skincare_products_1788328338930.jpg"
+      },
+      parfum: {
+        name: "Santal & Rose Absolue",
+        subtitle: "Extrait de Parfum — Pure Concentration",
+        price: "320.00",
+        comparePrice: "",
+        cost: "52.00",
+        category: "Fragrance",
+        volume: "100 mL / 3.4 fl. oz.",
+        description: "A magnetic symphony of smoky Mysore sandalwood enveloped by rare Grasse rose de mai and warm golden ambergris.",
+        ingredients: "Alcohol Denat., Parfum (Fragrance), Santalum Album Oil, Rosa Damascena Flower Oil, Ambergris Extract.",
+        howToUse: "Apply to pulse points: wrists, hollow of the neck, and behind earlobes.",
+        image: "images/artistic_shot_of_cosm_1788328373300.jpg"
+      },
+      lipstick: {
+        name: "Rouge Couture Satin No. 07",
+        subtitle: "Hydrating Velvet Lip Color with Rosehip Oil",
+        price: "68.00",
+        comparePrice: "",
+        cost: "12.50",
+        category: "Makeup",
+        volume: "3.5 g / 0.12 oz.",
+        description: "Intensely pigmented satin lipstick offering feather-light comfort, all-day hydration, and an iconic luminous couture finish.",
+        ingredients: "Castor Seed Oil, Candelilla Wax, Rosehip Seed Oil, Tocopherol (Vitamin E), Iron Oxides, Red 7 Lake.",
+        howToUse: "Glide directly across lips from center outward for rich couture saturation.",
+        image: "images/luxurious_packaging_and_1788328352636.jpg"
+      }
+    };
+
+    async function initPage() {
+      if (!Auth.requireAuth('products.create')) return;
+      Admin.init();
+
+      generateSku();
+      await loadCategories();
+      updateSubnavCounts();
+      initProductDropzone();
+    }
+
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/products/categories');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.categories)) {
+          categoriesList = data.categories;
+          const select = document.getElementById('addCategoryId');
+          select.innerHTML = '<option value="">Select Category...</option>' + 
+            categoriesList.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+      } catch (err) {
+        console.error('Failed to load categories:', err);
+      }
+    }
+
+    function updateSubnavCounts() {
+      Auth.apiFetch('/api/admin/products?limit=1').then(r => r.json()).then(d => {
+        if (d.success) {
+          const b = document.getElementById('subnavProductsBadge');
+          if (b) b.innerText = d.total || '-';
+        }
+      }).catch(() => {});
+
+      if (categoriesList.length > 0) {
+        const cB = document.getElementById('subnavCategoriesBadge');
+        if (cB) cB.innerText = categoriesList.length;
+      }
+    }
+
+    function applyPreset(type) {
+      const p = PRESETS[type];
+      if (!p) return;
+
+      document.getElementById('addName').value = p.name;
+      autoGenerateSlug(p.name);
+      document.getElementById('addSubtitle').value = p.subtitle;
+      document.getElementById('addPrice').value = p.price;
+      document.getElementById('addComparePrice').value = p.comparePrice;
+      document.getElementById('addCostPrice').value = p.cost;
+      document.getElementById('addVolume').value = p.volume;
+      document.getElementById('addDescription').value = p.description;
+      document.getElementById('addIngredients').value = p.ingredients;
+      document.getElementById('addHowToUse').value = p.howToUse;
+      document.getElementById('addImageUrl').value = p.image;
+      previewImage(p.image);
+      calculateMargin();
+
+      // Match category
+      const matchedCat = categoriesList.find(c => c.name.toLowerCase() === p.category.toLowerCase());
+      if (matchedCat) {
+        document.getElementById('addCategoryId').value = matchedCat.id;
+      }
+    }
+
+    function generateSku() {
+      const rand = Math.floor(100 + Math.random() * 900);
+      document.getElementById('addSku').value = `LUM-HAUTE-${rand}`;
+    }
+
+    function autoGenerateSlug(name) {
+      document.getElementById('addSlug').value = name.toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-');
+    }
+
+    let selectedProductImageBase64 = null;
+    const DEFAULT_PRODUCT_PRESET = 'images/skincare_products_1788328338930.jpg';
+
+    // Direct Image Upload (Camera & Gallery)
+    function handleProductImageFile(event, source = 'gallery') {
+      const files = event && event.target ? event.target.files : (event ? (event.files || event) : null);
+      if (!files || !files.length) return;
+      const file = files[0];
+
+      if (!file.type.startsWith('image/')) {
+        Admin.toast('⚠️ Please select a valid visual image asset (JPG, PNG, WEBP, GIF).');
+        return;
+      }
+
+      if (file.size > 25 * 1024 * 1024) {
+        Admin.toast('⚠️ Image file size exceeds 25MB limit. Please choose a smaller asset.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        selectedProductImageBase64 = e.target.result;
+
+        const preview = document.getElementById('imagePreviewEl');
+        if (preview) preview.src = selectedProductImageBase64;
+
+        const sourceTag = document.getElementById('imageSourceTag');
+        if (sourceTag) {
+          sourceTag.textContent = source === 'camera' ? '📸 CAMERA SNAPSHOT' : '🖼️ GALLERY ASSET';
+        }
+
+        const badge = document.getElementById('productFileBadge');
+        if (badge) {
+          const sizeKb = (file.size / 1024).toFixed(1);
+          const icon = source === 'camera' ? '📸' : '🖼️';
+          badge.textContent = `${icon} ${file.name} (${sizeKb} KB)`;
+          badge.style.display = 'inline-block';
+        }
+
+        const btnClear = document.getElementById('btnClearProductImg');
+        if (btnClear) btnClear.style.display = 'inline-block';
+
+        // Clear manual URL input & deselect preset chips
+        const urlInput = document.getElementById('addImageUrl');
+        if (urlInput) urlInput.value = '';
+        document.querySelectorAll('.reg-preset-chip').forEach(c => c.classList.remove('active'));
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function setPresetImage(path, btnEl) {
+      selectedProductImageBase64 = null;
+      const camInput = document.getElementById('cameraFileInput');
+      if (camInput) camInput.value = '';
+      const galInput = document.getElementById('galleryFileInput');
+      if (galInput) galInput.value = '';
+
+      const badge = document.getElementById('productFileBadge');
+      if (badge) badge.style.display = 'none';
+
+      const btnClear = document.getElementById('btnClearProductImg');
+      if (btnClear) btnClear.style.display = 'none';
+
+      const preview = document.getElementById('imagePreviewEl');
+      if (preview) preview.src = '../' + path;
+
+      const sourceTag = document.getElementById('imageSourceTag');
+      if (sourceTag) sourceTag.textContent = 'PRESET VISUAL';
+
+      const urlInput = document.getElementById('addImageUrl');
+      if (urlInput) urlInput.value = path;
+
+      document.querySelectorAll('.reg-preset-chip').forEach(c => c.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+    }
+
+    function clearProductImage(event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+      selectedProductImageBase64 = null;
+
+      const camInput = document.getElementById('cameraFileInput');
+      if (camInput) camInput.value = '';
+      const galInput = document.getElementById('galleryFileInput');
+      if (galInput) galInput.value = '';
+
+      const badge = document.getElementById('productFileBadge');
+      if (badge) badge.style.display = 'none';
+
+      const btnClear = document.getElementById('btnClearProductImg');
+      if (btnClear) btnClear.style.display = 'none';
+
+      const preview = document.getElementById('imagePreviewEl');
+      if (preview) preview.src = '../' + DEFAULT_PRODUCT_PRESET;
+
+      const sourceTag = document.getElementById('imageSourceTag');
+      if (sourceTag) sourceTag.textContent = 'PRESET VISUAL';
+
+      const urlInput = document.getElementById('addImageUrl');
+      if (urlInput) urlInput.value = DEFAULT_PRODUCT_PRESET;
+
+      document.querySelectorAll('.reg-preset-chip').forEach(c => {
+        c.classList.toggle('active', c.getAttribute('onclick')?.includes(DEFAULT_PRODUCT_PRESET));
+      });
+    }
+
+    function toggleProductUrlInput() {
+      const row = document.getElementById('manualUrlRow');
+      if (!row) return;
+      row.style.display = (row.style.display === 'none' || !row.style.display) ? 'block' : 'none';
+      if (row.style.display === 'block') {
+        document.getElementById('addImageUrl')?.focus();
+      }
+    }
+
+    function previewManualProductUrl(val) {
+      const cleanVal = (val || '').trim();
+      if (!cleanVal) return;
+      selectedProductImageBase64 = null;
+
+      const camInput = document.getElementById('cameraFileInput');
+      if (camInput) camInput.value = '';
+      const galInput = document.getElementById('galleryFileInput');
+      if (galInput) galInput.value = '';
+
+      const badge = document.getElementById('productFileBadge');
+      if (badge) badge.style.display = 'none';
+
+      const btnClear = document.getElementById('btnClearProductImg');
+      if (btnClear) btnClear.style.display = 'none';
+
+      document.querySelectorAll('.reg-preset-chip').forEach(c => c.classList.remove('active'));
+
+      const preview = document.getElementById('imagePreviewEl');
+      if (preview) {
+        preview.src = (cleanVal.startsWith('http') || cleanVal.startsWith('data:')) ? cleanVal : ('../' + cleanVal);
+      }
+
+      const sourceTag = document.getElementById('imageSourceTag');
+      if (sourceTag) sourceTag.textContent = 'CUSTOM URL';
+    }
+
+    function initProductDropzone() {
+      const dropzone = document.getElementById('productImageDropzone');
+      if (!dropzone) return;
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('dragover');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove('dragover');
+        }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length) {
+          handleProductImageFile(dt.files, 'gallery');
+        }
+      }, false);
+    }
+
+    function calculateMargin() {
+      const price = parseFloat(document.getElementById('addPrice').value) || 0;
+      const cost = parseFloat(document.getElementById('addCostPrice').value) || 0;
+      const preview = document.getElementById('addMarginPreview');
+
+      if (price > 0 && cost > 0 && price >= cost) {
+        const margin = (((price - cost) / price) * 100).toFixed(1);
+        preview.innerText = `${margin}% Gross Margin (+₹${(price - cost).toFixed(2)})`;
+      } else {
+        preview.innerText = '—';
+      }
+    }
+
+    async function handleCreateProduct(e) {
+      e.preventDefault();
+      if (!Auth.hasPermission('products.create')) {
+        Admin.toast('⚠️ Product registration requires Atelier Manager or Owner privileges.');
+        return;
+      }
+
+      const btn = document.getElementById('btnSubmitAddProduct');
+      btn.disabled = true;
+      btn.innerText = 'REGISTERING IN VAULT...';
+
+      const rawImageVal = document.getElementById('addImageUrl')?.value?.trim() || '';
+      const finalPrimaryImage = selectedProductImageBase64 ? undefined : (rawImageVal || DEFAULT_PRODUCT_PRESET);
+
+      const payload = {
+        name: document.getElementById('addName').value.trim(),
+        subtitle: document.getElementById('addSubtitle').value.trim(),
+        slug: document.getElementById('addSlug').value.trim() || undefined,
+        brand: document.getElementById('addBrand').value.trim(),
+        categoryId: parseInt(document.getElementById('addCategoryId').value, 10) || undefined,
+        price: parseFloat(document.getElementById('addPrice').value),
+        compareAtPrice: parseFloat(document.getElementById('addComparePrice').value) || null,
+        costPrice: parseFloat(document.getElementById('addCostPrice').value) || null,
+        sku: document.getElementById('addSku').value.trim(),
+        stockQuantity: parseInt(document.getElementById('addStock').value, 10) || 0,
+        lowStockThreshold: parseInt(document.getElementById('addThreshold').value, 10) || 10,
+        primaryImage: finalPrimaryImage,
+        imageBase64: selectedProductImageBase64 || undefined,
+        description: document.getElementById('addDescription').value.trim(),
+        ingredients: document.getElementById('addIngredients').value.trim(),
+        howToUse: document.getElementById('addHowToUse').value.trim(),
+        status: document.getElementById('addStatus').value,
+      };
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/products', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+
+        // Defensive parse checking content-type
+        let data;
+        const contentType = res.headers ? (res.headers.get('content-type') || '') : '';
+        if (contentType.includes('application/json')) {
+          data = await res.json();
+        } else {
+          const txt = await res.text();
+          try { data = JSON.parse(txt); } catch { data = { success: false, error: txt.replace(/<[^>]*>/g, '').trim() }; }
+        }
+
+        if (data && data.success) {
+          Admin.toast(`✦ "${payload.name}" successfully registered in catalog!`);
+          if (typeof BroadcastChannel !== 'undefined') {
+            const bus = new BroadcastChannel('lumiere_realtime_bus');
+            bus.postMessage({ action: 'product_created', product: data.product, timestamp: Date.now() });
+          }
+
+          setTimeout(() => {
+            window.location.href = 'products.html';
+          }, 800);
+        } else {
+          alert((data && data.error) || 'Failed to create product.');
+          btn.disabled = false;
+          btn.innerText = '✨ REGISTER PRODUCT IN CATALOG';
+        }
+      } catch (err) {
+        alert(err.message || 'Network error registering product.');
+        btn.disabled = false;
+        btn.innerText = '✨ REGISTER PRODUCT IN CATALOG';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

@@ -19,18 +19,48 @@
     <header class="admin-topbar" id="adminTopbar"></header>
 
     <main class="admin-content">
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Fulfillment Operations</span>
-          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Customer Orders &amp; Dispatch</h1>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Fulfillment Operations</span>
+            <span id="orderViewBadge" class="badge badge-active" style="font-size: 0.65rem;">Active Orders</span>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;" id="pageHeadingTitle">Customer Orders &amp; Dispatch</h1>
         </div>
+
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <a href="orders.html" id="btnActiveOrdersNav" class="btn-outline" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="View all active client orders">
+            🛍️ All Active Orders
+          </a>
+          <a href="orders.html?status=Deleted" id="btnDeletedOrdersNav" class="btn-outline" style="font-size: 0.72rem; padding: 0.45rem 0.85rem; border-color: rgba(231, 76, 60, 0.4); color: #ff708f;" title="View deleted and archived orders">
+            🗑️ Deleted Orders Archive <span class="live-nav-badge badge-danger" data-badge-key="status_Deleted" style="margin-left: 0.35rem; font-size: 0.65rem;">-</span>
+          </a>
+          <a href="orders.html?status=all_orders" id="btnAllOrdersNav" class="btn-outline" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="View all orders including active and deleted">
+            📋 All Orders (Active &amp; Deleted)
+          </a>
+        </div>
+      </div>
+
+      <!-- Deleted Orders Archive Notice Banner -->
+      <div id="deletedOrdersNotice" style="display: none; background: rgba(231, 76, 60, 0.08); border-left: 3px solid #ff708f; border-radius: 4px; padding: 0.85rem 1.25rem; margin-bottom: 1.5rem; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+        <div>
+          <strong style="color: #ff708f; font-size: 0.85rem;">✦ Viewing Deleted Orders Archive</strong>
+          <p style="margin: 0.2rem 0 0; font-size: 0.76rem; color: rgba(250, 247, 242, 0.7);">
+            These orders have been removed from active fulfillment. You can inspect line items, restore them to active dispatch, or permanently purge them.
+          </p>
+        </div>
+        <a href="orders.html" class="btn-outline" style="font-size: 0.72rem; padding: 0.35rem 0.75rem;">
+          &larr; Return to Active Orders
+        </a>
       </div>
 
       <!-- Filters & Search -->
       <div class="table-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
         <input type="text" id="orderSearch" class="admin-input" placeholder="Search order number, client name, or email..." style="flex: 2; min-width: 250px;" oninput="debounceOrderSearch()" />
-        <select id="statusFilter" class="admin-select" style="flex: 1; min-width: 160px;" onchange="loadOrders()">
-          <option value="all">All Order Statuses</option>
+        <select id="statusFilter" class="admin-select" style="flex: 1; min-width: 160px;" onchange="onFilterStatusChange(this.value)">
+          <option value="all">All Active Orders</option>
+          <option value="Deleted">Deleted Orders Archive</option>
+          <option value="all_orders">All Orders (Active + Deleted)</option>
           <option value="Pending">Pending</option>
           <option value="Confirmed">Confirmed</option>
           <option value="Processing">Processing</option>
@@ -53,7 +83,7 @@
                 <th>Status</th>
                 <th>Tracking</th>
                 <th>Date</th>
-                <th style="text-align: right;">Action</th>
+                <th style="text-align: right; min-width: 175px;">Action</th>
               </tr>
             </thead>
             <tbody id="ordersTableBody">
@@ -93,6 +123,32 @@
       orderSearchTimeout = setTimeout(() => loadOrders(false), 300);
     }
 
+    function onFilterStatusChange(newStatus) {
+      const statusSelect = document.getElementById('statusFilter');
+      if (statusSelect) statusSelect.dataset.userChanged = 'true';
+      const url = new URL(window.location);
+      if (newStatus && newStatus !== 'all') {
+        url.searchParams.set('status', newStatus);
+      } else {
+        url.searchParams.delete('status');
+      }
+      window.history.replaceState({}, '', url.toString());
+
+      // Dynamically highlight matching sub navbar item in sidebar
+      document.querySelectorAll('.nav-sub-item').forEach(el => {
+        const subUrl = el.getAttribute('data-sub-url');
+        if (!subUrl) return;
+        const targetStatus = new URLSearchParams(subUrl.includes('?') ? subUrl.substring(subUrl.indexOf('?')) : '').get('status');
+        if ((newStatus === 'all' && !subUrl.includes('?')) || (targetStatus && targetStatus === newStatus)) {
+          el.classList.add('active');
+        } else {
+          el.classList.remove('active');
+        }
+      });
+
+      loadOrders(false);
+    }
+
     async function loadOrders(isSilent = false) {
       const urlParams = new URLSearchParams(window.location.search);
       const urlStatus = urlParams.get('status');
@@ -103,6 +159,74 @@
 
       const search = document.getElementById('orderSearch').value.trim();
       const status = statusSelect ? statusSelect.value : 'all';
+      const isDeletedView = (status === 'Deleted');
+      const isAllOrdersView = (status === 'all_orders' || status === 'any');
+
+      // Update Header & Badge Context
+      const pageHeading = document.getElementById('pageHeadingTitle');
+      if (pageHeading) {
+        if (isDeletedView) {
+          pageHeading.innerText = 'Deleted Orders Archive';
+        } else if (isAllOrdersView) {
+          pageHeading.innerText = 'All Orders & Archive Ledger';
+        } else {
+          pageHeading.innerText = 'Customer Orders & Dispatch';
+        }
+      }
+
+      const orderViewBadge = document.getElementById('orderViewBadge');
+      if (orderViewBadge) {
+        if (isDeletedView) {
+          orderViewBadge.innerText = 'Deleted Archive';
+          orderViewBadge.className = 'badge badge-danger';
+          orderViewBadge.style.background = 'rgba(231, 76, 60, 0.2)';
+          orderViewBadge.style.color = '#ff708f';
+          orderViewBadge.style.borderColor = 'rgba(231, 76, 60, 0.4)';
+        } else if (isAllOrdersView) {
+          orderViewBadge.innerText = 'All Orders (Active + Deleted)';
+          orderViewBadge.className = 'badge badge-accent';
+          orderViewBadge.style.background = 'rgba(201, 169, 110, 0.2)';
+          orderViewBadge.style.color = 'var(--color-gold)';
+          orderViewBadge.style.borderColor = 'rgba(201, 169, 110, 0.4)';
+        } else {
+          orderViewBadge.innerText = 'Active Orders';
+          orderViewBadge.className = 'badge badge-active';
+          orderViewBadge.style.background = '';
+          orderViewBadge.style.color = '';
+          orderViewBadge.style.borderColor = '';
+        }
+      }
+
+      const noticeBanner = document.getElementById('deletedOrdersNotice');
+      if (noticeBanner) {
+        noticeBanner.style.display = isDeletedView ? 'flex' : 'none';
+      }
+
+      const btnActive = document.getElementById('btnActiveOrdersNav');
+      const btnDeleted = document.getElementById('btnDeletedOrdersNav');
+      const btnAll = document.getElementById('btnAllOrdersNav');
+
+      [btnActive, btnDeleted, btnAll].forEach(b => {
+        if (b) {
+          b.style.background = 'transparent';
+          b.style.borderColor = 'rgba(255, 255, 255, 0.15)';
+          b.style.color = 'rgba(250, 247, 242, 0.7)';
+        }
+      });
+
+      if (isDeletedView && btnDeleted) {
+        btnDeleted.style.background = 'rgba(231, 76, 60, 0.15)';
+        btnDeleted.style.borderColor = '#ff708f';
+        btnDeleted.style.color = '#ff708f';
+      } else if (isAllOrdersView && btnAll) {
+        btnAll.style.background = 'rgba(201, 169, 110, 0.15)';
+        btnAll.style.borderColor = 'var(--color-gold)';
+        btnAll.style.color = '#fff';
+      } else if (btnActive) {
+        btnActive.style.background = 'rgba(201, 169, 110, 0.15)';
+        btnActive.style.borderColor = 'var(--color-gold)';
+        btnActive.style.color = '#fff';
+      }
 
       try {
         const q = new URLSearchParams();
@@ -125,15 +249,22 @@
           const tbody = document.getElementById('ordersTableBody');
 
           if (ordersList.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: rgba(250,247,242,0.5);">No orders matched your criteria.</td></tr>';
+            tbody.innerHTML = isDeletedView
+              ? '<tr><td colspan="8" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2rem 1rem;">No deleted orders found in the archive.</td></tr>'
+              : '<tr><td colspan="8" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2rem 1rem;">No orders matched your criteria.</td></tr>';
             return;
           }
 
           const canUpdateOrder = Auth.hasPermission('orders.update');
 
           tbody.innerHTML = ordersList.map(o => {
-            const statusSelectHtml = canUpdateOrder
-              ? `
+            const isOrderDeleted = (o.status === 'Deleted');
+            let statusHtml = '';
+
+            if (isOrderDeleted) {
+              statusHtml = `<span class="badge" style="background: rgba(231, 76, 60, 0.18); color: #ff708f; border: 1px solid rgba(231, 76, 60, 0.4); font-size: 0.72rem; padding: 0.25rem 0.6rem;">Deleted</span>`;
+            } else if (canUpdateOrder) {
+              statusHtml = `
                 <select class="admin-select" style="padding: 0.3rem 0.5rem; font-size: 0.72rem;" onchange="updateStatus(${o.id}, this.value)">
                   <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
                   <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
@@ -142,10 +273,28 @@
                   <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
                   <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
                 </select>
-              `
-              : `
-                <span class="badge badge-${o.status.toLowerCase()}">${o.status}</span>
               `;
+            } else {
+              statusHtml = `<span class="badge badge-${o.status.toLowerCase()}">${o.status}</span>`;
+            }
+
+            let actionHtml = '';
+            if (isOrderDeleted) {
+              actionHtml = `
+                <div style="display: inline-flex; align-items: center; gap: 0.45rem; justify-content: flex-end;">
+                  <button onclick="openOrderModal(${o.id})" class="btn-outline" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Inspect order details">View &rarr;</button>
+                  <button onclick="restoreOrder(${o.id}, '${o.order_number}')" class="btn-gold" style="padding: 0.32rem 0.65rem; font-size: 0.68rem; background: rgba(201, 169, 110, 0.15);" title="Restore order #${o.order_number} to active dispatch">✓ Restore</button>
+                  <button onclick="deleteOrder(${o.id}, '${o.order_number}', true)" class="btn-danger" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Permanently purge order #${o.order_number}">🗑 Purge</button>
+                </div>
+              `;
+            } else {
+              actionHtml = `
+                <div style="display: inline-flex; align-items: center; gap: 0.45rem; justify-content: flex-end;">
+                  <button onclick="openOrderModal(${o.id})" class="btn-outline" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Inspect order details">View &rarr;</button>
+                  <button onclick="deleteOrder(${o.id}, '${o.order_number}', false)" class="btn-danger" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Move order #${o.order_number} to Deleted archive">🗑 Delete</button>
+                </div>
+              `;
+            }
 
             return `
               <tr>
@@ -155,12 +304,12 @@
                   <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email}</div>
                 </td>
                 <td>${o.total_items || 1} item(s)</td>
-                <td style="color: var(--color-gold); font-weight: 600;">$${parseFloat(o.total_amount).toFixed(2)}</td>
-                <td>${statusSelectHtml}</td>
+                <td style="color: var(--color-gold); font-weight: 600;">₹${parseFloat(o.total_amount).toFixed(2)}</td>
+                <td>${statusHtml}</td>
                 <td style="font-family: monospace; font-size: 0.72rem; color: rgba(250,247,242,0.7);">${o.tracking_number || '—'}</td>
                 <td style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">${new Date(o.created_at).toLocaleDateString()}</td>
                 <td style="text-align: right;">
-                  <button onclick="openOrderModal(${o.id})" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.68rem;">View &rarr;</button>
+                  ${actionHtml}
                 </td>
               </tr>
             `;
@@ -206,10 +355,19 @@
 
         if (data.success) {
           const o = data.order;
+          const isModalOrderDeleted = (o.status === 'Deleted');
+
           document.getElementById('modalOrderNumber').innerText = `Order #${o.order_number}`;
           document.getElementById('modalOrderDate').innerText = `Placed on ${new Date(o.created_at).toLocaleString()}`;
 
           content.innerHTML = `
+            ${isModalOrderDeleted ? `
+              <div style="background: rgba(231,76,60,0.12); border: 1px solid rgba(231,76,60,0.3); border-radius: 4px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; font-size: 0.78rem; color: #ff708f; display: flex; align-items: center; gap: 0.6rem;">
+                <span style="font-size: 1rem;">⚠️</span>
+                <div>This order is currently archived in the <strong>Deleted Orders Archive</strong>. Warehouse inventory reservations have been released.</div>
+              </div>
+            ` : ''}
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
               <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 4px;">
                 <div style="font-size: 0.7rem; color: rgba(250,247,242,0.6); text-transform: uppercase;">Client Profile</div>
@@ -248,8 +406,8 @@
                         </td>
                         <td style="font-family: monospace; font-size: 0.72rem;">${item.sku}</td>
                         <td>${item.quantity}</td>
-                        <td>$${parseFloat(item.unit_price).toFixed(2)}</td>
-                        <td style="font-weight: 600; color: var(--color-gold);">$${parseFloat(item.total_price).toFixed(2)}</td>
+                        <td>₹${parseFloat(item.unit_price).toFixed(2)}</td>
+                        <td style="font-weight: 600; color: var(--color-gold);">₹${parseFloat(item.total_price).toFixed(2)}</td>
                       </tr>
                     `).join('')}
                   </tbody>
@@ -257,22 +415,42 @@
               </div>
             </div>
 
-            <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
-              <label style="display: block; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.35rem;">Carrier Tracking Number</label>
-              <div style="display: flex; gap: 0.5rem;">
-                <input type="text" id="modalTrackingInput" class="admin-input" style="flex: 1;" value="${o.tracking_number || ''}" placeholder="e.g. 1Z9999999999999999" />
-                <button onclick="saveTracking(${o.id})" class="btn-gold" style="padding: 0.4rem 0.8rem; font-size: 0.7rem;">SAVE TRACKING</button>
+            ${!isModalOrderDeleted ? `
+              <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem;">
+                <label style="display: block; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 0.35rem;">Carrier Tracking Number</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="text" id="modalTrackingInput" class="admin-input" style="flex: 1;" value="${o.tracking_number || ''}" placeholder="e.g. 1Z9999999999999999" />
+                  <button onclick="saveTracking(${o.id})" class="btn-gold" style="padding: 0.4rem 0.8rem; font-size: 0.7rem;">SAVE TRACKING</button>
+                </div>
               </div>
-            </div>
+            ` : ''}
 
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--admin-border); padding-top: 1rem;">
-              <div>
-                <span style="font-size: 0.75rem; color: rgba(250,247,242,0.6);">Payment:</span>
-                <strong style="color: #7bed9f; margin-left: 0.35rem;">${o.payment_status}</strong>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--admin-border); padding-top: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+              <div style="display: flex; gap: 0.5rem; align-items: center;">
+                ${isModalOrderDeleted ? `
+                  <button onclick="restoreOrder(${o.id}, '${o.order_number}')" class="btn-gold" style="padding: 0.42rem 0.85rem; font-size: 0.72rem;" title="Restore to active fulfillment">
+                    ✓ Restore Order
+                  </button>
+                  <button onclick="deleteOrder(${o.id}, '${o.order_number}', true)" class="btn-danger" style="padding: 0.42rem 0.85rem; font-size: 0.72rem;" title="Permanently delete from database">
+                    🗑 Permanent Purge
+                  </button>
+                ` : `
+                  <button onclick="deleteOrder(${o.id}, '${o.order_number}', false)" class="btn-danger" style="padding: 0.42rem 0.85rem; font-size: 0.72rem;" title="Move to Deleted Archive">
+                    🗑 Delete Order
+                  </button>
+                `}
               </div>
-              <div>
-                <span style="font-size: 0.85rem; color: rgba(250,247,242,0.6);">Grand Total:</span>
-                <strong style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--color-gold); margin-left: 0.5rem;">$${parseFloat(o.total_amount).toFixed(2)}</strong>
+              <div style="display: flex; align-items: center; gap: 1.5rem;">
+                <div>
+                  <span style="font-size: 0.75rem; color: rgba(250,247,242,0.6);">${isModalOrderDeleted ? 'Archived Status:' : 'Payment:'}</span>
+                  <strong style="color: ${isModalOrderDeleted ? '#ff708f' : '#7bed9f'}; margin-left: 0.35rem;">
+                    ${isModalOrderDeleted ? 'Deleted' : (o.payment_status || 'Paid')}
+                  </strong>
+                </div>
+                <div>
+                  <span style="font-size: 0.85rem; color: rgba(250,247,242,0.6);">Grand Total:</span>
+                  <strong style="font-family: var(--font-serif); font-size: 1.5rem; color: var(--color-gold); margin-left: 0.5rem;">₹${parseFloat(o.total_amount).toFixed(2)}</strong>
+                </div>
               </div>
             </div>
           `;
@@ -300,6 +478,84 @@
       }
     }
 
+    /* ==========================================================
+       REAL-TIME DELETE ORDER (SOFT ARCHIVE & PERMANENT PURGE)
+       ========================================================== */
+    async function deleteOrder(orderId, orderNumber, isPermanent = false) {
+      const message = isPermanent
+        ? `Are you sure you want to PERMANENTLY PURGE Order #${orderNumber}?\n\n✦ The order record and all associated line items will be wiped from the database.\n✦ This action cannot be undone.`
+        : `Move Order #${orderNumber} to Deleted Orders Archive?\n\n✦ The order will be removed from active fulfillment.\n✦ Any reserved stock will be returned to warehouse inventory.\n✦ You can review and restore it anytime under the "Deleted Orders" sub navbar.`;
+
+      const confirmed = confirm(message);
+      if (!confirmed) return;
+
+      try {
+        const url = isPermanent ? `/api/admin/orders/${orderId}?permanent=true` : `/api/admin/orders/${orderId}`;
+        const res = await Auth.apiFetch(url, {
+          method: 'DELETE',
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message || `Order #${orderNumber} ${isPermanent ? 'permanently purged' : 'moved to Deleted archive'}.`);
+          Admin.closeModal('orderModal');
+          if (typeof BroadcastChannel !== 'undefined') {
+            const bus = new BroadcastChannel('lumiere_realtime_bus');
+            bus.postMessage({ action: 'order_deleted', orderId, isPermanent });
+          }
+          loadOrders(false);
+        } else {
+          alert(data.error || 'Failed to delete order.');
+        }
+      } catch (err) {
+        console.error('Delete order error:', err);
+        alert(err.message || 'Error deleting order.');
+      }
+    }
+
+    /* ==========================================================
+       RESTORE ORDER ACTION
+       ========================================================== */
+    async function restoreOrder(orderId, orderNumber) {
+      const confirmed = confirm(
+        `Restore Order #${orderNumber} to active fulfillment?\n\n✦ The order will be moved back to "Confirmed" status.\n✦ Required items will be re-reserved in warehouse stock.`
+      );
+      if (!confirmed) return;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/orders/${orderId}/restore`, {
+          method: 'POST',
+          body: JSON.stringify({ status: 'Confirmed' }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message || `Order #${orderNumber} restored to Confirmed dispatch.`);
+          Admin.closeModal('orderModal');
+          if (typeof BroadcastChannel !== 'undefined') {
+            const bus = new BroadcastChannel('lumiere_realtime_bus');
+            bus.postMessage({ action: 'order_status_updated', orderId, status: 'Confirmed' });
+          }
+          loadOrders(false);
+        } else {
+          alert(data.error || 'Failed to restore order.');
+        }
+      } catch (err) {
+        console.error('Restore order error:', err);
+        alert(err.message || 'Error restoring order.');
+      }
+    }
+
+    // Real-Time Event Bus across open tabs
+    const realtimeBus = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('lumiere_realtime_bus') : null;
+    if (realtimeBus) {
+      realtimeBus.onmessage = (event) => {
+        const msg = event.data;
+        if (!msg) return;
+        if (['order_placed', 'order_status_changed', 'order_status_updated', 'order_deleted', 'customer_deleted'].includes(msg.action)) {
+          loadOrders(true);
+        }
+      };
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       loadOrders(false);
       if (realTimeOrdersTimer) clearInterval(realTimeOrdersTimer);
@@ -312,6 +568,31 @@
         }
       }, 5000);
       window.addEventListener('focus', () => loadOrders(true));
+
+      // Seamless sub navbar item clicks without full page reloading
+      document.addEventListener('click', (e) => {
+        const link = e.target.closest('.nav-sub-item');
+        if (link) {
+          const href = link.getAttribute('href');
+          if (href && (href.startsWith('orders.html') || href.startsWith('orders.html?'))) {
+            e.preventDefault();
+            const targetParams = new URLSearchParams(href.includes('?') ? href.substring(href.indexOf('?')) : '');
+            const newStatus = targetParams.get('status') || 'all';
+            const statusSelect = document.getElementById('statusFilter');
+            if (statusSelect) {
+              statusSelect.value = newStatus;
+            }
+            onFilterStatusChange(newStatus);
+          }
+        }
+      });
+      window.addEventListener('popstate', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status') || 'all';
+        const statusSelect = document.getElementById('statusFilter');
+        if (statusSelect) statusSelect.value = status;
+        loadOrders(false);
+      });
     });
   </script>
 </body>

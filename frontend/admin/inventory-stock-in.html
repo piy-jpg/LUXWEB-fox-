@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Purchase & Stock In — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Real-Time Headline Banner for Inbound Operations -->
+      <div class="total-stock-header-card" style="background: linear-gradient(135deg, rgba(16, 28, 22, 0.95), rgba(22, 42, 32, 0.95)); border: 1px solid rgba(123, 237, 159, 0.4); border-radius: 6px; padding: 1.1rem 1.6rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); flex-wrap: wrap; gap: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+          <div style="width: 48px; height: 48px; border-radius: 8px; background: rgba(123, 237, 159, 0.15); border: 1px solid rgba(123, 237, 159, 0.5); display: flex; align-items: center; justify-content: center; font-size: 1.45rem; color: #7bed9f;">
+            📥
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span style="font-size: 0.72rem; letter-spacing: 0.14em; color: #7bed9f; text-transform: uppercase; font-weight: 600;">Inbound Warehouse Operations</span>
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #7bed9f; box-shadow: 0 0 10px #7bed9f;" title="Live Inbound Ready"></span>
+              <span style="font-size: 0.65rem; color: #7bed9f; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500;">Purchase Order Receiving</span>
+            </div>
+            <div style="font-family: var(--font-serif); font-size: 2.35rem; font-weight: 400; color: #FAF7F2; line-height: 1.1; margin-top: 0.25rem;">
+              <span id="topReceivedUnitsCount">0</span> <span style="font-size: 0.9rem; font-family: var(--font-sans, system-ui); color: rgba(250, 247, 242, 0.6); font-weight: 300;">Units Received in Atelier</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1.75rem; align-items: center; flex-wrap: wrap;">
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <div style="font-size: 0.68rem; color: rgba(250, 247, 242, 0.55); text-transform: uppercase; letter-spacing: 0.08em;">Total Batches</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: #7bed9f; margin-top: 0.2rem;" id="topTotalReceiptBatches">0</div>
+          </div>
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <div style="font-size: 0.68rem; color: rgba(250, 247, 242, 0.55); text-transform: uppercase; letter-spacing: 0.08em;">Receiving Protocol</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: var(--color-gold); margin-top: 0.2rem;">Direct Intake</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Title -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+        <div>
+          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Stock Replenishment</span>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Purchase Order &amp; Stock Inbound</h1>
+        </div>
+      </div>
+
+      <!-- Shared Inventory Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="inventory.html" class="subnav-tab">
+          <span>📦</span> Stock Overview
+        </a>
+        <a href="inventory-movements.html" class="subnav-tab">
+          <span>🔄</span> Stock Movements
+        </a>
+        <a href="inventory-low-stock.html" class="subnav-tab">
+          <span>⚠️</span> Low Stock <span class="subnav-badge badge-warn" id="subnavLowStockBadge">-</span>
+        </a>
+        <a href="inventory-out-of-stock.html" class="subnav-tab">
+          <span>🚫</span> Out of Stock <span class="subnav-badge badge-danger" id="subnavOutStockBadge">-</span>
+        </a>
+        <a href="inventory-stock-in.html" class="subnav-tab active">
+          <span>📥</span> Purchase / Stock In <span class="subnav-badge badge-accent">Receive</span>
+        </a>
+        <a href="inventory-adjust.html" class="subnav-tab">
+          <span>⚖️</span> Stock Adjustment
+        </a>
+        <a href="inventory-history.html" class="subnav-tab">
+          <span>📜</span> Inventory History
+        </a>
+      </div>
+
+      <!-- Inbound Receiving Console Layout -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
+        
+        <!-- Receiving Entry Form -->
+        <div class="table-card" style="padding: 1.75rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+            <div>
+              <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin: 0; color: #FAF7F2;">Intake Delivery Slip</h3>
+              <p style="color: rgba(250,247,242,0.5); font-size: 0.78rem; margin: 0.25rem 0 0;">Log manufacturer deliveries directly into atelier inventory.</p>
+            </div>
+            <span class="badge badge-active" style="font-size: 0.7rem;">Verified Inbound</span>
+          </div>
+
+          <form id="stockInForm" onsubmit="handleStockInSubmit(event)">
+            <!-- Product Target Selector -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem;">Select Product SKU</label>
+              <select id="prodSelect" class="admin-select" style="width: 100%;" required onchange="onProductSelectChanged()">
+                <option value="">-- Choose Product to Receive --</option>
+              </select>
+            </div>
+
+            <!-- Current Balances Quick Preview -->
+            <div id="productStockPreview" style="display: none; padding: 0.85rem 1rem; background: rgba(201,169,110,0.06); border: 1px solid rgba(201,169,110,0.25); border-radius: 4px; margin-bottom: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.6); text-transform: uppercase;">Current Atelier Balance</div>
+                  <div style="font-weight: 600; font-size: 1.1rem; color: #7bed9f;" id="previewStockQty">0 units</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.6); text-transform: uppercase;">Reserved (Orders)</div>
+                  <div style="font-weight: 500; font-size: 1rem; color: #bb8fce;" id="previewReservedQty">0 units</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quantity Received -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem;">Inbound Quantity to Add</label>
+              <input type="number" id="receiveQty" class="admin-input" style="width: 100%; font-size: 1.1rem; font-weight: 600; color: #7bed9f;" placeholder="e.g. 50" min="1" required />
+              <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                <button type="button" onclick="setReceiveQty(25)" class="btn-outline" style="font-size: 0.68rem; padding: 0.25rem 0.55rem;">+25</button>
+                <button type="button" onclick="setReceiveQty(50)" class="btn-outline" style="font-size: 0.68rem; padding: 0.25rem 0.55rem;">+50</button>
+                <button type="button" onclick="setReceiveQty(100)" class="btn-outline" style="font-size: 0.68rem; padding: 0.25rem 0.55rem;">+100</button>
+                <button type="button" onclick="setReceiveQty(250)" class="btn-outline" style="font-size: 0.68rem; padding: 0.25rem 0.55rem;">+250</button>
+              </div>
+            </div>
+
+            <!-- Purchase Order / Shipment Reference -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem;">Purchase Order or Delivery Reference</label>
+              <input type="text" id="receivePoRef" class="admin-input" style="width: 100%;" placeholder="e.g. PO-2026-8910 or GRASSE-BATCH-42" required />
+            </div>
+
+            <!-- Supplier / Atelier Facility -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem;">Supplier / Sourcing Facility</label>
+              <input type="text" id="receiveSupplier" class="admin-input" style="width: 100%;" placeholder="e.g. Grasse Perfume Laboratories, France" />
+            </div>
+
+            <!-- Quality & Notes -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+              <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem;">Inspection Remarks</label>
+              <textarea id="receiveNotes" class="admin-input" style="width: 100%; height: 75px;" placeholder="e.g. Luxury packaging inspected, undamaged tamper seals, batch certificates verified."></textarea>
+            </div>
+
+            <button type="submit" id="btnSubmitStockIn" class="btn-gold" style="width: 100%; padding: 0.85rem; font-size: 0.82rem; letter-spacing: 0.1em;">
+              CONFIRM &amp; PROCESS INBOUND STOCK IN &rarr;
+            </button>
+          </form>
+        </div>
+
+        <!-- Recent Inbound Receipts Feed -->
+        <div class="table-card" style="padding: 1.75rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+            <div>
+              <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin: 0; color: #FAF7F2;">Recent Inbound Receipts</h3>
+              <p style="color: rgba(250,247,242,0.5); font-size: 0.78rem; margin: 0.25rem 0 0;">Latest committed STOCK_RECEIVED receipts.</p>
+            </div>
+            <button onclick="loadRecentReceipts()" class="btn-outline" style="font-size: 0.7rem; padding: 0.4rem 0.75rem;">
+              ⟳ Refresh
+            </button>
+          </div>
+
+          <div class="table-responsive" style="max-height: 520px; overflow-y: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Product</th>
+                  <th>Qty In</th>
+                  <th>New Balance</th>
+                  <th>Reference</th>
+                </tr>
+              </thead>
+              <tbody id="recentReceiptsBody">
+                <tr><td colspan="5" style="text-align: center;">Loading inbound feed...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let allInventory = [];
+
+    function setReceiveQty(n) {
+      document.getElementById('receiveQty').value = n;
+    }
+
+    async function loadInventoryProducts() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory');
+        const data = await res.json();
+
+        if (data.success) {
+          allInventory = data.inventory || [];
+          populateProductSelect();
+          updateBadges(data.summary);
+        }
+      } catch (err) {
+        console.error('Error loading inventory products:', err);
+      }
+    }
+
+    function populateProductSelect() {
+      const select = document.getElementById('prodSelect');
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetSku = urlParams.get('sku');
+      const targetId = urlParams.get('id');
+
+      select.innerHTML = '<option value="">-- Choose Product to Receive --</option>' +
+        allInventory.map(item => {
+          const isSelected = (targetSku && item.sku === targetSku) || (targetId && item.inventory_id.toString() === targetId);
+          return `<option value="${item.inventory_id}" ${isSelected ? 'selected' : ''}>${item.product_name} (${item.sku}) — Current: ${item.stock_quantity}</option>`;
+        }).join('');
+
+      onProductSelectChanged();
+    }
+
+    function onProductSelectChanged() {
+      const select = document.getElementById('prodSelect');
+      const invId = parseInt(select.value, 10);
+      const preview = document.getElementById('productStockPreview');
+
+      if (!invId) {
+        preview.style.display = 'none';
+        return;
+      }
+
+      const item = allInventory.find(i => i.inventory_id === invId);
+      if (item) {
+        preview.style.display = 'block';
+        document.getElementById('previewStockQty').textContent = `${item.stock_quantity} units`;
+        document.getElementById('previewReservedQty').textContent = `${item.reserved_quantity} units`;
+      }
+    }
+
+    async function handleStockInSubmit(e) {
+      e.preventDefault();
+      const inventoryId = parseInt(document.getElementById('prodSelect').value, 10);
+      const qty = parseInt(document.getElementById('receiveQty').value, 10);
+      const poRef = document.getElementById('receivePoRef').value.trim();
+      const supplier = document.getElementById('receiveSupplier').value.trim();
+      const notes = document.getElementById('receiveNotes').value.trim();
+
+      if (!inventoryId || !qty || qty <= 0) {
+        alert('Please select a product and valid positive receiving quantity.');
+        return;
+      }
+
+      let reason = `PO: ${poRef}`;
+      if (supplier) reason += ` | Supplier: ${supplier}`;
+      if (notes) reason += ` | Note: ${notes}`;
+
+      const btn = document.getElementById('btnSubmitStockIn');
+      btn.disabled = true;
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory/adjust', {
+          method: 'POST',
+          body: JSON.stringify({
+            inventoryId,
+            quantityDelta: qty,
+            transactionType: 'STOCK_RECEIVED',
+            reason: reason
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(`Successfully received +${qty} units!`);
+          document.getElementById('receiveQty').value = '';
+          document.getElementById('receivePoRef').value = '';
+          document.getElementById('receiveSupplier').value = '';
+          document.getElementById('receiveNotes').value = '';
+
+          try {
+            const bc = new BroadcastChannel('lumiere_realtime_bus');
+            bc.postMessage({ type: 'inventory_update' });
+          } catch {}
+
+          await loadInventoryProducts();
+          await loadRecentReceipts();
+        } else {
+          alert(data.error || 'Failed to process inbound stock');
+        }
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function loadRecentReceipts() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory/transactions?type=STOCK_RECEIVED&limit=50');
+        const data = await res.json();
+
+        if (data.success) {
+          const txList = data.transactions || [];
+          const tbody = document.getElementById('recentReceiptsBody');
+
+          let totalUnits = 0;
+          txList.forEach(t => {
+            totalUnits += (parseInt(t.quantity_delta, 10) || 0);
+          });
+
+          const countEl = document.getElementById('topReceivedUnitsCount');
+          if (countEl) countEl.textContent = totalUnits.toLocaleString();
+
+          const batchEl = document.getElementById('topTotalReceiptBatches');
+          if (batchEl) batchEl.textContent = txList.length.toLocaleString();
+
+          if (txList.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: rgba(250,247,242,0.5);">No stock in receipts found.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = txList.map(tx => `
+            <tr>
+              <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6); white-space: nowrap;">
+                ${new Date(tx.created_at).toLocaleDateString()} ${new Date(tx.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              </td>
+              <td>
+                <strong style="color: #fff; font-size: 0.82rem;">${tx.product_name}</strong>
+                <div style="font-size: 0.7rem; color: var(--color-gold); font-family: monospace;">${tx.sku}</div>
+              </td>
+              <td style="font-weight: 700; color: #7bed9f;">
+                +${tx.quantity_delta}
+              </td>
+              <td style="font-weight: 600; color: #FAF7F2;">
+                ${tx.balance_after}
+              </td>
+              <td style="font-size: 0.74rem; color: rgba(250,247,242,0.75);">
+                ${tx.reason || 'Shipment Restock'}
+              </td>
+            </tr>
+          `).join('');
+        }
+      } catch (err) {
+        console.error('Error loading receipts:', err);
+      }
+    }
+
+    function updateBadges(summary) {
+      if (!summary) return;
+      const lowBadge = document.getElementById('subnavLowStockBadge');
+      if (lowBadge) lowBadge.textContent = summary.low_stock_count;
+      const outBadge = document.getElementById('subnavOutStockBadge');
+      if (outBadge) outBadge.textContent = summary.out_of_stock_count;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadInventoryProducts();
+      loadRecentReceipts();
+
+      try {
+        const bc = new BroadcastChannel('lumiere_realtime_bus');
+        bc.onmessage = () => {
+          loadInventoryProducts();
+          loadRecentReceipts();
+        };
+      } catch {}
+
+      setInterval(() => {
+        const active = document.activeElement;
+        if (!active || (active.tagName !== 'INPUT' && active.tagName !== 'TEXTAREA' && active.tagName !== 'SELECT')) {
+          loadInventoryProducts();
+          loadRecentReceipts();
+        }
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

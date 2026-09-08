@@ -3,13 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Commerce Analytics — Lumière Admin</title>
+  <title>Sales Analytics &amp; Revenue — Lumière Admin</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
   
   <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .period-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(250, 247, 242, 0.7);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .period-btn:hover {
+      border-color: rgba(201, 169, 110, 0.5);
+      color: var(--color-gold);
+    }
+    .period-btn.active {
+      background: var(--color-gold);
+      color: #0a0a0b;
+      border-color: var(--color-gold);
+      font-weight: 600;
+    }
+  </style>
 </head>
 <body>
 
@@ -19,52 +43,137 @@
     <header class="admin-topbar" id="adminTopbar"></header>
 
     <main class="admin-content">
-      <div style="margin-bottom: 2rem;">
-        <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Quantitative Intelligence</span>
-        <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Commerce Performance &amp; Analytics</h1>
+      <!-- Header & Real-Time Telemetry -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1.25rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Executive Business Intelligence</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <span id="roleAccessBadge" class="badge badge-owner" style="font-size: 0.65rem;">OWNER ACCESS</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator">
+              <span class="live-dot"></span>
+              <span>LIVE REVENUE TELEMETRY</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;">Sales Performance &amp; Revenue</h1>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+          <div style="display: flex; gap: 0.35rem; background: rgba(0,0,0,0.3); padding: 0.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
+            <button class="period-btn" onclick="setPeriod('today', this)">Today</button>
+            <button class="period-btn" onclick="setPeriod('7d', this)">7D</button>
+            <button class="period-btn active" onclick="setPeriod('30d', this)">30D</button>
+            <button class="period-btn" onclick="setPeriod('1y', this)">1Y</button>
+            <button class="period-btn" onclick="setPeriod('all', this)">All Time</button>
+          </div>
+          <button onclick="exportSalesCSV()" class="btn-outline" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;">
+            📊 Export CSV
+          </button>
+          <button onclick="loadSalesAnalytics(false)" class="btn-outline" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="Force immediate database sync">
+            <span id="syncSpinIcon" style="display: inline-block;">⟳</span> SYNC NOW
+          </button>
+        </div>
       </div>
 
-      <!-- High-Level Financial Metrics -->
-      <div class="stat-card-grid">
+      <!-- Shared Commerce Analytics Sub-Navbar Strip -->
+      <div class="subnav-strip">
+        <a href="analytics.html" class="subnav-tab active">
+          <span>📈</span> Sales &amp; Revenue
+        </a>
+        <a href="analytics-products.html" class="subnav-tab">
+          <span>💎</span> Product Performance
+        </a>
+        <a href="analytics-customers.html" class="subnav-tab">
+          <span>👑</span> Customer Cohorts
+        </a>
+        <a href="analytics-inventory.html" class="subnav-tab">
+          <span>📦</span> Inventory Valuation
+        </a>
+      </div>
+
+      <!-- High-Level Financial Metrics Cards -->
+      <div class="stat-card-grid" style="margin-bottom: 2rem;">
         <div class="stat-card">
-          <div class="stat-title">Lifetime Gross Volume</div>
-          <div class="stat-number" id="anGrossVol">$0.00</div>
-          <span style="font-size: 0.72rem; color: #7bed9f; margin-top: 0.5rem;">Total fulfilled volume</span>
+          <div class="stat-title">Gross Revenue</div>
+          <div class="stat-number" id="anGrossRev" style="color: var(--color-gold);">₹0.00</div>
+          <span style="font-size: 0.72rem; color: #7bed9f; margin-top: 0.5rem;" id="anPaidOrders">0 fulfilled checkouts</span>
         </div>
 
         <div class="stat-card">
           <div class="stat-title">Average Order Value (AOV)</div>
-          <div class="stat-number" id="anAOV">$0.00</div>
-          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;">Per transaction</span>
+          <div class="stat-number" id="anAOV">₹0.00</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Per customer transaction</span>
         </div>
 
         <div class="stat-card">
-          <div class="stat-title">Order Conversion Rate</div>
-          <div class="stat-number" style="color: #7bed9f;">94.2%</div>
-          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Paid checkout efficiency</span>
+          <div class="stat-title">Checkout Conversion</div>
+          <div class="stat-number" id="anConvRate" style="color: #7bed9f;">100%</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Paid to total orders ratio</span>
         </div>
 
-        <div class="stat-card">
-          <div class="stat-title">Inventory Health Ratio</div>
-          <div class="stat-number" id="anInvHealth">96.8%</div>
-          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;">Catalog in-stock rate</span>
+        <div class="stat-card" id="cardProfitEstimate">
+          <div class="stat-title">Estimated Operating Margin</div>
+          <div class="stat-number" id="anEstProfit" style="color: #bb8fce;">₹0.00</div>
+          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;">~48% atelier net profit</span>
         </div>
       </div>
 
-      <!-- Distribution Cards -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
-        <div class="table-card" style="padding: 1.5rem;">
-          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin: 0 0 1.25rem;">Order Distribution by Status</h3>
-          <div id="statusBreakdownContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
+      <!-- Distribution Cards (Status Funnel & Payment Breakdown) -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- Order Status Distribution -->
+        <div class="table-card" style="padding: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 0.75rem;">
+            <div>
+              <h3 style="font-family: var(--font-serif); font-size: 1.4rem; margin: 0; color: #FAF7F2;">Order Status Distribution</h3>
+              <p style="font-size: 0.75rem; color: rgba(250,247,242,0.5); margin: 0.2rem 0 0;">Fulfillment funnel across selected period.</p>
+            </div>
+            <a href="orders.html" class="btn-outline" style="font-size: 0.7rem; padding: 0.35rem 0.7rem; text-decoration: none;">View Orders &rarr;</a>
+          </div>
+          <div id="statusBreakdownContainer" style="display: flex; flex-direction: column; gap: 1rem;">
             Loading status distribution...
           </div>
         </div>
 
-        <div class="table-card" style="padding: 1.5rem;">
-          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin: 0 0 1.25rem;">Boutique Bestsellers by Volume</h3>
-          <div id="topSellersContainer" style="display: flex; flex-direction: column; gap: 0.75rem;">
-            Loading volume leaders...
+        <!-- Payment Method Breakdown -->
+        <div class="table-card" style="padding: 1.75rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 0.75rem;">
+            <div>
+              <h3 style="font-family: var(--font-serif); font-size: 1.4rem; margin: 0; color: #FAF7F2;">Revenue by Payment Method</h3>
+              <p style="font-size: 0.75rem; color: rgba(250,247,242,0.5); margin: 0.2rem 0 0;">Settlement channels and volume.</p>
+            </div>
+            <span class="badge badge-active" style="font-size: 0.65rem;">Verified</span>
           </div>
+          <div id="paymentBreakdownContainer" style="display: flex; flex-direction: column; gap: 1rem;">
+            Loading payment channels...
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales Run-Rate Timeline Ledger -->
+      <div class="table-card" style="padding: 1.75rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 0.75rem;">
+          <div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.4rem; margin: 0; color: #FAF7F2;">Sales Velocity Timeline</h3>
+            <p style="font-size: 0.75rem; color: rgba(250,247,242,0.5); margin: 0.2rem 0 0;">Daily checkout volume and revenue run-rate.</p>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Orders Placed</th>
+                <th>Daily Revenue</th>
+                <th>Average Order Value</th>
+                <th style="text-align: right;">Run-Rate Performance</th>
+              </tr>
+            </thead>
+            <tbody id="salesTimelineBody">
+              <tr><td colspan="5" style="text-align: center;">Loading timeline records...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </main>
@@ -73,57 +182,200 @@
   <script src="../js/auth.js"></script>
   <script src="js/admin.js"></script>
   <script>
-    async function loadAnalytics() {
+    let activePeriod = '30d';
+    let currentSalesData = null;
+
+    // Handle hash links for backward compatibility (#products, #customers, #inventory)
+    if (window.location.hash === '#products') window.location.replace('analytics-products.html');
+    else if (window.location.hash === '#customers') window.location.replace('analytics-customers.html');
+    else if (window.location.hash === '#inventory') window.location.replace('analytics-inventory.html');
+
+    function setPeriod(p, btn) {
+      activePeriod = p;
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      loadSalesAnalytics(false);
+    }
+
+    async function loadSalesAnalytics(isSilent = false) {
+      const spin = document.getElementById('syncSpinIcon');
+      if (spin && !isSilent) spin.style.animation = 'spin 0.6s linear infinite';
+
       try {
-        const res = await Auth.apiFetch('/api/admin/overview');
+        const res = await Auth.apiFetch(`/api/admin/analytics/detailed?period=${activePeriod}`);
         const data = await res.json();
 
         if (data.success) {
-          const m = data.metrics;
-          const aov = m.totalOrders > 0 ? (m.totalRevenue / m.totalOrders) : 0;
-          document.getElementById('anGrossVol').innerText = `$${m.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
-          document.getElementById('anAOV').innerText = `$${aov.toFixed(2)}`;
-
-          // Status breakdown bars
-          const statusContainer = document.getElementById('statusBreakdownContainer');
-          if (data.statusBreakdown && data.statusBreakdown.length > 0) {
-            statusContainer.innerHTML = data.statusBreakdown.map(s => `
-              <div>
-                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.25rem;">
-                  <span>${s.status} (${s.count})</span>
-                  <strong style="color: var(--color-gold);">$${parseFloat(s.value).toFixed(2)}</strong>
-                </div>
-                <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden;">
-                  <div style="height: 100%; width: ${Math.min(100, (s.count / m.totalOrders) * 100)}%; background: var(--color-gold); border-radius: 3px;"></div>
-                </div>
-              </div>
-            `).join('');
-          } else {
-            statusContainer.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No status breakdown available.</p>';
-          }
-
-          // Top sellers
-          const topContainer = document.getElementById('topSellersContainer');
-          if (data.bestSellers && data.bestSellers.length > 0) {
-            topContainer.innerHTML = data.bestSellers.map(p => `
-              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 0.5rem;">
-                <div>
-                  <div style="font-weight: 500; font-size: 0.82rem;">${p.name}</div>
-                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${p.total_sold} units sold</div>
-                </div>
-                <strong style="color: var(--color-gold); font-size: 0.9rem;">$${parseFloat(p.revenue_generated).toFixed(2)}</strong>
-              </div>
-            `).join('');
-          } else {
-            topContainer.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No sales recorded yet.</p>';
-          }
+          currentSalesData = data;
+          renderSalesMetrics(data);
         }
       } catch (err) {
-        console.error('Analytics error:', err);
+        console.error('Error loading analytics:', err);
+      } finally {
+        if (spin) spin.style.animation = '';
       }
     }
 
-    document.addEventListener('DOMContentLoaded', loadAnalytics);
+    function renderSalesMetrics(data) {
+      const s = data.sales || {};
+      const userRole = data.userRole || 'STAFF';
+
+      // Update role badge
+      const roleEl = document.getElementById('roleAccessBadge');
+      if (roleEl) {
+        roleEl.innerText = `${userRole} ANALYTICS ACCESS`;
+        roleEl.className = data.isOwner ? 'badge badge-owner' : 'badge badge-active';
+      }
+
+      // Hide or show estimated profit
+      const profitCard = document.getElementById('cardProfitEstimate');
+      if (profitCard) {
+        profitCard.style.display = (data.isOwner || data.isManager) ? 'block' : 'none';
+      }
+
+      document.getElementById('anGrossRev').innerText = `₹${parseFloat(s.totalRevenue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      document.getElementById('anPaidOrders').innerText = `${s.totalOrders || 0} completed checkouts`;
+      document.getElementById('anAOV').innerText = `₹${parseFloat(s.aov || 0).toFixed(2)}`;
+      document.getElementById('anConvRate').innerText = `${s.conversionRate || 100}%`;
+      
+      const profitEl = document.getElementById('anEstProfit');
+      if (profitEl && s.estimatedProfit !== null) {
+        profitEl.innerText = `₹${parseFloat(s.estimatedProfit || 0).toLocaleString('en-IN')}`;
+      }
+
+      // Status breakdown
+      const statusContainer = document.getElementById('statusBreakdownContainer');
+      const statuses = s.statusBreakdown || [];
+      if (statuses.length > 0) {
+        const maxVal = Math.max(...statuses.map(st => parseFloat(st.value) || 0), 1);
+        statusContainer.innerHTML = statuses.map(st => {
+          const val = parseFloat(st.value) || 0;
+          const pct = Math.min(100, Math.round((val / maxVal) * 100));
+          return `
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem;">
+                <span style="color: #fff; font-weight: 500;">${st.status} (${st.count} orders)</span>
+                <strong style="color: var(--color-gold); font-family: monospace;">₹${val.toFixed(2)}</strong>
+              </div>
+              <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden;">
+                <div style="height: 100%; width: ${pct}%; background: ${st.status === 'Cancelled' ? '#ff708f' : 'var(--color-gold)'}; border-radius: 3px;"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        statusContainer.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No orders recorded in this period.</p>';
+      }
+
+      // Payment methods
+      const payContainer = document.getElementById('paymentBreakdownContainer');
+      const payMethods = s.paymentMethods || [];
+      if (payMethods.length > 0) {
+        const totalPay = payMethods.reduce((sum, p) => sum + (parseFloat(p.total) || 0), 0) || 1;
+        payContainer.innerHTML = payMethods.map(p => {
+          const val = parseFloat(p.total) || 0;
+          const pct = Math.min(100, Math.round((val / totalPay) * 100));
+          return `
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 0.35rem;">
+                <span style="color: #fff; font-weight: 500;">${p.payment_method || 'Card'} (${pct}%)</span>
+                <strong style="color: #7bed9f; font-family: monospace;">₹${val.toFixed(2)}</strong>
+              </div>
+              <div style="height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden;">
+                <div style="height: 100%; width: ${pct}%; background: #7bed9f; border-radius: 3px;"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        payContainer.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No payment data recorded in this period.</p>';
+      }
+
+      // Sales Timeline
+      const timelineBody = document.getElementById('salesTimelineBody');
+      const timeline = s.salesTimeline || [];
+      if (timeline.length > 0) {
+        timelineBody.innerHTML = timeline.map(row => {
+          const dayAOV = row.orders_count > 0 ? (parseFloat(row.daily_revenue) / row.orders_count) : 0;
+          return `
+            <tr>
+              <td style="color: #fff; font-weight: 500;">
+                ${new Date(row.sale_date).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
+              </td>
+              <td style="font-weight: 600; color: #FAF7F2;">
+                ${row.orders_count} orders
+              </td>
+              <td style="color: var(--color-gold); font-weight: 600; font-family: var(--font-serif); font-size: 1rem;">
+                ₹${parseFloat(row.daily_revenue).toFixed(2)}
+              </td>
+              <td style="color: rgba(250,247,242,0.75);">
+                ₹${dayAOV.toFixed(2)}
+              </td>
+              <td style="text-align: right;">
+                <span class="badge badge-active" style="font-size: 0.65rem;">Active Velocity</span>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      } else {
+        timelineBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: rgba(250,247,242,0.5);">No daily sales activity recorded.</td></tr>';
+      }
+    }
+
+    function exportSalesCSV() {
+      if (!currentSalesData || !currentSalesData.sales) {
+        alert('No sales data loaded.');
+        return;
+      }
+
+      const timeline = currentSalesData.sales.salesTimeline || [];
+      const headers = ['Date', 'Orders Count', 'Daily Revenue', 'Average Order Value'];
+      const rows = timeline.map(t => [
+        `"${t.sale_date}"`,
+        t.orders_count,
+        parseFloat(t.daily_revenue).toFixed(2),
+        (t.orders_count > 0 ? (parseFloat(t.daily_revenue) / t.orders_count) : 0).toFixed(2)
+      ]);
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `lumiere_sales_analytics_${activePeriod}_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Support legacy anchor hashes
+      const hash = window.location.hash.toLowerCase();
+      if (hash === '#products') {
+        window.location.replace('analytics-products.html');
+        return;
+      } else if (hash === '#customers') {
+        window.location.replace('analytics-customers.html');
+        return;
+      } else if (hash === '#inventory') {
+        window.location.replace('analytics-inventory.html');
+        return;
+      }
+
+      loadSalesAnalytics(false);
+
+      try {
+        const bc = new BroadcastChannel('lumiere_realtime_bus');
+        bc.onmessage = () => loadSalesAnalytics(true);
+      } catch {}
+
+      setInterval(() => {
+        const activeEl = document.activeElement;
+        const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'SELECT');
+        if (!isTyping) {
+          loadSalesAnalytics(true);
+        }
+      }, 5000);
+    });
   </script>
 </body>
 </html>

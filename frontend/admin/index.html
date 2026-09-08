@@ -52,19 +52,19 @@
           </div>
         </div>
         <div class="owner-deck-actions">
-          <button class="btn-owner-action btn-owner-gold" onclick="openCreateProductModal()">
+          <button id="btnDeckCreateProduct" class="btn-owner-action btn-owner-gold" onclick="openCreateProductModal()">
             <span>+</span> CREATE PRODUCT
           </button>
-          <button class="btn-owner-action btn-owner-outline" onclick="openQuickStockModal()">
+          <button id="btnDeckQuickStock" class="btn-owner-action btn-owner-outline" onclick="openQuickStockModal()">
             <span>⚡</span> QUICK RESTOCK
           </button>
           <button class="btn-owner-action btn-owner-sim" id="btnSimulateOrder" onclick="simulateClientOrder()">
             <span>🛍️</span> SIMULATE ORDER
           </button>
-          <button class="btn-owner-action btn-owner-outline" onclick="exportExecutiveCSV()">
+          <button id="btnDeckExportCsv" class="btn-owner-action btn-owner-outline" onclick="exportExecutiveCSV()">
             <span>📊</span> EXPORT CSV
           </button>
-          <button class="btn-owner-action btn-owner-outline" onclick="openAuditModal()">
+          <button id="btnDeckAuditLedger" class="btn-owner-action btn-owner-outline" onclick="openAuditModal()">
             <span>📜</span> AUDIT LEDGER
           </button>
         </div>
@@ -91,7 +91,7 @@
       <div class="stat-card-grid">
         <div class="stat-card" id="cardRevenue">
           <div class="stat-title">Total Revenue</div>
-          <div class="stat-number" id="valRevenue">$0.00</div>
+          <div class="stat-number" id="valRevenue">₹0.00</div>
           <span style="font-size: 0.72rem; color: #7bed9f; margin-top: 0.5rem;">✦ Verified Transactions</span>
         </div>
 
@@ -104,7 +104,7 @@
         <div class="stat-card" id="cardTodayOrders">
           <div class="stat-title">Today's Orders</div>
           <div class="stat-number" id="valTodayOrders">0</div>
-          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;" id="valTodayRev">$0.00 today</span>
+          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;" id="valTodayRev">₹0.00 today</span>
         </div>
 
         <div class="stat-card" id="cardCustomers">
@@ -113,10 +113,10 @@
           <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Registered luxury accounts</span>
         </div>
 
-        <div class="stat-card" id="cardProducts">
+        <div class="stat-card" id="cardProducts" onclick="scrollToOwnerProducts()" style="cursor: pointer;" title="Click to view all products in the Executive Catalog fleet">
           <div class="stat-title">Active Products</div>
           <div class="stat-number" id="valProducts">0</div>
-          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Live boutique catalog</span>
+          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;">↓ View Live Catalog Fleet</span>
         </div>
 
         <div class="stat-card" id="cardLowStock">
@@ -194,6 +194,98 @@
 
       </div>
 
+      <!-- ========================================================
+           EXECUTIVE ATELIER CATALOG & REAL-TIME PRODUCT FLEET
+           ======================================================== -->
+      <div id="executiveProductsSection" style="margin-top: 2.75rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+              <span class="owner-deck-badge" style="font-size: 0.65rem;">👑 OWNER CATALOG COMMAND</span>
+              <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+              <span id="ownerProdCountBadge" class="badge badge-owner" style="font-size: 0.65rem;">Loading Catalog...</span>
+              <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+              <div class="live-indicator" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.68rem; color: #7bed9f;">
+                <span class="live-dot" id="liveOwnerCatalogDot"></span>
+                <span id="ownerSyncStatusText">REAL-TIME CATALOG STREAM (5s)</span>
+              </div>
+            </div>
+            <h2 style="font-family: var(--font-serif); font-size: 1.9rem; font-weight: 300; margin: 0; color: #FAF7F2;">Atelier Executive Product Fleet &amp; Live Vault Inventory</h2>
+            <div style="font-size: 0.78rem; color: rgba(250,247,242,0.6); margin-top: 0.25rem;">
+              Complete boutique catalog with live stock telemetry, rapid vault replenishment (+25), and executive role-based controls.
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+            <button id="btnOwnerRegisterProd" onclick="openCreateProductModal()" class="btn-owner-action btn-owner-gold" style="font-size: 0.72rem;">
+              <span>+</span> REGISTER PRODUCT
+            </button>
+            <button id="btnOwnerRestockLow" onclick="restockAllLowStock()" class="btn-owner-action btn-owner-outline" style="font-size: 0.72rem;" title="1-Click Restock All Low-Stock Items (+25 Units)">
+              <span>⚡</span> RESTOCK LOW STOCK
+            </button>
+            <button id="btnOwnerManualSync" onclick="manualSyncOwnerCatalog()" class="btn-outline" style="font-size: 0.72rem; padding: 0.55rem 0.9rem;" title="Immediate Real-Time Database Sync">
+              <span id="ownerSyncSpinIcon" style="display: inline-block;">⟳</span> SYNC NOW
+            </button>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls Deck -->
+        <div class="table-card" style="padding: 1.1rem 1.4rem; margin-bottom: 1.25rem; display: flex; gap: 0.85rem; flex-wrap: wrap; align-items: center;">
+          <div style="flex: 2; min-width: 220px; position: relative;">
+            <input type="text" id="ownerProductSearch" class="admin-input" placeholder="Search catalog by title, SKU, or notes..." style="width: 100%; padding-left: 2rem;" oninput="debounceOwnerProductSearch()" />
+            <span style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); color: rgba(250,247,242,0.4); font-size: 0.85rem;">🔍</span>
+          </div>
+          <select id="ownerCategoryFilter" class="admin-select" style="flex: 1; min-width: 150px;" onchange="loadExecutiveProducts(false)">
+            <option value="">All Categories</option>
+          </select>
+          <select id="ownerStockStatusFilter" class="admin-select" style="flex: 1; min-width: 160px;" onchange="applyOwnerFiltersAndRender()">
+            <option value="all">All Status &amp; Stock Levels</option>
+            <option value="in_stock">In Stock (Healthy)</option>
+            <option value="low_stock">⚠️ Low Stock Alerts</option>
+            <option value="out_of_stock">⛔ Out of Stock (0)</option>
+            <option value="active">Active Only</option>
+            <option value="draft">Draft (Lab Reserve)</option>
+            <option value="archived">Archived</option>
+          </select>
+          <select id="ownerSortFilter" class="admin-select" style="flex: 1; min-width: 160px;" onchange="applyOwnerSortAndRender()">
+            <option value="newest">Sort: Newest First</option>
+            <option value="price_desc">Price: High to Low</option>
+            <option value="price_asc">Price: Low to High</option>
+            <option value="stock_asc">Stock: Low to High</option>
+            <option value="name_asc">Name: A to Z</option>
+          </select>
+        </div>
+
+        <!-- Master Products Fleet Table -->
+        <div class="table-card">
+          <div class="table-header-wrap" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin: 0;">Live Registered Atelier Catalog</h3>
+              <span id="ownerShowingCount" style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Showing 0 items</span>
+            </div>
+            <a href="products.html" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.68rem;">FULL ATELIER SUITE &rarr;</a>
+          </div>
+          <div class="table-responsive" style="max-height: 540px; overflow-y: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>SKU</th>
+                  <th>Category</th>
+                  <th>Price ($)</th>
+                  <th>Vault Stock</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Executive Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ownerProductsTableBody">
+                <tr><td colspan="7" style="text-align: center; color: rgba(250,247,242,0.5);">Loading executive catalog fleet...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
     </main>
   </div>
 
@@ -234,7 +326,7 @@
           </select>
         </div>
         <div>
-          <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Price ($ USD) *</label>
+          <label style="display:block; font-size:0.75rem; color:rgba(250,247,242,0.7); margin-bottom:0.35rem;">Price (₹ INR) *</label>
           <input type="number" id="newProdPrice" step="0.01" min="1" class="admin-input" required placeholder="185.00" style="width: 100%;" />
         </div>
       </div>
@@ -379,6 +471,90 @@
     </div>
   </div>
 
+  <!-- MODAL 5: Edit Product Modal (Executive Owner Suite) -->
+  <div class="admin-modal" id="productModal" style="max-width: 680px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin: 0; color: #FAF7F2;" id="productModalTitle">Edit Product</h3>
+      <button onclick="Admin.closeModal('productModal')" style="background: none; border: none; color: rgba(250,247,242,0.6); font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <form id="editProductForm" onsubmit="handleSaveOwnerEditProduct(event)">
+      <input type="hidden" id="editProductId" />
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Product Name *</label>
+          <input type="text" id="editPName" class="admin-input" style="width: 100%;" required />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">SKU Code *</label>
+          <input type="text" id="editPSku" class="admin-input" style="width: 100%; font-family: monospace;" required />
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Description</label>
+        <textarea id="editPDesc" class="admin-input" style="width: 100%; height: 75px; resize: vertical;"></textarea>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Price (₹ INR) *</label>
+          <input type="number" step="0.01" id="editPPrice" class="admin-input" style="width: 100%; font-weight: 600; color: var(--color-gold);" required />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Compare Price ($)</label>
+          <input type="number" step="0.01" id="editPComparePrice" class="admin-input" style="width: 100%;" placeholder="Optional" />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Category *</label>
+          <select id="editPCategory" class="admin-select" style="width: 100%;" required></select>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Physical Stock Units</label>
+          <input type="number" id="editPStock" class="admin-input" style="width: 100%; font-weight: 600;" min="0" />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Low Stock Threshold</label>
+          <input type="number" id="editPThreshold" class="admin-input" style="width: 100%;" value="5" min="1" />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Publication Status</label>
+          <select id="editPStatus" class="admin-select" style="width: 100%;">
+            <option value="active">Active (Live in Store)</option>
+            <option value="draft">Draft (Lab Reserve)</option>
+            <option value="archived">Archived</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Image URL</label>
+        <input type="text" id="editPImageUrl" class="admin-input" style="width: 100%;" placeholder="images/skincare_products_1788328338930.jpg" />
+      </div>
+
+      <div style="display: flex; gap: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; cursor: pointer;">
+          <input type="checkbox" id="editPBestseller" style="accent-color: var(--color-gold);" /> ✦ Bestseller
+        </label>
+        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; cursor: pointer;">
+          <input type="checkbox" id="editPNewArrival" style="accent-color: var(--color-gold);" /> ✦ New Arrival
+        </label>
+        <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; cursor: pointer;">
+          <input type="checkbox" id="editPFeatured" style="accent-color: var(--color-gold);" /> ✦ Featured
+        </label>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" onclick="Admin.closeModal('productModal')" class="btn-outline">Cancel</button>
+        <button type="submit" class="btn-gold" id="btnUpdateProduct">Save Changes &rarr;</button>
+      </div>
+    </form>
+  </div>
+
   <script src="../js/auth.js"></script>
   <script src="js/admin.js"></script>
   <script>
@@ -391,6 +567,11 @@
     let cachedProducts = [];
     let cachedInventory = [];
     let lastMetricValues = {};
+
+    let ownerProductsList = [];
+    let ownerCategoriesList = [];
+    let ownerSearchTimeout = null;
+    let lastOwnerProductsFingerprint = '';
 
     // 1. Initial Load & Telemetry Polling
     async function loadDashboard() {
@@ -408,11 +589,13 @@
       } catch (err) {
         console.warn('[Dashboard Telemetry] Sync error:', err);
       }
+      // Synchronize executive catalog fleet in real time
+      loadExecutiveProducts(true);
     }
 
     function renderMetrics(m) {
       if (!m) return;
-      const formattedRev = `$${m.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const formattedRev = `₹${m.totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       
       // Update with flash animation if value changed
       updateStatWithFlash('valRevenue', formattedRev, lastMetricValues.rev);
@@ -422,7 +605,7 @@
       updateStatWithFlash('valProducts', m.totalProducts, lastMetricValues.products);
       updateStatWithFlash('valLowStock', m.lowStockCount, lastMetricValues.lowStock);
 
-      document.getElementById('valTodayRev').innerText = `$${(m.todayRevenue || 0).toFixed(2)} today`;
+      document.getElementById('valTodayRev').innerText = `₹${(m.todayRevenue || 0).toFixed(2)} today`;
       document.getElementById('valOutStock').innerText = `${m.outOfStockCount || 0} out of stock`;
 
       // Cache current values
@@ -491,7 +674,7 @@
             <div style="font-weight: 500;">${o.customer_name}</div>
             <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email}</div>
           </td>
-          <td style="color: var(--color-gold); font-weight: 600;">$${parseFloat(o.total_amount).toFixed(2)}</td>
+          <td style="color: var(--color-gold); font-weight: 600;">₹${parseFloat(o.total_amount).toFixed(2)}</td>
           <td>
             <select class="admin-table-select" onchange="inlineUpdateOrderStatus(${o.id}, this.value, '${o.order_number}')">
               <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
@@ -529,7 +712,7 @@
             <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${p.total_sold} bottles dispatched</div>
           </div>
           <div style="text-align: right;">
-            <div style="color: var(--color-gold); font-size: 0.85rem; font-weight: 600;">$${parseFloat(p.revenue_generated).toFixed(2)}</div>
+            <div style="color: var(--color-gold); font-size: 0.85rem; font-weight: 600;">₹${parseFloat(p.revenue_generated).toFixed(2)}</div>
             <button onclick="triggerQuickStockForProduct(${p.id}, '${escapeHtml(p.name)}')" class="btn-outline" style="padding: 0.2rem 0.45rem; font-size: 0.62rem; margin-top: 0.25rem;">+ Restock</button>
           </div>
         </div>
@@ -581,8 +764,9 @@
 
     function forceSync() {
       loadDashboard();
-      Admin.toast('Telemetrics synchronized with database.');
-      addActivity('Owner triggered immediate database synchronization.');
+      loadExecutiveProducts(false);
+      Admin.toast('Telemetrics & Executive Catalog synchronized in real time.');
+      addActivity('Owner triggered immediate telemetrics & catalog synchronization.');
     }
 
     // 3. Activity Feed Logger
@@ -637,6 +821,20 @@
       Admin.openModal('createProductModal');
     }
 
+    function broadcastRealtimeCatalogMutation(action, productId = null) {
+      try {
+        if (window.LumiereRealtimeCatalog) {
+          window.LumiereRealtimeCatalog.notifyMutation(action, productId);
+        } else {
+          const bc = new BroadcastChannel('lumiere_realtime_bus');
+          bc.postMessage({ type: 'CATALOG_MUTATED', action, productId, timestamp: Date.now() });
+          localStorage.setItem('lumiere_catalog_last_updated', Date.now().toString());
+        }
+      } catch (e) {
+        try { localStorage.setItem('lumiere_catalog_last_updated', Date.now().toString()); } catch {}
+      }
+    }
+
     function generateSku() {
       const randomId = Math.floor(100 + Math.random() * 900);
       document.getElementById('newProdSku').value = `LUM-HAUTE-${randomId}`;
@@ -668,7 +866,9 @@
           Admin.closeModal('createProductModal');
           Admin.toast(`Product "${payload.name}" created successfully!`);
           addActivity(`✨ New Boutique Product Added: "${payload.name}" (${payload.sku}) with ${payload.stockQuantity} units.`);
+          broadcastRealtimeCatalogMutation('create_product', data.productId);
           loadDashboard();
+          loadExecutiveProducts(false);
         } else {
           alert('Error: ' + (data.error || 'Failed to create product.'));
         }
@@ -765,7 +965,9 @@
           Admin.closeModal('quickStockModal');
           Admin.toast(`Restocked +${quantityDelta} units for ${prodName}!`);
           addActivity(`📦 Stock Received: +${quantityDelta} units for ${prodName} (New balance: ${data.result.newStock}).`);
+          broadcastRealtimeCatalogMutation('quick_stock', inventoryId);
           loadDashboard();
+          loadExecutiveProducts(false);
         } else {
           alert('Error: ' + (data.error || 'Failed to adjust stock.'));
         }
@@ -833,9 +1035,11 @@
         const data = await res.json();
 
         if (data.success && data.order) {
-          Admin.toast(`✦ Luxury Order #${data.order.orderNumber} placed by ${client.name} ($${parseFloat(data.order.totalAmount).toFixed(2)})!`);
-          addActivity(`🛍️ Order Placed: #${data.order.orderNumber} by ${client.name} ($${parseFloat(data.order.totalAmount).toFixed(2)}) — Item: ${randomItem.product_name} x${qty}.`);
+          Admin.toast(`✦ Luxury Order #${data.order.orderNumber} placed by ${client.name} (₹${parseFloat(data.order.totalAmount).toFixed(2)})!`);
+          addActivity(`🛍️ Order Placed: #${data.order.orderNumber} by ${client.name} (₹${parseFloat(data.order.totalAmount).toFixed(2)}) — Item: ${randomItem.product_name} x${qty}.`);
+          broadcastRealtimeCatalogMutation('order_placed');
           loadDashboard();
+          loadExecutiveProducts(false);
         } else {
           alert('Order Simulation Failed: ' + (data.error || 'Server error'));
         }
@@ -866,10 +1070,10 @@
         csv += `Generated At,${new Date().toISOString()}\n\n`;
 
         csv += "EXECUTIVE METRICS\n";
-        csv += `Total Revenue,$${ov.totalRevenue || 0}\n`;
+        csv += `Total Revenue,₹${ov.totalRevenue || 0}\n`;
         csv += `Total Orders,${ov.totalOrders || 0}\n`;
         csv += `Today Orders,${ov.todayOrders || 0}\n`;
-        csv += `Today Revenue,$${ov.todayRevenue || 0}\n`;
+        csv += `Today Revenue,₹${ov.todayRevenue || 0}\n`;
         csv += `Total Registered Clients,${ov.totalCustomers || 0}\n`;
         csv += `Active Products In Catalog,${ov.totalProducts || 0}\n`;
         csv += `Low Stock Alerts,${ov.lowStockCount || 0}\n`;
@@ -878,7 +1082,7 @@
         csv += "RECENT ORDERS AUDIT\n";
         csv += "Order Number,Client Name,Client Email,Total Amount,Status,Created Date\n";
         orders.forEach(o => {
-          csv += `"${o.order_number}","${o.customer_name}","${o.customer_email}",$${parseFloat(o.total_amount).toFixed(2)},"${o.status}","${new Date(o.created_at).toLocaleString()}"\n`;
+          csv += `"${o.order_number}","${o.customer_name}","${o.customer_email}",₹${parseFloat(o.total_amount).toFixed(2)},"${o.status}","${new Date(o.created_at).toLocaleString()}"\n`;
         });
         csv += "\n";
 
@@ -976,6 +1180,7 @@
         Admin.toast(`Replenished +25 units for all ${updatedCount} low-stock items!`);
         addActivity(`⚡ Executive 1-Click Restock: Replenished +25 units across ${updatedCount} low-stock catalog items.`);
         loadDashboard();
+        loadExecutiveProducts(false);
       } catch (err) {
         alert('Restock failed: ' + err.message);
       } finally {
@@ -1052,12 +1257,12 @@
                       <strong style="color: #fff;">${item.product_name || item.name || 'Atelier Formula'}</strong>
                       <span style="color: rgba(250,247,242,0.5); font-size: 0.72rem; margin-left: 0.4rem;">&times; ${item.quantity}</span>
                     </div>
-                    <div style="color: var(--color-gold); font-weight: 500;">$${parseFloat(item.unit_price * item.quantity).toFixed(2)}</div>
+                    <div style="color: var(--color-gold); font-weight: 500;">₹${parseFloat(item.unit_price * item.quantity).toFixed(2)}</div>
                   </div>
                 `).join('')}
                 <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 0.75rem; font-weight: 600; font-size: 0.85rem;">
                   <span>Total Settled Amount</span>
-                  <span style="color: var(--color-gold); font-size: 1rem;">$${parseFloat(o.total_amount).toFixed(2)}</span>
+                  <span style="color: var(--color-gold); font-size: 1rem;">₹${parseFloat(o.total_amount).toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -1101,15 +1306,511 @@
       }
     }
 
+    /* ============================================================
+       EXECUTIVE ATELIER CATALOG & REAL-TIME PRODUCT FLEET
+       ============================================================ */
+
+    function scrollToOwnerProducts() {
+      const sec = document.getElementById('executiveProductsSection');
+      if (sec) {
+        sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        sec.style.transition = 'box-shadow 0.4s ease, border-color 0.4s ease';
+        sec.style.borderColor = 'var(--color-gold)';
+        sec.style.boxShadow = '0 0 35px rgba(201, 169, 110, 0.45)';
+        setTimeout(() => { sec.style.boxShadow = ''; }, 2400);
+      }
+    }
+
+    function debounceOwnerProductSearch() {
+      clearTimeout(ownerSearchTimeout);
+      ownerSearchTimeout = setTimeout(() => applyOwnerFiltersAndRender(), 250);
+    }
+
+    async function loadExecutiveProducts(isSilent = false) {
+      const search = document.getElementById('ownerProductSearch') ? document.getElementById('ownerProductSearch').value.trim() : '';
+      const category = document.getElementById('ownerCategoryFilter') ? document.getElementById('ownerCategoryFilter').value : '';
+
+      try {
+        const queryParams = new URLSearchParams();
+        if (search) queryParams.append('search', search);
+        if (category) queryParams.append('category', category);
+        queryParams.append('limit', '1000'); // Fetch all registered boutique products
+
+        const res = await Auth.apiFetch(`/api/admin/products?${queryParams.toString()}`);
+        const data = await res.json();
+
+        if (data.success) {
+          const newProducts = data.products || [];
+          const fingerprint = `${newProducts.length}_${newProducts.map(p => `${p.id}:${p.stock_quantity}:${p.available_quantity}:${p.status}`).join(';')}`;
+
+          if (isSilent && fingerprint === lastOwnerProductsFingerprint) {
+            return; // Skip DOM reflow if nothing changed
+          }
+          lastOwnerProductsFingerprint = fingerprint;
+
+          ownerProductsList = newProducts;
+          ownerCategoriesList = data.categories || [];
+
+          populateOwnerCategorySelects();
+          applyOwnerFiltersAndRender();
+
+          const badge = document.getElementById('ownerProdCountBadge');
+          if (badge) badge.innerText = `${newProducts.length} Products Registered`;
+
+          // Flash live stream dot
+          const dot = document.getElementById('liveOwnerCatalogDot');
+          if (dot) {
+            dot.style.transform = 'scale(1.4)';
+            setTimeout(() => { if (dot) dot.style.transform = ''; }, 300);
+          }
+        }
+      } catch (err) {
+        console.warn('[Executive Catalog Telemetry] Error loading products:', err);
+      }
+    }
+
+    function populateOwnerCategorySelects() {
+      const catSelect = document.getElementById('ownerCategoryFilter');
+      const editCat = document.getElementById('editPCategory');
+      if (!catSelect) return;
+
+      const currentVal = catSelect.value;
+      catSelect.innerHTML = '<option value="">All Categories</option>';
+      if (editCat) editCat.innerHTML = '';
+
+      ownerCategoriesList.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.slug;
+        opt.innerText = c.name;
+        catSelect.appendChild(opt);
+
+        if (editCat) {
+          const eOpt = document.createElement('option');
+          eOpt.value = c.id;
+          eOpt.innerText = c.name;
+          editCat.appendChild(eOpt);
+        }
+      });
+      catSelect.value = currentVal;
+    }
+
+    function applyOwnerFiltersAndRender() {
+      const search = document.getElementById('ownerProductSearch') ? document.getElementById('ownerProductSearch').value.trim().toLowerCase() : '';
+      const category = document.getElementById('ownerCategoryFilter') ? document.getElementById('ownerCategoryFilter').value : '';
+      const statusStock = document.getElementById('ownerStockStatusFilter') ? document.getElementById('ownerStockStatusFilter').value : 'all';
+
+      let filtered = [...ownerProductsList];
+
+      if (search) {
+        filtered = filtered.filter(p => 
+          p.name.toLowerCase().includes(search) || 
+          p.sku.toLowerCase().includes(search) ||
+          (p.description && p.description.toLowerCase().includes(search))
+        );
+      }
+
+      if (category) {
+        filtered = filtered.filter(p => p.category_slug === category);
+      }
+
+      if (statusStock === 'in_stock') {
+        filtered = filtered.filter(p => (p.available_quantity !== undefined ? p.available_quantity : p.stock_quantity) > (p.low_stock_threshold || 5));
+      } else if (statusStock === 'low_stock') {
+        filtered = filtered.filter(p => {
+          const avail = p.available_quantity !== undefined ? p.available_quantity : p.stock_quantity;
+          return avail <= (p.low_stock_threshold || 5) && avail > 0;
+        });
+      } else if (statusStock === 'out_of_stock') {
+        filtered = filtered.filter(p => (p.available_quantity !== undefined ? p.available_quantity : p.stock_quantity) <= 0);
+      } else if (statusStock === 'active') {
+        filtered = filtered.filter(p => p.status === 'active');
+      } else if (statusStock === 'draft') {
+        filtered = filtered.filter(p => p.status === 'draft');
+      } else if (statusStock === 'archived') {
+        filtered = filtered.filter(p => p.status === 'archived');
+      }
+
+      applyOwnerSortAndRender(filtered);
+    }
+
+    function applyOwnerSortAndRender(customItems = null) {
+      const sortBy = document.getElementById('ownerSortFilter') ? document.getElementById('ownerSortFilter').value : 'newest';
+      let items = customItems ? [...customItems] : [...ownerProductsList];
+
+      if (sortBy === 'price_desc') {
+        items.sort((a, b) => b.price - a.price);
+      } else if (sortBy === 'price_asc') {
+        items.sort((a, b) => a.price - b.price);
+      } else if (sortBy === 'stock_asc') {
+        items.sort((a, b) => (a.available_quantity || 0) - (b.available_quantity || 0));
+      } else if (sortBy === 'name_asc') {
+        items.sort((a, b) => a.name.localeCompare(b.name));
+      } else {
+        // newest first
+        items.sort((a, b) => b.id - a.id);
+      }
+
+      renderOwnerProductsTable(items);
+    }
+
+    function renderOwnerProductsTable(items) {
+      const tbody = document.getElementById('ownerProductsTableBody');
+      const showingCount = document.getElementById('ownerShowingCount');
+      if (showingCount) showingCount.innerText = `Showing ${items.length} items`;
+
+      if (!tbody) return;
+      if (items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2.5rem;">No matching products found in executive catalog.</td></tr>';
+        return;
+      }
+
+      const canEdit = Auth.hasPermission('products.edit');
+      const canArchive = Auth.hasPermission('products.delete');
+      const canRestock = Auth.hasPermission('inventory.adjust');
+      const isOwner = Auth.isOwner();
+
+      tbody.innerHTML = items.map(p => {
+        const avail = p.available_quantity !== undefined ? p.available_quantity : p.stock_quantity;
+        const thresh = p.low_stock_threshold || 5;
+        let stockBadgeHtml = '';
+        if (avail <= 0) {
+          stockBadgeHtml = `<span class="badge badge-out-stock">⛔ Out of Stock (0)</span>`;
+        } else if (avail <= thresh) {
+          stockBadgeHtml = `<span class="badge badge-low-stock">⚠️ Low Stock (${avail})</span>`;
+        } else {
+          stockBadgeHtml = `<span style="color: #7bed9f; font-weight: 600; font-size: 0.8rem;">${avail} units</span>`;
+        }
+
+        const restockBtn = canRestock
+          ? `<button onclick="quickRestockOwnerItem(${p.id})" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem; color: #2ecc71; border-color: rgba(46,204,113,0.3);" title="Quick Restock +25 Units in Real Time">+25</button>`
+          : `<button disabled class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem; opacity: 0.35; cursor: not-allowed;" title="Restocking requires Inventory Staff, Manager, or Owner role">+25</button>`;
+
+        const editBtn = canEdit
+          ? `<button onclick="openOwnerEditProductModal(${p.id})" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem;" title="Edit Product Details">Edit</button>`
+          : `<button disabled class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; margin-right: 0.25rem; opacity: 0.35; cursor: not-allowed;" title="Product editing requires Manager or Owner role">Edit</button>`;
+
+        let statusActionBtn = '';
+        if (p.status === 'archived') {
+          statusActionBtn = canEdit
+            ? `<button onclick="restoreOwnerProductItem(${p.id})" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; color: #2ecc71; border-color: rgba(46,204,113,0.3); margin-right: 0.25rem;" title="Restore Product to Active Catalog">Activate</button>`
+            : `<button disabled class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; opacity: 0.35; cursor: not-allowed; margin-right: 0.25rem;" title="Restoring requires Manager or Owner role">Activate</button>`;
+        } else {
+          statusActionBtn = canArchive
+            ? `<button onclick="archiveOwnerProductItem(${p.id})" class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; color: #FF708F; border-color: rgba(255,112,143,0.3); margin-right: 0.25rem;" title="Archive Product from Catalog">Archive</button>`
+            : `<button disabled class="btn-outline" style="padding: 0.3rem 0.55rem; font-size: 0.65rem; color: rgba(255,112,143,0.4); border-color: rgba(255,112,143,0.15); opacity: 0.35; cursor: not-allowed; margin-right: 0.25rem;" title="Archiving requires Manager or Owner role">Archive</button>`;
+        }
+
+        const deleteBtn = isOwner
+          ? `<button onclick="deleteOwnerProductPermanently(${p.id})" class="btn-outline" style="padding: 0.3rem 0.45rem; font-size: 0.65rem; color: #e74c3c; border-color: rgba(231,76,60,0.3);" title="Owner-Exclusive Permanent Delete">✕</button>`
+          : '';
+
+        return `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.85rem;">
+                <img src="../${p.primary_image || 'images/skincare_products_1788328338930.jpg'}" alt="${p.name}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 3px; border: 1px solid var(--admin-border);" onerror="this.src='../images/skincare_products_1788328338930.jpg'" />
+                <div style="min-width: 0;">
+                  <div style="font-weight: 600; font-size: 0.85rem; color: #FAF7F2;">${p.name}</div>
+                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5); display: flex; gap: 0.5rem; align-items: center; margin-top: 0.15rem;">
+                    ${p.collection_name ? `<span style="color: var(--color-gold);">✦ ${p.collection_name}</span>` : ''}
+                    ${p.badge ? `<span style="background: rgba(201,169,110,0.15); color: var(--color-gold); padding: 0.1rem 0.4rem; border-radius: 10px;">${p.badge}</span>` : ''}
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td style="font-family: monospace; font-size: 0.78rem; color: rgba(250,247,242,0.85);">${p.sku}</td>
+            <td style="color: rgba(250,247,242,0.75); font-size: 0.8rem;">${p.category_name || '—'}</td>
+            <td>
+              <strong style="color: var(--color-gold); font-size: 0.9rem;">₹${parseFloat(p.price).toFixed(2)}</strong>
+              ${p.compare_at_price ? `<div style="font-size: 0.68rem; color: rgba(250,247,242,0.4); text-decoration: line-through;">₹${parseFloat(p.compare_at_price).toFixed(2)}</div>` : ''}
+            </td>
+            <td>
+              ${stockBadgeHtml}
+              <div style="font-size: 0.68rem; color: rgba(250,247,242,0.45); margin-top: 0.2rem;">Total: ${p.stock_quantity} units</div>
+            </td>
+            <td>
+              <span class="badge badge-${p.status}">${p.status}</span>
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+              ${restockBtn}
+              ${editBtn}
+              ${statusActionBtn}
+              ${deleteBtn}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function manualSyncOwnerCatalog() {
+      const spin = document.getElementById('ownerSyncSpinIcon');
+      if (spin) spin.style.animation = 'spin 0.6s linear infinite';
+      await loadExecutiveProducts(false);
+      await loadDashboard();
+      Admin.toast('✦ Executive catalog synchronized with database in real time.');
+      addActivity('Executive owner catalog synchronized in real time.');
+      setTimeout(() => {
+        if (spin) spin.style.animation = '';
+      }, 500);
+    }
+
+    async function quickRestockOwnerItem(productId) {
+      if (!Auth.hasPermission('inventory.adjust')) {
+        Admin.toast('⚠️ Restock privilege is reserved for Inventory Staff, Managers, and Owners.');
+        return;
+      }
+
+      const p = ownerProductsList.find(item => item.id === productId);
+      const prodName = p ? p.name : `Product #${productId}`;
+      const invId = p ? p.inventory_id : null;
+
+      try {
+        const payload = {
+          productId: productId,
+          quantityDelta: 25,
+          transactionType: 'STOCK_RECEIVED',
+          reason: `Executive Quick Restock (+25 units) by ${Auth.getUser() ? (Auth.getUser().firstName || Auth.getUser().email) : 'Owner'}`
+        };
+        if (invId) payload.inventoryId = invId;
+
+        const res = await Auth.apiFetch('/api/admin/inventory/adjust', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(`✦ Restocked +25 units for "${prodName}"!`);
+          addActivity(`📦 Stock Received: +25 units for "${prodName}" (New balance: ${data.result ? data.result.newStock : 'updated'}).`);
+          broadcastRealtimeCatalogMutation('quick_restock', productId);
+          loadExecutiveProducts(false);
+          loadDashboard();
+        } else {
+          alert('Error: ' + (data.error || 'Restock failed'));
+        }
+      } catch (err) {
+        alert('Restock Error: ' + err.message);
+      }
+    }
+
+    function openOwnerEditProductModal(productId) {
+      if (!Auth.hasPermission('products.edit')) {
+        Admin.toast('⚠️ Product modification is reserved for Atelier Owners and Managers.');
+        return;
+      }
+      const p = ownerProductsList.find(item => item.id === productId);
+      if (!p) return;
+
+      document.getElementById('productModalTitle').innerText = `Edit: ${p.name}`;
+      document.getElementById('editProductId').value = p.id;
+      document.getElementById('editPName').value = p.name;
+      document.getElementById('editPSku').value = p.sku;
+      document.getElementById('editPDesc').value = p.description || '';
+      document.getElementById('editPPrice').value = p.price;
+      document.getElementById('editPComparePrice').value = p.compare_at_price || '';
+      document.getElementById('editPCategory').value = p.category_id || '';
+      document.getElementById('editPStock').value = p.stock_quantity !== undefined ? p.stock_quantity : 50;
+      document.getElementById('editPThreshold').value = p.low_stock_threshold || 5;
+      document.getElementById('editPStatus').value = p.status;
+      document.getElementById('editPImageUrl').value = p.primary_image || '';
+      document.getElementById('editPBestseller').checked = Boolean(p.is_bestseller);
+      document.getElementById('editPNewArrival').checked = Boolean(p.is_new_arrival);
+      document.getElementById('editPFeatured').checked = Boolean(p.is_featured);
+
+      Admin.openModal('productModal');
+    }
+
+    async function handleSaveOwnerEditProduct(e) {
+      e.preventDefault();
+      if (!Auth.hasPermission('products.edit')) {
+        Admin.toast('⚠️ Product modification is reserved for Atelier Owners and Managers.');
+        return;
+      }
+      const editId = document.getElementById('editProductId').value;
+      const btn = document.getElementById('btnUpdateProduct');
+      btn.disabled = true;
+      btn.innerText = 'Saving...';
+
+      const payload = {
+        name: document.getElementById('editPName').value.trim(),
+        sku: document.getElementById('editPSku').value.trim(),
+        description: document.getElementById('editPDesc').value.trim(),
+        price: parseFloat(document.getElementById('editPPrice').value),
+        compareAtPrice: document.getElementById('editPComparePrice').value ? parseFloat(document.getElementById('editPComparePrice').value) : null,
+        categoryId: parseInt(document.getElementById('editPCategory').value, 10),
+        stockQuantity: parseInt(document.getElementById('editPStock').value, 10),
+        status: document.getElementById('editPStatus').value,
+        lowStockThreshold: parseInt(document.getElementById('editPThreshold').value, 10),
+        isBestseller: document.getElementById('editPBestseller').checked,
+        isNewArrival: document.getElementById('editPNewArrival').checked,
+        isFeatured: document.getElementById('editPFeatured').checked,
+      };
+
+      const imgUrl = document.getElementById('editPImageUrl').value.trim();
+      if (imgUrl) payload.images = [imgUrl];
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/products/${editId}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.closeModal('productModal');
+          Admin.toast(data.message || 'Product updated successfully.');
+          addActivity(`✨ Product Updated: "${payload.name}" (${payload.sku}) by ${Auth.getUser() ? (Auth.getUser().firstName || Auth.getUser().email) : 'Owner'}.`);
+          broadcastRealtimeCatalogMutation('edit_product', editId);
+          loadExecutiveProducts(false);
+          loadDashboard();
+        } else {
+          alert('Error: ' + (data.error || 'Failed to update product.'));
+        }
+      } catch (err) {
+        alert('Network Error: ' + err.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerText = 'Save Changes \u2192';
+      }
+    }
+
+    async function archiveOwnerProductItem(id) {
+      if (!Auth.hasPermission('products.delete')) {
+        Admin.toast('⚠️ Archiving products is reserved for Atelier Managers and Owners.');
+        return;
+      }
+      const p = ownerProductsList.find(item => item.id === id);
+      const name = p ? p.name : `Product #${id}`;
+      if (!confirm(`Are you sure you want to archive "${name}"? It will no longer appear in the boutique storefront.`)) return;
+      try {
+        const res = await Auth.apiFetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message || 'Product archived.');
+          addActivity(`📦 Product Archived: "${name}".`);
+          broadcastRealtimeCatalogMutation('archive_product', id);
+          loadExecutiveProducts(false);
+          loadDashboard();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function restoreOwnerProductItem(id) {
+      if (!Auth.hasPermission('products.edit')) {
+        Admin.toast('⚠️ Restoring products is reserved for Atelier Managers and Owners.');
+        return;
+      }
+      const p = ownerProductsList.find(item => item.id === id);
+      const name = p ? p.name : `Product #${id}`;
+      try {
+        const res = await Auth.apiFetch(`/api/admin/products/${id}/restore`, { method: 'PUT' });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message || 'Product restored to active catalog.');
+          addActivity(`✦ Product Restored to Active: "${name}".`);
+          broadcastRealtimeCatalogMutation('restore_product', id);
+          loadExecutiveProducts(false);
+          loadDashboard();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    async function deleteOwnerProductPermanently(id) {
+      if (!Auth.isOwner()) {
+        Admin.toast('⚠️ Permanent deletion is exclusively reserved for the Atelier Owner.');
+        return;
+      }
+      const p = ownerProductsList.find(item => item.id === id);
+      const name = p ? p.name : `Product #${id}`;
+      if (!confirm(`CAUTION: Permanently delete "${name}" from the database? This action cannot be undone.`)) return;
+      try {
+        const res = await Auth.apiFetch(`/api/admin/products/${id}?permanent=true`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message || 'Product permanently deleted.');
+          addActivity(`⛔ Product Permanently Deleted: "${name}".`);
+          broadcastRealtimeCatalogMutation('delete_product', id);
+          loadExecutiveProducts(false);
+          loadDashboard();
+        } else {
+          alert('Error: ' + data.error);
+        }
+      } catch (err) {
+        alert('Error: ' + err.message);
+      }
+    }
+
+    function enforceRoleButtons() {
+      const canCreate = Auth.hasPermission('products.create');
+      const canRestock = Auth.hasPermission('inventory.adjust');
+      const isOwner = Auth.isOwner();
+
+      const btnCreate = document.getElementById('btnDeckCreateProduct');
+      const btnOwnerReg = document.getElementById('btnOwnerRegisterProd');
+      const btnQuick = document.getElementById('btnDeckQuickStock');
+      const btnRestockAll = document.getElementById('btnRestockAll');
+      const btnOwnerRestockLow = document.getElementById('btnOwnerRestockLow');
+      const btnAudit = document.getElementById('btnDeckAuditLedger');
+
+      if (btnCreate) {
+        if (!canCreate) {
+          btnCreate.disabled = true;
+          btnCreate.style.opacity = '0.4';
+          btnCreate.style.cursor = 'not-allowed';
+          btnCreate.title = 'Product creation restricted to Owner / Manager';
+        }
+      }
+      if (btnOwnerReg) {
+        if (!canCreate) {
+          btnOwnerReg.disabled = true;
+          btnOwnerReg.style.opacity = '0.4';
+          btnOwnerReg.style.cursor = 'not-allowed';
+          btnOwnerReg.title = 'Product registration restricted to Owner / Manager';
+        }
+      }
+      if (btnQuick && !canRestock) {
+        btnQuick.disabled = true;
+        btnQuick.style.opacity = '0.4';
+        btnQuick.style.cursor = 'not-allowed';
+        btnQuick.title = 'Inventory adjustments require Inventory Staff, Manager, or Owner role';
+      }
+      if (btnRestockAll && !canRestock) {
+        btnRestockAll.disabled = true;
+        btnRestockAll.style.opacity = '0.4';
+        btnRestockAll.style.cursor = 'not-allowed';
+        btnRestockAll.title = 'Inventory adjustments require Inventory Staff, Manager, or Owner role';
+      }
+      if (btnOwnerRestockLow && !canRestock) {
+        btnOwnerRestockLow.disabled = true;
+        btnOwnerRestockLow.style.opacity = '0.4';
+        btnOwnerRestockLow.style.cursor = 'not-allowed';
+        btnOwnerRestockLow.title = 'Inventory adjustments require Inventory Staff, Manager, or Owner role';
+      }
+      if (btnAudit && !isOwner && !Auth.hasPermission('settings.manage')) {
+        btnAudit.disabled = true;
+        btnAudit.style.opacity = '0.4';
+        btnAudit.style.cursor = 'not-allowed';
+        btnAudit.title = 'Audit ledger restricted to Atelier Owner';
+      }
+    }
+
     function closeAllModals() {
-      ['createProductModal', 'quickStockModal', 'orderDispatchModal', 'auditModal'].forEach(id => {
+      ['createProductModal', 'quickStockModal', 'orderDispatchModal', 'auditModal', 'productModal'].forEach(id => {
         Admin.closeModal(id);
       });
     }
 
     // Initialize Telemetry Engine upon DOM Load
     document.addEventListener('DOMContentLoaded', () => {
+      enforceRoleButtons();
       loadDashboard();
+      loadExecutiveProducts(false);
       startRealTimeLoop();
     });
   </script>

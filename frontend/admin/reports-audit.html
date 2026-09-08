@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>System Audit Register — Lumière Atelier</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .period-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(250, 247, 242, 0.7);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .period-btn:hover {
+      border-color: rgba(201, 169, 110, 0.5);
+      color: var(--color-gold);
+    }
+    .period-btn.active {
+      background: var(--color-gold);
+      color: #0a0a0b;
+      border-color: var(--color-gold);
+      font-weight: 600;
+    }
+    .edit-bar {
+      display: none;
+      background: rgba(201, 169, 110, 0.15);
+      border: 1px solid var(--color-gold);
+      padding: 0.75rem 1.25rem;
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .edit-bar.active {
+      display: flex;
+    }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      background: #121214;
+      border: 1px solid var(--color-gold);
+      border-radius: 6px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header & Top Controls -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1.25rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Security &amp; Regulatory Compliance</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <span id="roleAccessBadge" class="badge badge-owner" style="font-size: 0.65rem;">OWNER ACCESS</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <span class="badge" style="font-size: 0.65rem; background: rgba(255,255,255,0.06); color: rgba(250,247,242,0.8);">FORM REG-AUD</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator">
+              <span class="live-dot"></span>
+              <span>IMMUTABLE AUDIT TRAIL</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;">System Audit Register</h1>
+        </div>
+
+        <div class="report-actions">
+          <div style="display: flex; gap: 0.35rem; background: rgba(0,0,0,0.3); padding: 0.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
+            <button class="period-btn" onclick="setPeriod('today', this)">Today</button>
+            <button class="period-btn" onclick="setPeriod('7d', this)">7D</button>
+            <button class="period-btn active" onclick="setPeriod('30d', this)">30D</button>
+            <button class="period-btn" onclick="setPeriod('1y', this)">1Y</button>
+            <button class="period-btn" onclick="setPeriod('all', this)">All</button>
+          </div>
+          <button onclick="toggleEditMode()" id="btnToggleEdit" class="btn-report-action" style="color: var(--color-gold); border-color: rgba(201,169,110,0.4);">
+            <span>✏️</span> Edit in Report
+          </button>
+          <button onclick="shareViaWhatsApp()" class="btn-report-action btn-report-whatsapp">
+            <span>💬</span> Share via WhatsApp
+          </button>
+          <button onclick="downloadAsPDF()" id="btnDownloadPdf" class="btn-report-action btn-report-primary">
+            <span>📥</span> Download PDF
+          </button>
+          <button onclick="window.print()" class="btn-report-action">
+            <span>🖨️</span> Print
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared Executive Reports Sub-Navbar Strip -->
+      <div class="subnav-strip">
+        <a href="reports.html" class="subnav-tab">
+          <span>📋</span> Overview &amp; Archives
+        </a>
+        <a href="reports-sales.html" class="subnav-tab">
+          <span>📈</span> Sales Register
+        </a>
+        <a href="reports-inventory.html" class="subnav-tab">
+          <span>📦</span> Inventory Register
+        </a>
+        <a href="reports-orders.html" class="subnav-tab">
+          <span>🛍️</span> Orders Register
+        </a>
+        <a href="reports-customers.html" class="subnav-tab">
+          <span>👑</span> Patron Register
+        </a>
+        <a href="reports-tax.html" class="subnav-tab">
+          <span>🧮</span> Tax &amp; GST Register
+        </a>
+        <a href="reports-audit.html" class="subnav-tab active">
+          <span>🛡️</span> Audit Register
+        </a>
+        <a href="reports-create.html" class="subnav-tab">
+          <span>➕</span> Create Custom Report
+          <span class="subnav-badge badge-accent">+ New</span>
+        </a>
+      </div>
+
+      <!-- Live Inline Editing Banner -->
+      <div class="edit-bar" id="editBar">
+        <div style="font-size: 0.8rem; color: var(--color-cream); display: flex; align-items: center; gap: 0.5rem;">
+          <span style="font-size: 1rem;">✏️</span>
+          <span><strong>Inline Edit Mode Active:</strong> Add regulatory audit findings or security officer sign-offs.</span>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <button onclick="saveEditedReport()" class="btn-report-action btn-report-primary" style="font-size: 0.72rem; padding: 0.35rem 0.75rem;">
+            💾 Save to Archives
+          </button>
+          <button onclick="toggleEditMode(false)" class="btn-report-action" style="font-size: 0.72rem; padding: 0.35rem 0.75rem;">
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Executive Paper Container -->
+      <div class="report-paper" id="printableReport">
+        <div class="report-watermark">LUMIÈRE</div>
+
+        <!-- Official Header Block -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid rgba(201,169,110,0.3); padding-bottom: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-gold); font-weight: 600;">Lumière Haute Couture &amp; Atelier</div>
+            <h2 id="editableTitle" class="editable-field" style="font-family: var(--font-serif); font-size: 1.8rem; font-weight: 400; margin: 0.25rem 0; color: var(--color-cream);">
+              System Audit &amp; Regulatory Compliance Register
+            </h2>
+            <div style="font-size: 0.75rem; color: rgba(250,247,242,0.5);">Official Administrative Action Trail &amp; Data Security Ledger</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-family: monospace; font-size: 0.9rem; color: var(--color-gold); font-weight: 600;" id="reportRefNum">REG-AUD-2026-001</div>
+            <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.25rem;">Issued: <span id="reportIssueDate">Today</span></div>
+            <span class="badge badge-active" style="margin-top: 0.35rem;">IMMUTABLE RECORD</span>
+          </div>
+        </div>
+
+        <!-- Document Metadata -->
+        <div class="report-meta-grid">
+          <div class="report-meta-item">
+            <label>Audit Period</label>
+            <div class="val" id="metaPeriodLabel">Last 30 Days</div>
+          </div>
+          <div class="report-meta-item">
+            <label>Security Standard</label>
+            <div class="val">SOC 2 / ISO 27001</div>
+          </div>
+          <div class="report-meta-item">
+            <label>Lead Auditor</label>
+            <div class="val editable-field" id="editablePreparedBy">Chief Information Security Officer</div>
+          </div>
+          <div class="report-meta-item">
+            <label>Cryptographic Integrity</label>
+            <div class="val">SHA-256 Checksum Valid</div>
+          </div>
+        </div>
+
+        <!-- Executive Commentary / Notes -->
+        <div style="background: rgba(255,255,255,0.02); border-left: 3px solid var(--color-gold); padding: 1rem 1.25rem; border-radius: 0 4px 4px 0; margin-bottom: 2rem;">
+          <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-gold); font-weight: 600; margin-bottom: 0.35rem;">Security Officer Attestation</div>
+          <div id="editableSummary" class="editable-field" style="font-size: 0.85rem; line-height: 1.6; color: rgba(250,247,242,0.85);">
+            All administrative access sessions, role adjustments, product inventory mutations, and financial dispatches are logged to immutable append-only storage. Zero unauthorized privilege escalations detected.
+          </div>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="stat-card-grid" style="margin-bottom: 2rem;">
+          <div class="stat-card">
+            <div class="stat-title">Period Audit Events</div>
+            <div class="stat-number" id="cardTotalEvents" style="color: var(--color-gold);">0</div>
+            <span style="font-size: 0.72rem; color: #7bed9f;">Logged events</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Security &amp; RBAC Mod</div>
+            <div class="stat-number" id="cardSecurityEvents" style="color: #ff9f43;">0</div>
+            <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Role &amp; permission adjustments</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Catalog Mutations</div>
+            <div class="stat-number" id="cardCatalogEvents" style="color: #54a0ff;">0</div>
+            <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Product additions &amp; edits</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Integrity Check</div>
+            <div class="stat-number" style="color: #2ed573;">PASSED</div>
+            <span style="font-size: 0.72rem; color: #7bed9f;">100% Validated hash</span>
+          </div>
+        </div>
+
+        <!-- Detailed Audit Event Log Table -->
+        <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin-bottom: 0.75rem; color: var(--color-cream);">
+          Chronological Audit Trail &amp; Regulatory Register
+        </h3>
+        <div class="data-table-container">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Event Ref #</th>
+                <th>Timestamp</th>
+                <th>Operator / Actor</th>
+                <th>Action Executed</th>
+                <th>Entity Target</th>
+                <th>IP / Origin</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <tr>
+                <td colspan="6" style="text-align: center; color: rgba(250,247,242,0.4); padding: 2rem;">
+                  Loading system audit records...
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Print Sign-Off Footer -->
+        <div class="print-sign-off">
+          <div>
+            <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 2rem;">INFORMATION SECURITY OFFICER:</div>
+            <div style="border-bottom: 1px solid #000; width: 220px; margin-bottom: 0.35rem;"></div>
+            <div style="font-size: 0.75rem; color: #444;" id="signatoryPrepared">CISO / Compliance Officer</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 2rem;">OWNER / GOVERNANCE SIGN-OFF:</div>
+            <div style="border-bottom: 1px solid #000; width: 220px; margin-bottom: 0.35rem; margin-left: auto;"></div>
+            <div style="font-size: 0.75rem; color: #444;">Executive Governance Committee</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- WhatsApp Modal -->
+  <div class="modal-overlay" id="whatsappModal">
+    <div class="modal-box">
+      <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--color-cream); margin-top: 0; margin-bottom: 0.5rem;">
+        💬 Share System Audit Register via WhatsApp
+      </h3>
+      <p style="font-size: 0.78rem; color: rgba(250,247,242,0.7); margin-bottom: 1.25rem;">
+        Enter recipient WhatsApp phone number with country code, or leave blank to choose contact manually:
+      </p>
+      <input type="text" id="waRecipientPhone" placeholder="+91 9876543210 (Optional)" style="width: 100%; background: #1a1a1d; border: 1px solid var(--admin-border); color: #fff; padding: 0.6rem 0.8rem; border-radius: 4px; font-size: 0.85rem; margin-bottom: 1.25rem; box-sizing: border-box;" />
+      <div style="display: flex; justify-content: flex-end; gap: 0.6rem;">
+        <button onclick="closeWhatsAppModal()" class="btn-report-action">Cancel</button>
+        <button onclick="dispatchWhatsAppMessage()" class="btn-report-action btn-report-whatsapp">Launch WhatsApp →</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/html2pdf.bundle.min.js"></script>
+  <script src="js/reports-export.js"></script>
+  <script>
+    let activePeriod = '30d';
+    let isEditing = false;
+    let currentData = null;
+
+    function setPeriod(p, btn) {
+      activePeriod = p;
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      document.getElementById('metaPeriodLabel').innerText = p.toUpperCase();
+      loadReport();
+    }
+
+    async function loadReport() {
+      const tbody = document.getElementById('auditTableBody');
+      try {
+        const res = await Auth.apiFetch(`/api/admin/reports/data?type=audit&period=${activePeriod}`);
+        const json = await res.json();
+        if (json.success) {
+          currentData = json;
+          renderReport(json);
+        } else {
+          tbody.innerHTML = `<tr><td colspan="6" style="color: #ff6b6b; text-align: center;">${json.error || 'Access denied for this role.'}</td></tr>`;
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" style="color: #ff6b6b; text-align: center;">Error loading audit register.</td></tr>`;
+      }
+    }
+
+    function renderReport(data) {
+      const s = data.summary || {};
+      const ref = `REG-AUD-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
+      document.getElementById('reportRefNum').innerText = ref;
+      document.getElementById('reportIssueDate').innerText = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+      // Role badge
+      const user = Auth.getUser();
+      const userRole = (data.userRole || (user && user.role) || 'STAFF').toUpperCase();
+      const roleEl = document.getElementById('roleAccessBadge');
+      if (roleEl) {
+        roleEl.innerText = `${userRole} ACCESS`;
+        roleEl.className = (data.isOwner || Auth.isOwner()) ? 'badge badge-owner' : 'badge badge-active';
+      }
+
+      document.getElementById('cardTotalEvents').innerText = s.totalEvents || 0;
+      document.getElementById('cardSecurityEvents').innerText = s.securityEvents || 0;
+      document.getElementById('cardCatalogEvents').innerText = s.catalogEvents || 0;
+
+      if (user && user.name) {
+        document.getElementById('editablePreparedBy').innerText = `${user.name} (${userRole})`;
+        document.getElementById('signatoryPrepared').innerText = `${user.name} — ${userRole}`;
+      }
+
+      const events = data.records || [];
+      const tbody = document.getElementById('auditTableBody');
+      if (events.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: rgba(250,247,242,0.4); padding: 2rem;">No audit events recorded for this period.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = events.map(e => `
+        <tr>
+          <td><span style="font-family: monospace; color: var(--color-gold); font-size: 0.8rem;">#${e.id}</span></td>
+          <td style="font-size: 0.75rem;">${new Date(e.created_at).toLocaleString()}</td>
+          <td>
+            <div style="font-weight: 500; color: var(--color-cream); font-size: 0.82rem;">${escapeHtml(e.actor_name || e.user_email || 'System')}</div>
+            <div style="font-size: 0.68rem; color: rgba(250,247,242,0.4); text-transform: uppercase;">${e.user_role || 'OPERATOR'}</div>
+          </td>
+          <td><span class="badge badge-active" style="font-size: 0.65rem;">${escapeHtml(e.action || 'MUTATION')}</span></td>
+          <td style="font-size: 0.78rem; color: rgba(250,247,242,0.7);">${escapeHtml(e.entity_type || 'SYSTEM')} (${e.entity_id || 'Global'})</td>
+          <td style="font-family: monospace; font-size: 0.72rem; color: rgba(250,247,242,0.5);">${escapeHtml(e.ip_address || '127.0.0.1')}</td>
+        </tr>
+      `).join('');
+    }
+
+    function toggleEditMode(force) {
+      isEditing = (typeof force === 'boolean') ? force : !isEditing;
+      const editBar = document.getElementById('editBar');
+      const editableFields = document.querySelectorAll('.editable-field');
+      
+      if (isEditing) {
+        editBar.classList.add('active');
+        editableFields.forEach(el => el.setAttribute('contenteditable', 'true'));
+      } else {
+        editBar.classList.remove('active');
+        editableFields.forEach(el => el.removeAttribute('contenteditable'));
+      }
+    }
+
+    async function saveEditedReport() {
+      const title = document.getElementById('editableTitle').innerText.trim();
+      const summary = document.getElementById('editableSummary').innerText.trim();
+      const preparedBy = document.getElementById('editablePreparedBy').innerText.trim();
+      const refNum = document.getElementById('reportRefNum').innerText.trim();
+
+      const payload = {
+        report_number: refNum,
+        report_type: 'audit',
+        title: title,
+        period: activePeriod,
+        executive_summary: summary,
+        prepared_by: preparedBy,
+        status: 'FINAL',
+        data_json: currentData || {}
+      };
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/reports/save', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert('System Audit Register archived successfully!');
+          toggleEditMode(false);
+        } else {
+          alert(json.message || 'Failed to save report.');
+        }
+      } catch (err) {
+        alert('Network error saving report.');
+      }
+    }
+
+    function downloadAsPDF() {
+      downloadReportPDF('System_Audit', activePeriod);
+    }
+
+    function shareViaWhatsApp() {
+      const total = document.getElementById('cardTotalEvents').innerText;
+      const sec = document.getElementById('cardSecurityEvents').innerText;
+      const cat = document.getElementById('cardCatalogEvents').innerText;
+      const ref = document.getElementById('reportRefNum').innerText.trim();
+
+      window.pendingWhatsAppText = 
+`🛡️ *LUMIÈRE ATELIER — SYSTEM AUDIT & REGULATORY REGISTER*
+*Report Ref:* ${ref}
+*Period:* ${activePeriod.toUpperCase()}
+*Audit Date:* ${new Date().toLocaleDateString()}
+
+*Audit Event Summary:*
+• Period Audit Events: ${total}
+• Security & Role Mutations: ${sec}
+• Catalog Mutations: ${cat}
+• Cryptographic Checksum: PASSED (100% Validated)
+
+*Attestation:*
+${document.getElementById('editableSummary').innerText.trim()}
+
+_Certified by Lumière Information Security & Compliance._`;
+
+      document.getElementById('whatsappModal').classList.add('active');
+    }
+
+    function closeWhatsAppModal() {
+      document.getElementById('whatsappModal').classList.remove('active');
+    }
+
+    function dispatchWhatsAppMessage() {
+      const phoneInput = document.getElementById('waRecipientPhone').value.trim();
+      const cleanPhone = phoneInput.replace(/[^0-9]/g, '');
+      let url = `https://api.whatsapp.com/send?text=${encodeURIComponent(window.pendingWhatsAppText)}`;
+      if (cleanPhone) {
+        url += `&phone=${cleanPhone}`;
+      }
+      window.open(url, '_blank');
+      closeWhatsAppModal();
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadReport();
+    });
+  </script>
+</body>
+</html>

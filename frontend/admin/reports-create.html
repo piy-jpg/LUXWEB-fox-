@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Custom Executive Report — Lumière Atelier</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .period-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(250, 247, 242, 0.7);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .period-btn:hover {
+      border-color: rgba(201, 169, 110, 0.5);
+      color: var(--color-gold);
+    }
+    .period-btn.active {
+      background: var(--color-gold);
+      color: #0a0a0b;
+      border-color: var(--color-gold);
+      font-weight: 600;
+    }
+    .builder-card {
+      background: rgba(18, 18, 20, 0.7);
+      border: 1px solid var(--admin-border);
+      border-radius: 6px;
+      padding: 1.75rem;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(12px);
+    }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(250, 247, 242, 0.6);
+      margin-bottom: 0.4rem;
+      font-weight: 500;
+    }
+    .form-control {
+      width: 100%;
+      background: #141416;
+      border: 1px solid var(--admin-border);
+      color: var(--color-cream);
+      padding: 0.65rem 0.85rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      box-sizing: border-box;
+      transition: all 0.2s ease;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: var(--color-gold);
+      box-shadow: 0 0 10px rgba(201, 169, 110, 0.2);
+    }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-box {
+      background: #121214;
+      border: 1px solid var(--color-gold);
+      border-radius: 6px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.8);
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header & Top Controls -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1.25rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Custom Report Studio</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <span id="roleAccessBadge" class="badge badge-owner" style="font-size: 0.65rem;">OWNER ACCESS</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <span class="badge" style="font-size: 0.65rem; background: rgba(255,255,255,0.06); color: rgba(250,247,242,0.8);">FORM BUILDER</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator">
+              <span class="live-dot"></span>
+              <span>LIVE REGISTER COMPILER</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;">Create Custom Executive Report</h1>
+        </div>
+
+        <div class="report-actions">
+          <div style="display: flex; gap: 0.35rem; background: rgba(0,0,0,0.3); padding: 0.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.06);">
+            <button class="period-btn" onclick="setPeriod('today', this)">Today</button>
+            <button class="period-btn" onclick="setPeriod('7d', this)">7D</button>
+            <button class="period-btn active" onclick="setPeriod('30d', this)">30D</button>
+            <button class="period-btn" onclick="setPeriod('1y', this)">1Y</button>
+            <button class="period-btn" onclick="setPeriod('all', this)">All</button>
+          </div>
+          <button onclick="toggleEditMode()" id="btnToggleEdit" class="btn-report-action" style="color: var(--color-gold); border-color: rgba(201,169,110,0.4);">
+            <span>✏️</span> Edit in Report
+          </button>
+          <button onclick="shareViaWhatsApp()" class="btn-report-action btn-report-whatsapp">
+            <span>💬</span> Share via WhatsApp
+          </button>
+          <button onclick="downloadAsPDF()" id="btnDownloadPdf" class="btn-report-action">
+            <span>📥</span> Download PDF
+          </button>
+          <button onclick="window.print()" class="btn-report-action">
+            <span>🖨️</span> Print
+          </button>
+          <button onclick="saveCustomReport()" class="btn-report-action btn-report-primary">
+            <span>💾</span> Save to Archives
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared Executive Reports Sub-Navbar Strip -->
+      <div class="subnav-strip">
+        <a href="reports.html" class="subnav-tab">
+          <span>📋</span> Overview &amp; Archives
+        </a>
+        <a href="reports-sales.html" class="subnav-tab">
+          <span>📈</span> Sales Register
+        </a>
+        <a href="reports-inventory.html" class="subnav-tab">
+          <span>📦</span> Inventory Register
+        </a>
+        <a href="reports-orders.html" class="subnav-tab">
+          <span>🛍️</span> Orders Register
+        </a>
+        <a href="reports-customers.html" class="subnav-tab">
+          <span>👑</span> Patron Register
+        </a>
+        <a href="reports-tax.html" class="subnav-tab">
+          <span>🧮</span> Tax &amp; GST Register
+        </a>
+        <a href="reports-audit.html" class="subnav-tab">
+          <span>🛡️</span> Audit Register
+        </a>
+        <a href="reports-create.html" class="subnav-tab active">
+          <span>➕</span> Create Custom Report
+          <span class="subnav-badge badge-accent">+ New</span>
+        </a>
+      </div>
+
+      <!-- Report Configuration Studio Card -->
+      <div class="builder-card no-print" id="builderFormCard">
+        <h3 style="font-family: var(--font-serif); font-size: 1.3rem; font-weight: 400; margin-top: 0; margin-bottom: 1.25rem; color: var(--color-gold);">
+          ⚙️ Executive Parameters &amp; Report Framing
+        </h3>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="repType">Source Register Base</label>
+            <select id="repType" class="form-control" onchange="syncReportTemplate(); refreshSourceData();">
+              <option value="sales">📈 Sales &amp; Revenue Register</option>
+              <option value="inventory">📦 Inventory Valuation Register</option>
+              <option value="orders">🛍️ Orders &amp; Dispatch Register</option>
+              <option value="customers">👑 Patron &amp; Customer Register</option>
+              <option value="tax">🧮 Statutory Tax &amp; GST Register</option>
+              <option value="audit">🛡️ System Audit Register</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="repTitle">Report Document Title</label>
+            <input type="text" id="repTitle" class="form-control" value="Executive Performance Audit" oninput="updateLivePreview()" />
+          </div>
+
+          <div class="form-group">
+            <label for="repPeriod">Audit Period</label>
+            <select id="repPeriod" class="form-control" onchange="syncPeriodFromSelect();">
+              <option value="today">Today's Transactions</option>
+              <option value="7d">Last 7 Days (Weekly)</option>
+              <option value="30d" selected>Last 30 Days (Monthly)</option>
+              <option value="1y">Last 1 Year (Fiscal Annual)</option>
+              <option value="all">All-Time Historical</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="repStatus">Classification Status</label>
+            <select id="repStatus" class="form-control" onchange="updateLivePreview()">
+              <option value="FINAL">FINAL / APPROVED</option>
+              <option value="DRAFT">DRAFT</option>
+              <option value="CONFIDENTIAL">CONFIDENTIAL</option>
+              <option value="REGULATORY">REGULATORY SUBMISSION</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="repPreparedBy">Prepared By (Signatory)</label>
+            <input type="text" id="repPreparedBy" class="form-control" value="Executive Management" oninput="updateLivePreview()" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="repSummary">Executive Commentary, Notes &amp; Auditor Attestation</label>
+          <textarea id="repSummary" rows="3" class="form-control" oninput="updateLivePreview()">This custom executive report compiles certified registry metrics for institutional review, compliance auditing, and strategic forecasting.</textarea>
+        </div>
+      </div>
+
+      <!-- Live Generated Report Preview -->
+      <div class="report-paper" id="printableReport">
+        <div class="report-watermark">LUMIÈRE</div>
+
+        <!-- Official Header Block -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid rgba(201,169,110,0.3); padding-bottom: 1.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-gold); font-weight: 600;">Lumière Haute Couture &amp; Atelier</div>
+            <h2 id="prevTitle" class="editable-field" style="font-family: var(--font-serif); font-size: 1.8rem; font-weight: 400; margin: 0.25rem 0; color: var(--color-cream);" oninput="syncBackToForm()">
+              Executive Performance Audit
+            </h2>
+            <div id="prevSubHeader" style="font-size: 0.75rem; color: rgba(250,247,242,0.5);">Official Custom Executive Synthesis</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-family: monospace; font-size: 0.9rem; color: var(--color-gold); font-weight: 600;" id="prevRefNum">REG-CST-2026-001</div>
+            <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.25rem;">Issued: <span id="prevIssueDate">Today</span></div>
+            <span class="badge badge-active" id="prevStatusBadge" style="margin-top: 0.35rem;">FINAL / APPROVED</span>
+          </div>
+        </div>
+
+        <!-- Document Metadata -->
+        <div class="report-meta-grid">
+          <div class="report-meta-item">
+            <label>Fiscal Period</label>
+            <div class="val" id="prevPeriod">Last 30 Days</div>
+          </div>
+          <div class="report-meta-item">
+            <label>Register Source</label>
+            <div class="val" id="prevSource">Sales &amp; Revenue</div>
+          </div>
+          <div class="report-meta-item">
+            <label>Prepared By</label>
+            <div class="val editable-field" id="prevPreparedBy" oninput="syncBackToForm()">Executive Management</div>
+          </div>
+          <div class="report-meta-item">
+            <label>Integrity Standard</label>
+            <div class="val">Verified Ledger</div>
+          </div>
+        </div>
+
+        <!-- Executive Commentary / Notes -->
+        <div style="background: rgba(255,255,255,0.02); border-left: 3px solid var(--color-gold); padding: 1rem 1.25rem; border-radius: 0 4px 4px 0; margin-bottom: 2rem;">
+          <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--color-gold); font-weight: 600; margin-bottom: 0.35rem;">Executive Summary &amp; Attestation</div>
+          <div id="prevSummary" class="editable-field" style="font-size: 0.85rem; line-height: 1.6; color: rgba(250,247,242,0.85);" oninput="syncBackToForm()">
+            This custom executive report compiles certified registry metrics for institutional review, compliance auditing, and strategic forecasting.
+          </div>
+        </div>
+
+        <!-- Dynamic Register Statistics Grid -->
+        <div class="stat-card-grid" id="customMetricsGrid" style="margin-bottom: 2rem;">
+          <div class="stat-card">
+            <div class="stat-title">Primary Register KPI</div>
+            <div class="stat-number" id="customKpi1" style="color: var(--color-gold);">₹0.00</div>
+            <span style="font-size: 0.72rem; color: #7bed9f;" id="customSub1">Active metric</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Secondary Register KPI</div>
+            <div class="stat-number" id="customKpi2">0</div>
+            <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);" id="customSub2">Volume benchmark</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Operating Ratio</div>
+            <div class="stat-number" id="customKpi3" style="color: #54a0ff;">100%</div>
+            <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);" id="customSub3">Efficiency score</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-title">Audit Assurance</div>
+            <div class="stat-number" style="color: #2ed573;">VERIFIED</div>
+            <span style="font-size: 0.72rem; color: #7bed9f;">Database reconciled</span>
+          </div>
+        </div>
+
+        <!-- Detailed Register Records Table -->
+        <h3 style="font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; margin-bottom: 0.75rem; color: var(--color-cream);" id="customTableTitle">
+          Register Records Ledger
+        </h3>
+        <div class="data-table-container">
+          <table class="data-table" id="customTable">
+            <thead id="customThead">
+              <tr><th>Loading headers...</th></tr>
+            </thead>
+            <tbody id="customTbody">
+              <tr><td style="text-align: center; color: rgba(250,247,242,0.4); padding: 2rem;">Loading data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Print Sign-Off Footer -->
+        <div class="print-sign-off">
+          <div>
+            <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 2rem;">PREPARED BY:</div>
+            <div style="border-bottom: 1px solid #000; width: 220px; margin-bottom: 0.35rem;"></div>
+            <div style="font-size: 0.75rem; color: #444;" id="prevSignatory">Executive Management</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-weight: 600; font-size: 0.85rem; margin-bottom: 2rem;">CHIEF EXECUTIVE SIGN-OFF:</div>
+            <div style="border-bottom: 1px solid #000; width: 220px; margin-bottom: 0.35rem; margin-left: auto;"></div>
+            <div style="font-size: 0.75rem; color: #444;">Managing Director / Partner</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- WhatsApp Modal -->
+  <div class="modal-overlay" id="whatsappModal">
+    <div class="modal-box">
+      <h3 style="font-family: var(--font-serif); font-size: 1.4rem; color: var(--color-cream); margin-top: 0; margin-bottom: 0.5rem;">
+        💬 Share Custom Report via WhatsApp
+      </h3>
+      <p style="font-size: 0.78rem; color: rgba(250,247,242,0.7); margin-bottom: 1.25rem;">
+        Enter recipient WhatsApp phone number with country code, or leave blank to choose contact manually:
+      </p>
+      <input type="text" id="waRecipientPhone" placeholder="+91 9876543210 (Optional)" style="width: 100%; background: #1a1a1d; border: 1px solid var(--admin-border); color: #fff; padding: 0.6rem 0.8rem; border-radius: 4px; font-size: 0.85rem; margin-bottom: 1.25rem; box-sizing: border-box;" />
+      <div style="display: flex; justify-content: flex-end; gap: 0.6rem;">
+        <button onclick="closeWhatsAppModal()" class="btn-report-action">Cancel</button>
+        <button onclick="dispatchWhatsAppMessage()" class="btn-report-action btn-report-whatsapp">Launch WhatsApp →</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/html2pdf.bundle.min.js"></script>
+  <script src="js/reports-export.js"></script>
+  <script>
+    let activePeriod = '30d';
+    let isEditing = false;
+    let currentLiveSourceData = null;
+
+    function setPeriod(p, btn) {
+      activePeriod = p;
+      document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      const select = document.getElementById('repPeriod');
+      if (select) select.value = p;
+      updateLivePreview();
+      refreshSourceData();
+    }
+
+    function syncPeriodFromSelect() {
+      const select = document.getElementById('repPeriod');
+      if (!select) return;
+      activePeriod = select.value;
+      document.querySelectorAll('.period-btn').forEach(b => {
+        if (b.innerText.toLowerCase() === activePeriod || (activePeriod === 'all' && b.innerText.toLowerCase() === 'all')) {
+          b.classList.add('active');
+        } else {
+          b.classList.remove('active');
+        }
+      });
+      updateLivePreview();
+      refreshSourceData();
+    }
+
+    function syncReportTemplate() {
+      const type = document.getElementById('repType').value;
+      const titleInput = document.getElementById('repTitle');
+      const titles = {
+        sales: 'Executive Sales Performance & Revenue Audit',
+        inventory: 'Comprehensive Physical Asset & Inventory Valuation',
+        orders: 'White-Glove Fulfillment & Logistics Dispatch Register',
+        customers: 'High-Net-Worth Patron Directory & Loyalty Audit',
+        tax: 'Statutory Indirect Tax & GST Fiscal Audit',
+        audit: 'Regulatory Compliance & System Security Event Register'
+      };
+      titleInput.value = titles[type] || 'Executive Custom Performance Report';
+      updateLivePreview();
+    }
+
+    function updateLivePreview() {
+      const title = document.getElementById('repTitle').value || 'Executive Custom Report';
+      const period = document.getElementById('repPeriod').options[document.getElementById('repPeriod').selectedIndex].text;
+      const status = document.getElementById('repStatus').value;
+      const preparedBy = document.getElementById('repPreparedBy').value || 'Executive Controller';
+      const summary = document.getElementById('repSummary').value;
+      const source = document.getElementById('repType').options[document.getElementById('repType').selectedIndex].text;
+
+      document.getElementById('prevTitle').innerText = title;
+      document.getElementById('prevPeriod').innerText = period;
+      document.getElementById('prevSource').innerText = source;
+      document.getElementById('prevPreparedBy').innerText = preparedBy;
+      document.getElementById('prevSignatory').innerText = preparedBy;
+      document.getElementById('prevSummary').innerText = summary;
+      document.getElementById('prevStatusBadge').innerText = status;
+      document.getElementById('prevIssueDate').innerText = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function syncBackToForm() {
+      document.getElementById('repTitle').value = document.getElementById('prevTitle').innerText;
+      document.getElementById('repPreparedBy').value = document.getElementById('prevPreparedBy').innerText;
+      document.getElementById('repSummary').value = document.getElementById('prevSummary').innerText;
+    }
+
+    function toggleEditMode() {
+      isEditing = !isEditing;
+      const editableFields = document.querySelectorAll('.editable-field');
+      editableFields.forEach(el => {
+        el.setAttribute('contenteditable', isEditing ? 'true' : 'false');
+      });
+      const btn = document.getElementById('btnToggleEdit');
+      if (btn) {
+        btn.innerHTML = isEditing ? '<span>✓</span> Finish Editing' : '<span>✏️</span> Edit in Report';
+        btn.style.background = isEditing ? 'var(--color-gold)' : '';
+        btn.style.color = isEditing ? '#000' : 'var(--color-gold)';
+      }
+    }
+
+    async function refreshSourceData() {
+      const type = document.getElementById('repType').value;
+      const period = activePeriod;
+      
+      const customThead = document.getElementById('customThead');
+      const customTbody = document.getElementById('customTbody');
+      customTbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: rgba(250,247,242,0.4); padding: 2rem;">Compiling register records for ${period.toUpperCase()}...</td></tr>`;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/reports/data?type=${type}&period=${period}`);
+        const json = await res.json();
+        if (json.success) {
+          currentLiveSourceData = json;
+          renderSourcePreview(type, json);
+        } else {
+          customTbody.innerHTML = `<tr><td colspan="6" style="color: #ff6b6b; text-align: center;">${json.error || 'Access denied for this role.'}</td></tr>`;
+        }
+      } catch (err) {
+        customTbody.innerHTML = `<tr><td colspan="6" style="color: #ff6b6b; text-align: center;">Error compiling source data.</td></tr>`;
+      }
+    }
+
+    function renderSourcePreview(type, data) {
+      const s = data.summary || {};
+      const recs = data.records || [];
+      const thead = document.getElementById('customThead');
+      const tbody = document.getElementById('customTbody');
+
+      if (type === 'sales') {
+        document.getElementById('customKpi1').innerText = `₹${parseFloat(s.grossRevenue || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+        document.getElementById('customSub1').innerText = 'Gross Settled Revenue';
+        document.getElementById('customKpi2').innerText = `${s.totalOrders || 0}`;
+        document.getElementById('customSub2').innerText = 'Fulfilled Orders';
+        document.getElementById('customKpi3').innerText = `₹${parseFloat(s.aov || 0).toFixed(2)}`;
+        document.getElementById('customSub3').innerText = 'Average Order Value';
+
+        thead.innerHTML = `
+          <tr>
+            <th>Order #</th>
+            <th>Date</th>
+            <th>Client Name</th>
+            <th>Items</th>
+            <th>Payment</th>
+            <th style="text-align: right;">Gross ($)</th>
+          </tr>
+        `;
+        tbody.innerHTML = recs.slice(0, 15).map(r => `
+          <tr>
+            <td><span style="font-family: monospace; color: var(--color-gold);">#${r.id}</span></td>
+            <td style="font-size: 0.75rem;">${new Date(r.created_at).toLocaleDateString()}</td>
+            <td>${escapeHtml(r.customer_name || 'Guest')}</td>
+            <td>${r.items_count || 1}</td>
+            <td><span class="badge badge-active">${(r.payment_method || 'CARD').toUpperCase()}</span></td>
+            <td style="text-align: right; font-weight: 600;">₹${parseFloat(r.total_amount || 0).toFixed(2)}</td>
+          </tr>
+        `).join('') || `<tr><td colspan="6" style="text-align: center;">No records</td></tr>`;
+
+      } else if (type === 'inventory') {
+        document.getElementById('customKpi1').innerText = `₹${parseFloat(s.totalValuation || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+        document.getElementById('customSub1').innerText = 'Total Asset Valuation';
+        document.getElementById('customKpi2').innerText = `${s.totalPhysicalUnits || s.totalPhysical || 0}`;
+        document.getElementById('customSub2').innerText = 'Physical Units on Hand';
+        document.getElementById('customKpi3').innerText = `${s.lowStockCount || 0}`;
+        document.getElementById('customSub3').innerText = 'Low Stock SKU Alerts';
+
+        thead.innerHTML = `
+          <tr>
+            <th>SKU</th>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th style="text-align: center;">Stock Qty</th>
+            <th style="text-align: right;">Unit Price ($)</th>
+            <th style="text-align: right;">Asset Value ($)</th>
+          </tr>
+        `;
+        tbody.innerHTML = recs.slice(0, 15).map(r => `
+          <tr>
+            <td><span style="font-family: monospace; color: var(--color-gold);">${r.sku || 'N/A'}</span></td>
+            <td>${escapeHtml(r.name || 'Product')}</td>
+            <td>${escapeHtml(r.category || 'Luxury')}</td>
+            <td style="text-align: center; font-weight: 600;">${r.quantity || r.stock_quantity || 0}</td>
+            <td style="text-align: right;">₹${parseFloat(r.price || 0).toFixed(2)}</td>
+            <td style="text-align: right; font-weight: 600; color: var(--color-gold);">₹${(parseFloat(r.quantity || r.stock_quantity || 0) * parseFloat(r.price || 0)).toFixed(2)}</td>
+          </tr>
+        `).join('') || `<tr><td colspan="6" style="text-align: center;">No records</td></tr>`;
+
+      } else if (type === 'orders') {
+        document.getElementById('customKpi1').innerText = `${s.totalOrders || 0}`;
+        document.getElementById('customSub1').innerText = 'Total Orders Placed';
+        document.getElementById('customKpi2').innerText = `${s.pendingOrders || s.pendingFulfillment || 0}`;
+        document.getElementById('customSub2').innerText = 'Pending Dispatch';
+        document.getElementById('customKpi3').innerText = `${s.deliveredOrders || s.delivered || 0}`;
+        document.getElementById('customSub3').innerText = 'Delivered Orders';
+
+        thead.innerHTML = `
+          <tr>
+            <th>Order #</th>
+            <th>Date</th>
+            <th>Client</th>
+            <th>Destination</th>
+            <th>Fulfillment Status</th>
+            <th style="text-align: right;">Amount ($)</th>
+          </tr>
+        `;
+        tbody.innerHTML = recs.slice(0, 15).map(r => `
+          <tr>
+            <td><span style="font-family: monospace; color: var(--color-gold);">#${r.id}</span></td>
+            <td style="font-size: 0.75rem;">${new Date(r.created_at).toLocaleDateString()}</td>
+            <td>${escapeHtml(r.customer_name || 'Guest')}</td>
+            <td>${escapeHtml(r.shipping_address ? r.shipping_address.split(',')[0] : 'Atelier Pickup')}</td>
+            <td><span class="badge badge-active">${(r.status || 'PENDING').toUpperCase()}</span></td>
+            <td style="text-align: right; font-weight: 600;">₹${parseFloat(r.total_amount || 0).toFixed(2)}</td>
+          </tr>
+        `).join('') || `<tr><td colspan="6" style="text-align: center;">No records</td></tr>`;
+
+      } else if (type === 'customers') {
+        document.getElementById('customKpi1').innerText = `${s.totalPatrons || 0}`;
+        document.getElementById('customSub1').innerText = 'Registered Patrons';
+        document.getElementById('customKpi2').innerText = `${s.activeBuyers || 0}`;
+        document.getElementById('customSub2').innerText = 'Active Transacting Buyers';
+        document.getElementById('customKpi3').innerText = `₹${parseFloat(s.totalLifetimeSpend || 0).toFixed(2)}`;
+        document.getElementById('customSub3').innerText = 'Client Period Spend';
+
+        thead.innerHTML = `
+          <tr>
+            <th>Patron ID</th>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th style="text-align: center;">Orders</th>
+            <th style="text-align: right;">Period Spend ($)</th>
+          </tr>
+        `;
+        tbody.innerHTML = recs.slice(0, 15).map(r => `
+          <tr>
+            <td><span style="font-family: monospace; color: var(--color-gold);">#${r.id}</span></td>
+            <td>${escapeHtml(r.first_name ? `${r.first_name} ${r.last_name || ''}`.trim() : (r.name || 'Anonymous'))}</td>
+            <td>${escapeHtml(r.email || '—')}</td>
+            <td style="text-align: center;">${r.orders_count || 0}</td>
+            <td style="text-align: right; font-weight: 600; color: var(--color-gold);">₹${parseFloat(r.total_spend || r.lifetime_spend || 0).toFixed(2)}</td>
+          </tr>
+        `).join('') || `<tr><td colspan="5" style="text-align: center;">No records</td></tr>`;
+
+      } else if (type === 'tax') {
+        document.getElementById('customKpi1').innerText = `₹${parseFloat(s.taxableBase || 0).toFixed(2)}`;
+        document.getElementById('customSub1').innerText = 'Taxable Base';
+        document.getElementById('customKpi2').innerText = `₹${parseFloat(s.totalGST || s.totalGst || 0).toFixed(2)}`;
+        document.getElementById('customSub2').innerText = 'Total 18% GST Output';
+        document.getElementById('customKpi3').innerText = `₹${parseFloat(s.cgst || 0).toFixed(2)}`;
+        document.getElementById('customSub3').innerText = 'CGST (9%) Output';
+
+        thead.innerHTML = `
+          <tr>
+            <th>Tax Invoice #</th>
+            <th>Date</th>
+            <th>Order Ref</th>
+            <th>Client Name</th>
+            <th style="text-align: right;">CGST 9%</th>
+            <th style="text-align: right;">SGST 9%</th>
+            <th style="text-align: right;">Gross ($)</th>
+          </tr>
+        `;
+        tbody.innerHTML = recs.slice(0, 15).map(r => `
+          <tr>
+            <td><span style="font-family: monospace; color: var(--color-gold);">${r.tax_invoice_num}</span></td>
+            <td style="font-size: 0.75rem;">${new Date(r.date).toLocaleDateString()}</td>
+            <td>#${r.order_id}</td>
+            <td>${escapeHtml(r.customer_name || 'Retail Client')}</td>
+            <td style="text-align: right; color: #7bed9f;">₹${parseFloat(r.cgst || 0).toFixed(2)}</td>
+            <td style="text-align: right; color: #54a0ff;">₹${parseFloat(r.sgst || 0).toFixed(2)}</td>
+            <td style="text-align: right; font-weight: 600;">₹${parseFloat(r.gross_amount || 0).toFixed(2)}</td>
+          </tr>
+        `).join('') || `<tr><td colspan="7" style="text-align: center;">No records</td></tr>`;
+
+      } else if (type === 'audit') {
+        document.getElementById('customKpi1').innerText = `${s.totalEvents || s.totalAuditEvents || 0}`;
+        document.getElementById('customSub1').innerText = 'Total Events Logged';
+        document.getElementById('customKpi2').innerText = `${s.securityEvents || 0}`;
+        document.getElementById('customSub2').innerText = 'Security Mutations';
+        document.getElementById('customKpi3').innerText = `${s.catalogEvents || 0}`;
+        document.getElementById('customSub3').innerText = 'Catalog Modifications';
+
+        thead.innerHTML = `
+          <tr>
+            <th>Event ID</th>
+            <th>Timestamp</th>
+            <th>Operator</th>
+            <th>Action</th>
+            <th>Entity</th>
+            <th>IP Address</th>
+          </tr>
+        `;
+        tbody.innerHTML = recs.slice(0, 15).map(r => `
+          <tr>
+            <td><span style="font-family: monospace; color: var(--color-gold);">#${r.id}</span></td>
+            <td style="font-size: 0.75rem;">${new Date(r.created_at).toLocaleDateString()}</td>
+            <td>${escapeHtml(r.actor_name || r.user_email || 'System')}</td>
+            <td><span class="badge badge-active">${escapeHtml(r.action || 'MUTATION')}</span></td>
+            <td>${escapeHtml(r.entity_type || 'SYSTEM')}</td>
+            <td style="font-family: monospace; font-size: 0.72rem;">${escapeHtml(r.ip_address || '127.0.0.1')}</td>
+          </tr>
+        `).join('') || `<tr><td colspan="6" style="text-align: center;">No records</td></tr>`;
+      }
+    }
+
+    async function saveCustomReport() {
+      const type = document.getElementById('repType').value;
+      const title = document.getElementById('repTitle').value.trim() || 'Custom Report';
+      const period = activePeriod;
+      const status = document.getElementById('repStatus').value;
+      const preparedBy = document.getElementById('repPreparedBy').value.trim() || 'Executive Controller';
+      const summary = document.getElementById('repSummary').value.trim();
+      const refNum = `REG-CST-${new Date().getFullYear()}-${String(Date.now()).slice(-4)}`;
+
+      const payload = {
+        report_number: refNum,
+        report_type: type,
+        title: title,
+        period: period,
+        executive_summary: summary,
+        prepared_by: preparedBy,
+        status: status,
+        data_json: currentLiveSourceData || {}
+      };
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/reports/save', {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.success) {
+          alert(`Report "${title}" successfully compiled and archived into Executive Registers!`);
+          window.location.href = 'reports.html';
+        } else {
+          alert(json.message || json.error || 'Failed to save custom report.');
+        }
+      } catch (err) {
+        alert('Network error saving custom report.');
+      }
+    }
+
+    function downloadAsPDF() {
+      const title = document.getElementById('repTitle') ? document.getElementById('repTitle').value : 'Custom_Studio';
+      downloadReportPDF(title || 'Custom_Studio', activePeriod);
+    }
+
+    function shareViaWhatsApp() {
+      const title = document.getElementById('repTitle').value.trim();
+      const source = document.getElementById('repType').options[document.getElementById('repType').selectedIndex].text;
+      const kpi1 = document.getElementById('customKpi1').innerText;
+      const sub1 = document.getElementById('customSub1').innerText;
+      const kpi2 = document.getElementById('customKpi2').innerText;
+      const sub2 = document.getElementById('customSub2').innerText;
+
+      window.pendingWhatsAppText = 
+`📑 *LUMIÈRE ATELIER — CUSTOM EXECUTIVE REPORT*
+*Title:* ${title}
+*Source Register:* ${source}
+*Period:* ${activePeriod.toUpperCase()}
+*Date:* ${new Date().toLocaleDateString()}
+
+*Key Compiled Metrics:*
+• ${sub1}: ${kpi1}
+• ${sub2}: ${kpi2}
+
+*Executive Summary:*
+${document.getElementById('repSummary').value.trim()}
+
+_Compiled from Lumière Executive Register Studio._`;
+
+      document.getElementById('whatsappModal').classList.add('active');
+    }
+
+    function closeWhatsAppModal() {
+      document.getElementById('whatsappModal').classList.remove('active');
+    }
+
+    function dispatchWhatsAppMessage() {
+      const phoneInput = document.getElementById('waRecipientPhone').value.trim();
+      const cleanPhone = phoneInput.replace(/[^0-9]/g, '');
+      let url = `https://api.whatsapp.com/send?text=${encodeURIComponent(window.pendingWhatsAppText)}`;
+      if (cleanPhone) {
+        url += `&phone=${cleanPhone}`;
+      }
+      window.open(url, '_blank');
+      closeWhatsAppModal();
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = Auth.getUser();
+      if (user) {
+        const userRole = (user.role || 'STAFF').toUpperCase();
+        const roleEl = document.getElementById('roleAccessBadge');
+        if (roleEl) {
+          roleEl.innerText = `${userRole} ACCESS`;
+          roleEl.className = Auth.isOwner() ? 'badge badge-owner' : 'badge badge-active';
+        }
+        if (user.name) {
+          document.getElementById('repPreparedBy').value = `${user.name} (${userRole})`;
+        }
+      }
+      syncReportTemplate();
+      refreshSourceData();
+    });
+  </script>
+</body>
+</html>

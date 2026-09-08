@@ -17,7 +17,13 @@ const authLimiter = rateLimit({
 
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
-  max: 200, // 200 requests per minute
+  max: 600, // Generous ceiling for active real-time cross-tab updates
+  skip: (req) => {
+    const url = req.originalUrl || req.url || '';
+    return url.includes('/products/stream') ||
+           url.includes('/products/version') ||
+           url.includes('/health');
+  },
   standardHeaders: true,
   legacyHeaders: false,
   message: {

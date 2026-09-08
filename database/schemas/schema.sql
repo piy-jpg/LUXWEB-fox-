@@ -63,6 +63,9 @@ CREATE TABLE IF NOT EXISTS categories (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     image_url VARCHAR(500),
+    is_active BOOLEAN DEFAULT 1,
+    status VARCHAR(20) DEFAULT 'active',
+    display_order INTEGER DEFAULT 10,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

@@ -19,10 +19,101 @@
     <header class="admin-topbar" id="adminTopbar"></header>
 
     <main class="admin-content">
+      <!-- 1. PROMINENTLY ABOVE THIS: Real-Time Total Quantity of Stock Live Headline Banner -->
+      <div class="total-stock-header-card" style="background: linear-gradient(135deg, rgba(20, 16, 22, 0.95), rgba(35, 27, 40, 0.95)); border: 1px solid rgba(201, 169, 110, 0.35); border-radius: 6px; padding: 1.1rem 1.6rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); flex-wrap: wrap; gap: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+          <div style="width: 48px; height: 48px; border-radius: 8px; background: rgba(201, 169, 110, 0.15); border: 1px solid rgba(201, 169, 110, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.45rem; color: var(--color-gold);">
+            📦
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span style="font-size: 0.72rem; letter-spacing: 0.14em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Total Quantity of Stock</span>
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #7bed9f; box-shadow: 0 0 10px #7bed9f;" title="Live Stock Engine Active"></span>
+              <span style="font-size: 0.65rem; color: #7bed9f; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500;">Live Real-Time Sync</span>
+            </div>
+            <div style="font-family: var(--font-serif); font-size: 2.35rem; font-weight: 400; color: #FAF7F2; line-height: 1.1; margin-top: 0.25rem;">
+              <span id="topTotalStockQty">7,921</span> <span style="font-size: 0.9rem; font-family: var(--font-sans, system-ui); color: rgba(250, 247, 242, 0.6); font-weight: 300;">Physical Units in Atelier</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1.75rem; align-items: center; flex-wrap: wrap;">
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <div style="font-size: 0.68rem; color: rgba(250, 247, 242, 0.55); text-transform: uppercase; letter-spacing: 0.08em;">Available for Order</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: #7bed9f; margin-top: 0.2rem;" id="topAvailableStockQty">7,900</div>
+          </div>
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <div style="font-size: 0.68rem; color: rgba(250, 247, 242, 0.55); text-transform: uppercase; letter-spacing: 0.08em;">Reserved (Orders)</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: #bb8fce; margin-top: 0.2rem;" id="topReservedStockQty">21</div>
+          </div>
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <div style="font-size: 0.68rem; color: rgba(250, 247, 242, 0.55); text-transform: uppercase; letter-spacing: 0.08em;">Inventory Valuation</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: var(--color-gold); margin-top: 0.2rem;" id="topStockValuation">₹682,753</div>
+          </div>
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <button onclick="loadInventory(false)" class="btn-outline" style="font-size: 0.72rem; padding: 0.55rem 0.95rem;" title="Immediate Real-Time Inventory Sync">
+              <span id="invSyncSpinIcon" style="display: inline-block;">⟳</span> SYNC NOW
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
         <div>
           <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Real-Time Stock Engine</span>
           <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Inventory &amp; Transaction Ledger</h1>
+        </div>
+      </div>
+
+      <!-- Shared Inventory Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="inventory.html" class="subnav-tab active">
+          <span>📦</span> Stock Overview
+        </a>
+        <a href="inventory-movements.html" class="subnav-tab">
+          <span>🔄</span> Stock Movements
+        </a>
+        <a href="inventory-low-stock.html" class="subnav-tab">
+          <span>⚠️</span> Low Stock <span class="subnav-badge badge-warn" id="subnavLowStockBadge">-</span>
+        </a>
+        <a href="inventory-out-of-stock.html" class="subnav-tab">
+          <span>🚫</span> Out of Stock <span class="subnav-badge badge-danger" id="subnavOutStockBadge">-</span>
+        </a>
+        <a href="inventory-stock-in.html" class="subnav-tab">
+          <span>📥</span> Purchase / Stock In <span class="subnav-badge badge-accent">Receive</span>
+        </a>
+        <a href="inventory-adjust.html" class="subnav-tab">
+          <span>⚖️</span> Stock Adjustment
+        </a>
+        <a href="inventory-history.html" class="subnav-tab">
+          <span>📜</span> Inventory History
+        </a>
+      </div>
+
+      <!-- Inventory Executive Stat Cards Deck -->
+      <div class="stat-card-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-title">Total Quantity of Stock</div>
+          <div class="stat-number" id="cardStatTotalPhysical">7,921</div>
+          <span style="font-size: 0.72rem; color: var(--color-gold); margin-top: 0.5rem;" id="cardStatTotalSkus">155 active boutique SKUs</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Available for Sale</div>
+          <div class="stat-number" id="cardStatTotalAvailable" style="color: #7bed9f;">7,900</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Ready for immediate dispatch</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Reserved in Orders</div>
+          <div class="stat-number" id="cardStatTotalReserved" style="color: #bb8fce;">21</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Allocated to client checkout</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Replenishment Attention</div>
+          <div class="stat-number" id="cardStatAlerts" style="color: #f39c12;">2</div>
+          <span style="font-size: 0.72rem; color: #e74c3c; margin-top: 0.5rem;" id="cardStatAlertsSubtitle">1 out of stock · 1 low stock</span>
         </div>
       </div>
 
@@ -171,6 +262,17 @@
 
         if (data.success) {
           const items = data.inventory || [];
+          const summary = data.summary || {
+            total_physical: items.reduce((acc, i) => acc + (parseInt(i.stock_quantity, 10) || 0), 0),
+            total_reserved: items.reduce((acc, i) => acc + (parseInt(i.reserved_quantity, 10) || 0), 0),
+            total_available: items.reduce((acc, i) => acc + (parseInt(i.available_quantity, 10) || 0), 0),
+            total_valuation: items.reduce((acc, i) => acc + ((parseInt(i.stock_quantity, 10) || 0) * (parseFloat(i.price) || 0)), 0),
+            total_skus: items.length,
+            low_stock_count: items.filter(i => i.is_low_stock).length,
+            out_of_stock_count: items.filter(i => i.is_out_of_stock).length
+          };
+          updateInventoryMetricsUI(summary);
+
           const fingerprint = `${items.length}_${items.map(i => `${i.inventory_id}:${i.stock_quantity}:${i.reserved_quantity}`).join(';')}`;
 
           if (isSilent && fingerprint === lastInvFingerprint) {
@@ -310,8 +412,79 @@
       }
     }
 
+    function updateInventoryMetricsUI(summary) {
+      if (!summary) return;
+      const physical = typeof summary.total_physical === 'number' ? summary.total_physical : parseInt(summary.total_physical || 0, 10);
+      const available = typeof summary.total_available === 'number' ? summary.total_available : parseInt(summary.total_available || 0, 10);
+      const reserved = typeof summary.total_reserved === 'number' ? summary.total_reserved : parseInt(summary.total_reserved || 0, 10);
+      const val = typeof summary.total_valuation === 'number' ? summary.total_valuation : parseFloat(summary.total_valuation || 0);
+      const skus = summary.total_skus || inventoryItems.length || 0;
+      const lowStock = summary.low_stock_count || 0;
+      const outStock = summary.out_of_stock_count || 0;
+
+      // Update Top Banner (Above Real-Time Stock Engine Title)
+      const bannerTot = document.getElementById('topTotalStockQty');
+      if (bannerTot) bannerTot.textContent = physical.toLocaleString();
+      const bannerAvail = document.getElementById('topAvailableStockQty');
+      if (bannerAvail) bannerAvail.textContent = available.toLocaleString();
+      const bannerRes = document.getElementById('topReservedStockQty');
+      if (bannerRes) bannerRes.textContent = reserved.toLocaleString();
+      const bannerVal = document.getElementById('topStockValuation');
+      if (bannerVal) bannerVal.textContent = '₹' + Math.round(val).toLocaleString('en-IN');
+
+      // Update Stat Cards Deck
+      const cardTot = document.getElementById('cardStatTotalPhysical');
+      if (cardTot) cardTot.textContent = physical.toLocaleString();
+      const cardSkus = document.getElementById('cardStatTotalSkus');
+      if (cardSkus) cardSkus.textContent = `${skus} active boutique SKUs`;
+      const cardAvail = document.getElementById('cardStatTotalAvailable');
+      if (cardAvail) cardAvail.textContent = available.toLocaleString();
+      const cardRes = document.getElementById('cardStatTotalReserved');
+      if (cardRes) cardRes.textContent = reserved.toLocaleString();
+      const cardAlerts = document.getElementById('cardStatAlerts');
+      if (cardAlerts) cardAlerts.textContent = (lowStock + outStock).toString();
+      const cardSub = document.getElementById('cardStatAlertsSubtitle');
+      if (cardSub) cardSub.textContent = `${outStock} out of stock · ${lowStock} low stock`;
+
+      const subLow = document.getElementById('subnavLowStockBadge');
+      if (subLow) subLow.textContent = lowStock.toString();
+      const subOut = document.getElementById('subnavOutStockBadge');
+      if (subOut) subOut.textContent = outStock.toString();
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       loadInventory(false);
+
+      // 1. SSE Real-Time Stream for Instantaneous Stock Sync
+      try {
+        const base = (typeof Auth !== 'undefined' && typeof Auth.getBaseUrl === 'function') ? Auth.getBaseUrl() : '';
+        const sse = new EventSource(base + '/api/products/stream');
+        sse.addEventListener('catalog_mutation', (e) => {
+          const activeEl = document.activeElement;
+          const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+          const modalOpen = (document.getElementById('adjustModal')?.classList.contains('open')) ||
+                            (document.getElementById('historyModal')?.classList.contains('open'));
+          if (!isTyping && !modalOpen) {
+            loadInventory(true);
+          }
+        });
+      } catch {}
+
+      // 2. BroadcastChannel cross-tab listener
+      try {
+        const bc = new BroadcastChannel('lumiere_realtime_bus');
+        bc.onmessage = () => {
+          const activeEl = document.activeElement;
+          const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+          const modalOpen = (document.getElementById('adjustModal')?.classList.contains('open')) ||
+                            (document.getElementById('historyModal')?.classList.contains('open'));
+          if (!isTyping && !modalOpen) {
+            loadInventory(true);
+          }
+        };
+      } catch {}
+
+      // 3. Fallback Interval Polling
       if (realTimeInvTimer) clearInterval(realTimeInvTimer);
       realTimeInvTimer = setInterval(() => {
         const activeEl = document.activeElement;
@@ -321,7 +494,8 @@
         if (!isTyping && !modalOpen) {
           loadInventory(true);
         }
-      }, 5000);
+      }, 4000);
+
       window.addEventListener('focus', () => loadInventory(true));
     });
   </script>

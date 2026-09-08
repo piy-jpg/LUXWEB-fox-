@@ -3,13 +3,159 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Staff &amp; RBAC Management — Lumière Admin</title>
+  <title>Staff &amp; RBAC Atelier Suite — Lumière Admin</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
   
   <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .kpi-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+    .kpi-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--admin-border);
+      border-radius: 6px;
+      padding: 1.25rem 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+    .kpi-card:hover {
+      border-color: var(--color-gold);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--color-gold);
+    }
+    .kpi-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(250,247,242,0.6);
+      margin-bottom: 0.4rem;
+    }
+    .kpi-val {
+      font-family: var(--font-serif);
+      font-size: 1.9rem;
+      color: #fff;
+      font-weight: 400;
+      margin: 0;
+    }
+    .kpi-sub {
+      font-size: 0.72rem;
+      color: var(--color-gold);
+      margin-top: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .staff-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(201,169,110,0.25), rgba(201,169,110,0.05));
+      border: 1px solid rgba(201,169,110,0.4);
+      color: var(--color-gold);
+      font-weight: 600;
+      font-size: 0.85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 0.75rem;
+      text-transform: uppercase;
+      flex-shrink: 0;
+    }
+    .badge-owner {
+      background: rgba(201,169,110,0.18);
+      color: var(--color-gold);
+      border: 1px solid rgba(201,169,110,0.5);
+      box-shadow: 0 0 8px rgba(201,169,110,0.25);
+    }
+    .badge-manager {
+      background: rgba(187,143,206,0.18);
+      color: #d2b4de;
+      border: 1px solid rgba(187,143,206,0.4);
+    }
+    .badge-inventory {
+      background: rgba(93,173,226,0.18);
+      color: #85c1e9;
+      border: 1px solid rgba(93,173,226,0.4);
+    }
+    .badge-order {
+      background: rgba(72,201,176,0.18);
+      color: #76d7c4;
+      border: 1px solid rgba(72,201,176,0.4);
+    }
+    .matrix-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 0.78rem;
+    }
+    .matrix-table th {
+      background: rgba(0,0,0,0.3);
+      padding: 0.85rem 1rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      font-size: 0.7rem;
+      color: rgba(250,247,242,0.8);
+      border-bottom: 1px solid var(--admin-border);
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .matrix-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      vertical-align: middle;
+    }
+    .matrix-domain-row {
+      background: rgba(201,169,110,0.06);
+      font-weight: 600;
+      color: var(--color-gold);
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .matrix-checkbox {
+      accent-color: var(--color-gold);
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+    }
+    .matrix-checkbox:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+    .pulse-dot-green {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #2ed573;
+      box-shadow: 0 0 10px #2ed573;
+      display: inline-block;
+      animation: beaconPulse 2s infinite ease-in-out;
+    }
+    @keyframes beaconPulse {
+      0% { transform: scale(0.9); opacity: 0.7; }
+      50% { transform: scale(1.2); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.7; }
+    }
+  </style>
 </head>
 <body>
 
@@ -19,20 +165,103 @@
     <header class="admin-topbar" id="adminTopbar"></header>
 
     <main class="admin-content">
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+      <!-- Title & Actions Header -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Governance &amp; Access Control</span>
-          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Atelier Staff &amp; RBAC Matrix</h1>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Governance &amp; RBAC Engine</span>
+            <div style="display: flex; align-items: center; gap: 0.45rem; background: rgba(46,213,115,0.12); border: 1px solid rgba(46,213,115,0.3); border-radius: 20px; padding: 0.2rem 0.65rem;">
+              <span class="pulse-dot-green"></span>
+              <span style="font-size: 0.65rem; color: #2ed573; font-weight: 500; letter-spacing: 0.05em;">REAL-TIME SYNC</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;">Personnel &amp; Staff Directory</h1>
         </div>
-        <button onclick="openCreateStaffModal()" class="btn-gold">
-          + PROVISION STAFF ACCOUNT
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <a href="roles.html" class="btn-outline" style="font-size: 0.72rem; padding: 0.48rem 0.95rem;">
+            👑 ROLES HIERARCHY
+          </a>
+          <a href="permissions.html" class="btn-outline" style="font-size: 0.72rem; padding: 0.48rem 0.95rem;">
+            🛡️ PERMISSIONS MATRIX
+          </a>
+          <button onclick="openCreateStaffModal()" class="btn-gold" style="font-size: 0.72rem; padding: 0.48rem 1rem;">
+            + PROVISION STAFF ACCOUNT
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="staff.html" class="subnav-tab active">
+          <span>👥</span> Staff Directory <span class="subnav-badge badge-accent" id="subnavStaffBadge">-</span>
+        </a>
+        <a href="roles.html" class="subnav-tab">
+          <span>👑</span> Roles Hierarchy <span class="subnav-badge" id="subnavRolesBadge">4</span>
+        </a>
+        <a href="permissions.html" class="subnav-tab">
+          <span>🛡️</span> Permissions Matrix <span class="subnav-badge" id="subnavPermsBadge">12</span>
+        </a>
+        <a href="audit.html" class="subnav-tab">
+          <span>📜</span> Security Audit Log <span class="subnav-badge" id="subnavAuditBadge">Live</span>
+        </a>
+      </div>
+
+      <!-- Live KPI Metrics Strip -->
+      <div class="kpi-strip">
+        <div class="kpi-card">
+          <div class="kpi-label">Authorized Personnel</div>
+          <div class="kpi-val" id="statTotalStaff">—</div>
+          <div class="kpi-sub">✦ Active atelier members</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Active Accounts</div>
+          <div class="kpi-val" id="statActiveStaff" style="color: #2ed573;">—</div>
+          <div class="kpi-sub"><span style="color: #2ed573;">●</span> Operational standing</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Security Roles</div>
+          <div class="kpi-val" id="statTotalRoles">—</div>
+          <div class="kpi-sub">✦ Granular RBAC profiles</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">System Privileges</div>
+          <div class="kpi-val" id="statTotalPermissions" style="color: var(--color-gold);">12</div>
+          <div class="kpi-sub">✦ Server-enforced rules</div>
+        </div>
+      </div>
+
+      <!-- Filters & Search Bar -->
+      <div class="table-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+        <input 
+          type="text" 
+          id="staffSearch" 
+          class="admin-input" 
+          placeholder="Search personnel by name, email, or telephone..." 
+          style="flex: 2; min-width: 250px;" 
+          oninput="debounceStaffSearch()" 
+        />
+        <select id="filterRole" class="admin-select" style="flex: 1; min-width: 160px;" onchange="filterStaff()">
+          <option value="all">All Roles</option>
+          <option value="OWNER">OWNER</option>
+          <option value="MANAGER">MANAGER</option>
+          <option value="INVENTORY_STAFF">INVENTORY_STAFF</option>
+          <option value="ORDER_STAFF">ORDER_STAFF</option>
+        </select>
+        <select id="filterStatus" class="admin-select" style="flex: 1; min-width: 140px;" onchange="filterStaff()">
+          <option value="all">All Statuses</option>
+          <option value="active">Active Accounts</option>
+          <option value="disabled">Disabled Accounts</option>
+        </select>
+        <button onclick="resetStaffFilters()" class="btn-outline" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="Reset Filters">
+          Reset
         </button>
       </div>
 
       <!-- Staff Directory Table -->
-      <div class="table-card">
-        <div class="table-header-wrap">
-          <h3 style="font-family: var(--font-serif); font-size: 1.25rem; margin: 0;">Authorized Atelier Personnel</h3>
+      <div class="table-card" style="margin-bottom: 2.5rem;">
+        <div class="table-header-wrap" style="display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin: 0;">Authorized Atelier Personnel</h3>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.6);" id="staffCountLabel">Showing all personnel</span>
         </div>
         <div class="table-responsive">
           <table class="admin-table">
@@ -43,52 +272,90 @@
                 <th>Status</th>
                 <th>Last Active</th>
                 <th>Created</th>
-                <th style="text-align: right;">Access Controls</th>
+                <th style="text-align: right; min-width: 230px;">Access Controls</th>
               </tr>
             </thead>
             <tbody id="staffTableBody">
-              <tr><td colspan="6" style="text-align: center;">Loading staff accounts...</td></tr>
+              <tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading staff accounts...</td></tr>
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- RBAC Permissions Reference Card -->
-      <div class="table-card" style="padding: 1.5rem;">
-        <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin: 0 0 1rem;">Server-Enforced Role Privileges Matrix</h3>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.25rem; font-size: 0.78rem;">
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--admin-border-gold); padding: 1rem; border-radius: 4px;">
-            <div style="font-weight: 600; color: var(--color-gold); font-size: 0.9rem; margin-bottom: 0.35rem;">✦ OWNER</div>
-            <p style="color: rgba(250,247,242,0.6); margin: 0 0 0.5rem;">Total administrative control over all atelier systems.</p>
-            <span style="color: #7bed9f;">✓ All 12 permissions</span>
+      <!-- INTERACTIVE REAL-TIME RBAC PERMISSIONS MATRIX -->
+      <div class="table-card" id="permissions" style="padding: 1.5rem; margin-bottom: 2.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+              <span style="font-size: 0.72rem; letter-spacing: 0.1em; color: var(--color-gold); text-transform: uppercase;">Server-Enforced Privileges</span>
+              <span class="badge badge-accent" style="font-size: 0.65rem;">Interactive Real-Time Matrix</span>
+            </div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;">Role &amp; Privilege Matrix</h3>
+            <p style="font-size: 0.76rem; color: rgba(250,247,242,0.65); margin: 0.25rem 0 0;">
+              Customize role privileges in real time. Modifications are verified transactionally and broadcast immediately across the atelier.
+            </p>
           </div>
+          <button onclick="saveAllRolePermissions()" class="btn-gold" id="btnSaveMatrix" style="font-size: 0.75rem; padding: 0.55rem 1.25rem;">
+            💾 SAVE ROLE MATRIX CHANGES
+          </button>
+        </div>
 
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--admin-border); padding: 1rem; border-radius: 4px;">
-            <div style="font-weight: 600; color: #bb8fce; font-size: 0.9rem; margin-bottom: 0.35rem;">✦ MANAGER</div>
-            <p style="color: rgba(250,247,242,0.6); margin: 0 0 0.5rem;">Full catalog, stock, order, client, &amp; revenue analytics access.</p>
-            <span style="color: rgba(250,247,242,0.8);">✕ No staff or store settings access</span>
-          </div>
+        <div class="table-responsive" style="border: 1px solid var(--admin-border); border-radius: 4px;">
+          <table class="matrix-table" id="matrixTable">
+            <thead>
+              <tr id="matrixHeaderRow">
+                <th style="min-width: 260px;">Privilege Code &amp; Scope</th>
+                <th style="text-align: center; min-width: 140px; color: var(--color-gold);">👑 OWNER</th>
+                <th style="text-align: center; min-width: 140px;">MANAGER</th>
+                <th style="text-align: center; min-width: 140px;">INVENTORY_STAFF</th>
+                <th style="text-align: center; min-width: 140px;">ORDER_STAFF</th>
+              </tr>
+            </thead>
+            <tbody id="matrixTableBody">
+              <tr><td colspan="5" style="text-align: center; padding: 2rem;">Loading RBAC Matrix...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--admin-border); padding: 1rem; border-radius: 4px;">
-            <div style="font-weight: 600; color: #5dade2; font-size: 0.9rem; margin-bottom: 0.35rem;">✦ INVENTORY STAFF</div>
-            <p style="color: rgba(250,247,242,0.6); margin: 0 0 0.5rem;">Dedicated to physical stock adjustments &amp; shipments.</p>
-            <span style="color: rgba(250,247,242,0.8);">Stock view, stock adjust &amp; catalog read-only</span>
+      <!-- RECENT STAFF & SECURITY AUDIT LOG -->
+      <div class="table-card" id="auditSection" style="padding: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin: 0;">Atelier Security &amp; Staff Operations Audit</h3>
+            <p style="font-size: 0.74rem; color: rgba(250,247,242,0.6); margin: 0.2rem 0 0;">Live audit record of staff provisioning, credential resets, and permission changes.</p>
           </div>
-
-          <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--admin-border); padding: 1rem; border-radius: 4px;">
-            <div style="font-weight: 600; color: #5dade2; font-size: 0.9rem; margin-bottom: 0.35rem;">✦ ORDER STAFF</div>
-            <p style="color: rgba(250,247,242,0.6); margin: 0 0 0.5rem;">Dedicated to order packing, tracking codes &amp; client service.</p>
-            <span style="color: rgba(250,247,242,0.8);">Order updates, tracking &amp; client view</span>
-          </div>
+          <button onclick="loadStaffActivityAudit()" class="btn-outline" style="font-size: 0.7rem; padding: 0.35rem 0.75rem;">
+            ↻ Refresh Logs
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>Operator</th>
+                <th>Action</th>
+                <th>Target</th>
+                <th>Event Metadata</th>
+              </tr>
+            </thead>
+            <tbody id="staffAuditTableBody">
+              <tr><td colspan="5" style="text-align: center; color: rgba(250,247,242,0.5);">Loading security audit logs...</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </main>
   </div>
 
-  <!-- CREATE STAFF MODAL -->
+  <!-- 1. CREATE STAFF MODAL -->
   <div class="admin-modal" id="staffModal">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
-      <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;">Provision Staff Account</h3>
+      <div>
+        <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;">Provision Staff Account</h3>
+        <span style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">Assign credentials and administrative role</span>
+      </div>
       <button onclick="Admin.closeModal('staffModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
     </div>
 
@@ -96,11 +363,11 @@
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
         <div>
           <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">First Name</label>
-          <input type="text" id="sFirstName" class="admin-input" style="width: 100%;" required />
+          <input type="text" id="sFirstName" class="admin-input" style="width: 100%;" required placeholder="e.g. Marc" />
         </div>
         <div>
           <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Last Name</label>
-          <input type="text" id="sLastName" class="admin-input" style="width: 100%;" required />
+          <input type="text" id="sLastName" class="admin-input" style="width: 100%;" required placeholder="e.g. Dupond" />
         </div>
       </div>
 
@@ -131,66 +398,464 @@
 
       <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
         <button type="button" onclick="Admin.closeModal('staffModal')" class="btn-outline">Cancel</button>
-        <button type="submit" class="btn-gold" id="btnSubmitStaff">CREATE ACCOUNT &rarr;</button>
+        <button type="submit" class="btn-gold" id="btnSubmitStaff">PROVISION ACCOUNT &rarr;</button>
       </div>
     </form>
   </div>
 
-  <div class="admin-backdrop" id="adminBackdrop" onclick="Admin.closeModal('staffModal')"></div>
+  <!-- 2. EDIT STAFF MODAL -->
+  <div class="admin-modal" id="editStaffModal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <div>
+        <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;">Edit Personnel Profile</h3>
+        <span style="font-size: 0.72rem; color: rgba(250,247,242,0.6);" id="editStaffSubtitle">Update contact information and assigned role</span>
+      </div>
+      <button onclick="Admin.closeModal('editStaffModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <form onsubmit="handleSaveStaffEdit(event)">
+      <input type="hidden" id="editStaffId" />
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">First Name</label>
+          <input type="text" id="editFirstName" class="admin-input" style="width: 100%;" required />
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Last Name</label>
+          <input type="text" id="editLastName" class="admin-input" style="width: 100%;" required />
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Contact Phone</label>
+        <input type="tel" id="editPhone" class="admin-input" style="width: 100%;" />
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+        <div>
+          <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Assigned Role</label>
+          <select id="editRole" class="admin-select" style="width: 100%;">
+            <option value="MANAGER">MANAGER</option>
+            <option value="INVENTORY_STAFF">INVENTORY_STAFF</option>
+            <option value="ORDER_STAFF">ORDER_STAFF</option>
+          </select>
+        </div>
+        <div>
+          <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">Account Status</label>
+          <select id="editStatus" class="admin-select" style="width: 100%;">
+            <option value="active">Active</option>
+            <option value="disabled">Disabled</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" onclick="Admin.closeModal('editStaffModal')" class="btn-outline">Cancel</button>
+        <button type="submit" class="btn-gold" id="btnSaveStaffEdit">SAVE PROFILE &rarr;</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 3. RESET PASSWORD MODAL -->
+  <div class="admin-modal" id="resetPassModal" style="max-width: 480px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <div>
+        <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin: 0;">Reset Password</h3>
+        <span style="font-size: 0.72rem; color: rgba(250,247,242,0.6);" id="resetPassStaffName">Update credentials</span>
+      </div>
+      <button onclick="Admin.closeModal('resetPassModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <form onsubmit="handleResetPasswordSubmit(event)">
+      <input type="hidden" id="resetPassStaffId" />
+
+      <div class="form-group" style="margin-bottom: 1.25rem;">
+        <label style="display: block; font-size: 0.72rem; text-transform: uppercase; margin-bottom: 0.35rem;">New Temporary Password (8+ chars)</label>
+        <div style="position: relative;">
+          <input type="password" id="resetPassInput" class="admin-input" style="width: 100%; padding-right: 2.5rem;" required minlength="8" placeholder="Enter 8+ characters" />
+          <button type="button" onclick="togglePassVisibility()" style="position: absolute; right: 0.75rem; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(250,247,242,0.6); cursor: pointer; font-size: 0.9rem;">👁</button>
+        </div>
+        <div style="font-size: 0.68rem; color: rgba(250,247,242,0.5); margin-top: 0.35rem;">
+          Must contain minimum 8 characters. The staff member will be required to change it upon next login.
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+        <button type="button" onclick="Admin.closeModal('resetPassModal')" class="btn-outline">Cancel</button>
+        <button type="submit" class="btn-gold" id="btnSubmitResetPass">RESET CREDENTIALS &rarr;</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- 4. STAFF ACTIVITY AUDIT MODAL -->
+  <div class="admin-modal" id="activityModal" style="max-width: 750px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+      <div>
+        <h3 style="font-family: var(--font-serif); font-size: 1.6rem; margin: 0;" id="activityModalTitle">Personnel Activity History</h3>
+        <span style="font-size: 0.72rem; color: rgba(250,247,242,0.6);" id="activityModalSubtitle">Audit log record</span>
+      </div>
+      <button onclick="Admin.closeModal('activityModal')" style="background: none; border: none; color: #fff; font-size: 1.5rem; cursor: pointer;">&times;</button>
+    </div>
+
+    <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+      <table class="admin-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Action</th>
+            <th>Entity</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody id="activityModalTableBody">
+          <tr><td colspan="4" style="text-align: center;">Loading activity history...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="admin-backdrop" id="adminBackdrop" onclick="closeAllModals()"></div>
 
   <script src="../js/auth.js"></script>
   <script src="js/admin.js"></script>
   <script>
-    async function loadStaff() {
+    /* ==========================================================
+       STAFF & RBAC STATE
+       ========================================================== */
+    let rawStaffList = [];
+    let rolesList = [];
+    let permissionsList = [];
+    let rolePermissionsList = [];
+    let searchDebounceTimer = null;
+    let realTimeSyncTimer = null;
+    let lastFingerprint = '';
+
+    // Grouping of the 12 Permissions by Luxury Domain
+    const PERMISSION_DOMAINS = [
+      {
+        title: '💎 Catalog & Product Engine',
+        codes: ['products.view', 'products.create', 'products.edit', 'products.delete']
+      },
+      {
+        title: '📦 Inventory & Stock Management',
+        codes: ['inventory.view', 'inventory.adjust']
+      },
+      {
+        title: '🛍️ Orders & Dispatch Fulfillment',
+        codes: ['orders.view', 'orders.update']
+      },
+      {
+        title: '👑 Prestige Client Relations & CRM',
+        codes: ['customers.view']
+      },
+      {
+        title: '🛡️ Atelier Governance & Administration',
+        codes: ['analytics.view', 'staff.manage', 'settings.manage']
+      }
+    ];
+
+    /* ==========================================================
+       DATA LOADING & REAL-TIME SYNC
+       ========================================================== */
+    async function loadStaff(isSilent = false) {
       try {
         const res = await Auth.apiFetch('/api/admin/staff');
         const data = await res.json();
 
         if (data.success) {
-          const tbody = document.getElementById('staffTableBody');
+          const fingerprint = `${(data.staff || []).map(s => `${s.id}:${s.status}:${s.role_name}`).join(';')}_${(data.rolePermissions || []).length}`;
+          if (isSilent && fingerprint === lastFingerprint) {
+            return;
+          }
+          lastFingerprint = fingerprint;
 
-          tbody.innerHTML = data.staff.map(s => {
-            let roleClass = 'badge-staff';
-            if (s.role_name === 'OWNER') roleClass = 'badge-owner';
-            if (s.role_name === 'MANAGER') roleClass = 'badge-manager';
+          rawStaffList = data.staff || [];
+          rolesList = data.roles || [];
+          permissionsList = data.permissions || [];
+          rolePermissionsList = data.rolePermissions || [];
 
-            const isCurrent = Auth.getUser() && Auth.getUser().id === s.id;
+          // 1. Update Metrics Strip
+          updateMetricsStrip(data.metrics);
 
-            return `
-              <tr>
-                <td>
-                  <div style="font-weight: 600; color: #fff;">${s.first_name || ''} ${s.last_name || ''}</div>
-                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">${s.email}</div>
-                </td>
-                <td><span class="badge ${roleClass}">${s.role_name}</span></td>
-                <td>
-                  <span class="badge ${s.status === 'active' ? 'badge-active' : 'badge-archived'}">
-                    ${s.status}
-                  </span>
-                </td>
-                <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">
-                  ${s.last_login_at ? new Date(s.last_login_at).toLocaleDateString() : 'Never'}
-                </td>
-                <td style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">
-                  ${new Date(s.created_at).toLocaleDateString()}
-                </td>
-                <td style="text-align: right;">
-                  ${s.role_name === 'OWNER' ? '<span style="font-size: 0.7rem; color: var(--color-gold);">Primary Owner</span>' : `
-                    <button onclick="toggleStaffStatus(${s.id}, '${s.status === 'active' ? 'disabled' : 'active'}')" class="btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.68rem; margin-right: 0.35rem;">
-                      ${s.status === 'active' ? 'Disable' : 'Enable'}
-                    </button>
-                    <button onclick="promptResetPass(${s.id})" class="btn-outline" style="padding: 0.3rem 0.6rem; font-size: 0.68rem;">Reset Pass</button>
-                  `}
-                </td>
-              </tr>
-            `;
-          }).join('');
+          // 2. Render Staff Table with filters applied
+          renderStaffTable();
+
+          // 3. Render Interactive Role Matrix
+          renderRoleMatrix();
         }
       } catch (err) {
-        console.error('Staff error:', err);
+        console.error('Staff loading error:', err);
       }
     }
 
+    function updateMetricsStrip(m) {
+      if (!m) {
+        m = {
+          totalStaff: rawStaffList.length,
+          activeStaff: rawStaffList.filter(s => s.status === 'active').length,
+          totalRoles: rolesList.length,
+          totalPermissions: permissionsList.length || 12
+        };
+      }
+      document.getElementById('statTotalStaff').innerText = m.totalStaff ?? rawStaffList.length;
+      document.getElementById('statActiveStaff').innerText = m.activeStaff ?? rawStaffList.filter(s => s.status === 'active').length;
+      document.getElementById('statTotalRoles').innerText = m.totalRoles ?? rolesList.length;
+      document.getElementById('statTotalPermissions').innerText = m.totalPermissions ?? (permissionsList.length || 12);
+
+      const staffB = document.getElementById('subnavStaffBadge');
+      if (staffB) staffB.innerText = m.totalStaff ?? rawStaffList.length;
+      const rolesB = document.getElementById('subnavRolesBadge');
+      if (rolesB) rolesB.innerText = m.totalRoles ?? rolesList.length;
+      const permsB = document.getElementById('subnavPermsBadge');
+      if (permsB) permsB.innerText = m.totalPermissions ?? (permissionsList.length || 12);
+    }
+
+    /* ==========================================================
+       STAFF DIRECTORY RENDERING & FILTERING
+       ========================================================== */
+    function debounceStaffSearch() {
+      clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(renderStaffTable, 250);
+    }
+
+    function filterStaff() {
+      renderStaffTable();
+    }
+
+    function resetStaffFilters() {
+      document.getElementById('staffSearch').value = '';
+      document.getElementById('filterRole').value = 'all';
+      document.getElementById('filterStatus').value = 'all';
+      renderStaffTable();
+    }
+
+    function renderStaffTable() {
+      const search = (document.getElementById('staffSearch').value || '').trim().toLowerCase();
+      const roleFilter = document.getElementById('filterRole').value;
+      const statusFilter = document.getElementById('filterStatus').value;
+
+      let filtered = rawStaffList.filter(s => {
+        const fullName = `${s.first_name || ''} ${s.last_name || ''}`.toLowerCase();
+        const email = (s.email || '').toLowerCase();
+        const phone = (s.phone || '').toLowerCase();
+
+        const matchesSearch = !search || fullName.includes(search) || email.includes(search) || phone.includes(search);
+        const matchesRole = (roleFilter === 'all') || (s.role_name === roleFilter);
+        const matchesStatus = (statusFilter === 'all') || (s.status === statusFilter);
+
+        return matchesSearch && matchesRole && matchesStatus;
+      });
+
+      const countLabel = document.getElementById('staffCountLabel');
+      if (countLabel) {
+        countLabel.innerText = `Showing ${filtered.length} of ${rawStaffList.length} personnel`;
+      }
+
+      const tbody = document.getElementById('staffTableBody');
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2.5rem 1rem;">No personnel matched the specified criteria.</td></tr>';
+        return;
+      }
+
+      const currentUser = Auth.getUser();
+
+      tbody.innerHTML = filtered.map(s => {
+        let roleClass = 'badge-staff';
+        if (s.role_name === 'OWNER') roleClass = 'badge-owner';
+        else if (s.role_name === 'MANAGER') roleClass = 'badge-manager';
+        else if (s.role_name === 'INVENTORY_STAFF') roleClass = 'badge-inventory';
+        else if (s.role_name === 'ORDER_STAFF') roleClass = 'badge-order';
+
+        const initials = ((s.first_name ? s.first_name[0] : '') + (s.last_name ? s.last_name[0] : '')).toUpperCase() || '✦';
+        const isSelf = currentUser && currentUser.id === s.id;
+        const isOwner = s.role_name === 'OWNER';
+
+        return `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center;">
+                <div class="staff-avatar">${initials}</div>
+                <div>
+                  <div style="font-weight: 600; color: #fff;">
+                    ${s.first_name || ''} ${s.last_name || ''}
+                    ${isSelf ? '<span class="badge badge-accent" style="font-size: 0.6rem; margin-left: 0.35rem;">YOU</span>' : ''}
+                  </div>
+                  <div style="font-size: 0.72rem; color: rgba(250,247,242,0.55);">${s.email}</div>
+                  ${s.phone ? `<div style="font-size: 0.68rem; color: rgba(201,169,110,0.8);">${s.phone}</div>` : ''}
+                </div>
+              </div>
+            </td>
+            <td>
+              <span class="badge ${roleClass}">${s.role_name}</span>
+            </td>
+            <td>
+              <span class="badge ${s.status === 'active' ? 'badge-active' : 'badge-danger'}" style="${s.status === 'active' ? 'color: #2ed573;' : 'color: #ff708f;'}">
+                ● ${s.status.toUpperCase()}
+              </span>
+            </td>
+            <td style="font-size: 0.72rem; color: rgba(250,247,242,0.65);">
+              ${s.last_login_at ? new Date(s.last_login_at).toLocaleString() : 'Never logged in'}
+            </td>
+            <td style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">
+              ${new Date(s.created_at).toLocaleDateString()}
+            </td>
+            <td style="text-align: right;">
+              <div style="display: inline-flex; align-items: center; gap: 0.35rem; justify-content: flex-end; flex-wrap: wrap;">
+                <button onclick="openEditStaffModal(${s.id})" class="btn-outline" style="padding: 0.28rem 0.55rem; font-size: 0.68rem;" title="Edit profile and role">
+                  ✏️ Edit
+                </button>
+                <button onclick="openResetPassModal(${s.id}, '${s.first_name || s.email}')" class="btn-outline" style="padding: 0.28rem 0.55rem; font-size: 0.68rem;" title="Reset password">
+                  🔑 Reset
+                </button>
+                ${!isOwner ? `
+                  <button onclick="toggleStaffStatus(${s.id}, '${s.status === 'active' ? 'disabled' : 'active'}')" class="btn-outline" style="padding: 0.28rem 0.55rem; font-size: 0.68rem;" title="Toggle account status">
+                    ${s.status === 'active' ? '⚡ Disable' : '✓ Enable'}
+                  </button>
+                  <button onclick="openActivityModal(${s.id}, '${s.first_name || s.email}')" class="btn-outline" style="padding: 0.28rem 0.55rem; font-size: 0.68rem;" title="View security activity logs">
+                    📋 Log
+                  </button>
+                  ${!isSelf ? `
+                    <button onclick="deleteStaff(${s.id}, '${s.first_name || s.email}')" class="btn-danger" style="padding: 0.28rem 0.55rem; font-size: 0.68rem;" title="Revoke staff account">
+                      🗑 Revoke
+                    </button>
+                  ` : ''}
+                ` : `
+                  <span style="font-size: 0.68rem; color: var(--color-gold); font-weight: 500; padding: 0.28rem 0.5rem; background: rgba(201,169,110,0.1); border-radius: 3px;">
+                    👑 Primary Owner
+                  </span>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    /* ==========================================================
+       INTERACTIVE ROLE & PERMISSIONS MATRIX
+       ========================================================== */
+    function renderRoleMatrix() {
+      const tbody = document.getElementById('matrixTableBody');
+      const nonCustomerRoles = rolesList.filter(r => r.name !== 'CUSTOMER');
+
+      // Update Header Row with Defined Roles
+      const headerRow = document.getElementById('matrixHeaderRow');
+      headerRow.innerHTML = `
+        <th style="min-width: 260px;">Privilege Code &amp; Scope</th>
+        ${nonCustomerRoles.map(r => `
+          <th style="text-align: center; min-width: 140px; ${r.name === 'OWNER' ? 'color: var(--color-gold);' : ''}">
+            ${r.name === 'OWNER' ? '👑 OWNER' : r.name}
+            ${r.name !== 'OWNER' ? `<div style="margin-top: 0.25rem;"><button onclick="saveSingleRolePermissions(${r.id})" class="btn-outline" style="padding: 0.15rem 0.45rem; font-size: 0.6rem;">Save Role</button></div>` : ''}
+          </th>
+        `).join('')}
+      `;
+
+      let html = '';
+
+      PERMISSION_DOMAINS.forEach(domain => {
+        html += `
+          <tr class="matrix-domain-row">
+            <td colspan="${nonCustomerRoles.length + 1}">${domain.title}</td>
+          </tr>
+        `;
+
+        domain.codes.forEach(code => {
+          const perm = permissionsList.find(p => p.code === code) || { id: code, code, name: code, description: '' };
+
+          html += `
+            <tr>
+              <td>
+                <div style="font-weight: 600; color: #fff;">${perm.name || perm.code}</div>
+                <div style="font-family: monospace; font-size: 0.68rem; color: rgba(201,169,110,0.8);">${perm.code}</div>
+                ${perm.description ? `<div style="font-size: 0.68rem; color: rgba(250,247,242,0.5);">${perm.description}</div>` : ''}
+              </td>
+              ${nonCustomerRoles.map(r => {
+                const isOwner = (r.name === 'OWNER');
+                const hasPerm = isOwner || rolePermissionsList.some(rp => rp.role_id === r.id && (rp.permission_id === perm.id || rp.permission_code === perm.code));
+
+                return `
+                  <td style="text-align: center;">
+                    <input 
+                      type="checkbox" 
+                      class="matrix-checkbox" 
+                      data-role-id="${r.id}" 
+                      data-perm-id="${perm.id}" 
+                      ${hasPerm ? 'checked' : ''} 
+                      ${isOwner ? 'disabled title="Owner maintains all permissions."' : ''} 
+                    />
+                  </td>
+                `;
+              }).join('')}
+            </tr>
+          `;
+        });
+      });
+
+      tbody.innerHTML = html;
+    }
+
+    async function saveSingleRolePermissions(roleId) {
+      const role = rolesList.find(r => r.id === roleId);
+      if (!role) return;
+
+      const checkedBoxes = document.querySelectorAll(`.matrix-checkbox[data-role-id="${roleId}"]:checked`);
+      const permissionIds = Array.from(checkedBoxes).map(cb => parseInt(cb.getAttribute('data-perm-id'), 10)).filter(id => !isNaN(id));
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/roles/${roleId}/permissions`, {
+          method: 'PUT',
+          body: JSON.stringify({ permissionIds }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message || `Permissions for ${role.name} updated.`);
+          broadcastRealtime('permissions_updated', { roleId, roleName: role.name });
+          loadStaff(true);
+        } else {
+          alert(data.error || 'Failed to update role permissions.');
+        }
+      } catch (err) {
+        console.error('Update role permissions error:', err);
+        alert(err.message || 'Error updating permissions.');
+      }
+    }
+
+    async function saveAllRolePermissions() {
+      const btn = document.getElementById('btnSaveMatrix');
+      btn.disabled = true;
+      btn.innerText = 'SAVING MATRIX...';
+
+      const nonOwnerRoles = rolesList.filter(r => r.name !== 'CUSTOMER' && r.name !== 'OWNER');
+      let successCount = 0;
+
+      for (const r of nonOwnerRoles) {
+        const checkedBoxes = document.querySelectorAll(`.matrix-checkbox[data-role-id="${r.id}"]:checked`);
+        const permissionIds = Array.from(checkedBoxes).map(cb => parseInt(cb.getAttribute('data-perm-id'), 10)).filter(id => !isNaN(id));
+
+        try {
+          const res = await Auth.apiFetch(`/api/admin/roles/${r.id}/permissions`, {
+            method: 'PUT',
+            body: JSON.stringify({ permissionIds }),
+          });
+          const data = await res.json();
+          if (data.success) successCount++;
+        } catch (e) {
+          console.warn(`Failed to save role ${r.name}:`, e);
+        }
+      }
+
+      btn.disabled = false;
+      btn.innerText = '💾 SAVE ROLE MATRIX CHANGES';
+      Admin.toast(`✦ Role matrix saved successfully (${successCount} roles updated).`);
+      broadcastRealtime('permissions_updated', {});
+      loadStaff(true);
+    }
+
+    /* ==========================================================
+       PROVISION / CREATE STAFF
+       ========================================================== */
     function openCreateStaffModal() {
       Admin.openModal('staffModal');
     }
@@ -216,10 +881,163 @@
 
         if (data.success) {
           Admin.closeModal('staffModal');
-          Admin.toast(data.message);
-          loadStaff();
+          Admin.toast(data.message || 'Staff account created successfully.');
+          broadcastRealtime('staff_created', { email, roleName });
+          loadStaff(false);
+          loadStaffActivityAudit();
         } else {
           alert(data.error || 'Failed to create staff');
+        }
+      } catch (err) {
+        alert(err.message || 'Error creating staff.');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    /* ==========================================================
+       EDIT STAFF PROFILE & ROLE
+       ========================================================== */
+    function openEditStaffModal(staffId) {
+      const staff = rawStaffList.find(s => s.id === staffId);
+      if (!staff) return;
+
+      document.getElementById('editStaffId').value = staff.id;
+      document.getElementById('editFirstName').value = staff.first_name || '';
+      document.getElementById('editLastName').value = staff.last_name || '';
+      document.getElementById('editPhone').value = staff.phone || '';
+      document.getElementById('editStatus').value = staff.status || 'active';
+      document.getElementById('editRole').value = staff.role_name || 'MANAGER';
+      document.getElementById('editStaffSubtitle').innerText = `${staff.first_name} ${staff.last_name} (${staff.email})`;
+
+      Admin.openModal('editStaffModal');
+    }
+
+    async function handleSaveStaffEdit(e) {
+      e.preventDefault();
+      const staffId = document.getElementById('editStaffId').value;
+      const firstName = document.getElementById('editFirstName').value.trim();
+      const lastName = document.getElementById('editLastName').value.trim();
+      const phone = document.getElementById('editPhone').value.trim();
+      const roleName = document.getElementById('editRole').value;
+      const status = document.getElementById('editStatus').value;
+
+      const btn = document.getElementById('btnSaveStaffEdit');
+      btn.disabled = true;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/staff/${staffId}`, {
+          method: 'PUT',
+          body: JSON.stringify({ firstName, lastName, phone, roleName, status }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.closeModal('editStaffModal');
+          Admin.toast(data.message || 'Staff profile updated.');
+          broadcastRealtime('staff_updated', { staffId, roleName, status });
+          loadStaff(false);
+          loadStaffActivityAudit();
+        } else {
+          alert(data.error || 'Failed to update staff member.');
+        }
+      } catch (err) {
+        alert(err.message || 'Error updating staff profile.');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    /* ==========================================================
+       TOGGLE STATUS & REVOKE / DELETE STAFF
+       ========================================================== */
+    async function toggleStaffStatus(id, newStatus) {
+      if (!confirm(`Are you sure you want to set this staff account to "${newStatus}"?`)) return;
+      try {
+        const res = await Auth.apiFetch(`/api/admin/staff/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ status: newStatus }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message || `Status updated to ${newStatus}.`);
+          broadcastRealtime('staff_status_changed', { staffId: id, status: newStatus });
+          loadStaff(false);
+          loadStaffActivityAudit();
+        } else {
+          alert(data.error || 'Failed to toggle status.');
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function deleteStaff(id, name) {
+      const confirmed = confirm(
+        `Are you sure you want to REVOKE the staff account for "${name}"?\n\n` +
+        `✦ All administrative and atelier privileges will be immediately terminated.\n` +
+        `✦ This action cannot be undone.`
+      );
+      if (!confirmed) return;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/staff/${id}`, {
+          method: 'DELETE',
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message || `Staff account revoked.`);
+          broadcastRealtime('staff_deleted', { staffId: id, name });
+          loadStaff(false);
+          loadStaffActivityAudit();
+        } else {
+          alert(data.error || 'Failed to revoke staff account.');
+        }
+      } catch (err) {
+        alert(err.message || 'Error deleting staff account.');
+      }
+    }
+
+    /* ==========================================================
+       RESET PASSWORD MODAL
+       ========================================================== */
+    function openResetPassModal(id, name) {
+      document.getElementById('resetPassStaffId').value = id;
+      document.getElementById('resetPassStaffName').innerText = `Set temporary password for ${name}`;
+      document.getElementById('resetPassInput').value = '';
+      Admin.openModal('resetPassModal');
+    }
+
+    function togglePassVisibility() {
+      const input = document.getElementById('resetPassInput');
+      input.type = (input.type === 'password') ? 'text' : 'password';
+    }
+
+    async function handleResetPasswordSubmit(e) {
+      e.preventDefault();
+      const staffId = document.getElementById('resetPassStaffId').value;
+      const newPassword = document.getElementById('resetPassInput').value;
+
+      if (!newPassword || newPassword.length < 8) {
+        alert('Password must be at least 8 characters long.');
+        return;
+      }
+
+      const btn = document.getElementById('btnSubmitResetPass');
+      btn.disabled = true;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/staff/${staffId}/reset-password`, {
+          method: 'POST',
+          body: JSON.stringify({ newPassword }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.closeModal('resetPassModal');
+          Admin.toast(data.message || 'Password reset successfully.');
+          broadcastRealtime('staff_password_reset', { staffId });
+          loadStaffActivityAudit();
+        } else {
+          alert(data.error || 'Failed to reset password.');
         }
       } catch (err) {
         alert(err.message);
@@ -228,47 +1046,126 @@
       }
     }
 
-    async function toggleStaffStatus(id, newStatus) {
-      if (!confirm(`Are you sure you want to set this staff account to ${newStatus}?`)) return;
-      try {
-        const res = await Auth.apiFetch(`/api/admin/staff/${id}`, {
-          method: 'PUT',
-          body: JSON.stringify({ status: newStatus }),
-        });
-        const data = await res.json();
-        if (data.success) {
-          Admin.toast(data.message);
-          loadStaff();
-        }
-      } catch (err) {
-        alert(err.message);
-      }
-    }
-
-    async function promptResetPass(id) {
-      const pass = prompt('Enter a new temporary password for this staff member (8+ chars):');
-      if (!pass || pass.length < 8) {
-        if (pass) alert('Password must be at least 8 characters long.');
-        return;
-      }
+    /* ==========================================================
+       STAFF AUDIT & ACTIVITY MODAL
+       ========================================================== */
+    async function openActivityModal(staffId, name) {
+      document.getElementById('activityModalTitle').innerText = `Activity Log: ${name}`;
+      document.getElementById('activityModalSubtitle').innerText = `Audit history for personnel ID #${staffId}`;
+      const tbody = document.getElementById('activityModalTableBody');
+      tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 1.5rem;">Loading audit records...</td></tr>';
+      Admin.openModal('activityModal');
 
       try {
-        const res = await Auth.apiFetch(`/api/admin/staff/${id}/reset-password`, {
-          method: 'POST',
-          body: JSON.stringify({ newPassword: pass }),
-        });
+        const res = await Auth.apiFetch(`/api/admin/staff/${staffId}/activity`);
         const data = await res.json();
         if (data.success) {
-          Admin.toast(data.message);
+          const logs = data.activity || [];
+          if (logs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: rgba(250,247,242,0.5); padding: 1.5rem;">No recent audit activity found for this personnel.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = logs.map(l => `
+            <tr>
+              <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">${new Date(l.created_at).toLocaleString()}</td>
+              <td><span class="badge badge-accent">${l.action}</span></td>
+              <td style="font-family: monospace; font-size: 0.72rem;">${l.entity_type} #${l.entity_id || '—'}</td>
+              <td style="font-size: 0.72rem; color: rgba(250,247,242,0.7);">${l.details || '—'}</td>
+            </tr>
+          `).join('');
         } else {
-          alert(data.error || 'Failed to reset password');
+          tbody.innerHTML = '<tr><td colspan="4" style="color: #ff708f; text-align: center;">Failed to load activity.</td></tr>';
         }
       } catch (err) {
-        alert(err.message);
+        tbody.innerHTML = `<tr><td colspan="4" style="color: #ff708f; text-align: center;">${err.message}</td></tr>`;
       }
     }
 
-    document.addEventListener('DOMContentLoaded', loadStaff);
+    async function loadStaffActivityAudit() {
+      const tbody = document.getElementById('staffAuditTableBody');
+      try {
+        const res = await Auth.apiFetch('/api/admin/audit-logs?limit=15');
+        const data = await res.json();
+        if (data.success) {
+          const logs = (data.logs || []).filter(l => l.action.startsWith('staff.') || l.action.startsWith('role.') || l.entity_type === 'staff');
+          if (logs.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: rgba(250,247,242,0.5);">No recent staff operations recorded.</td></tr>';
+            return;
+          }
+          tbody.innerHTML = logs.slice(0, 8).map(l => `
+            <tr>
+              <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6);">${new Date(l.created_at).toLocaleString()}</td>
+              <td style="font-weight: 500;">${l.user_email || 'System'}</td>
+              <td><span class="badge badge-staff">${l.action}</span></td>
+              <td style="font-family: monospace; font-size: 0.72rem;">${l.entity_type} #${l.entity_id || ''}</td>
+              <td style="font-size: 0.72rem; color: rgba(250,247,242,0.7);">${l.details || '—'}</td>
+            </tr>
+          `).join('');
+        }
+      } catch (e) {
+        console.warn('Failed to load audit logs:', e);
+      }
+    }
+
+    function closeAllModals() {
+      ['staffModal', 'editStaffModal', 'resetPassModal', 'activityModal'].forEach(Admin.closeModal);
+    }
+
+    /* ==========================================================
+       REAL-TIME EVENT BUS (BROADCASTCHANNEL)
+       ========================================================== */
+    const realtimeBus = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('lumiere_realtime_bus') : null;
+
+    function broadcastRealtime(action, payload = {}) {
+      if (realtimeBus) {
+        realtimeBus.postMessage({ action, ...payload, timestamp: Date.now() });
+      }
+    }
+
+    if (realtimeBus) {
+      realtimeBus.onmessage = (event) => {
+        const msg = event.data;
+        if (!msg) return;
+        if (['staff_created', 'staff_updated', 'staff_deleted', 'staff_status_changed', 'permissions_updated', 'staff_password_reset'].includes(msg.action)) {
+          loadStaff(true);
+          loadStaffActivityAudit();
+        }
+      };
+    }
+
+    /* ==========================================================
+       INITIALIZATION & REACTIVE POLLING
+       ========================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+      loadStaff(false);
+      loadStaffActivityAudit();
+
+      // Reactive background polling every 5 seconds (pauses if typing or modal open)
+      if (realTimeSyncTimer) clearInterval(realTimeSyncTimer);
+      realTimeSyncTimer = setInterval(() => {
+        const activeEl = document.activeElement;
+        const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA' || activeEl.tagName === 'SELECT');
+        const anyModalOpen = document.querySelector('.admin-modal.open');
+        if (!isTyping && !anyModalOpen) {
+          loadStaff(true);
+        }
+      }, 5000);
+
+      window.addEventListener('focus', () => {
+        loadStaff(true);
+        loadStaffActivityAudit();
+      });
+
+      // Handle Hash Navigation (#roles or #permissions)
+      if (window.location.hash) {
+        setTimeout(() => {
+          const target = document.querySelector(window.location.hash);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 300);
+      }
+    });
   </script>
 </body>
 </html>

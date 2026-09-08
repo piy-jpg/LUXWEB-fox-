@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Details — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .avatar-large {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(201, 169, 110, 0.25) 0%, rgba(201, 169, 110, 0.08) 100%);
+      border: 2px solid var(--color-gold);
+      color: var(--color-gold);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 1.4rem;
+      font-family: var(--font-serif);
+      box-shadow: 0 0 20px rgba(201, 169, 110, 0.2);
+    }
+    .kpi-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--admin-border);
+      border-radius: 6px;
+      padding: 1.25rem;
+      text-align: center;
+    }
+    .kpi-box-val {
+      font-family: var(--font-serif);
+      font-size: 1.8rem;
+      color: var(--color-gold);
+      margin-top: 0.25rem;
+      font-weight: 500;
+    }
+    .kpi-box-label {
+      font-size: 0.7rem;
+      color: rgba(250, 247, 242, 0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+    .address-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--admin-border);
+      border-radius: 4px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 0.85rem;
+    }
+    .danger-panel {
+      border: 1px solid rgba(231, 76, 60, 0.35);
+      background: rgba(231, 76, 60, 0.03);
+      border-radius: 6px;
+      padding: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header Section -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Customer Dossier</span>
+            <div class="live-indicator">
+              <span class="live-dot"></span>
+              <span>LIVE DOSSIER SYNC</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;">VIP Patron Profile &amp; Dossier</h1>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+          <a href="customers.html" class="btn-outline" style="text-decoration: none; font-size: 0.75rem; padding: 0.5rem 0.9rem;">
+            &larr; Back to Directory
+          </a>
+          <button onclick="loadCurrentCustomer()" class="btn-outline" style="font-size: 0.75rem; padding: 0.5rem 0.9rem;">
+            ⟳ Sync Dossier
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared Customers Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="customers.html" class="subnav-tab">
+          <span>👑</span> Customers <span class="subnav-badge badge-accent" id="subnavCustBadge">-</span>
+        </a>
+        <a href="customer-details.html" class="subnav-tab active">
+          <span>🔍</span> Customer Details
+        </a>
+        <a href="customer-orders.html" class="subnav-tab" id="subnavOrdersLink">
+          <span>🛍️</span> Order History
+        </a>
+      </div>
+
+      <!-- Patron Quick Selector Bar -->
+      <div class="table-card" style="padding: 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap;">
+        <label style="font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-gold); font-weight: 600; white-space: nowrap;">
+          Select Patron:
+        </label>
+        <select id="patronSelect" class="admin-select" style="flex: 2; min-width: 250px;" onchange="onPatronSelectChanged()">
+          <option value="">Loading patron directory...</option>
+        </select>
+      </div>
+
+      <!-- Main Dossier Content (Populated Dynamically) -->
+      <div id="dossierContainer">
+        <!-- Loading Placeholder -->
+        <div class="table-card" style="padding: 3rem; text-align: center; color: rgba(250,247,242,0.5);">
+          Loading client profile &amp; lifetime dossier...
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let allPatrons = [];
+    let currentCustomerId = null;
+    let currentCustomerData = null;
+
+    async function loadPatronDirectory() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/customers');
+        const data = await res.json();
+
+        if (data.success) {
+          allPatrons = data.customers || [];
+          const totalBadge = document.getElementById('subnavCustBadge');
+          if (totalBadge) totalBadge.innerText = data.summary?.total_clients ?? allPatrons.length;
+
+          const select = document.getElementById('patronSelect');
+          const urlParams = new URLSearchParams(window.location.search);
+          const requestedId = parseInt(urlParams.get('id'), 10);
+
+          select.innerHTML = allPatrons.map(p => {
+            const name = `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Valued Patron';
+            return `<option value="${p.id}" ${requestedId === p.id ? 'selected' : ''}>${name} (${p.email}) — Spent: ₹${parseFloat(p.total_spent || 0).toFixed(2)}</option>`;
+          }).join('');
+
+          if (requestedId && allPatrons.some(p => p.id === requestedId)) {
+            currentCustomerId = requestedId;
+          } else if (allPatrons.length > 0) {
+            currentCustomerId = allPatrons[0].id;
+          }
+
+          if (currentCustomerId) {
+            loadCustomerDetails(currentCustomerId);
+          } else {
+            document.getElementById('dossierContainer').innerHTML = '<div class="table-card" style="padding: 2.5rem; text-align: center;">No client accounts registered in atelier.</div>';
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load patron directory:', err);
+      }
+    }
+
+    function onPatronSelectChanged() {
+      const select = document.getElementById('patronSelect');
+      const id = parseInt(select.value, 10);
+      if (id) {
+        currentCustomerId = id;
+        window.history.replaceState(null, '', `customer-details.html?id=${id}`);
+        loadCustomerDetails(id);
+      }
+    }
+
+    function loadCurrentCustomer() {
+      if (currentCustomerId) loadCustomerDetails(currentCustomerId);
+    }
+
+    async function loadCustomerDetails(id) {
+      const container = document.getElementById('dossierContainer');
+      const ordersLink = document.getElementById('subnavOrdersLink');
+      if (ordersLink) ordersLink.href = `customer-orders.html?id=${id}`;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/customers/${id}`);
+        const data = await res.json();
+
+        if (data.success && data.customer) {
+          currentCustomerData = data.customer;
+          renderDossierUI(data.customer);
+        } else {
+          container.innerHTML = `<div class="table-card" style="padding: 2.5rem; text-align: center; color: #ff708f;">Customer not found (ID #${id}).</div>`;
+        }
+      } catch (err) {
+        console.error('Error fetching customer details:', err);
+        container.innerHTML = `<div class="table-card" style="padding: 2.5rem; text-align: center; color: #ff708f;">Failed to retrieve customer dossier.</div>`;
+      }
+    }
+
+    function renderDossierUI(c) {
+      const fullName = `${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Valued Patron';
+      const initials = ((c.first_name ? c.first_name[0] : '') + (c.last_name ? c.last_name[0] : '')).toUpperCase() || 'VP';
+      const orders = c.orders || [];
+      const addresses = c.addresses || [];
+
+      const totalSpent = orders.reduce((sum, o) => sum + (parseFloat(o.total_amount) || 0), 0);
+      const avgOrderValue = orders.length > 0 ? (totalSpent / orders.length) : 0;
+      
+      let tier = 'Atelier Patron';
+      if (totalSpent > 1500) tier = 'Grand Prestige Patron';
+      else if (totalSpent > 500) tier = 'VIP Atelier Patron';
+
+      let statusBadge = 'badge-active';
+      if (c.status === 'suspended') statusBadge = 'badge-danger';
+      else if (c.status === 'archived') statusBadge = 'badge-outline';
+
+      const escName = fullName.replace(/'/g, "\\'");
+      const escEmail = (c.email || '').replace(/'/g, "\\'");
+
+      const html = `
+        <!-- Executive Patron Banner Card -->
+        <div class="table-card" style="padding: 1.75rem 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; background: linear-gradient(135deg, rgba(28, 20, 24, 0.95), rgba(18, 14, 16, 0.98)); border: 1px solid rgba(201, 169, 110, 0.35);">
+          <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <div class="avatar-large">${initials}</div>
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                <h2 style="font-family: var(--font-serif); font-size: 2rem; margin: 0; color: #FAF7F2;">${fullName}</h2>
+                <span class="badge ${statusBadge}" style="font-size: 0.72rem; padding: 0.3rem 0.65rem;">${c.status.toUpperCase()}</span>
+                <span class="badge" style="background: rgba(201, 169, 110, 0.15); color: var(--color-gold); border: 1px solid rgba(201, 169, 110, 0.4); font-size: 0.7rem;">
+                  ✨ ${tier}
+                </span>
+              </div>
+              <div style="display: flex; gap: 1.25rem; margin-top: 0.4rem; color: rgba(250,247,242,0.65); font-size: 0.82rem; flex-wrap: wrap;">
+                <span>📧 ${c.email}</span>
+                <span>📞 ${c.phone || 'No phone registered'}</span>
+                <span>Patron ID: <strong style="color: var(--color-gold); font-family: monospace;">#${c.id}</strong></span>
+                <span>Member Since: ${new Date(c.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
+            <a href="customer-orders.html?id=${c.id}" class="btn-gold" style="text-decoration: none; font-size: 0.75rem; padding: 0.55rem 1rem;">
+              🛍️ Full Order Ledger (${orders.length}) &rarr;
+            </a>
+            ${c.status === 'active' ? `
+              <button onclick="toggleStatus(${c.id}, 'suspended', '${escName}')" class="btn-outline" style="border-color: rgba(255,112,143,0.4); color: #ff708f; font-size: 0.75rem;">
+                ⊘ Suspend Account
+              </button>
+            ` : `
+              <button onclick="toggleStatus(${c.id}, 'active', '${escName}')" class="btn-outline" style="border-color: #7bed9f; color: #7bed9f; font-size: 0.75rem;">
+                ✓ Restore to Active
+              </button>
+            `}
+          </div>
+        </div>
+
+        <!-- KPI Metrics Deck -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem;">
+          <div class="kpi-box">
+            <div class="kpi-box-label">Lifetime Spend</div>
+            <div class="kpi-box-val">₹${totalSpent.toFixed(2)}</div>
+            <span style="font-size: 0.68rem; color: #7bed9f;">Verified Store Value</span>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-box-label">Orders Placed</div>
+            <div class="kpi-box-val" style="color: #FAF7F2;">${orders.length}</div>
+            <span style="font-size: 0.68rem; color: rgba(250,247,242,0.5);">Checkout Transactions</span>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-box-label">Average Order Value</div>
+            <div class="kpi-box-val" style="color: #7bed9f;">₹${avgOrderValue.toFixed(2)}</div>
+            <span style="font-size: 0.68rem; color: rgba(250,247,242,0.5);">Basket Size</span>
+          </div>
+          <div class="kpi-box">
+            <div class="kpi-box-label">Patron Standing</div>
+            <div class="kpi-box-val" style="font-size: 1.25rem; color: var(--color-gold);">${tier}</div>
+            <span style="font-size: 0.68rem; color: var(--color-gold);">VIP Recognition</span>
+          </div>
+        </div>
+
+        <!-- Details Grid: Left (Profile & Addresses), Right (Recent Orders & Danger Zone) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start; margin-bottom: 2rem;">
+          
+          <!-- Left Column: Edit Profile & Saved Addresses -->
+          <div>
+            <!-- Profile Form -->
+            <div class="table-card" style="padding: 1.75rem; margin-bottom: 2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 0.75rem;">
+                <h3 style="font-family: var(--font-serif); font-size: 1.4rem; margin: 0; color: #FAF7F2;">Patron Information</h3>
+                <span style="font-size: 0.7rem; color: var(--color-gold);">Direct Save</span>
+              </div>
+
+              <form onsubmit="handleSaveProfile(event, ${c.id})">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                  <div class="form-group">
+                    <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">First Name</label>
+                    <input type="text" id="editFirstName" class="admin-input" style="width: 100%;" value="${c.first_name || ''}" required />
+                  </div>
+                  <div class="form-group">
+                    <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Last Name</label>
+                    <input type="text" id="editLastName" class="admin-input" style="width: 100%;" value="${c.last_name || ''}" required />
+                  </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                  <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Email Address</label>
+                  <input type="email" class="admin-input" style="width: 100%; opacity: 0.6; cursor: not-allowed;" value="${c.email}" disabled />
+                  <span style="font-size: 0.68rem; color: rgba(250,247,242,0.4);">Email serves as immutable customer login identifier.</span>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.25rem;">
+                  <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Mobile / Telephone</label>
+                  <input type="text" id="editPhone" class="admin-input" style="width: 100%;" value="${c.phone || ''}" placeholder="e.g. +1 (555) 019-2834" />
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                  <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.35rem;">Account Standing</label>
+                  <select id="editStatus" class="admin-select" style="width: 100%;">
+                    <option value="active" ${c.status === 'active' ? 'selected' : ''}>Active — In Good Standing</option>
+                    <option value="suspended" ${c.status === 'suspended' ? 'selected' : ''}>Suspended — Access On Hold</option>
+                    <option value="archived" ${c.status === 'archived' ? 'selected' : ''}>Archived — Dormant Profile</option>
+                  </select>
+                </div>
+
+                <button type="submit" id="btnSaveProfile" class="btn-gold" style="width: 100%; padding: 0.75rem; font-size: 0.8rem;">
+                  UPDATE CLIENT PROFILE &rarr;
+                </button>
+              </form>
+            </div>
+
+            <!-- Saved Addresses -->
+            <div class="table-card" style="padding: 1.75rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 0.75rem;">
+                <h3 style="font-family: var(--font-serif); font-size: 1.4rem; margin: 0; color: #FAF7F2;">Delivery Addresses (${addresses.length})</h3>
+                <span style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">Verified Book</span>
+              </div>
+
+              ${addresses.length === 0 ? `
+                <div style="color: rgba(250,247,242,0.5); font-size: 0.82rem; padding: 1rem 0;">No delivery addresses registered on profile.</div>
+              ` : addresses.map(addr => `
+                <div class="address-card">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+                    <strong style="color: #fff; font-size: 0.88rem;">${addr.address_line1 || 'Address'}</strong>
+                    ${addr.is_default ? '<span class="badge badge-active" style="font-size: 0.65rem;">Default Shipping</span>' : ''}
+                  </div>
+                  ${addr.address_line2 ? `<div style="font-size: 0.78rem; color: rgba(250,247,242,0.7);">${addr.address_line2}</div>` : ''}
+                  <div style="font-size: 0.78rem; color: rgba(250,247,242,0.6); margin-top: 0.2rem;">
+                    ${addr.city || ''}, ${addr.state || ''} ${addr.postal_code || ''} · ${addr.country || ''}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Right Column: Recent Orders & Danger Zone -->
+          <div>
+            <!-- Order History Deck -->
+            <div class="table-card" style="padding: 1.75rem; margin-bottom: 2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 0.75rem;">
+                <h3 style="font-family: var(--font-serif); font-size: 1.4rem; margin: 0; color: #FAF7F2;">Recent Client Orders</h3>
+                <a href="customer-orders.html?id=${c.id}" style="color: var(--color-gold); font-size: 0.75rem; text-decoration: none;">View All &rarr;</a>
+              </div>
+
+              ${orders.length === 0 ? `
+                <div style="color: rgba(250,247,242,0.5); font-size: 0.82rem; padding: 1.5rem 0; text-align: center;">No orders placed yet by this patron.</div>
+              ` : `
+                <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
+                  <table class="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Order</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th style="text-align: right;">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${orders.map(o => `
+                        <tr>
+                          <td>
+                            <strong style="font-family: monospace; font-size: 0.78rem; color: #fff;">
+                              #${o.order_number || o.id}
+                            </strong>
+                          </td>
+                          <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6); white-space: nowrap;">
+                            ${new Date(o.created_at).toLocaleDateString()}
+                          </td>
+                          <td>
+                            <div style="display: flex; align-items: center; gap: 0.35rem; flex-wrap: wrap;">
+                              ${(o.items || []).slice(0, 2).map(item => `
+                                <img src="../${item.product_image || 'images/skincare_products_1788328338930.jpg'}" alt="${item.product_title || 'Item'}" title="${item.product_title} (x${item.quantity})" style="width: 24px; height: 24px; object-fit: cover; border-radius: 2px;" />
+                              `).join('')}
+                              ${(o.items || []).length > 2 ? `<span style="font-size: 0.65rem; color: var(--color-gold);">+${o.items.length - 2}</span>` : ''}
+                            </div>
+                          </td>
+                          <td style="color: var(--color-gold); font-weight: 600; font-size: 0.85rem;">
+                            ₹${parseFloat(o.total_amount).toFixed(2)}
+                          </td>
+                          <td>
+                            <span class="badge" style="font-size: 0.65rem;">${o.status}</span>
+                          </td>
+                          <td style="text-align: right;">
+                            <a href="orders.html#order-${o.id}" class="btn-outline" style="padding: 0.25rem 0.5rem; font-size: 0.68rem; text-decoration: none;">
+                              Inspect &rarr;
+                            </a>
+                          </td>
+                        </tr>
+                      `).join('')}
+                    </tbody>
+                  </table>
+                </div>
+              `}
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="danger-panel">
+              <h3 style="font-family: var(--font-serif); font-size: 1.3rem; margin: 0 0 0.5rem; color: #ff708f;">Account Governance &amp; Security</h3>
+              <p style="color: rgba(250,247,242,0.6); font-size: 0.78rem; margin: 0 0 1.25rem; line-height: 1.4;">
+                Administrative actions regarding account deletion and archival. Archiving retains sales receipts, while erasure permanently wipes credentials.
+              </p>
+
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <button onclick="handleArchiveCustomer(${c.id}, '${escName}')" class="btn-outline" style="border-color: rgba(201,169,110,0.5); font-size: 0.75rem; padding: 0.5rem 0.9rem;">
+                  📦 Archive Account
+                </button>
+                <button onclick="handleDeleteCustomer(${c.id}, '${escName}')" class="btn-outline" style="border-color: rgba(231,76,60,0.6); color: #ff708f; font-size: 0.75rem; padding: 0.5rem 0.9rem;">
+                  🗑️ Permanently Delete
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    async function handleSaveProfile(e, id) {
+      e.preventDefault();
+      const firstName = document.getElementById('editFirstName').value.trim();
+      const lastName = document.getElementById('editLastName').value.trim();
+      const phone = document.getElementById('editPhone').value.trim();
+      const status = document.getElementById('editStatus').value;
+
+      const btn = document.getElementById('btnSaveProfile');
+      btn.disabled = true;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/customers/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify({ firstName, lastName, phone, status })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.toast(`Patron profile updated successfully.`);
+          try {
+            const bc = new BroadcastChannel('lumiere_realtime_bus');
+            bc.postMessage({ type: 'customer_update' });
+          } catch {}
+          loadCustomerDetails(id);
+        } else {
+          alert(data.error || 'Failed to update profile');
+        }
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function toggleStatus(id, newStatus, name) {
+      if (!confirm(`Confirm change of status for "${name}" to ${newStatus.toUpperCase()}?`)) return;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/customers/${id}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.toast(`Status updated to ${newStatus}.`);
+          try {
+            const bc = new BroadcastChannel('lumiere_realtime_bus');
+            bc.postMessage({ type: 'customer_update' });
+          } catch {}
+          loadCustomerDetails(id);
+        } else {
+          alert(data.error || 'Failed to update status');
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function handleArchiveCustomer(id, name) {
+      if (!confirm(`Archive patron "${name}"? This deactivates login while preserving all historic invoices and financial transaction records.`)) return;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/customers/${id}`, {
+          method: 'DELETE',
+          body: JSON.stringify({ mode: 'soft' })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.toast(`Patron "${name}" archived.`);
+          try {
+            const bc = new BroadcastChannel('lumiere_realtime_bus');
+            bc.postMessage({ type: 'customer_update' });
+          } catch {}
+          loadCustomerDetails(id);
+        } else {
+          alert(data.error || 'Failed to archive patron');
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function handleDeleteCustomer(id, name) {
+      if (!confirm(`PERMANENT DELETION: Are you sure you want to permanently delete patron "${name}"? This cannot be undone.`)) return;
+      if (!confirm(`FINAL WARNING: Completely purge "${name}" and all associated credentials?`)) return;
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/customers/${id}`, {
+          method: 'DELETE',
+          body: JSON.stringify({ mode: 'hard' })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.toast(`Patron permanently deleted.`);
+          try {
+            const bc = new BroadcastChannel('lumiere_realtime_bus');
+            bc.postMessage({ type: 'customer_update' });
+          } catch {}
+          window.location.href = 'customers.html';
+        } else {
+          alert(data.error || 'Failed to delete patron');
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadPatronDirectory();
+
+      try {
+        const bc = new BroadcastChannel('lumiere_realtime_bus');
+        bc.onmessage = () => {
+          if (currentCustomerId) loadCustomerDetails(currentCustomerId);
+        };
+      } catch {}
+    });
+  </script>
+</body>
+</html>

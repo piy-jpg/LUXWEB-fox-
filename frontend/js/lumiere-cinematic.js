@@ -4,488 +4,14 @@
  */
 
 /* ------------------- 1. PRODUCT CATALOG DATA ------------------- */
-const LUMIERE_PRODUCTS = [
-  {
-    id: 1,
-    name: 'Radiance Glow Serum',
-    category: 'skincare',
-    categoryLabel: 'Skincare',
-    brand: 'LUMIÈRE',
-    price: 128,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 184,
-    badge: 'Bestseller',
-    badgeType: 'best',
-    img: 'images/skincare_products_1788328338930.jpg',
-    desc: 'An ultra-pure blend of bioactive Vitamin C, multimolecular hyaluronic acid, and botanical adaptogens. Restores light-reflective clarity and glass-skin luminosity.',
-    shades: ['Universal Glass Finish'],
-    volume: '30ml / 1.0 fl. oz.',
-    ingredients: 'Camellia Sinensis Leaf Water, 3-O-Ethyl Ascorbic Acid, Sodium Hyaluronate, Niacinamide, Edelweiss Extract, Squalane.',
-    isBestseller: true,
-    isNewArrival: false,
-  },
-  {
-    id: 2,
-    name: 'Velvet Lip Collection',
-    category: 'makeup',
-    categoryLabel: 'Makeup',
-    brand: 'LUMIÈRE',
-    price: 58,
-    oldPrice: 78,
-    rating: 5,
-    reviewsCount: 312,
-    badge: 'Sale',
-    badgeType: 'sale',
-    img: 'images/makeup_products_1788328354838.jpg',
-    desc: 'Weightless haute-couture matte lipstick infused with camellia seed oil and French rose extract. 12-hour pigment richness with zero drying.',
-    shades: ['01 Rose Nocturne', '02 Rouge Amour', '03 Nude Renaissance', '04 Bois de Santal'],
-    volume: '3.8g / 0.13 oz.',
-    ingredients: 'Dimethicone, Camellia Japonica Seed Oil, Rosa Damascena Extract, Kaolin, Tocopherol, Natural Pigments.',
-    isBestseller: true,
-    isNewArrival: false,
-  },
-  {
-    id: 3,
-    name: "Noir d'Or Eau de Parfum",
-    category: 'fragrance',
-    categoryLabel: 'Fragrance',
-    brand: 'LUMIÈRE',
-    price: 215,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 96,
-    badge: 'Iconic',
-    badgeType: 'best',
-    img: 'images/perfume_collection_1788328378783.jpg',
-    desc: 'An evocative olfactory portrait of twilight in Paris. Smoked oud, liquid amber, Bourbon vanilla, and velvet Damask rose coalesce into an unforgettable aura.',
-    shades: ['Fine Fragrance Vaporisateur'],
-    volume: '100ml / 3.4 fl. oz.',
-    ingredients: 'Alcohol Denat., Parfum (Fragrance), Aqua, Linalool, Coumarin, Benzyl Benzoate, Evernia Prunastri Extract.',
-    isBestseller: true,
-    isNewArrival: false,
-  },
-  {
-    id: 4,
-    name: 'Aeterna Golden Hair Elixir',
-    category: 'haircare',
-    categoryLabel: 'Hair Care',
-    brand: 'LUMIÈRE',
-    price: 94,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 78,
-    badge: 'New',
-    badgeType: 'new',
-    img: 'images/haircare_luxury.jpg',
-    desc: 'A transcendent multi-correctional hair and scalp oil. Cold-pressed argan, rare night-blooming jasmine, and 24k micronized gold impart liquid silk shine without weight.',
-    shades: ['All Hair Types & Textures'],
-    volume: '100ml / 3.4 fl. oz.',
-    ingredients: 'Argania Spinosa Kernel Oil, Simmondsia Chinensis Seed Oil, Jasminum Officinale Extract, Gold Leaf Flakes, Tocopherol.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 5,
-    name: 'Restorative Night Nectar',
-    category: 'skincare',
-    categoryLabel: 'Skincare',
-    brand: 'LUMIÈRE',
-    price: 142,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 142,
-    badge: 'Bestseller',
-    badgeType: 'best',
-    img: 'images/serum_dropper.jpg',
-    desc: 'An intensive cellular regeneration nocturnal balm. Replaces overnight moisture loss with dual-chain peptides, wild ceramides, and marine collagen.',
-    shades: ['Nightly Restorative'],
-    volume: '50ml / 1.7 oz.',
-    ingredients: 'Aqua, Butyrospermum Parkii Butter, Palmitoyl Tripeptide-1, Ceramide NP, Squalane, Centella Asiatica Extract.',
-    isBestseller: true,
-    isNewArrival: false,
-  },
-  {
-    id: 6,
-    name: 'Haute Contour Compact',
-    category: 'makeup',
-    categoryLabel: 'Makeup',
-    brand: 'LUMIÈRE',
-    price: 86,
-    oldPrice: 110,
-    rating: 5,
-    reviewsCount: 89,
-    badge: 'New',
-    badgeType: 'new',
-    img: 'images/editorial_flatlay.jpg',
-    desc: 'Sculpted elegance in a gold refillable compact. Micro-milled pearls create soft-focus diffusion that mimics the golden hour glow.',
-    shades: ['01 Champagne Glow', '02 Warm Bronze', '03 Sunlit Amber'],
-    volume: '11g / 0.38 oz.',
-    ingredients: 'Mica, Talc, Synthetic Fluorphlogopite, Jojoba Esters, Zinc Stearate, Caprylic/Capric Triglyceride.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 7,
-    name: 'Rose Bloom Eau de Toilette',
-    category: 'fragrance',
-    categoryLabel: 'Fragrance',
-    brand: 'LUMIÈRE',
-    price: 165,
-    oldPrice: null,
-    rating: 4,
-    reviewsCount: 65,
-    badge: null,
-    badgeType: null,
-    img: 'images/perfume_collection_1788328378783.jpg',
-    desc: 'Morning dew on fresh Bulgarian roses, blended with crisp white peony, Italian bergamot, and a whisper of sheer cashmere woods.',
-    shades: ['Daylight Spray'],
-    volume: '50ml / 1.7 fl. oz.',
-    ingredients: 'Alcohol Denat., Parfum, Aqua, Citronellol, Geraniol, Limonene, Alpha-Isomethyl Ionone.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 8,
-    name: 'Celestial Silk Scalp Masque',
-    category: 'haircare',
-    categoryLabel: 'Hair Care',
-    brand: 'LUMIÈRE',
-    price: 78,
-    oldPrice: 95,
-    rating: 5,
-    reviewsCount: 52,
-    badge: 'New',
-    badgeType: 'new',
-    img: 'images/haircare_luxury.jpg',
-    desc: 'Deep revitalizing hair treatment featuring fermented rice water, plant keratin, and French lavender to fortify hair follicles from root to tip.',
-    shades: ['Intensive Treatment'],
-    volume: '200ml / 6.7 fl. oz.',
-    ingredients: 'Cetearyl Alcohol, Hydrolyzed Wheat Protein, Oryza Sativa Extract, Lavandula Angustifolia Oil, Panthenol.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 9,
-    name: 'Rosehip Facial Oil',
-    category: 'skincare',
-    categoryLabel: 'Skincare',
-    brand: 'LUMIÈRE',
-    price: 74,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 110,
-    badge: 'Organic',
-    badgeType: 'new',
-    img: 'images/category_1_skincare_34.jpg',
-    desc: 'Cold-pressed virgin rosehip seed oil harvested in Patagonia, enriched with bio-active squalane and Vitamin E for velvety skin renewal.',
-    shades: ['Pure Botanical'],
-    volume: '30ml / 1.0 fl. oz.',
-    ingredients: '100% Rosa Canina Seed Oil, Tocopherol.',
-    isBestseller: true,
-    isNewArrival: false,
-  },
-  {
-    id: 10,
-    name: 'Gold Radiance Highlighter',
-    category: 'makeup',
-    categoryLabel: 'Makeup',
-    brand: 'LUMIÈRE',
-    price: 46,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 220,
-    badge: 'Bestseller',
-    badgeType: 'best',
-    img: 'images/category_2_makeup_34.jpg',
-    desc: 'Prismatic highlighter with ultra-fine pearl pigments that blend seamlessly with skin warmth for an ethereal, glass-like reflection.',
-    shades: ['01 Soliel Gold', '02 Moonlight Opal'],
-    volume: '8g / 0.28 oz.',
-    ingredients: 'Dimethicone, Synthetic Fluorphlogopite, Mica, Lauroyl Lysine, Caprylyl Glycol.',
-    isBestseller: true,
-    isNewArrival: false,
-  },
-  {
-    id: 11,
-    name: 'Jasmin Noir Parfum',
-    category: 'fragrance',
-    categoryLabel: 'Fragrance',
-    brand: 'LUMIÈRE',
-    price: 195,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 88,
-    badge: 'Limited',
-    badgeType: 'new',
-    img: 'images/perfume_collection_1788328378783.jpg',
-    desc: 'Sensual night-blooming jasmine, dark patchouli, smoked plum, and velvety sandalwood create a mysterious, hypnotic evening sillage.',
-    shades: ['Extrait de Parfum'],
-    volume: '100ml / 3.4 fl. oz.',
-    ingredients: 'Alcohol Denat., Parfum, Jasminum Grandiflorum Flower Extract, Santalum Album Oil.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 12,
-    name: 'Botanical Hair Mist',
-    category: 'haircare',
-    categoryLabel: 'Hair Care',
-    brand: 'LUMIÈRE',
-    price: 52,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 46,
-    badge: 'New',
-    badgeType: 'new',
-    img: 'images/haircare_luxury.jpg',
-    desc: 'Weightless conditioning fragrance mist for tresses. Enriched with UV protective antioxidants and delicate orange blossom essence.',
-    shades: ['Weightless Fine Mist'],
-    volume: '75ml / 2.5 fl. oz.',
-    ingredients: 'Aqua, Alcohol Denat., Citrus Aurantium Flower Water, Glycerin, Hydrolyzed Silk, Parfum.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 13,
-    name: "Éclat D'Or 24K Face Oil",
-    category: 'skincare',
-    categoryLabel: 'Skincare',
-    brand: 'LUMIÈRE',
-    price: 155,
-    oldPrice: 185,
-    rating: 5,
-    reviewsCount: 124,
-    badge: 'Atelier',
-    badgeType: 'new',
-    img: 'images/hero_slide_6.jpg',
-    desc: 'An exquisite face elixir suspended with pure 24k gold leaf flakes, organic camellia seed oil, and botanical squalane for liquid silk radiance.',
-    shades: ['24K Luminous Gold'],
-    volume: '30ml / 1.0 fl. oz.',
-    ingredients: 'Camellia Japonica Seed Oil, Simmondsia Chinensis Seed Oil, 24K Gold Leaf, Squalane, Rosa Damascena Flower Oil, Tocopherol.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 14,
-    name: 'Nocturne Ambré Extrait de Parfum',
-    category: 'fragrance',
-    categoryLabel: 'Fragrance',
-    brand: 'LUMIÈRE',
-    price: 240,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 78,
-    badge: 'Exclusive',
-    badgeType: 'new',
-    img: 'images/hero_slide_2.jpg',
-    desc: 'An opulent Parisian twilight olfactory masterpiece. Rare smoked oud, warm ambergris, velvet Turkish rose, and dark Bourbon vanilla.',
-    shades: ['Extrait de Parfum Flacon'],
-    volume: '100ml / 3.4 fl. oz.',
-    ingredients: 'Alcohol Denat., Parfum, Amber Extract, Rosa Damascena Extract, Santalum Album Oil, Coumarin.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 15,
-    name: 'Velvet Rouge Haute Lip Couture',
-    category: 'makeup',
-    categoryLabel: 'Makeup',
-    brand: 'LUMIÈRE',
-    price: 62,
-    oldPrice: 75,
-    rating: 5,
-    reviewsCount: 196,
-    badge: 'Haute',
-    badgeType: 'new',
-    img: 'images/hero_slide_4.jpg',
-    desc: 'Fluted gilded casing revealing an intensely pigmented velvet rouge. Infused with French rose nectar and rare botanical waxes for all-day comfort.',
-    shades: ['05 Bordeaux Imperial', '06 Rouge Vendôme', '07 Rose Nocturne'],
-    volume: '3.8g / 0.13 oz.',
-    ingredients: 'Dimethicone, Synthetic Wax, Camellia Seed Oil, Rosa Gallica Extract, Iron Oxides, Red 7 Lake.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 16,
-    name: 'Botanique Cellulaire Radiance Essence',
-    category: 'skincare',
-    categoryLabel: 'Skincare',
-    brand: 'LUMIÈRE',
-    price: 118,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 92,
-    badge: 'Organic',
-    badgeType: 'new',
-    img: 'images/hero_slide_5.jpg',
-    desc: 'Micro-filtered botanical essence fermented with damask rose water and alpine edelweiss stem cells to illuminate and refine skin texture.',
-    shades: ['Cellular Water Infusion'],
-    volume: '150ml / 5.1 fl. oz.',
-    ingredients: 'Rosa Damascena Flower Water, Leontopodium Alpinum Callus Culture Extract, Niacinamide, Sodium Hyaluronate, Glycerin.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 17,
-    name: 'Aura Sublime Silk Crème',
-    category: 'skincare',
-    categoryLabel: 'Skincare',
-    brand: 'LUMIÈRE',
-    price: 136,
-    oldPrice: 160,
-    rating: 5,
-    reviewsCount: 148,
-    badge: 'Limited',
-    badgeType: 'new',
-    img: 'images/hero_slide_3.jpg',
-    desc: 'Velvety peptide-infused moisturizing crème encased in faceted crystal. Melts upon contact to deliver continuous 24-hour dewiness and barrier repair.',
-    shades: ['Sublime Velvet Crème'],
-    volume: '50ml / 1.7 oz.',
-    ingredients: 'Aqua, Butyrospermum Parkii, Squalane, Palmitoyl Tetrapeptide-7, Ceramide EOP, Jasminum Officinale Extract.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 18,
-    name: "L'Élixir Nectar Sublime Hair Oil",
-    category: 'haircare',
-    categoryLabel: 'Hair Care',
-    brand: 'LUMIÈRE',
-    price: 88,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 64,
-    badge: 'New',
-    badgeType: 'new',
-    img: 'images/hero_slide_1.jpg',
-    desc: 'Artisanal cold-pressed botanical hair oil enriched with micronized 24k gold, argan kernel, and Bulgarian rose for weightless mirror shine.',
-    shades: ['Liquid Gold Silk'],
-    volume: '100ml / 3.4 fl. oz.',
-    ingredients: 'Argania Spinosa Kernel Oil, Camellia Oleifera Seed Oil, Gold Leaf Flakes, Rosa Damascena Flower Oil, Tocopherol.',
-    isBestseller: false,
-    isNewArrival: true,
-  },
-  {
-    id: 19,
-    name: 'Imperiale Amber Flacon',
-    category: 'fragrance',
-    categoryLabel: 'Fragrance',
-    brand: 'LUMIÈRE',
-    price: 260,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 104,
-    badge: 'Bestseller',
-    badgeType: 'best',
-    img: 'images/category_3_fragrance_34.jpg',
-    desc: 'An iconic flacon capturing the golden radiance of twilight. Bourbon amber, velvety damask rose, and smoked santal for timeless elegance.',
-    shades: ['Haute Parfumerie Flacon'],
-    volume: '100ml / 3.4 fl. oz.',
-    ingredients: 'Alcohol Denat., Parfum, Santalum Album Oil, Rosa Damascena Extract, Amber Resin, Coumarin.',
-    isBestseller: true,
-    isNewArrival: false,
-  },
-  {
-    id: 20,
-    name: 'Sublime Botanical Scalp Nectar',
-    category: 'haircare',
-    categoryLabel: 'Hair Care',
-    brand: 'LUMIÈRE',
-    price: 82,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 88,
-    badge: 'Bestseller',
-    badgeType: 'best',
-    img: 'images/category_4_haircare_34.jpg',
-    desc: 'Concentrated peptide scalp serum enriched with French lavender and fermented botanicals to fortify hair density and weightless shine.',
-    shades: ['All Hair Textures'],
-    volume: '60ml / 2.0 fl. oz.',
-    ingredients: 'Aqua, Glycerin, Hydrolyzed Silk, Lavandula Angustifolia Oil, Camellia Japonica Seed Oil, Biotinoyl Tripeptide-1.',
-    isBestseller: true,
-    isNewArrival: false,
-  },
-  {
-    id: 21,
-    name: "Éclat d'Or 24K Body Nectar",
-    category: 'bathbody',
-    categoryLabel: 'Bath & Body',
-    brand: 'LUMIÈRE',
-    price: 135,
-    oldPrice: 165,
-    rating: 5,
-    reviewsCount: 142,
-    badge: 'Iconic',
-    badgeType: 'best',
-    img: 'images/category_5_bath_34.jpg',
-    desc: 'Molten gold bath and body serum suspended with pure 24k gold flakes and sweet almond oil, providing satin-soft skin renewal.',
-    shades: ['24K Molten Nectar'],
-    volume: '200ml / 6.7 fl. oz.',
-    ingredients: 'Prunus Amygdalus Dulcis Oil, Squalane, 24K Gold Flakes, Citrus Aurantium Dulcis Flower Oil, Tocopherol.',
-    isBestseller: true,
-    isNewArrival: false,
-  },
-  {
-    id: 22,
-    name: 'Maison Aura Glow Couture Set',
-    category: 'skincare',
-    categoryLabel: 'Skincare',
-    brand: 'LUMIÈRE',
-    price: 245,
-    oldPrice: 290,
-    rating: 5,
-    reviewsCount: 198,
-    badge: 'Limited',
-    badgeType: 'best',
-    img: 'images/category_6_sets_34.jpg',
-    desc: 'A complete atelier ritual set featuring the Aura Glow Crème, twin Vitality Serums, and gilded compact in signature coffret packaging.',
-    shades: ['Complete Couture Ritual'],
-    volume: '4-Piece Coffret',
-    ingredients: 'Bioactive Hyaluronic Acid, Marine Peptides, 24K Gold Leaf, Wild Rosehip Extract, Camellia Seed Oil.',
-    isBestseller: true,
-    isNewArrival: false,
-  },
-  {
-    id: 23,
-    name: 'Aeterna Botanical Hair Elixir',
-    category: 'haircare',
-    categoryLabel: 'Hair Care',
-    brand: 'LUMIÈRE',
-    price: 94,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 112,
-    badge: 'Award Winner',
-    badgeType: 'best',
-    img: 'images/haircare_luxury.jpg',
-    desc: 'Multicorrectional botanical treatment oil with cold-pressed argan and rare night-blooming jasmine for mirror-like glossy finishes.',
-    shades: ['Pure Botanical'],
-    volume: '100ml / 3.4 fl. oz.',
-    ingredients: 'Argania Spinosa Kernel Oil, Simmondsia Chinensis Seed Oil, Jasminum Officinale Extract, Tocopherol.',
-    isBestseller: true,
-    isNewArrival: false,
-  },
-  {
-    id: 24,
-    name: 'Haute Refillable Palette & Brush',
-    category: 'makeup',
-    categoryLabel: 'Makeup',
-    brand: 'LUMIÈRE',
-    price: 110,
-    oldPrice: null,
-    rating: 5,
-    reviewsCount: 164,
-    badge: 'Bestseller',
-    badgeType: 'best',
-    img: 'images/editorial_flatlay.jpg',
-    desc: 'Artisanal gilded compact paired with an ultra-soft goat hair blending brush for flawless warm contouring and golden hour reflection.',
-    shades: ['Champagne & Bronze'],
-    volume: '14g / 0.49 oz.',
-    ingredients: 'Mica, Synthetic Fluorphlogopite, Squalane, Silica, Iron Oxides, Titanium Dioxide.',
-    isBestseller: true,
-    isNewArrival: false,
-  }
-];
+// Use unified canonical catalog from window.PRODUCTS (shared.js)
+let LUMIERE_PRODUCTS = (typeof window.PRODUCTS !== 'undefined' && window.PRODUCTS.length)
+  ? window.PRODUCTS
+  : (window.LUMIERE_PRODUCTS || (typeof PRODUCTS !== 'undefined' ? PRODUCTS : []));
+window.LUMIERE_PRODUCTS = LUMIERE_PRODUCTS;
+if (typeof window.PRODUCTS === 'undefined') {
+  window.PRODUCTS = LUMIERE_PRODUCTS;
+}
 
 /* ------------------- 2. STATE MANAGEMENT ------------------- */
 var cart = (typeof window.cart !== 'undefined' && Array.isArray(window.cart))
@@ -813,14 +339,44 @@ function getBestsellers4CardsStep() {
   return 1292;
 }
 
+function refreshCarouselsLive() {
+  const catalog = getCatalog();
+  if (!catalog || !catalog.length) return;
+
+  const bestsellers = catalog.filter(p => p.isBestseller || (p.badge && p.badge.toLowerCase().includes('best')))
+    .sort((a, b) => b.id - a.id);
+  renderCarouselProducts('bestsellersTrack', bestsellers.length ? bestsellers : catalog.slice(0, 8));
+
+  const newArrivals = catalog.filter(p => p.isNewArrival || p.isJustAdded || (p.badge && p.badge.toLowerCase().includes('new')))
+    .sort((a, b) => (b.isJustAdded ? 1 : 0) - (a.isJustAdded ? 1 : 0) || b.id - a.id);
+  renderCarouselProducts('newArrivalsTrack', newArrivals.length ? newArrivals : catalog.slice(0, 8));
+}
+window.refreshCarouselsLive = refreshCarouselsLive;
+
 function initProductCarousels() {
-  renderCarouselProducts('bestsellersTrack', LUMIERE_PRODUCTS.filter(p => p.isBestseller));
-  renderCarouselProducts('newArrivalsTrack', LUMIERE_PRODUCTS.filter(p => p.isNewArrival));
+  refreshCarouselsLive();
 
   setupCarouselDrag('bestsellersContainer', 'bestsellerPrevBtn', 'bestsellerNextBtn', getBestsellers4CardsStep);
   setupCarouselDrag('newArrivalsContainer', 'newArrivalsPrevBtn', 'newArrivalsNextBtn');
   initBestsellersAutoScroll();
   initNewArrivalsAutoScroll();
+
+  // Real-time catalog subscription for instant carousel updates
+  if (typeof window.LumiereRealtimeCatalog !== 'undefined') {
+    window.LumiereRealtimeCatalog.subscribe(() => {
+      refreshCarouselsLive();
+    });
+  } else {
+    const subCheck = setInterval(() => {
+      if (typeof window.LumiereRealtimeCatalog !== 'undefined') {
+        clearInterval(subCheck);
+        window.LumiereRealtimeCatalog.subscribe(() => {
+          refreshCarouselsLive();
+        });
+      }
+    }, 100);
+    setTimeout(() => clearInterval(subCheck), 5000);
+  }
 }
 
 function renderCarouselProducts(trackId, products) {
@@ -832,12 +388,27 @@ function renderCarouselProducts(trackId, products) {
 
 function createProductCardHTML(p) {
   const isWishlisted = wishlist.has(p.id);
-  const badgeHTML = p.badge ? `<span class="product-badge badge-${p.badgeType || 'best'}">${p.badge}</span>` : '';
-  const oldPriceHTML = p.oldPrice ? `<span class="old-price">$${p.oldPrice.toFixed(2)}</span>` : '';
-  const starIcons = '★'.repeat(p.rating) + '☆'.repeat(5 - p.rating);
+  const isSoldOut = (p.available_quantity !== undefined && p.available_quantity <= 0) || p.is_out_of_stock;
+  
+  let badgeHTML = '';
+  if (isSoldOut) {
+    badgeHTML = `<span class="product-badge" style="background: rgba(13,10,14,0.85); color: #ff708f; border: 1px solid rgba(255,112,143,0.3);">Sold Out</span>`;
+  } else if (p.isJustAdded) {
+    badgeHTML = `<span class="product-badge badge-new" style="background: linear-gradient(135deg, #DFB15B, #9E7D3B); color: #0D0A0E; font-weight: 700; border: 1px solid #FAF7F2; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">✦ Just Added</span>`;
+  } else if (p.badge) {
+    badgeHTML = `<span class="product-badge badge-${p.badgeType || 'best'}">${p.badge}</span>`;
+  }
+
+  const oldPriceHTML = p.oldPrice ? `<span class="old-price">₹${p.oldPrice.toFixed(2)}</span>` : '';
+  const starIcons = '★'.repeat(p.rating || p.stars || 5) + '☆'.repeat(5 - (p.rating || p.stars || 5));
+  const priceVal = typeof p.price === 'number' ? p.price.toFixed(2) : parseFloat(p.price || 0).toFixed(2);
+
+  const addBtnHTML = isSoldOut
+    ? `<button class="product-add-btn" disabled style="opacity: 0.5; cursor: not-allowed; border-color: rgba(250,247,242,0.2); color: rgba(250,247,242,0.4);">Sold Out</button>`
+    : `<button class="product-add-btn" onclick="addToCart(${p.id}, 1)">Add to Bag</button>`;
 
   return `
-    <article class="luxury-product-card" data-product-id="${p.id}">
+    <article class="luxury-product-card ${p.isJustAdded ? 'card-just-added' : ''}" data-product-id="${p.id}" style="${p.isJustAdded ? 'box-shadow: 0 0 0 2px var(--color-gold), 0 0 25px rgba(201,169,110,0.45);' : ''}">
       <div class="product-img-wrapper">
         ${badgeHTML}
         <button class="product-wishlist-btn ${isWishlisted ? 'active' : ''}" 
@@ -847,21 +418,21 @@ function createProductCardHTML(p) {
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
           </svg>
         </button>
-        <img src="${p.img}" alt="${p.name}" class="product-img" loading="lazy" />
+        <img src="${p.img || p.primary_image}" alt="${p.name}" class="product-img" loading="lazy" />
         <button class="product-quick-btn" onclick="openQuickView(${p.id})">Quick View</button>
       </div>
       <div class="product-info">
-        <span class="product-brand">${p.brand}</span>
+        <span class="product-brand">${p.brand || 'LUMIÈRE'}</span>
         <h3 class="product-title">${p.name}</h3>
         <div class="product-rating">
           <span class="stars">${starIcons}</span>
-          <span class="rating-count">(${p.reviewsCount})</span>
+          <span class="rating-count">(${p.reviewsCount || 120})</span>
         </div>
         <div class="product-pricing">
-          <span class="current-price">$${p.price.toFixed(2)}</span>
+          <span class="current-price">₹${priceVal}</span>
           ${oldPriceHTML}
         </div>
-        <button class="product-add-btn" onclick="addToCart(${p.id}, 1)">Add to Bag</button>
+        ${addBtnHTML}
       </div>
     </article>
   `;
@@ -1093,7 +664,9 @@ function initCartAndWishlist() {
 }
 
 function getCatalog() {
-  return (typeof PRODUCTS !== 'undefined' && PRODUCTS.length) ? PRODUCTS : LUMIERE_PRODUCTS;
+  return (typeof window.PRODUCTS !== 'undefined' && window.PRODUCTS.length)
+    ? window.PRODUCTS
+    : ((typeof PRODUCTS !== 'undefined' && PRODUCTS.length) ? PRODUCTS : (window.LUMIERE_PRODUCTS || []));
 }
 
 function getProductById(productId) {
@@ -1164,12 +737,12 @@ function updateCartUI() {
       const needed = (FREE_SHIPPING_THRESHOLD - subtotal).toFixed(2);
       const percentage = Math.min((subtotal / FREE_SHIPPING_THRESHOLD) * 100, 100);
       meterFill.style.width = `${percentage}%`;
-      meterText.innerHTML = `Add <strong>$${needed}</strong> more for complimentary delivery.`;
+      meterText.innerHTML = `Add <strong>₹${needed}</strong> more for complimentary delivery.`;
     }
   }
 
   if (subtotalEl) {
-    subtotalEl.textContent = `$${subtotal.toFixed(2)}`;
+    subtotalEl.textContent = `₹${subtotal.toFixed(2)}`;
   }
 
   if (!itemsContainer) return;
@@ -1185,7 +758,7 @@ function updateCartUI() {
         <div class="cart-item-details">
           <div>
             <h4 class="cart-item-title">${item.name}</h4>
-            <span class="cart-item-price">$${item.price.toFixed(2)}</span>
+            <span class="cart-item-price">₹${item.price.toFixed(2)}</span>
             ${item.shade ? `<div style="font-size:0.75rem; color:var(--color-gray-medium);">${item.shade}</div>` : ''}
           </div>
           <div class="cart-item-controls">
@@ -1287,7 +860,7 @@ function updateWishlistUI() {
           <div>
             <span class="product-brand" style="font-size:0.65rem; color:var(--color-gold); letter-spacing:0.12em; text-transform:uppercase;">${p.brand || p.categoryLabel || p.category || 'LUMIÈRE'}</span>
             <h4 class="cart-item-title">${p.name}</h4>
-            <span class="cart-item-price">$${p.price.toFixed(2)}</span>
+            <span class="cart-item-price">₹${p.price.toFixed(2)}</span>
           </div>
           <div class="cart-item-controls" style="margin-top:0.75rem;">
             <button class="btn-luxury-primary" style="padding:0.5rem 1rem; font-size:0.7rem;" onclick="moveWishlistToCart(${p.id})">ADD TO BAG &rarr;</button>
@@ -1390,7 +963,7 @@ function openQuickView(productId) {
   if (imgEl) imgEl.src = product.img;
   if (brandEl) brandEl.textContent = product.brand || 'LUMIÈRE';
   if (titleEl) titleEl.textContent = product.name;
-  if (priceEl) priceEl.textContent = `$${product.price.toFixed(2)}`;
+  if (priceEl) priceEl.textContent = `₹${product.price.toFixed(2)}`;
   if (descEl) descEl.textContent = product.desc;
 
   if (shadesContainer) {
@@ -1420,6 +993,26 @@ function closeQuickView() {
   if (backdrop && !isAnyOtherModalOpen()) backdrop.classList.remove('open');
   document.body.style.overflow = '';
 }
+
+function refreshQuickViewLive() {
+  const modal = document.getElementById('quickViewModal');
+  if (!modal || !modal.classList.contains('open') || !currentQuickViewProduct) return;
+  const latest = getProductById(currentQuickViewProduct.id);
+  if (!latest || latest.status !== 'active') {
+    closeQuickView();
+    return;
+  }
+  currentQuickViewProduct = latest;
+  const priceEl = document.getElementById('quickModalPrice');
+  const titleEl = document.getElementById('quickModalTitle');
+  const descEl = document.getElementById('quickModalDesc');
+  const imgEl = document.getElementById('quickModalImg');
+  if (priceEl) priceEl.textContent = `₹${typeof latest.price === 'number' ? latest.price.toFixed(2) : latest.price}`;
+  if (titleEl) titleEl.textContent = latest.name;
+  if (descEl) descEl.textContent = latest.desc || latest.description;
+  if (imgEl && latest.img) imgEl.src = latest.img;
+}
+window.refreshQuickViewLive = refreshQuickViewLive;
 
 function addCurrentQuickViewToCart() {
   if (!currentQuickViewProduct) return;
@@ -1461,7 +1054,7 @@ function initSearchModal() {
           <div style="background:var(--color-espresso-card); padding:1rem; border:1px solid var(--color-border-dark); cursor:pointer;" onclick="openQuickView(${p.id}); closeSearchModal();">
             <img src="${p.img}" alt="${p.name}" style="aspect-ratio:1/1; object-fit:cover; margin-bottom:0.75rem;" />
             <h4 style="font-family:var(--font-serif); font-size:1.1rem; color:var(--color-cream); margin-bottom:0.3rem;">${p.name}</h4>
-            <span style="color:var(--color-gold); font-size:0.9rem;">$${p.price.toFixed(2)}</span>
+            <span style="color:var(--color-gold); font-size:0.9rem;">₹${p.price.toFixed(2)}</span>
           </div>
         `).join('');
       }
@@ -1583,6 +1176,9 @@ function closeAllDrawersAndModals() {
   if (typeof closeMobileFilterDrawer === 'function') {
     closeMobileFilterDrawer();
   }
+  if (typeof closeCheckoutModal === 'function') {
+    closeCheckoutModal();
+  }
 }
 
 function isAnyOtherModalOpen() {
@@ -1590,10 +1186,12 @@ function isAnyOtherModalOpen() {
   const wishlistDrawer = document.getElementById('wishlistDrawer');
   const quick = document.getElementById('quickViewModal');
   const search = document.getElementById('searchModal');
+  const checkout = document.getElementById('checkoutModal');
   return (cartDrawer && cartDrawer.classList.contains('open')) ||
          (wishlistDrawer && wishlistDrawer.classList.contains('open')) ||
          (quick && quick.classList.contains('open')) ||
-         (search && search.classList.contains('open'));
+         (search && search.classList.contains('open')) ||
+         (checkout && checkout.classList.contains('open'));
 }
 
 /* ------------------- FOOTER HANDLERS ------------------- */

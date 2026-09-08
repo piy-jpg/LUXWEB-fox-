@@ -193,8 +193,8 @@ function renderProducts(filter = 'all') {
         <div class="product-desc">${p.desc}</div>
         <div class="product-footer">
           <div class="product-price">
-            ${p.oldPrice ? `<span class="old-price">$${p.oldPrice}</span>` : ''}
-            $${p.price}
+            ${p.oldPrice ? `<span class="old-price">₹${p.oldPrice}</span>` : ''}
+            ₹${p.price}
           </div>
           <button class="add-to-cart-btn" onclick="addToCart(${p.id})" id="cart-btn-${p.id}" aria-label="Add ${p.name} to cart">+ Add</button>
         </div>
@@ -257,7 +257,7 @@ function updateCart() {
   badge.classList.toggle('show', total > 0);
   document.getElementById('cartItemCount').textContent = `(${total})`;
   const totalPrice = cart.reduce((s, i) => s + i.price * i.qty, 0);
-  document.getElementById('cartTotalPrice').textContent = `$${totalPrice.toFixed(2)}`;
+  document.getElementById('cartTotalPrice').textContent = `₹${totalPrice.toFixed(2)}`;
   document.getElementById('cartFooter').style.display = cart.length ? 'flex' : 'none';
   document.getElementById('cartEmpty').style.display = cart.length ? 'none' : 'block';
   renderCartItems();
@@ -270,7 +270,7 @@ function renderCartItems() {
       <img class="cart-item-img" src="${item.img}" alt="${item.name}" />
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-price">$${item.price}</div>
+        <div class="cart-item-price">₹${item.price}</div>
         <div class="cart-item-qty">
           <button class="qty-btn" onclick="changeQty(${item.id}, -1)" aria-label="Decrease quantity">−</button>
           <span class="qty-num">${item.qty}</span>
@@ -291,8 +291,9 @@ function toggleCart() {
 }
 
 document.getElementById('cartBtn').addEventListener('click', toggleCart);
-document.getElementById('checkoutBtn').addEventListener('click', () => {
-  showToast('<span class="toast-icon">✦</span> Checkout feature coming soon!');
+document.getElementById('checkoutBtn')?.addEventListener('click', () => {
+  if (typeof processCheckout === 'function') processCheckout();
+  else if (typeof showToast === 'function') showToast('<span class="toast-icon">✦</span> Opening Atelier Checkout...');
 });
 
 /* ============================================================
@@ -314,7 +315,7 @@ function toggleWishlist(id, btn) {
 
 function quickView(id) {
   const p = PRODUCTS.find(x => x.id === id);
-  showToast(`<span class="toast-icon">👁</span> <strong>${p.name}</strong> — $${p.price}`);
+  showToast(`<span class="toast-icon">👁</span> <strong>${p.name}</strong> — ₹${p.price}`);
 }
 
 /* ============================================================

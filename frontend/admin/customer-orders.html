@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Customer Order History — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .avatar-sm {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: rgba(201, 169, 110, 0.15);
+      border: 1px solid var(--color-gold);
+      color: var(--color-gold);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.72rem;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header Section -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Customer Orders</span>
+            <div class="live-indicator">
+              <span class="live-dot"></span>
+              <span>LIVE ORDER FEED</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;">Client Order History Ledger</h1>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+          <button onclick="exportOrdersCSV()" class="btn-outline" style="font-size: 0.75rem; padding: 0.5rem 0.9rem;">
+            📊 Export CSV
+          </button>
+          <button onclick="loadOrders()" class="btn-outline" style="font-size: 0.75rem; padding: 0.5rem 0.9rem;">
+            ⟳ Refresh Feed
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared Customers Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="customers.html" class="subnav-tab">
+          <span>👑</span> Customers <span class="subnav-badge badge-accent" id="subnavCustBadge">-</span>
+        </a>
+        <a href="customer-details.html" class="subnav-tab" id="subnavDetailsLink">
+          <span>🔍</span> Customer Details
+        </a>
+        <a href="customer-orders.html" class="subnav-tab active">
+          <span>🛍️</span> Order History
+        </a>
+      </div>
+
+      <!-- KPI Metrics Cards -->
+      <div class="stat-card-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-title">Orders Found</div>
+          <div class="stat-number" id="statOrdersCount">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Across filtered patrons</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Gross Revenue</div>
+          <div class="stat-number" id="statOrdersRevenue" style="color: var(--color-gold);">₹0.00</div>
+          <span style="font-size: 0.72rem; color: #7bed9f; margin-top: 0.5rem;">Cumulative checkout value</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Total Units Sold</div>
+          <div class="stat-number" id="statUnitsSold" style="color: #bb8fce;">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Delivered &amp; in-transit</span>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-title">Fulfillment Ratio</div>
+          <div class="stat-number" id="statFulfillRatio" style="color: #7bed9f;">100%</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5); margin-top: 0.5rem;">Completed without cancel</span>
+        </div>
+      </div>
+
+      <!-- Filter Console -->
+      <div class="table-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+        <input type="text" id="orderSearch" class="admin-input" placeholder="Search order #, customer name, email, or item..." style="flex: 2; min-width: 220px;" oninput="debounceOrderSearch()" />
+        
+        <select id="clientFilter" class="admin-select" style="flex: 1.5; min-width: 200px;" onchange="onClientFilterChanged()">
+          <option value="all">All Clients (Entire Atelier)</option>
+        </select>
+
+        <select id="statusFilter" class="admin-select" style="width: 150px;" onchange="renderOrdersTable()">
+          <option value="all">All Statuses</option>
+          <option value="Pending">Pending</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="Processing">Processing</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Delivered">Delivered</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Order Number</th>
+                <th>Date &amp; Time</th>
+                <th>Patron</th>
+                <th>Items Ordered</th>
+                <th>Total Value</th>
+                <th>Payment</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <tr><td colspan="8" style="text-align: center;">Loading client order history...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let allOrders = [];
+    let allCustomers = [];
+    let searchTimeout = null;
+
+    function debounceOrderSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => renderOrdersTable(), 250);
+    }
+
+    async function loadInitialData() {
+      await Promise.all([loadCustomersList(), loadOrders()]);
+    }
+
+    async function loadCustomersList() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/customers');
+        const data = await res.json();
+        if (data.success) {
+          allCustomers = data.customers || [];
+          const select = document.getElementById('clientFilter');
+          const urlParams = new URLSearchParams(window.location.search);
+          const targetId = urlParams.get('id') || urlParams.get('customerId');
+
+          select.innerHTML = '<option value="all">All Clients (Entire Atelier)</option>' +
+            allCustomers.map(c => {
+              const name = `${c.first_name || ''} ${c.last_name || ''}`.trim() || 'Valued Patron';
+              const isSelected = targetId && c.id.toString() === targetId;
+              return `<option value="${c.id}" ${isSelected ? 'selected' : ''}>${name} (${c.email})</option>`;
+            }).join('');
+
+          const custBadge = document.getElementById('subnavCustBadge');
+          if (custBadge) custBadge.innerText = data.summary?.total_clients ?? allCustomers.length;
+
+          if (targetId) {
+            const detailsLink = document.getElementById('subnavDetailsLink');
+            if (detailsLink) detailsLink.href = `customer-details.html?id=${targetId}`;
+          }
+        }
+      } catch (e) {
+        console.error('Error loading customers for filter:', e);
+      }
+    }
+
+    function onClientFilterChanged() {
+      const select = document.getElementById('clientFilter');
+      const val = select.value;
+      if (val !== 'all') {
+        window.history.replaceState(null, '', `customer-orders.html?id=${val}`);
+        const detailsLink = document.getElementById('subnavDetailsLink');
+        if (detailsLink) detailsLink.href = `customer-details.html?id=${val}`;
+      } else {
+        window.history.replaceState(null, '', `customer-orders.html`);
+      }
+      renderOrdersTable();
+    }
+
+    async function loadOrders() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/orders');
+        const data = await res.json();
+
+        if (data.success) {
+          allOrders = data.orders || [];
+          renderOrdersTable();
+        }
+      } catch (err) {
+        console.error('Error loading orders:', err);
+      }
+    }
+
+    function renderOrdersTable() {
+      const q = (document.getElementById('orderSearch')?.value || '').toLowerCase().trim();
+      const clientVal = document.getElementById('clientFilter')?.value || 'all';
+      const statusVal = document.getElementById('statusFilter')?.value || 'all';
+      const tbody = document.getElementById('ordersTableBody');
+
+      let filtered = allOrders.filter(o => {
+        if (clientVal !== 'all') {
+          const matchCustId = o.customer_id && o.customer_id.toString() === clientVal;
+          const matchEmail = allCustomers.find(c => c.id.toString() === clientVal)?.email;
+          if (!matchCustId && (!matchEmail || o.customer_email !== matchEmail)) {
+            return false;
+          }
+        }
+
+        if (statusVal !== 'all' && o.status !== statusVal) {
+          return false;
+        }
+
+        if (q) {
+          const num = (o.order_number || o.id || '').toString().toLowerCase();
+          const name = (o.customer_name || `${o.first_name || ''} ${o.last_name || ''}`).toLowerCase();
+          const email = (o.customer_email || o.email || '').toLowerCase();
+          const hasItem = (o.items || []).some(item => (item.product_title || item.product_name || '').toLowerCase().includes(q));
+          if (!num.includes(q) && !name.includes(q) && !email.includes(q) && !hasItem) {
+            return false;
+          }
+        }
+
+        return true;
+      });
+
+      // Update KPI Metrics
+      const totalOrders = filtered.length;
+      const totalRev = filtered.reduce((acc, o) => acc + (parseFloat(o.total_amount) || 0), 0);
+      let totalUnits = 0;
+      let nonCancelled = 0;
+      filtered.forEach(o => {
+        if (o.status !== 'Cancelled') nonCancelled++;
+        if (Array.isArray(o.items)) {
+          o.items.forEach(it => totalUnits += (parseInt(it.quantity, 10) || 1));
+        } else {
+          totalUnits += (parseInt(o.item_count, 10) || 1);
+        }
+      });
+
+      const countEl = document.getElementById('statOrdersCount');
+      if (countEl) countEl.innerText = totalOrders.toLocaleString();
+
+      const revEl = document.getElementById('statOrdersRevenue');
+      if (revEl) revEl.innerText = `₹${totalRev.toFixed(2)}`;
+
+      const unitsEl = document.getElementById('statUnitsSold');
+      if (unitsEl) unitsEl.innerText = totalUnits.toLocaleString();
+
+      const ratioEl = document.getElementById('statFulfillRatio');
+      if (ratioEl) ratioEl.innerText = totalOrders > 0 ? `${Math.round((nonCancelled / totalOrders) * 100)}%` : '100%';
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2.5rem;">No client orders match the active filters.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(o => {
+        const custName = o.customer_name || `${o.first_name || ''} ${o.last_name || ''}`.trim() || o.customer_email || 'Valued Patron';
+        const initials = (custName[0] || 'V').toUpperCase();
+        const itemsList = o.items || [];
+        
+        let statusBadge = 'badge-active';
+        if (o.status === 'Cancelled') statusBadge = 'badge-danger';
+        else if (o.status === 'Pending') statusBadge = 'badge-warn';
+        else if (o.status === 'Processing' || o.status === 'Shipped') statusBadge = 'badge-gold';
+
+        return `
+          <tr>
+            <td>
+              <strong style="font-family: monospace; font-size: 0.85rem; color: #fff;">
+                #${o.order_number || o.id}
+              </strong>
+            </td>
+            <td style="font-size: 0.74rem; color: rgba(250,247,242,0.65); white-space: nowrap;">
+              ${new Date(o.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+              <div style="font-size: 0.68rem; color: rgba(250,247,242,0.4);">${new Date(o.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.65rem;">
+                <div class="avatar-sm">${initials}</div>
+                <div>
+                  <div style="font-weight: 500; color: #FAF7F2; font-size: 0.84rem;">${custName}</div>
+                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email || '—'}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                ${itemsList.slice(0, 3).map(item => `
+                  <img src="../${item.product_image || 'images/skincare_products_1788328338930.jpg'}" alt="${item.product_title || 'Item'}" title="${item.product_title || 'Product'} (x${item.quantity})" style="width: 28px; height: 28px; object-fit: cover; border-radius: 2px; border: 1px solid rgba(255,255,255,0.1);" />
+                `).join('')}
+                ${itemsList.length > 3 ? `<span style="font-size: 0.7rem; color: var(--color-gold); font-weight: 600;">+${itemsList.length - 3}</span>` : ''}
+                ${itemsList.length === 0 ? `<span style="font-size: 0.74rem; color: rgba(250,247,242,0.5);">${o.item_count || 1} units</span>` : ''}
+              </div>
+            </td>
+            <td style="font-weight: 600; color: var(--color-gold); font-size: 0.92rem; font-family: var(--font-serif);">
+              ₹${parseFloat(o.total_amount).toFixed(2)}
+            </td>
+            <td style="font-size: 0.74rem; color: rgba(250,247,242,0.65); text-transform: uppercase;">
+              ${o.payment_method || 'CARD'}
+            </td>
+            <td>
+              <span class="badge ${statusBadge}" style="font-size: 0.68rem;">
+                ${o.status}
+              </span>
+            </td>
+            <td style="text-align: right; white-space: nowrap;">
+              <a href="orders.html#order-${o.id}" class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.7rem; text-decoration: none; margin-right: 0.35rem;">
+                Inspect &rarr;
+              </a>
+              ${o.customer_id ? `
+                <a href="customer-details.html?id=${o.customer_id}" class="btn-outline" style="padding: 0.35rem 0.65rem; font-size: 0.7rem; text-decoration: none; border-color: rgba(201,169,110,0.4); color: var(--color-gold);">
+                  Dossier ↗
+                </a>
+              ` : ''}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function exportOrdersCSV() {
+      if (allOrders.length === 0) {
+        alert('No orders to export.');
+        return;
+      }
+
+      const headers = ['Order Number', 'Date', 'Customer Name', 'Email', 'Amount', 'Payment', 'Status'];
+      const rows = allOrders.map(o => [
+        `"${o.order_number || o.id}"`,
+        new Date(o.created_at).toISOString(),
+        `"${(o.customer_name || `${o.first_name || ''} ${o.last_name || ''}`).replace(/"/g, '""')}"`,
+        `"${(o.customer_email || o.email || '').replace(/"/g, '""')}"`,
+        parseFloat(o.total_amount).toFixed(2),
+        `"${o.payment_method || 'CARD'}"`,
+        `"${o.status}"`
+      ]);
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `lumiere_customer_orders_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadInitialData();
+
+      try {
+        const bc = new BroadcastChannel('lumiere_realtime_bus');
+        bc.onmessage = () => {
+          loadOrders();
+        };
+      } catch {}
+
+      setInterval(() => {
+        const active = document.activeElement;
+        if (!active || (active.tagName !== 'INPUT' && active.tagName !== 'SELECT')) {
+          loadOrders();
+        }
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

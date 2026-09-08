@@ -18,19 +18,10 @@ let searchQuery = '';
   const params = new URLSearchParams(location.search);
   const cat = params.get('cat');
   if (cat) {
-    shopFilter.cats = [cat];
-    const el = document.getElementById('cat' + cat.charAt(0).toUpperCase() + cat.slice(1));
-    if (el) {
-      el.checked = true;
-      const catAll = document.getElementById('catAll');
-      if (catAll) catAll.checked = false;
-    }
-    const mEl = document.getElementById('mCat' + cat.charAt(0).toUpperCase() + cat.slice(1));
-    if (mEl) {
-      mEl.checked = true;
-      const mCatAll = document.getElementById('mCatAll');
-      if (mCatAll) mCatAll.checked = false;
-    }
+    const slug = cat.toLowerCase();
+    shopFilter.cats = [slug];
+    document.querySelectorAll(`input[name="cat"][value="${slug}"]`).forEach(el => { el.checked = true; });
+    document.querySelectorAll('input[name="cat"][value="all"]').forEach(el => { el.checked = false; });
   }
 })();
 
@@ -63,37 +54,114 @@ const EDITORIAL_PROMOTIONAL_CARDS = [
 ];
 
 /* ------------------- 3. CATEGORY & HIGHLIGHT COUNTERS ------------------- */
+function renderShopSidebarCategories() {
+  const desktopContainer = document.getElementById('sidebarCatContainer');
+  const mobileContainer = document.getElementById('mSidebarCatContainer');
+  if (!desktopContainer && !mobileContainer) return;
+
+  const cats = (window.CATEGORIES && window.CATEGORIES.length)
+    ? window.CATEGORIES
+    : (typeof window.LumiereRealtimeCatalog !== 'undefined' && typeof window.LumiereRealtimeCatalog.getCategories === 'function' ? window.LumiereRealtimeCatalog.getCategories() : [
+        { id: 1, name: 'Skincare', slug: 'skincare' },
+        { id: 2, name: 'Makeup', slug: 'makeup' },
+        { id: 3, name: 'Fragrance', slug: 'fragrance' },
+        { id: 4, name: 'Bath & Body', slug: 'bath-body' },
+        { id: 5, name: 'Sets & Gifts', slug: 'sets' },
+        { id: 6, name: 'Hair Care', slug: 'haircare' }
+      ]);
+
+  const catalog = (window.PRODUCTS && window.PRODUCTS.length) ? window.PRODUCTS : (typeof PRODUCTS !== 'undefined' ? PRODUCTS : []);
+
+  // Determine currently checked categories
+  const checkedInputs = Array.from(document.querySelectorAll('input[name="cat"]:checked'));
+  const currentChecked = new Set(checkedInputs.map(i => i.value));
+  if (shopFilter.cats && shopFilter.cats.length) {
+    shopFilter.cats.forEach(c => currentChecked.add((c || '').toLowerCase()));
+  }
+  const isAllChecked = (currentChecked.has('all') || currentChecked.size === 0) && (!shopFilter.cats || !shopFilter.cats.length);
+
+  function buildHtml(isMobile = false) {
+    const allId = isMobile ? 'mCatAll' : 'catAll';
+    const allCountId = isMobile ? 'mCountAll' : 'countAll';
+    const prefix = isMobile ? 'mCat_' : 'cat_';
+    const countPrefix = isMobile ? 'mCount_' : 'count_';
+
+    let html = `
+      <label class="filter-checkbox-label">
+        <div class="checkbox-inner-wrap">
+          <input type="checkbox" name="cat" value="all" id="${allId}" ${isAllChecked ? 'checked' : ''} class="filter-checkbox-input" />
+          <span>All Products</span>
+        </div>
+        <span class="filter-count-num" id="${allCountId}">(${catalog.length})</span>
+      </label>
+    `;
+
+    cats.forEach(c => {
+      const cSlug = (c.slug || '').toLowerCase();
+      let count = catalog.filter(p => {
+        const pCat = (p.category || '').toLowerCase();
+        return pCat === cSlug || p.category_id === c.id ||
+          (cSlug === 'bath-body' && (pCat === 'bath' || pCat === 'bath-body')) ||
+          (cSlug === 'haircare' && (pCat === 'haircare' || pCat === 'hair-care' || pCat === 'hair')) ||
+          (cSlug === 'sets' && (pCat === 'sets' || pCat === 'sets-gifts'));
+      }).length;
+
+      if (count === 0 && typeof c.product_count === 'number') {
+        count = c.product_count;
+      }
+
+      const isChecked = !isAllChecked && currentChecked.has(cSlug);
+      const isJustAdded = Boolean(c.isJustAdded);
+
+      html += `
+        <label class="filter-checkbox-label ${isJustAdded ? 'category-just-added' : ''}">
+          <div class="checkbox-inner-wrap">
+            <input type="checkbox" name="cat" value="${cSlug}" id="${prefix}${cSlug}" ${isChecked ? 'checked' : ''} class="filter-checkbox-input" />
+            <span>${c.name} ${isJustAdded ? '<span class="side-nav-new-badge">✦ NEW</span>' : ''}</span>
+          </div>
+          <span class="filter-count-num" id="${countPrefix}${cSlug}">(${count})</span>
+        </label>
+      `;
+    });
+
+    return html;
+  }
+
+  if (desktopContainer) desktopContainer.innerHTML = buildHtml(false);
+  if (mobileContainer) mobileContainer.innerHTML = buildHtml(true);
+
+  // Re-bind change listeners
+  document.querySelectorAll('input[name="cat"]').forEach(input => {
+    input.addEventListener('change', () => handleCategoryToggle(input));
+  });
+}
+
+window.renderShopSidebarCategories = renderShopSidebarCategories;
+
+(async function initCategoriesForShop() {
+  try {
+    const base = (typeof Auth !== 'undefined' && typeof Auth.getBaseUrl === 'function') ? Auth.getBaseUrl() : '';
+    const res = await fetch(base + '/api/categories?t=' + Date.now());
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.categories) && data.categories.length) {
+        window.CATEGORIES = data.categories;
+        if (shopFilter.cats && shopFilter.cats.length) {
+          const activeSlugs = new Set(data.categories.map(c => (c.slug || '').toLowerCase()));
+          const isValid = shopFilter.cats.some(c => activeSlugs.has(c));
+          if (!isValid) {
+            shopFilter.cats = [];
+            if (typeof updateCatalog === 'function') updateCatalog();
+          }
+        }
+        renderShopSidebarCategories();
+      }
+    }
+  } catch {}
+})();
+
 function updateCategoryCounters() {
-  if (typeof PRODUCTS === 'undefined') return;
-
-  const countAll = document.getElementById('countAll');
-  const countSkincare = document.getElementById('countSkincare');
-  const countMakeup = document.getElementById('countMakeup');
-  const countFragrance = document.getElementById('countFragrance');
-  const countHaircare = document.getElementById('countHaircare');
-
-  const mCountAll = document.getElementById('mCountAll');
-  const mCountSkincare = document.getElementById('mCountSkincare');
-  const mCountMakeup = document.getElementById('mCountMakeup');
-  const mCountFragrance = document.getElementById('mCountFragrance');
-  const mCountHaircare = document.getElementById('mCountHaircare');
-
-  const skinLen = PRODUCTS.filter(p => p.category === 'skincare').length;
-  const makeLen = PRODUCTS.filter(p => p.category === 'makeup').length;
-  const fragLen = PRODUCTS.filter(p => p.category === 'fragrance').length;
-  const hairLen = PRODUCTS.filter(p => p.category === 'haircare').length;
-
-  if (countAll) countAll.textContent = `(${PRODUCTS.length})`;
-  if (countSkincare) countSkincare.textContent = `(${skinLen})`;
-  if (countMakeup) countMakeup.textContent = `(${makeLen})`;
-  if (countFragrance) countFragrance.textContent = `(${fragLen})`;
-  if (countHaircare) countHaircare.textContent = `(${hairLen})`;
-
-  if (mCountAll) mCountAll.textContent = `(${PRODUCTS.length})`;
-  if (mCountSkincare) mCountSkincare.textContent = `(${skinLen})`;
-  if (mCountMakeup) mCountMakeup.textContent = `(${makeLen})`;
-  if (mCountFragrance) mCountFragrance.textContent = `(${fragLen})`;
-  if (mCountHaircare) mCountHaircare.textContent = `(${hairLen})`;
+  renderShopSidebarCategories();
 
   // Dynamic Highlight Counts
   const newLen = PRODUCTS.filter(p => (p.badge || '').toLowerCase().includes('new')).length;
@@ -115,6 +183,8 @@ function updateCategoryCounters() {
   if (countHlCruelty) countHlCruelty.textContent = `(${crueltyLen})`;
 }
 
+window.updateCategoryCounters = updateCategoryCounters;
+
 /* ------------------- 4. WARM STUDIO EDITORIAL CANVASES ------------------- */
 const STUDIO_TONES = [
   'bg-cream',
@@ -134,7 +204,7 @@ const DARK_EXTRAITS = [
 /* ------------------- 5. PRODUCT CARD BUILDER ------------------- */
 function buildEditorialProductCard(p, index) {
   const card = document.createElement('article');
-  card.className = 'editorial-product-card reveal-stagger';
+  card.className = 'editorial-product-card reveal-stagger' + (p.isJustAdded ? ' card-just-added' : '');
   card.style.animationDelay = `${(index % 8) * 45}ms`;
   card.setAttribute('data-id', p.id);
 
@@ -145,26 +215,33 @@ function buildEditorialProductCard(p, index) {
   // Wishlist state check
   const isWishlisted = typeof wishlist !== 'undefined' && wishlist.has(p.id);
 
-  // Badge logic (Bestseller, Sale, New, Limited)
+  // Live stock & badge logic
+  const isSoldOut = (p.available_quantity !== undefined && p.available_quantity <= 0) || p.is_out_of_stock;
   let badgeHTML = '';
-  if (p.badge) {
+  if (isSoldOut) {
+    badgeHTML = `<span class="card-floating-badge" style="background: rgba(13,10,14,0.9); color: #ff708f; border: 1px solid rgba(255,112,143,0.3);">SOLD OUT</span>`;
+  } else if (p.isJustAdded) {
+    badgeHTML = `<span class="card-floating-badge badge-just-added" style="background: linear-gradient(135deg, #DFB15B, #9E7D3B); color: #0D0A0E; font-weight: 700; border: 1px solid #FAF7F2; box-shadow: 0 2px 10px rgba(0,0,0,0.35);">✦ JUST ADDED</span>`;
+  } else if (p.badge) {
     const badgeSlug = (p.badgeType || p.badge).toLowerCase().replace(/\s+/g, '-');
     badgeHTML = `<span class="card-floating-badge badge-${badgeSlug}">${p.badge}</span>`;
   }
 
   // Price & old price
-  const oldPriceHTML = p.oldPrice ? `<span class="card-old-price">$${p.oldPrice.toFixed(2)}</span>` : '';
+  const oldPriceHTML = p.oldPrice ? `<span class="card-old-price">₹${p.oldPrice.toFixed(2)}</span>` : '';
   const starIcons = '★'.repeat(p.stars || 5) + '☆'.repeat(5 - (p.stars || 5));
+  const priceVal = typeof p.price === 'number' ? p.price.toFixed(2) : parseFloat(p.price || 0).toFixed(2);
 
-  /*
-   * EXACT REFERENCE STRUCTURE:
-   * 1. [ FLOATING BADGE (Left) + WHITE CIRCLE ♡ (Right) ]
-   * 2. [ 28px ROUNDED WARM STUDIO CANVAS (1.08 : 1) - FULL BLEED 100% ]
-   * 3. [ CATEGORY (Left) + ★★★★★ (Right) ]
-   * 4. [ PRODUCT TITLE (Serif) ]
-   * 5. [ SHORT 2-LINE DESCRIPTION ]
-   * 6. [ PRICE (Left) + CIRCULAR ARROW BUTTON (Right) ]
-   */
+  const addBtnHTML = isSoldOut
+    ? `<button class="expandable-bag-btn" disabled style="opacity: 0.45; cursor: not-allowed; border-color: rgba(250,247,242,0.2);" aria-label="${p.name} is Sold Out">
+         <span class="bag-btn-text">SOLD OUT</span>
+         <span class="bag-btn-arrow" style="font-size: 0.65rem;">✕</span>
+       </button>`
+    : `<button class="expandable-bag-btn" onclick="handleAddToCartClick(${p.id}, event)" aria-label="Add ${p.name} to Bag">
+         <span class="bag-btn-text">ADD TO BAG</span>
+         <span class="bag-btn-arrow">&rarr;</span>
+       </button>`;
+
   card.innerHTML = `
     <!-- 1. FULL BLEED WARM STUDIO EDITORIAL CANVAS -->
     <div class="card-visual-container ${bgClass}" onclick="openProductQuickView(${p.id})">
@@ -182,7 +259,7 @@ function buildEditorialProductCard(p, index) {
 
       <!-- Full-Bleed Product Photography Frame -->
       <div class="card-img-frame">
-        <img src="${p.img}" alt="${p.name}" class="card-floating-img" loading="lazy" />
+        <img src="${p.img || p.primary_image}" alt="${p.name}" class="card-floating-img" loading="lazy" />
       </div>
 
       <!-- Quick View Pill (Appears on Hover) -->
@@ -203,19 +280,16 @@ function buildEditorialProductCard(p, index) {
       <h3 class="card-product-title" onclick="openProductQuickView(${p.id})">${p.name}</h3>
 
       <!-- 2-Line Description -->
-      <p class="card-product-desc">${p.desc}</p>
+      <p class="card-product-desc">${p.desc || p.description}</p>
 
       <!-- Price (Left) & Circular Arrow Button (Right) -->
       <div class="card-footer-interaction">
         <div class="card-price-display">
-          <span class="card-current-price">$${p.price.toFixed(2)}</span>
+          <span class="card-current-price">₹${priceVal}</span>
           ${oldPriceHTML}
         </div>
 
-        <button class="expandable-bag-btn" onclick="handleAddToCartClick(${p.id}, event)" aria-label="Add ${p.name} to Bag">
-          <span class="bag-btn-text">ADD TO BAG</span>
-          <span class="bag-btn-arrow">&rarr;</span>
-        </button>
+        ${addBtnHTML}
       </div>
     </div>
   `;
@@ -275,7 +349,19 @@ function applyFilters() {
 
   // Filter Catalog
   let filtered = [...PRODUCTS].filter(p => {
-    if (!allChecked && shopFilter.cats.length && !shopFilter.cats.includes(p.category)) return false;
+    if (!allChecked && shopFilter.cats.length) {
+      const pCat = (p.category || '').toLowerCase();
+      const matchCat = shopFilter.cats.some(c => {
+        const slug = c.toLowerCase();
+        const catObj = (window.CATEGORIES || []).find(catItem => (catItem.slug || '').toLowerCase() === slug);
+        return pCat === slug ||
+          (catObj && p.category_id === catObj.id) ||
+          (slug === 'bath-body' && (pCat === 'bath' || pCat === 'bath-body')) ||
+          (slug === 'haircare' && (pCat === 'haircare' || pCat === 'hair-care' || pCat === 'hair')) ||
+          (slug === 'sets' && (pCat === 'sets' || pCat === 'sets-gifts'));
+      });
+      if (!matchCat) return false;
+    }
     if (p.price > shopFilter.maxPrice) return false;
     if (shopFilter.minStars > 0 && (p.stars || 5) < shopFilter.minStars) return false;
     
@@ -306,7 +392,11 @@ function applyFilters() {
   if (sortVal === 'price-asc') filtered.sort((a, b) => a.price - b.price);
   else if (sortVal === 'price-desc') filtered.sort((a, b) => b.price - a.price);
   else if (sortVal === 'rating') filtered.sort((a, b) => (b.stars || 5) - (a.stars || 5));
-  else if (sortVal === 'newest') filtered.sort((a, b) => (b.badge === 'New' ? 1 : 0) - (a.badge === 'New' ? 1 : 0) || b.id - a.id);
+  else if (sortVal === 'newest') filtered.sort((a, b) => (b.isJustAdded ? 1 : 0) - (a.isJustAdded ? 1 : 0) || (b.badge === 'New' || b.isNewArrival ? 1 : 0) - (a.badge === 'New' || a.isNewArrival ? 1 : 0) || b.id - a.id);
+  else {
+    // In default curation, prioritize newly listed products by owner at the top for real-time visibility
+    filtered.sort((a, b) => (b.isJustAdded ? 1 : 0) - (a.isJustAdded ? 1 : 0) || (b.isNewArrival ? 1 : 0) - (a.isNewArrival ? 1 : 0) || b.id - a.id);
+  }
 
   // Update Toolbar Count
   const countEl = document.getElementById('resultCount');
@@ -372,7 +462,7 @@ function updateActiveFilterChips() {
   }
 
   if (shopFilter.maxPrice < 300) {
-    chips.push({ label: `Under $${shopFilter.maxPrice}`, action: `resetPrice()` });
+    chips.push({ label: `Under ₹${shopFilter.maxPrice}`, action: `resetPrice()` });
   }
 
   if (shopFilter.minStars > 0) {
@@ -396,17 +486,12 @@ function updateActiveFilterChips() {
 }
 
 function removeCatFilter(cat) {
-  const el = document.getElementById('cat' + cat.charAt(0).toUpperCase() + cat.slice(1));
-  if (el) el.checked = false;
-  const mEl = document.getElementById('mCat' + cat.charAt(0).toUpperCase() + cat.slice(1));
-  if (mEl) mEl.checked = false;
+  const slug = (cat || '').toLowerCase();
+  document.querySelectorAll(`input[name="cat"][value="${slug}"]`).forEach(el => { el.checked = false; });
 
-  const remaining = Array.from(document.querySelectorAll('input[name="cat"]:not(#catAll):not(#mCatAll):checked'));
+  const remaining = Array.from(document.querySelectorAll('input[name="cat"]:not([value="all"]):checked'));
   if (!remaining.length) {
-    const catAll = document.getElementById('catAll');
-    if (catAll) catAll.checked = true;
-    const mCatAll = document.getElementById('mCatAll');
-    if (mCatAll) mCatAll.checked = true;
+    document.querySelectorAll('input[name="cat"][value="all"]').forEach(el => { el.checked = true; });
   }
 
   applyFilters();
@@ -441,14 +526,8 @@ function clearSearch() {
 }
 
 function clearAllFilters() {
-  const catAll = document.getElementById('catAll');
-  if (catAll) catAll.checked = true;
-  const mCatAll = document.getElementById('mCatAll');
-  if (mCatAll) mCatAll.checked = true;
-
-  document.querySelectorAll('input[name="cat"]').forEach(i => {
-    if (i.value !== 'all') i.checked = false;
-  });
+  document.querySelectorAll('input[name="cat"][value="all"]').forEach(i => { i.checked = true; });
+  document.querySelectorAll('input[name="cat"]:not([value="all"])').forEach(i => { i.checked = false; });
 
   const slider = document.getElementById('priceSlider');
   if (slider) slider.value = 300;
@@ -460,7 +539,7 @@ function clearAllFilters() {
   const mStarsAll = document.getElementById('mStarsAll');
   if (mStarsAll) mStarsAll.checked = true;
 
-  document.querySelectorAll('input[name="highlight"]').forEach(i => i.checked = false);
+  document.querySelectorAll('input[name="highlight"]').forEach(i => { i.checked = false; });
 
   searchQuery = '';
   applyFilters();
@@ -486,32 +565,28 @@ function setViewMode(mode) {
 /* ------------------- 10. CATEGORY TOGGLE SYNC ------------------- */
 function handleCategoryToggle(input) {
   const isAll = input.value === 'all';
-  const specificInputs = Array.from(document.querySelectorAll(`input[name="cat"]`)).filter(i => i.value !== 'all');
-
-  const catAll = document.getElementById('catAll');
-  const mCatAll = document.getElementById('mCatAll');
+  const specificInputs = Array.from(document.querySelectorAll('input[name="cat"]')).filter(i => i.value !== 'all');
+  const catAllInputs = document.querySelectorAll('input[name="cat"][value="all"]');
 
   if (isAll) {
     if (input.checked) {
-      specificInputs.forEach(i => i.checked = false);
+      specificInputs.forEach(i => { i.checked = false; });
     } else {
       input.checked = true;
     }
   } else {
+    // Synchronize peer checkboxes across desktop & mobile
+    document.querySelectorAll(`input[name="cat"][value="${input.value}"]`).forEach(peer => {
+      peer.checked = input.checked;
+    });
+
     const anyChecked = specificInputs.some(i => i.checked);
-    if (anyChecked) {
-      if (catAll) catAll.checked = false;
-      if (mCatAll) mCatAll.checked = false;
-    } else {
-      if (catAll) catAll.checked = true;
-      if (mCatAll) mCatAll.checked = true;
-    }
+    catAllInputs.forEach(i => { i.checked = !anyChecked; });
   }
 
-  // Synchronize desktop & mobile checkboxes
-  document.querySelectorAll(`input[name="cat"][value="${input.value}"]`).forEach(peer => {
-    peer.checked = input.checked;
-  });
+  if (isAll) {
+    catAllInputs.forEach(i => { i.checked = input.checked; });
+  }
 
   applyFilters();
 }
@@ -631,4 +706,79 @@ document.addEventListener('DOMContentLoaded', () => {
 if (document.readyState === 'complete' || document.readyState === 'interactive') {
   updateCategoryCounters();
   applyFilters();
+}
+
+/* ------------------- 15. REAL-TIME CATALOG SYNCHRONIZATION ------------------- */
+function updatePriceSliderBounds() {
+  const catalog = (window.PRODUCTS && window.PRODUCTS.length) ? window.PRODUCTS : (typeof PRODUCTS !== 'undefined' ? PRODUCTS : []);
+  let highest = 300;
+  if (catalog.length) {
+    catalog.forEach(p => {
+      const pr = typeof p.price === 'number' ? p.price : parseFloat(p.price || 0);
+      if (pr > highest) highest = Math.ceil(pr / 50) * 50;
+    });
+  }
+  const slider = document.getElementById('priceSlider');
+  const mSlider = document.getElementById('mPriceSlider');
+  if (slider) {
+    const isAtMax = parseInt(slider.value, 10) >= parseInt(slider.max || 300, 10);
+    slider.max = highest;
+    if (isAtMax) slider.value = highest;
+  }
+  if (mSlider) {
+    const isAtMax = parseInt(mSlider.value, 10) >= parseInt(mSlider.max || 300, 10);
+    mSlider.max = highest;
+    if (isAtMax) mSlider.value = highest;
+  }
+  const priceMaxEl = document.getElementById('priceMax');
+  if (priceMaxEl && (!slider || slider.value == highest)) priceMaxEl.textContent = highest;
+  const mPriceMaxEl = document.getElementById('mPriceMax');
+  if (mPriceMaxEl && (!mSlider || mSlider.value == highest)) mPriceMaxEl.textContent = highest;
+}
+
+function updateShopLive(liveItems, meta) {
+  updatePriceSliderBounds();
+  updateCategoryCounters();
+  applyFilters();
+  const countEl = document.getElementById('resultCount');
+  if (countEl) {
+    countEl.style.transition = 'color 0.4s ease, transform 0.4s ease';
+    countEl.style.color = 'var(--color-gold, #C9A96E)';
+    countEl.style.transform = 'scale(1.15)';
+    setTimeout(() => {
+      countEl.style.color = '';
+      countEl.style.transform = '';
+    }, 1400);
+  }
+  // If brand new curations arrived in real time, smoothly guide the viewport toward the grid
+  if (meta && meta.newItems && meta.newItems.length > 0) {
+    const grid = document.getElementById('shopProductsGrid');
+    if (grid) {
+      const rect = grid.getBoundingClientRect();
+      if (rect.top < -50 || rect.top > window.innerHeight) {
+        window.scrollTo({ top: Math.max(0, window.scrollY + rect.top - 120), behavior: 'smooth' });
+      }
+    }
+  }
+}
+
+window.updateShopLive = updateShopLive;
+window.applyFilters = applyFilters;
+window.updateCategoryCounters = updateCategoryCounters;
+window.renderShopSidebarCategories = renderShopSidebarCategories;
+window.updatePriceSliderBounds = updatePriceSliderBounds;
+
+if (typeof window.LumiereRealtimeCatalog !== 'undefined') {
+  window.LumiereRealtimeCatalog.subscribe(updateShopLive);
+} else {
+  let subAttempts = 0;
+  const subInterval = setInterval(() => {
+    subAttempts++;
+    if (typeof window.LumiereRealtimeCatalog !== 'undefined') {
+      window.LumiereRealtimeCatalog.subscribe(updateShopLive);
+      clearInterval(subInterval);
+    } else if (subAttempts > 30) {
+      clearInterval(subInterval);
+    }
+  }, 200);
 }

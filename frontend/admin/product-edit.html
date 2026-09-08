@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edit Product — Lumière Atelier Administration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .editor-layout {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 960px) {
+      .editor-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+    .form-section {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--admin-border);
+      border-radius: 6px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .form-section-title {
+      font-family: var(--font-serif);
+      font-size: 1.25rem;
+      color: #FAF7F2;
+      margin: 0 0 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 0.5rem;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .form-label {
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(250, 247, 242, 0.75);
+      font-weight: 500;
+    }
+    .preview-card {
+      background: rgba(20, 16, 22, 0.85);
+      border: 1px solid rgba(201, 169, 110, 0.3);
+      border-radius: 6px;
+      padding: 1.5rem;
+      position: sticky;
+      top: 1.5rem;
+    }
+    .preview-img {
+      width: 100%;
+      height: 240px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+      border: 1px solid var(--admin-border);
+    }
+    .btn-direct-upload {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--color-gold);
+      color: #FAF7F2;
+      padding: 0.65rem 1.15rem;
+      border-radius: 5px;
+      font-size: 0.74rem;
+      font-weight: 500;
+      font-family: inherit;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      transition: all 0.25s ease;
+    }
+    .btn-direct-upload:hover {
+      background: rgba(201, 169, 110, 0.16);
+      border-color: #e5c382;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    }
+    .product-img-dropzone {
+      border: 1px dashed rgba(201, 169, 110, 0.35);
+      border-radius: 6px;
+      padding: 1.25rem;
+      background: rgba(201, 169, 110, 0.02);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+    .product-img-dropzone:hover, .product-img-dropzone.dragover {
+      border-color: var(--color-gold);
+      background: rgba(201, 169, 110, 0.08);
+      transform: translateY(-1px);
+    }
+    .reg-preset-chip.active {
+      background: rgba(201, 169, 110, 0.25) !important;
+      border-color: var(--color-gold) !important;
+      color: var(--color-gold) !important;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body class="admin-body">
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header & Breadcrumbs -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Catalog Formulation Editor</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <span id="editHeaderBadge" class="badge badge-accent" style="font-size: 0.65rem;">PRODUCT MODIFICATION</span>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0; color: #FAF7F2;">Edit Product Formulation</h1>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+          <a href="products.html" class="btn-outline" style="font-size: 0.72rem;">
+            &larr; Return to All Products
+          </a>
+        </div>
+      </div>
+
+      <!-- Shared Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="products.html" class="subnav-tab">
+          <span>✨</span> All Products <span class="subnav-badge" id="subnavProductsBadge">-</span>
+        </a>
+        <a href="product-add.html" class="subnav-tab">
+          <span>➕</span> Add Product <span class="subnav-badge">+ New</span>
+        </a>
+        <a href="product-edit.html" class="subnav-tab active">
+          <span>✏️</span> Edit Product
+        </a>
+        <a href="categories.html" class="subnav-tab">
+          <span>🏷️</span> Categories <span class="subnav-badge" id="subnavCategoriesBadge">-</span>
+        </a>
+        <a href="product-variants.html" class="subnav-tab">
+          <span>🎨</span> Product Variants <span class="subnav-badge" id="subnavVariantsBadge">-</span>
+        </a>
+      </div>
+
+      <!-- Product Selector Card -->
+      <div class="table-card" style="padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <div style="flex: 2; min-width: 260px;">
+          <label class="form-label" style="display: block; margin-bottom: 0.35rem;">Select Product to Edit:</label>
+          <select id="productSelectDropdown" class="admin-select" style="width: 100%;" onchange="onSelectProductChange(this.value)">
+            <option value="">Loading catalog products...</option>
+          </select>
+        </div>
+        <div style="display: flex; gap: 0.75rem; align-items: center;" id="quickActionsBar">
+          <button type="button" onclick="archiveCurrentProduct()" id="btnQuickArchive" class="btn-outline" style="font-size: 0.7rem; color: #FF708F; border-color: rgba(255,112,143,0.3);">
+            📦 Archive Product
+          </button>
+          <a id="btnQuickVariants" href="#" class="btn-outline" style="font-size: 0.7rem; color: #bb8fce; border-color: rgba(187,143,206,0.3);">
+            🎨 Manage Variants &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Main Editor & Live Preview -->
+      <div class="editor-layout">
+        <!-- Editor Form -->
+        <div>
+          <form id="editForm" onsubmit="handleSaveProduct(event)">
+            <input type="hidden" id="editId" />
+
+            <!-- Section 1: Core Details -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span>✨</span> Core Identity
+              </div>
+              <div class="form-row">
+                <div class="form-group" style="grid-column: span 2;">
+                  <label class="form-label">Product Name *</label>
+                  <input type="text" id="editName" class="admin-input" required oninput="updateLivePreview()" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Category *</label>
+                  <select id="editCategoryId" class="admin-select" required onchange="updateLivePreview()"></select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Subtitle / Description Line</label>
+                  <input type="text" id="editSubtitle" class="admin-input" oninput="updateLivePreview()" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Status</label>
+                  <select id="editStatus" class="admin-select" onchange="updateLivePreview()">
+                    <option value="active">Active</option>
+                    <option value="draft">Draft</option>
+                    <option value="archived">Archived</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 2: Pricing & Inventory -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span>💎</span> Pricing &amp; Stock
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Retail Price (₹ INR) *</label>
+                  <input type="number" step="0.01" min="0" id="editPrice" class="admin-input" required oninput="updateLivePreview()" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Compare-at Price (₹ INR)</label>
+                  <input type="number" step="0.01" min="0" id="editComparePrice" class="admin-input" oninput="updateLivePreview()" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Vault Stock Units</label>
+                  <input type="number" min="0" id="editStock" class="admin-input" />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Replenishment Threshold</label>
+                  <input type="number" min="0" id="editThreshold" class="admin-input" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 3: Media -->
+            <div class="form-section">
+              <div class="form-section-title" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+                <div><span>🖼️</span> 3. Visual Presentation &amp; Imagery</div>
+                <span style="font-size: 0.7rem; color: rgba(250,247,242,0.5); font-weight: normal;">Upload directly from camera, photo gallery, or boutique presets</span>
+              </div>
+
+              <!-- Hidden Native File Inputs for Camera & Gallery -->
+              <input type="file" id="cameraEditInput" accept="image/*" capture="environment" style="display: none;" onchange="handleEditImageFile(event, 'camera')" />
+              <input type="file" id="galleryEditInput" accept="image/*" style="display: none;" onchange="handleEditImageFile(event, 'gallery')" />
+
+              <div class="form-row">
+                <div class="form-group" style="grid-column: span 2;">
+                  <!-- Direct Upload Action Bar -->
+                  <label class="form-label" style="display: block; margin-bottom: 0.5rem; text-transform: uppercase;">
+                    Update Product Visual Asset (No URL Required)
+                  </label>
+                  <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.85rem;">
+                    <button type="button" class="btn-direct-upload" onclick="document.getElementById('cameraEditInput').click()" title="Capture new photo directly with camera">
+                      <span style="font-size: 1.2rem; line-height: 1;">📸</span>
+                      <span>Take Photo with Camera</span>
+                    </button>
+                    <button type="button" class="btn-direct-upload" onclick="document.getElementById('galleryEditInput').click()" title="Select photo directly from local device gallery or files">
+                      <span style="font-size: 1.2rem; line-height: 1;">🖼️</span>
+                      <span>Choose from Gallery / Files</span>
+                    </button>
+                    <button type="button" id="btnClearEditImg" onclick="clearEditImage(event)" style="display: none; background: rgba(231,76,60,0.18); border: 1px solid rgba(231,76,60,0.4); color: #ff7675; font-size: 0.72rem; border-radius: 4px; padding: 0.55rem 1rem; cursor: pointer; font-family: inherit;">
+                      ✕ Revert to Original Asset
+                    </button>
+                  </div>
+
+                  <!-- Clickable & Drag-Drop Dropzone -->
+                  <div class="product-img-dropzone" id="editImageDropzone" onclick="document.getElementById('galleryEditInput').click()">
+                    <div style="font-size: 1.5rem; line-height: 1;">📷</div>
+                    <div style="font-size: 0.76rem; color: #FAF7F2; font-weight: 500;">
+                      Click to Browse or Drag &amp; Drop New Image Here
+                    </div>
+                    <div style="font-size: 0.66rem; color: rgba(250,247,242,0.5);">
+                      Supports JPG, PNG, WEBP, GIF (Up to 25MB)
+                    </div>
+                    <div id="editFileBadge" style="display: none; background: rgba(201,169,110,0.2); border: 1px solid var(--color-gold); color: var(--color-gold); font-size: 0.68rem; padding: 0.2rem 0.65rem; border-radius: 12px; margin-top: 0.4rem;"></div>
+                  </div>
+
+                  <!-- Curated Presets -->
+                  <div style="margin-top: 1rem;">
+                    <label class="form-label" style="display: block; margin-bottom: 0.35rem; font-size: 0.68rem; text-transform: uppercase; color: rgba(250,247,242,0.6);">
+                      Or switch to boutique preset:
+                    </label>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                      <button type="button" class="reg-preset-chip" onclick="setEditPresetImage('images/skincare_products_1788328338930.jpg', this)">Asset 1 (Cream)</button>
+                      <button type="button" class="reg-preset-chip" onclick="setEditPresetImage('images/luxurious_packaging_and_1788328352636.jpg', this)">Asset 2 (Packaging)</button>
+                      <button type="button" class="reg-preset-chip" onclick="setEditPresetImage('images/artistic_shot_of_cosm_1788328373300.jpg', this)">Asset 3 (Botanical)</button>
+                      <button type="button" class="reg-preset-chip" onclick="setEditPresetImage('images/makeup_products_1788328354838.jpg', this)">Asset 4 (Lipstick)</button>
+                      <button type="button" class="reg-preset-chip" onclick="setEditPresetImage('images/perfume_collection_1788328378783.jpg', this)">Asset 5 (Parfum)</button>
+                    </div>
+                  </div>
+
+                  <!-- Optional Manual URL Toggle -->
+                  <div style="margin-top: 0.85rem;">
+                    <button type="button" onclick="toggleEditUrlInput()" style="background: none; border: none; color: rgba(250,247,242,0.5); font-size: 0.68rem; cursor: pointer; text-decoration: underline; padding: 0;">
+                      Or enter manual image URL / local path
+                    </button>
+                    <div id="manualEditUrlRow" style="display: none; margin-top: 0.5rem;">
+                      <label class="form-label" style="display: block; margin-bottom: 0.25rem;">Primary Image URL / Asset Path</label>
+                      <input type="text" id="editImageUrl" class="admin-input" oninput="previewManualEditUrl(this.value)" />
+                      <span class="form-helper" style="font-size: 0.68rem; color: rgba(250,247,242,0.4);">Enter a local boutique path (images/...) or full image URL</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 4: Editorial & Ritual -->
+            <div class="form-section">
+              <div class="form-section-title">
+                <span>📜</span> Formula &amp; Editorial Ritual
+              </div>
+              <div class="form-row">
+                <div class="form-group" style="grid-column: span 2;">
+                  <label class="form-label">Description</label>
+                  <textarea id="editDescription" class="admin-textarea" rows="4" oninput="updateLivePreview()"></textarea>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Active Ingredients / Notes</label>
+                  <textarea id="editIngredients" class="admin-textarea" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">How to Use</label>
+                  <textarea id="editHowToUse" class="admin-textarea" rows="3"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-bottom: 3rem;">
+              <a href="products.html" class="btn-outline">Cancel</a>
+              <button type="submit" id="btnSaveProduct" class="btn-owner-action btn-owner-gold" style="font-size: 0.8rem; padding: 0.75rem 2rem;">
+                <span>💾</span> SAVE PRODUCT FORMULATION
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Storefront Live Preview Card -->
+        <div>
+          <div class="preview-card">
+            <div style="font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--color-gold); font-weight: 600; margin-bottom: 0.75rem;">
+              ✦ Storefront Live Preview
+            </div>
+            <img id="previewCardImg" src="../images/skincare_products_1788328338930.jpg" alt="Preview" class="preview-img" onerror="this.src='../images/skincare_products_1788328338930.jpg'" />
+            <div style="font-size: 0.65rem; color: var(--color-gold); text-transform: uppercase; letter-spacing: 0.08em;" id="previewCardCategory">Skincare</div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.35rem; margin: 0.25rem 0 0.15rem; color: #FAF7F2;" id="previewCardTitle">Product Title</h3>
+            <p style="font-size: 0.74rem; color: rgba(250,247,242,0.6); margin: 0 0 0.75rem;" id="previewCardSubtitle">Subtitle line</p>
+            
+            <div style="display: flex; align-items: baseline; gap: 0.6rem; margin-bottom: 0.75rem;">
+              <span style="font-size: 1.3rem; font-weight: 600; color: var(--color-gold);" id="previewCardPrice">₹0.00</span>
+              <span style="font-size: 0.75rem; color: rgba(250,247,242,0.4); text-decoration: line-through;" id="previewCardCompare"></span>
+            </div>
+
+            <div style="font-size: 0.72rem; color: rgba(250,247,242,0.7); line-height: 1.45; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem;" id="previewCardDesc">
+              Description preview...
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let productsList = [];
+    let categoriesList = [];
+    let currentProduct = null;
+
+    async function initPage() {
+      if (!Auth.requireAuth('products.edit')) return;
+      Admin.init();
+
+      await loadCategories();
+      await loadProductsList();
+      initEditDropzone();
+
+      // Check URL query param ?id=
+      const urlParams = new URLSearchParams(window.location.search);
+      const idParam = urlParams.get('id');
+      if (idParam) {
+        document.getElementById('productSelectDropdown').value = idParam;
+        selectProduct(parseInt(idParam, 10));
+      } else if (productsList.length > 0) {
+        document.getElementById('productSelectDropdown').value = productsList[0].id;
+        selectProduct(productsList[0].id);
+      }
+    }
+
+    async function loadCategories() {
+      try {
+        const res = await fetch('/api/products/categories');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.categories)) {
+          categoriesList = data.categories;
+          const select = document.getElementById('editCategoryId');
+          select.innerHTML = categoriesList.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+          
+          const catBadge = document.getElementById('subnavCategoriesBadge');
+          if (catBadge) catBadge.innerText = categoriesList.length;
+        }
+      } catch (e) {
+        console.error('Failed to load categories:', e);
+      }
+    }
+
+    async function loadProductsList() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/products?limit=1000');
+        const data = await res.json();
+        if (data.success && Array.isArray(data.products)) {
+          productsList = data.products;
+          const select = document.getElementById('productSelectDropdown');
+          select.innerHTML = productsList.map(p => `
+            <option value="${p.id}">${p.name} (${p.sku || 'No SKU'}) — ₹${parseFloat(p.price).toFixed(2)} [${p.status}]</option>
+          `).join('');
+
+          const prodBadge = document.getElementById('subnavProductsBadge');
+          if (prodBadge) prodBadge.innerText = productsList.length;
+        }
+      } catch (e) {
+        console.error('Failed to load products list:', e);
+      }
+    }
+
+    function onSelectProductChange(val) {
+      if (!val) return;
+      selectProduct(parseInt(val, 10));
+    }
+
+    function selectProduct(id) {
+      const p = productsList.find(item => item.id === id);
+      if (!p) return;
+      currentProduct = p;
+
+      document.getElementById('editId').value = p.id;
+      document.getElementById('editName').value = p.name || '';
+      document.getElementById('editSubtitle').value = p.subtitle || '';
+      document.getElementById('editCategoryId').value = p.category_id || (categoriesList[0]?.id || '');
+      document.getElementById('editStatus').value = p.status || 'active';
+      document.getElementById('editPrice').value = parseFloat(p.price).toFixed(2);
+      document.getElementById('editComparePrice').value = p.compare_at_price ? parseFloat(p.compare_at_price).toFixed(2) : '';
+      document.getElementById('editStock').value = p.stock_quantity ?? 0;
+      document.getElementById('editThreshold').value = p.low_stock_threshold ?? 10;
+      document.getElementById('editImageUrl').value = p.primary_image || '';
+      document.getElementById('editDescription').value = p.description || '';
+      document.getElementById('editIngredients').value = p.ingredients || '';
+      document.getElementById('editHowToUse').value = p.how_to_use || '';
+
+      // Manage Variants link
+      document.getElementById('btnQuickVariants').href = `product-variants.html?productId=${p.id}`;
+
+      // Update Archive button label
+      const arcBtn = document.getElementById('btnQuickArchive');
+      if (p.status === 'archived') {
+        arcBtn.innerText = '✓ Restore to Active Catalog';
+        arcBtn.style.color = '#2ecc71';
+        arcBtn.style.borderColor = 'rgba(46,204,113,0.3)';
+      } else {
+        arcBtn.innerText = '📦 Archive Product';
+        arcBtn.style.color = '#FF708F';
+        arcBtn.style.borderColor = 'rgba(255,112,143,0.3)';
+      }
+
+      // Reset custom image state
+      selectedEditImageBase64 = null;
+      const bBadge = document.getElementById('editFileBadge');
+      if (bBadge) bBadge.style.display = 'none';
+      const bClear = document.getElementById('btnClearEditImg');
+      if (bClear) bClear.style.display = 'none';
+
+      updateLivePreview();
+    }
+
+    let selectedEditImageBase64 = null;
+
+    function handleEditImageFile(event, source = 'gallery') {
+      const files = event && event.target ? event.target.files : (event ? (event.files || event) : null);
+      if (!files || !files.length) return;
+      const file = files[0];
+
+      if (!file.type.startsWith('image/')) {
+        Admin.toast('⚠️ Please select a valid visual image asset (JPG, PNG, WEBP, GIF).');
+        return;
+      }
+
+      if (file.size > 25 * 1024 * 1024) {
+        Admin.toast('⚠️ Image file size exceeds 25MB limit. Please choose a smaller asset.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        selectedEditImageBase64 = e.target.result;
+
+        const imgEl = document.getElementById('previewCardImg');
+        if (imgEl) imgEl.src = selectedEditImageBase64;
+
+        const badge = document.getElementById('editFileBadge');
+        if (badge) {
+          const sizeKb = (file.size / 1024).toFixed(1);
+          const icon = source === 'camera' ? '📸' : '🖼️';
+          badge.textContent = `${icon} ${file.name} (${sizeKb} KB)`;
+          badge.style.display = 'inline-block';
+        }
+
+        const btnClear = document.getElementById('btnClearEditImg');
+        if (btnClear) btnClear.style.display = 'inline-block';
+
+        const urlInput = document.getElementById('editImageUrl');
+        if (urlInput) urlInput.value = '';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function setEditPresetImage(path, btnEl) {
+      selectedEditImageBase64 = null;
+      const camInput = document.getElementById('cameraEditInput');
+      if (camInput) camInput.value = '';
+      const galInput = document.getElementById('galleryEditInput');
+      if (galInput) galInput.value = '';
+
+      const badge = document.getElementById('editFileBadge');
+      if (badge) badge.style.display = 'none';
+
+      const btnClear = document.getElementById('btnClearEditImg');
+      if (btnClear) btnClear.style.display = 'none';
+
+      const imgEl = document.getElementById('previewCardImg');
+      if (imgEl) imgEl.src = '../' + path;
+
+      const urlInput = document.getElementById('editImageUrl');
+      if (urlInput) urlInput.value = path;
+    }
+
+    function clearEditImage(event) {
+      if (event) {
+        event.stopPropagation();
+        event.preventDefault();
+      }
+      selectedEditImageBase64 = null;
+
+      const camInput = document.getElementById('cameraEditInput');
+      if (camInput) camInput.value = '';
+      const galInput = document.getElementById('galleryEditInput');
+      if (galInput) galInput.value = '';
+
+      const badge = document.getElementById('editFileBadge');
+      if (badge) badge.style.display = 'none';
+
+      const btnClear = document.getElementById('btnClearEditImg');
+      if (btnClear) btnClear.style.display = 'none';
+
+      const originalImg = currentProduct?.primary_image || 'images/skincare_products_1788328338930.jpg';
+      const urlInput = document.getElementById('editImageUrl');
+      if (urlInput) urlInput.value = originalImg;
+
+      const imgEl = document.getElementById('previewCardImg');
+      if (imgEl) imgEl.src = originalImg.startsWith('http') ? originalImg : ('../' + originalImg);
+    }
+
+    function toggleEditUrlInput() {
+      const row = document.getElementById('manualEditUrlRow');
+      if (!row) return;
+      row.style.display = (row.style.display === 'none' || !row.style.display) ? 'block' : 'none';
+      if (row.style.display === 'block') {
+        document.getElementById('editImageUrl')?.focus();
+      }
+    }
+
+    function previewManualEditUrl(val) {
+      const cleanVal = (val || '').trim();
+      if (!cleanVal) return;
+      selectedEditImageBase64 = null;
+
+      const camInput = document.getElementById('cameraEditInput');
+      if (camInput) camInput.value = '';
+      const galInput = document.getElementById('galleryEditInput');
+      if (galInput) galInput.value = '';
+
+      const badge = document.getElementById('editFileBadge');
+      if (badge) badge.style.display = 'none';
+
+      const btnClear = document.getElementById('btnClearEditImg');
+      if (btnClear) btnClear.style.display = 'none';
+
+      const imgEl = document.getElementById('previewCardImg');
+      if (imgEl) {
+        imgEl.src = (cleanVal.startsWith('http') || cleanVal.startsWith('data:')) ? cleanVal : ('../' + cleanVal);
+      }
+    }
+
+    function initEditDropzone() {
+      const dropzone = document.getElementById('editImageDropzone');
+      if (!dropzone) return;
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.add('dragover');
+        }, false);
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropzone.classList.remove('dragover');
+        }, false);
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length) {
+          handleEditImageFile(dt.files, 'gallery');
+        }
+      }, false);
+    }
+
+    function updateLivePreview() {
+      const name = document.getElementById('editName').value.trim() || 'Product Name';
+      const sub = document.getElementById('editSubtitle').value.trim() || '';
+      const price = parseFloat(document.getElementById('editPrice').value) || 0;
+      const compare = parseFloat(document.getElementById('editComparePrice').value) || 0;
+      const catId = document.getElementById('editCategoryId').value;
+      const catObj = categoriesList.find(c => String(c.id) === String(catId));
+      const imgUrl = document.getElementById('editImageUrl').value.trim();
+      const desc = document.getElementById('editDescription').value.trim() || 'Product formulation description...';
+
+      document.getElementById('previewCardTitle').innerText = name;
+      document.getElementById('previewCardSubtitle').innerText = sub;
+      document.getElementById('previewCardCategory').innerText = catObj ? catObj.name : 'Catalog';
+      document.getElementById('previewCardPrice').innerText = `₹${price.toFixed(2)}`;
+      document.getElementById('previewCardCompare').innerText = (compare > 0 && compare > price) ? `₹${compare.toFixed(2)}` : '';
+      document.getElementById('previewCardDesc').innerText = desc.length > 180 ? (desc.substring(0, 180) + '...') : desc;
+
+      const imgEl = document.getElementById('previewCardImg');
+      if (selectedEditImageBase64) {
+        imgEl.src = selectedEditImageBase64;
+      } else if (imgUrl) {
+        imgEl.src = (imgUrl.startsWith('http') || imgUrl.startsWith('data:')) ? imgUrl : ('../' + imgUrl);
+      }
+    }
+
+    async function handleSaveProduct(e) {
+      e.preventDefault();
+      const id = document.getElementById('editId').value;
+      if (!id) return;
+
+      const btn = document.getElementById('btnSaveProduct');
+      btn.disabled = true;
+      btn.innerText = 'SAVING FORMULATION...';
+
+      const rawImg = document.getElementById('editImageUrl').value.trim();
+      const payload = {
+        name: document.getElementById('editName').value.trim(),
+        subtitle: document.getElementById('editSubtitle').value.trim(),
+        categoryId: parseInt(document.getElementById('editCategoryId').value, 10),
+        status: document.getElementById('editStatus').value,
+        price: parseFloat(document.getElementById('editPrice').value),
+        compareAtPrice: parseFloat(document.getElementById('editComparePrice').value) || null,
+        stockQuantity: parseInt(document.getElementById('editStock').value, 10) || 0,
+        lowStockThreshold: parseInt(document.getElementById('editThreshold').value, 10) || 10,
+        primaryImage: selectedEditImageBase64 ? undefined : (rawImg || undefined),
+        imageBase64: selectedEditImageBase64 || undefined,
+        description: document.getElementById('editDescription').value.trim(),
+        ingredients: document.getElementById('editIngredients').value.trim(),
+        howToUse: document.getElementById('editHowToUse').value.trim(),
+      };
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/products/${id}`, {
+          method: 'PUT',
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.toast(`✦ Formulation for "${payload.name}" updated successfully.`);
+          if (typeof BroadcastChannel !== 'undefined') {
+            const bus = new BroadcastChannel('lumiere_realtime_bus');
+            bus.postMessage({ action: 'product_updated', productId: id, timestamp: Date.now() });
+          }
+
+          await loadProductsList();
+          document.getElementById('productSelectDropdown').value = id;
+          selectProduct(parseInt(id, 10));
+        } else {
+          alert(data.error || 'Failed to update product.');
+        }
+      } catch (err) {
+        alert(err.message || 'Error updating product.');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '💾 SAVE PRODUCT FORMULATION';
+      }
+    }
+
+    async function archiveCurrentProduct() {
+      if (!currentProduct) return;
+      const isArchived = currentProduct.status === 'archived';
+
+      if (isArchived) {
+        // Restore
+        try {
+          const res = await Auth.apiFetch(`/api/admin/products/${currentProduct.id}/restore`, { method: 'PUT' });
+          const data = await res.json();
+          if (data.success) {
+            Admin.toast(`Product "${currentProduct.name}" restored to active catalog.`);
+            await loadProductsList();
+            selectProduct(currentProduct.id);
+          } else {
+            alert(data.error || 'Failed to restore product.');
+          }
+        } catch (e) {
+          alert(e.message);
+        }
+      } else {
+        // Archive
+        if (!confirm(`Archive "${currentProduct.name}" from active catalog?`)) return;
+        try {
+          const res = await Auth.apiFetch(`/api/admin/products/${currentProduct.id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (data.success) {
+            Admin.toast(`Product "${currentProduct.name}" archived.`);
+            await loadProductsList();
+            selectProduct(currentProduct.id);
+          } else {
+            alert(data.error || 'Failed to archive product.');
+          }
+        } catch (e) {
+          alert(e.message);
+        }
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', initPage);
+  </script>
+</body>
+</html>

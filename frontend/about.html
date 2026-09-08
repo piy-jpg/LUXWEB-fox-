@@ -96,6 +96,17 @@
       <li><a href="about.html" class="mobile-nav-link active" onclick="closeMobileNav()">About <span>&rarr;</span></a></li>
       <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews <span>&rarr;</span></a></li>
     </ul>
+
+    <!-- Real-Time Shop by Category Section in Side Navbar -->
+    <div class="side-nav-category-section">
+      <div class="side-nav-category-header">
+        <span class="side-nav-category-title">SHOP BY CATEGORY</span>
+        <span class="side-nav-live-badge">LIVE</span>
+      </div>
+      <ul class="side-nav-category-list" id="sideNavCategoriesList">
+        <!-- Rendered dynamically and synchronized in real time -->
+      </ul>
+    </div>
   </aside>
 
 <!-- CINEMATIC OPEN -->
@@ -488,7 +499,7 @@
         </div>
         <div class="footer-currency-picker">
           <span class="currency-star">✦</span>
-          <span>International / USD ($)</span>
+          <span>India / INR (₹)</span>
         </div>
       </div>
     </div>
@@ -528,7 +539,7 @@
       <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
     </div>
     <div class="shipping-meter-wrap">
-      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>$100.00</strong> more for complimentary delivery.</div>
+      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>₹100.00</strong> more for complimentary delivery.</div>
       <div class="shipping-meter-bar"><div class="shipping-meter-fill" id="shippingMeterFill"></div></div>
     </div>
     <div class="cart-items-container" id="cartItemsList"></div>
@@ -538,7 +549,7 @@
       <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Discover our luxury edits to get started.</span>
     </div>
     <div class="cart-drawer-footer">
-      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span></div>
+      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">₹0.00</span></div>
       <button class="btn-luxury-primary" style="width:100%;margin-bottom:0.75rem;" onclick="processCheckout()">CHECKOUT &rarr;</button>
       <button class="btn-luxury-outline" style="width:100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
     </div>
@@ -581,8 +592,8 @@
 
   <!-- Scripts -->
   <script src="js/auth.js"></script>
-  <script src="js/lumiere-cinematic.js"></script>
   <script src="js/shared.js"></script>
+  <script src="js/lumiere-cinematic.js"></script>
 
   <script>
     (function forceReveal() {

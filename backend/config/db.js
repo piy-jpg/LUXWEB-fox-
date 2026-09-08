@@ -32,6 +32,10 @@ function getSqliteInstance() {
         sqliteDb.pragma('foreign_keys = ON');
         try { sqliteDb.exec('ALTER TABLE users ADD COLUMN age INTEGER;'); } catch {}
         try { sqliteDb.exec('ALTER TABLE users ADD COLUMN location TEXT;'); } catch {}
+        try { sqliteDb.exec("ALTER TABLE orders ADD COLUMN payment_method TEXT DEFAULT 'Credit Card (Stripe)';"); } catch {}
+        try { sqliteDb.exec("ALTER TABLE categories ADD COLUMN is_active INTEGER DEFAULT 1;"); } catch {}
+        try { sqliteDb.exec("ALTER TABLE categories ADD COLUMN status TEXT DEFAULT 'active';"); } catch {}
+        try { sqliteDb.exec("ALTER TABLE categories ADD COLUMN display_order INTEGER DEFAULT 10;"); } catch {}
         try {
           sqliteDb.exec(`
             CREATE TABLE IF NOT EXISTS phone_otps (
@@ -49,6 +53,24 @@ function getSqliteInstance() {
               expires_at DATETIME NOT NULL,
               verified INTEGER DEFAULT 0,
               created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS store_settings (
+              key TEXT PRIMARY KEY,
+              value_json TEXT NOT NULL,
+              updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS saved_reports (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              report_number TEXT UNIQUE NOT NULL,
+              report_type TEXT NOT NULL,
+              title TEXT NOT NULL,
+              period TEXT NOT NULL,
+              executive_summary TEXT,
+              prepared_by TEXT,
+              status TEXT DEFAULT 'Generated',
+              data_json TEXT NOT NULL,
+              created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+              updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
             );
           `);
         } catch {}

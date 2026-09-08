@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stock Adjustment — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Real-Time Headline Banner -->
+      <div class="total-stock-header-card" style="background: linear-gradient(135deg, rgba(20, 22, 32, 0.95), rgba(30, 28, 45, 0.95)); border: 1px solid rgba(201, 169, 110, 0.35); border-radius: 6px; padding: 1.1rem 1.6rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); flex-wrap: wrap; gap: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+          <div style="width: 48px; height: 48px; border-radius: 8px; background: rgba(201, 169, 110, 0.15); border: 1px solid rgba(201, 169, 110, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.45rem; color: var(--color-gold);">
+            ⚖️
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span style="font-size: 0.72rem; letter-spacing: 0.14em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Inventory Reconciliation Console</span>
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #7bed9f; box-shadow: 0 0 10px #7bed9f;" title="Audit Console Active"></span>
+              <span style="font-size: 0.65rem; color: #7bed9f; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500;">Direct Balance Override</span>
+            </div>
+            <div style="font-family: var(--font-serif); font-size: 2.35rem; font-weight: 400; color: #FAF7F2; line-height: 1.1; margin-top: 0.25rem;">
+              <span id="topAdjustmentsCount">0</span> <span style="font-size: 0.9rem; font-family: var(--font-sans, system-ui); color: rgba(250, 247, 242, 0.6); font-weight: 300;">Discrepancy Corrections</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1.75rem; align-items: center; flex-wrap: wrap;">
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <div style="font-size: 0.68rem; color: rgba(250, 247, 242, 0.55); text-transform: uppercase; letter-spacing: 0.08em;">Write-offs (Damaged)</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: #e74c3c; margin-top: 0.2rem;" id="topDamagedCount">0 units</div>
+          </div>
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <div style="font-size: 0.68rem; color: rgba(250, 247, 242, 0.55); text-transform: uppercase; letter-spacing: 0.08em;">Audit Status</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: #7bed9f; margin-top: 0.2rem;">Ledger Synced</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Title -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+        <div>
+          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Stock Reconciliation</span>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Stock Adjustment &amp; Cycle Count</h1>
+        </div>
+      </div>
+
+      <!-- Shared Inventory Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="inventory.html" class="subnav-tab">
+          <span>📦</span> Stock Overview
+        </a>
+        <a href="inventory-movements.html" class="subnav-tab">
+          <span>🔄</span> Stock Movements
+        </a>
+        <a href="inventory-low-stock.html" class="subnav-tab">
+          <span>⚠️</span> Low Stock <span class="subnav-badge badge-warn" id="subnavLowStockBadge">-</span>
+        </a>
+        <a href="inventory-out-of-stock.html" class="subnav-tab">
+          <span>🚫</span> Out of Stock <span class="subnav-badge badge-danger" id="subnavOutStockBadge">-</span>
+        </a>
+        <a href="inventory-stock-in.html" class="subnav-tab">
+          <span>📥</span> Purchase / Stock In <span class="subnav-badge badge-accent">Receive</span>
+        </a>
+        <a href="inventory-adjust.html" class="subnav-tab active">
+          <span>⚖️</span> Stock Adjustment
+        </a>
+        <a href="inventory-history.html" class="subnav-tab">
+          <span>📜</span> Inventory History
+        </a>
+      </div>
+
+      <!-- Adjustment Console Grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: start;">
+        
+        <!-- Adjustment Form Card -->
+        <div class="table-card" style="padding: 1.75rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+            <div>
+              <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin: 0; color: #FAF7F2;">Reconciliation Ticket</h3>
+              <p style="color: rgba(250,247,242,0.5); font-size: 0.78rem; margin: 0.25rem 0 0;">Reconcile shelf counts with physical inventory audits.</p>
+            </div>
+            <span class="badge" style="background: rgba(201, 169, 110, 0.15); color: var(--color-gold); border: 1px solid rgba(201, 169, 110, 0.4); font-size: 0.7rem;">
+              Audit Trail Logged
+            </span>
+          </div>
+
+          <form id="adjustStockForm" onsubmit="handleAdjustmentSubmit(event)">
+            <!-- Select Target Product -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem;">Select Product</label>
+              <select id="adjProdSelect" class="admin-select" style="width: 100%;" required onchange="onAdjustProductChanged()">
+                <option value="">-- Choose Product to Reconcile --</option>
+              </select>
+            </div>
+
+            <!-- Target Product Live Info Card -->
+            <div id="adjPreviewCard" style="display: none; padding: 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; margin-bottom: 1.25rem;">
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; text-align: center;">
+                <div>
+                  <div style="font-size: 0.68rem; color: rgba(250,247,242,0.5); text-transform: uppercase;">Physical Stock</div>
+                  <div style="font-size: 1.2rem; font-weight: 600; color: #FAF7F2; margin-top: 0.2rem;" id="prevPhysical">0</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.68rem; color: rgba(250,247,242,0.5); text-transform: uppercase;">Reserved (Orders)</div>
+                  <div style="font-size: 1.2rem; font-weight: 600; color: #bb8fce; margin-top: 0.2rem;" id="prevReserved">0</div>
+                </div>
+                <div>
+                  <div style="font-size: 0.68rem; color: rgba(250,247,242,0.5); text-transform: uppercase;">Available to Sell</div>
+                  <div style="font-size: 1.2rem; font-weight: 600; color: #7bed9f; margin-top: 0.2rem;" id="prevAvailable">0</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Transaction Type -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem;">Reason Code</label>
+              <select id="adjTypeSelect" class="admin-select" style="width: 100%;" required>
+                <option value="MANUAL_ADJUSTMENT">MANUAL_ADJUSTMENT — Cycle Count / Physical Count Correction</option>
+                <option value="DAMAGED">DAMAGED — Broken, Spoiled or Expired Merchandise Write-Off</option>
+                <option value="STOCK_RECEIVED">STOCK_RECEIVED — Unscheduled Atelier Intake</option>
+                <option value="REFUND">REFUND — Returned Luxury Good Restocked to Shelves</option>
+              </select>
+            </div>
+
+            <!-- Adjustment Mode: Delta vs New Total -->
+            <div class="form-group" style="margin-bottom: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                <label style="font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase;">Adjustment Delta (+ or -)</label>
+                <span style="font-size: 0.7rem; color: var(--color-gold); cursor: pointer;" onclick="toggleNewBalanceHelper()">Use Exact Count Mode</span>
+              </div>
+              <input type="number" id="adjDeltaInput" class="admin-input" style="width: 100%; font-size: 1.1rem; font-weight: 600;" placeholder="e.g. +10 or -3" required oninput="calcPredictedBalance()" />
+              <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                <button type="button" onclick="setDelta(-5)" class="btn-outline" style="font-size: 0.68rem; padding: 0.25rem 0.55rem; color: #e74c3c;">-5</button>
+                <button type="button" onclick="setDelta(-1)" class="btn-outline" style="font-size: 0.68rem; padding: 0.25rem 0.55rem; color: #e74c3c;">-1</button>
+                <button type="button" onclick="setDelta(1)" class="btn-outline" style="font-size: 0.68rem; padding: 0.25rem 0.55rem; color: #7bed9f;">+1</button>
+                <button type="button" onclick="setDelta(5)" class="btn-outline" style="font-size: 0.68rem; padding: 0.25rem 0.55rem; color: #7bed9f;">+5</button>
+                <button type="button" onclick="setDelta(25)" class="btn-outline" style="font-size: 0.68rem; padding: 0.25rem 0.55rem; color: #7bed9f;">+25</button>
+              </div>
+            </div>
+
+            <!-- Predicted New Balance Alert -->
+            <div id="predictedBalanceAlert" style="display: none; padding: 0.75rem 1rem; background: rgba(201,169,110,0.1); border: 1px dashed var(--color-gold); border-radius: 4px; margin-bottom: 1.25rem; font-size: 0.82rem;">
+              <span>Projected physical stock after transaction: </span>
+              <strong id="predictedQtyVal" style="color: var(--color-gold); font-size: 1rem;">-</strong>
+            </div>
+
+            <!-- Operational Justification -->
+            <div class="form-group" style="margin-bottom: 1.5rem;">
+              <label style="display: block; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem;">Auditor Justification / Reason Note</label>
+              <textarea id="adjReasonInput" class="admin-input" style="width: 100%; height: 75px;" placeholder="e.g. Annual atelier inventory audit count verified by warehouse manager." required></textarea>
+            </div>
+
+            <button type="submit" id="btnSubmitAdjustment" class="btn-gold" style="width: 100%; padding: 0.85rem; font-size: 0.82rem; letter-spacing: 0.1em;">
+              COMMIT INVENTORY ADJUSTMENT &rarr;
+            </button>
+          </form>
+        </div>
+
+        <!-- Recent Adjustments Feed -->
+        <div class="table-card" style="padding: 1.75rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.25rem; border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem;">
+            <div>
+              <h3 style="font-family: var(--font-serif); font-size: 1.5rem; margin: 0; color: #FAF7F2;">Reconciliation Log</h3>
+              <p style="color: rgba(250,247,242,0.5); font-size: 0.78rem; margin: 0.25rem 0 0;">Recent manual adjustments and write-offs.</p>
+            </div>
+            <button onclick="loadRecentAdjustments()" class="btn-outline" style="font-size: 0.7rem; padding: 0.4rem 0.75rem;">
+              ⟳ Refresh
+            </button>
+          </div>
+
+          <div class="table-responsive" style="max-height: 540px; overflow-y: auto;">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Product</th>
+                  <th>Type</th>
+                  <th>Delta</th>
+                  <th>Balance</th>
+                  <th>Auditor</th>
+                </tr>
+              </thead>
+              <tbody id="recentAdjustmentsBody">
+                <tr><td colspan="6" style="text-align: center;">Loading adjustment log...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let allInventory = [];
+
+    function setDelta(d) {
+      document.getElementById('adjDeltaInput').value = d;
+      calcPredictedBalance();
+    }
+
+    function toggleNewBalanceHelper() {
+      const select = document.getElementById('adjProdSelect');
+      const invId = parseInt(select.value, 10);
+      const item = allInventory.find(i => i.inventory_id === invId);
+
+      if (!item) {
+        alert('Please select a product first.');
+        return;
+      }
+
+      const exact = prompt(`Current physical stock is ${item.stock_quantity}. Enter the actual physical count:`, item.stock_quantity);
+      if (exact !== null && exact.trim() !== '') {
+        const target = parseInt(exact.trim(), 10);
+        if (!isNaN(target)) {
+          const delta = target - parseInt(item.stock_quantity, 10);
+          document.getElementById('adjDeltaInput').value = delta;
+          calcPredictedBalance();
+        }
+      }
+    }
+
+    async function loadInventoryProducts() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory');
+        const data = await res.json();
+
+        if (data.success) {
+          allInventory = data.inventory || [];
+          populateProductSelect();
+          updateBadges(data.summary);
+        }
+      } catch (err) {
+        console.error('Error loading inventory:', err);
+      }
+    }
+
+    function populateProductSelect() {
+      const select = document.getElementById('adjProdSelect');
+      const urlParams = new URLSearchParams(window.location.search);
+      const targetId = urlParams.get('id');
+      const targetSku = urlParams.get('sku');
+
+      select.innerHTML = '<option value="">-- Choose Product to Reconcile --</option>' +
+        allInventory.map(item => {
+          const isSelected = (targetId && item.inventory_id.toString() === targetId) || (targetSku && item.sku === targetSku);
+          return `<option value="${item.inventory_id}" ${isSelected ? 'selected' : ''}>${item.product_name} (${item.sku}) — Current: ${item.stock_quantity}</option>`;
+        }).join('');
+
+      onAdjustProductChanged();
+    }
+
+    function onAdjustProductChanged() {
+      const select = document.getElementById('adjProdSelect');
+      const invId = parseInt(select.value, 10);
+      const preview = document.getElementById('adjPreviewCard');
+
+      if (!invId) {
+        preview.style.display = 'none';
+        document.getElementById('predictedBalanceAlert').style.display = 'none';
+        return;
+      }
+
+      const item = allInventory.find(i => i.inventory_id === invId);
+      if (item) {
+        preview.style.display = 'block';
+        document.getElementById('prevPhysical').textContent = item.stock_quantity;
+        document.getElementById('prevReserved').textContent = item.reserved_quantity;
+        document.getElementById('prevAvailable').textContent = item.available_quantity;
+        calcPredictedBalance();
+      }
+    }
+
+    function calcPredictedBalance() {
+      const select = document.getElementById('adjProdSelect');
+      const invId = parseInt(select.value, 10);
+      const item = allInventory.find(i => i.inventory_id === invId);
+      const delta = parseInt(document.getElementById('adjDeltaInput').value, 10);
+      const alertBox = document.getElementById('predictedBalanceAlert');
+
+      if (item && !isNaN(delta)) {
+        const cur = parseInt(item.stock_quantity, 10);
+        const next = cur + delta;
+        alertBox.style.display = 'block';
+        document.getElementById('predictedQtyVal').textContent = `${cur} &rarr; ${next} units (${delta > 0 ? '+' + delta : delta})`;
+      } else {
+        alertBox.style.display = 'none';
+      }
+    }
+
+    async function handleAdjustmentSubmit(e) {
+      e.preventDefault();
+      const inventoryId = parseInt(document.getElementById('adjProdSelect').value, 10);
+      const quantityDelta = parseInt(document.getElementById('adjDeltaInput').value, 10);
+      const transactionType = document.getElementById('adjTypeSelect').value;
+      const reason = document.getElementById('adjReasonInput').value.trim();
+
+      if (!inventoryId || isNaN(quantityDelta) || quantityDelta === 0) {
+        alert('Please select a product and enter a non-zero quantity delta.');
+        return;
+      }
+
+      const btn = document.getElementById('btnSubmitAdjustment');
+      btn.disabled = true;
+
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory/adjust', {
+          method: 'POST',
+          body: JSON.stringify({
+            inventoryId,
+            quantityDelta,
+            transactionType,
+            reason
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(`Successfully committed adjustment (${quantityDelta > 0 ? '+' + quantityDelta : quantityDelta})!`);
+          document.getElementById('adjDeltaInput').value = '';
+          document.getElementById('adjReasonInput').value = '';
+
+          try {
+            const bc = new BroadcastChannel('lumiere_realtime_bus');
+            bc.postMessage({ type: 'inventory_update' });
+          } catch {}
+
+          await loadInventoryProducts();
+          await loadRecentAdjustments();
+        } else {
+          alert(data.error || 'Failed to adjust stock');
+        }
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function loadRecentAdjustments() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory/transactions?limit=60');
+        const data = await res.json();
+
+        if (data.success) {
+          const allTx = data.transactions || [];
+          const adjTx = allTx.filter(t => t.transaction_type === 'MANUAL_ADJUSTMENT' || t.transaction_type === 'DAMAGED');
+          const tbody = document.getElementById('recentAdjustmentsBody');
+
+          const topCount = document.getElementById('topAdjustmentsCount');
+          if (topCount) topCount.textContent = adjTx.length.toString();
+
+          let damagedUnits = 0;
+          allTx.filter(t => t.transaction_type === 'DAMAGED').forEach(t => {
+            damagedUnits += Math.abs(parseInt(t.quantity_delta, 10) || 0);
+          });
+          const topDamaged = document.getElementById('topDamagedCount');
+          if (topDamaged) topDamaged.textContent = `${damagedUnits} units`;
+
+          if (adjTx.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(250,247,242,0.5);">No reconciliation transactions found.</td></tr>';
+            return;
+          }
+
+          tbody.innerHTML = adjTx.map(tx => {
+            const delta = parseInt(tx.quantity_delta, 10);
+            return `
+              <tr>
+                <td style="font-size: 0.72rem; color: rgba(250,247,242,0.6); white-space: nowrap;">
+                  ${new Date(tx.created_at).toLocaleDateString()} ${new Date(tx.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </td>
+                <td>
+                  <strong style="color: #fff; font-size: 0.82rem;">${tx.product_name}</strong>
+                  <div style="font-size: 0.7rem; color: var(--color-gold); font-family: monospace;">${tx.sku}</div>
+                </td>
+                <td>
+                  <span class="badge" style="font-size: 0.65rem; ${tx.transaction_type === 'DAMAGED' ? 'background: rgba(231,76,60,0.15); color: #e74c3c;' : 'background: rgba(201,169,110,0.15); color: var(--color-gold);'}">
+                    ${tx.transaction_type}
+                  </span>
+                </td>
+                <td style="font-weight: 700; color: ${delta > 0 ? '#7bed9f' : '#e74c3c'};">
+                  ${delta > 0 ? '+' + delta : delta}
+                </td>
+                <td style="font-weight: 600; color: #FAF7F2;">
+                  ${tx.balance_after}
+                </td>
+                <td style="font-size: 0.74rem; color: var(--color-gold);">
+                  ${tx.performed_by_first_name || tx.performed_by_email || 'Auditor'}
+                </td>
+              </tr>
+            `;
+          }).join('');
+        }
+      } catch (err) {
+        console.error('Error loading adjustments:', err);
+      }
+    }
+
+    function updateBadges(summary) {
+      if (!summary) return;
+      const lowBadge = document.getElementById('subnavLowStockBadge');
+      if (lowBadge) lowBadge.textContent = summary.low_stock_count;
+      const outBadge = document.getElementById('subnavOutStockBadge');
+      if (outBadge) outBadge.textContent = summary.out_of_stock_count;
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadInventoryProducts();
+      loadRecentAdjustments();
+
+      try {
+        const bc = new BroadcastChannel('lumiere_realtime_bus');
+        bc.onmessage = () => {
+          loadInventoryProducts();
+          loadRecentAdjustments();
+        };
+      } catch {}
+
+      setInterval(() => {
+        const active = document.activeElement;
+        if (!active || (active.tagName !== 'INPUT' && active.tagName !== 'TEXTAREA' && active.tagName !== 'SELECT')) {
+          loadInventoryProducts();
+          loadRecentAdjustments();
+        }
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

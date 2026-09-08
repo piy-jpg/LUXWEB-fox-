@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive Permissions Matrix — Lumière Atelier Administration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css" />
+  <style>
+    .matrix-domain-header {
+      background: rgba(201, 169, 110, 0.08);
+      border-top: 1px solid rgba(201, 169, 110, 0.25);
+      border-bottom: 1px solid rgba(201, 169, 110, 0.25);
+      font-size: 0.76rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--color-gold);
+      font-weight: 600;
+      padding: 0.65rem 1rem !important;
+    }
+    .matrix-cell-check {
+      text-align: center;
+      vertical-align: middle;
+    }
+    .matrix-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--color-gold);
+      cursor: pointer;
+    }
+    .matrix-role-col {
+      text-align: center;
+      min-width: 140px;
+    }
+    .save-role-btn {
+      font-size: 0.62rem;
+      padding: 0.25rem 0.5rem;
+      margin-top: 0.35rem;
+      border-radius: 2px;
+      background: transparent;
+      border: 1px solid rgba(201, 169, 110, 0.3);
+      color: var(--color-gold);
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      transition: all 0.2s ease;
+    }
+    .save-role-btn:hover {
+      background: var(--color-gold);
+      color: #0A0A0B;
+    }
+    .perm-card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .perm-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--admin-border);
+      border-radius: 4px;
+      padding: 1rem;
+      transition: all 0.2s ease;
+    }
+    .perm-card:hover {
+      border-color: rgba(201, 169, 110, 0.4);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="admin-body">
+  <!-- Navigation Sidebar -->
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header & Breadcrumbs -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Role-Based Access Control</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.68rem; color: #7bed9f;">
+              <span class="live-dot"></span>
+              <span>REAL-TIME ENFORCEMENT ACTIVE</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0; color: #FAF7F2;">Interactive Permissions &amp; RBAC Matrix</h1>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+          <button id="btnSaveMatrix" onclick="saveAllRolePermissions()" class="btn-owner-action btn-owner-gold" style="font-size: 0.72rem;">
+            <span>💾</span> SAVE ROLE MATRIX CHANGES
+          </button>
+          <a href="roles.html" class="btn-outline" style="font-size: 0.72rem;">
+            <span>👑</span> ROLES HIERARCHY &rarr;
+          </a>
+        </div>
+      </div>
+
+      <!-- Shared Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="staff.html" class="subnav-tab">
+          <span>👥</span> Staff Directory <span class="subnav-badge" id="subnavStaffBadge">-</span>
+        </a>
+        <a href="roles.html" class="subnav-tab">
+          <span>👑</span> Roles Hierarchy <span class="subnav-badge" id="subnavRolesBadge">4</span>
+        </a>
+        <a href="permissions.html" class="subnav-tab active">
+          <span>🛡️</span> Permissions Matrix <span class="subnav-badge badge-accent" id="subnavPermsBadge">12</span>
+        </a>
+        <a href="audit.html" class="subnav-tab">
+          <span>📜</span> Security Audit Log <span class="subnav-badge" id="subnavAuditBadge">Live</span>
+        </a>
+      </div>
+
+      <!-- Live KPI Strip -->
+      <div class="stat-card-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-title">Granular Permissions</div>
+          <div class="stat-number" id="statTotalPermissions" style="color: var(--color-gold);">12</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">5 operational domains</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Configurable Roles</div>
+          <div class="stat-number" style="color: #7bed9f;">3</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Manager, Inventory, Order Staff</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Immutable Superuser</div>
+          <div class="stat-number" style="color: #FAF7F2;">1</div>
+          <span style="font-size: 0.72rem; color: var(--color-gold);">Owner (12/12 All Privileges)</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Security Status</div>
+          <div class="stat-number" style="font-size: 1.35rem; color: #7bed9f; line-height: 1.8;">Active &amp; Guarded</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Instant JWT &amp; API verification</span>
+        </div>
+      </div>
+
+      <!-- Domain Filter Bar -->
+      <div class="table-card" style="padding: 1rem 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 0.75rem; align-items: center; justify-content: space-between; flex-wrap: wrap;">
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;" id="domainFilterTabs">
+          <button class="reg-preset-chip" style="background: var(--color-gold); color: #0A0A0B; font-weight: 600;" onclick="filterByDomain('ALL', this)">ALL DOMAINS (12)</button>
+          <button class="reg-preset-chip" onclick="filterByDomain('CATALOG', this)">✨ CATALOG (4)</button>
+          <button class="reg-preset-chip" onclick="filterByDomain('INVENTORY', this)">📦 INVENTORY (2)</button>
+          <button class="reg-preset-chip" onclick="filterByDomain('ORDERS', this)">🛍️ ORDERS (2)</button>
+          <button class="reg-preset-chip" onclick="filterByDomain('CUSTOMERS', this)">👑 CUSTOMERS (1)</button>
+          <button class="reg-preset-chip" onclick="filterByDomain('GOVERNANCE', this)">🛡️ GOVERNANCE (3)</button>
+        </div>
+        <input type="text" id="permSearchInput" class="admin-input" placeholder="Search permissions by name or code..." style="max-width: 260px;" oninput="filterMatrixRows()" />
+      </div>
+
+      <!-- Interactive Permissions Matrix Table -->
+      <div class="table-card" style="margin-bottom: 2.5rem;">
+        <div style="padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--admin-border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem;">
+          <div>
+            <h3 style="font-family: var(--font-serif); font-size: 1.3rem; margin: 0; color: #FAF7F2;">Live Privilege Matrix</h3>
+            <p style="margin: 0.2rem 0 0; font-size: 0.74rem; color: rgba(250,247,242,0.6);">
+              Check or uncheck privileges for administrative roles. Click "Save" per role or the master save button above.
+            </p>
+          </div>
+          <div style="font-size: 0.7rem; color: var(--color-gold); display: flex; align-items: center; gap: 0.4rem;">
+            <span>🔒</span> Atelier Owner retains immutable root authority.
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="admin-table" id="permissionsMatrixTable">
+            <thead>
+              <tr id="matrixHeaderRow">
+                <th style="min-width: 280px;">Privilege Code &amp; Function</th>
+                <!-- Roles injected dynamically -->
+              </tr>
+            </thead>
+            <tbody id="rolesMatrixTableBody">
+              <tr><td colspan="5" style="text-align: center; padding: 2.5rem;">Loading permissions matrix...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Granular Permissions Dictionary / Catalog -->
+      <div class="table-card" style="padding: 1.5rem; margin-bottom: 2.5rem;">
+        <div style="border-bottom: 1px solid var(--admin-border); padding-bottom: 1rem; margin-bottom: 1rem;">
+          <h3 style="font-family: var(--font-serif); font-size: 1.3rem; margin: 0; color: #FAF7F2;">Granular Permissions Dictionary</h3>
+          <p style="margin: 0.2rem 0 0; font-size: 0.74rem; color: rgba(250,247,242,0.6);">Technical specifications and security enforcements for every active privilege code.</p>
+        </div>
+
+        <div class="perm-card-grid" id="permDictGrid">
+          <!-- Injected dynamically -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let rolesList = [];
+    let permissionsList = [];
+    let rolePermissionsList = [];
+    let activeDomainFilter = 'ALL';
+
+    const DOMAIN_MAP = {
+      'products.view': 'CATALOG',
+      'products.create': 'CATALOG',
+      'products.edit': 'CATALOG',
+      'products.delete': 'CATALOG',
+      'inventory.view': 'INVENTORY',
+      'inventory.adjust': 'INVENTORY',
+      'orders.view': 'ORDERS',
+      'orders.update': 'ORDERS',
+      'customers.view': 'CUSTOMERS',
+      'analytics.view': 'GOVERNANCE',
+      'staff.manage': 'GOVERNANCE',
+      'settings.manage': 'GOVERNANCE',
+    };
+
+    const DOMAIN_LABELS = {
+      'CATALOG': '✨ Catalog &amp; Editorial Management',
+      'INVENTORY': '📦 Inventory Engine &amp; Stock Ledgers',
+      'ORDERS': '🛍️ Customer Orders &amp; Fulfillment Dispatch',
+      'CUSTOMERS': '👑 Prestige Client Directory',
+      'GOVERNANCE': '🛡️ Atelier Governance, Staff &amp; System Configuration'
+    };
+
+    async function loadPermissionsData() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/staff');
+        const data = await res.json();
+        if (data.success) {
+          rolesList = data.roles || [];
+          permissionsList = data.permissions || [];
+          rolePermissionsList = data.rolePermissions || [];
+
+          document.getElementById('statTotalPermissions').innerText = permissionsList.length;
+          const permBadge = document.getElementById('subnavPermsBadge');
+          if (permBadge) permBadge.innerText = permissionsList.length;
+          const rolesBadge = document.getElementById('subnavRolesBadge');
+          if (rolesBadge) rolesBadge.innerText = rolesList.length;
+          const staffBadge = document.getElementById('subnavStaffBadge');
+          if (staffBadge) staffBadge.innerText = (data.staff || []).length;
+
+          renderMatrixHeader();
+          renderMatrixBody();
+          renderPermissionsDictionary();
+        }
+      } catch (err) {
+        console.error('Failed to load permissions data:', err);
+      }
+    }
+
+    function renderMatrixHeader() {
+      const headerRow = document.getElementById('matrixHeaderRow');
+      headerRow.innerHTML = `
+        <th style="min-width: 280px;">Privilege Code &amp; Function</th>
+        ${rolesList.map(r => `
+          <th class="matrix-role-col">
+            <div style="font-weight: 600; font-size: 0.78rem; color: ${r.name === 'OWNER' ? 'var(--color-gold)' : '#FAF7F2'};">
+              ${r.name === 'OWNER' ? '👑 ' : ''}${r.name}
+            </div>
+            ${r.name === 'OWNER' ? `
+              <div style="font-size: 0.6rem; color: rgba(201,169,110,0.8); margin-top: 0.2rem;">🔒 ROOT ACCESS</div>
+            ` : `
+              <button class="save-role-btn" onclick="saveSingleRolePermissions(${r.id})" title="Save permissions for ${r.name}">
+                Save Role
+              </button>
+            `}
+          </th>
+        `).join('')}
+      `;
+    }
+
+    function renderMatrixBody() {
+      const tbody = document.getElementById('rolesMatrixTableBody');
+      const domains = ['CATALOG', 'INVENTORY', 'ORDERS', 'CUSTOMERS', 'GOVERNANCE'];
+
+      let html = '';
+      domains.forEach(domainKey => {
+        const domainPerms = permissionsList.filter(p => DOMAIN_MAP[p.code] === domainKey);
+        if (domainPerms.length === 0) return;
+
+        html += `
+          <tr class="domain-header-row" data-domain="${domainKey}">
+            <td colspan="${rolesList.length + 1}" class="matrix-domain-header">
+              ${DOMAIN_LABELS[domainKey]}
+            </td>
+          </tr>
+        `;
+
+        domainPerms.forEach(perm => {
+          html += `
+            <tr class="perm-row" data-domain="${domainKey}" data-code="${perm.code.toLowerCase()}" data-name="${(perm.name || '').toLowerCase()}">
+              <td>
+                <div style="font-weight: 500; font-size: 0.78rem; color: #FAF7F2;">${perm.name || perm.code}</div>
+                <div style="font-family: monospace; font-size: 0.68rem; color: var(--color-gold);">${perm.code}</div>
+                <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${perm.description || ''}</div>
+              </td>
+              ${rolesList.map(role => {
+                if (role.name === 'OWNER') {
+                  return `
+                    <td class="matrix-cell-check">
+                      <span class="badge badge-owner" style="font-size: 0.65rem;" title="Root access permanently granted">
+                        🔒 Granted
+                      </span>
+                    </td>
+                  `;
+                }
+
+                const hasPerm = rolePermissionsList.some(rp => rp.role_id === role.id && rp.permission_id === perm.id);
+                return `
+                  <td class="matrix-cell-check">
+                    <input 
+                      type="checkbox" 
+                      class="matrix-checkbox" 
+                      data-role-id="${role.id}" 
+                      data-perm-id="${perm.id}"
+                      ${hasPerm ? 'checked' : ''}
+                      title="Toggle ${perm.code} for ${role.name}"
+                    />
+                  </td>
+                `;
+              }).join('')}
+            </tr>
+          `;
+        });
+      });
+
+      tbody.innerHTML = html;
+      filterMatrixRows();
+    }
+
+    function filterByDomain(domain, btn) {
+      activeDomainFilter = domain;
+      const tabs = document.querySelectorAll('#domainFilterTabs button');
+      tabs.forEach(t => {
+        t.style.background = 'rgba(255, 255, 255, 0.04)';
+        t.style.color = 'var(--color-cream)';
+        t.style.fontWeight = '400';
+      });
+      btn.style.background = 'var(--color-gold)';
+      btn.style.color = '#0A0A0B';
+      btn.style.fontWeight = '600';
+
+      filterMatrixRows();
+    }
+
+    function filterMatrixRows() {
+      const q = (document.getElementById('permSearchInput').value || '').trim().toLowerCase();
+      const rows = document.querySelectorAll('.perm-row');
+      const headerRows = document.querySelectorAll('.domain-header-row');
+
+      const domainMatchCounts = {};
+
+      rows.forEach(row => {
+        const domain = row.getAttribute('data-domain');
+        const code = row.getAttribute('data-code');
+        const name = row.getAttribute('data-name');
+
+        const matchesDomain = (activeDomainFilter === 'ALL' || domain === activeDomainFilter);
+        const matchesQuery = !q || code.includes(q) || name.includes(q);
+
+        if (matchesDomain && matchesQuery) {
+          row.style.display = '';
+          domainMatchCounts[domain] = (domainMatchCounts[domain] || 0) + 1;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      headerRows.forEach(hr => {
+        const d = hr.getAttribute('data-domain');
+        if (domainMatchCounts[d] > 0) {
+          hr.style.display = '';
+        } else {
+          hr.style.display = 'none';
+        }
+      });
+    }
+
+    function renderPermissionsDictionary() {
+      const grid = document.getElementById('permDictGrid');
+      if (!grid) return;
+
+      grid.innerHTML = permissionsList.map(p => {
+        const domain = DOMAIN_MAP[p.code] || 'GOVERNANCE';
+        const isCritical = p.code.includes('delete') || p.code.includes('manage');
+
+        return `
+          <div class="perm-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+              <span class="badge ${isCritical ? 'badge-danger' : 'badge-gold'}" style="font-size: 0.62rem;">
+                ${isCritical ? 'CRITICAL TIER' : 'STANDARD'}
+              </span>
+              <span style="font-size: 0.65rem; color: rgba(250,247,242,0.5);">${domain}</span>
+            </div>
+            <div style="font-family: monospace; font-size: 0.72rem; color: var(--color-gold); font-weight: 600;">
+              ${p.code}
+            </div>
+            <div style="font-weight: 500; font-size: 0.8rem; margin: 0.25rem 0; color: #FAF7F2;">
+              ${p.name || p.code}
+            </div>
+            <p style="font-size: 0.72rem; color: rgba(250,247,242,0.6); margin: 0; line-height: 1.4;">
+              ${p.description || 'Administrative permission code.'}
+            </p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function saveSingleRolePermissions(roleId) {
+      const role = rolesList.find(r => r.id === roleId);
+      if (!role) return;
+
+      const checkedBoxes = document.querySelectorAll(`.matrix-checkbox[data-role-id="${roleId}"]:checked`);
+      const permissionIds = Array.from(checkedBoxes).map(cb => parseInt(cb.getAttribute('data-perm-id'), 10)).filter(id => !isNaN(id));
+
+      try {
+        const res = await Auth.apiFetch(`/api/admin/roles/${roleId}/permissions`, {
+          method: 'PUT',
+          body: JSON.stringify({ permissionIds }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.toast(data.message || `Permissions for ${role.name} updated.`);
+          broadcastRealtime('permissions_updated', { roleId, roleName: role.name });
+          loadPermissionsData();
+        } else {
+          alert(data.error || 'Failed to update role permissions.');
+        }
+      } catch (err) {
+        alert(err.message || 'Error updating permissions.');
+      }
+    }
+
+    async function saveAllRolePermissions() {
+      const btn = document.getElementById('btnSaveMatrix');
+      btn.disabled = true;
+      btn.innerText = 'SAVING MATRIX...';
+
+      const nonOwnerRoles = rolesList.filter(r => r.name !== 'CUSTOMER' && r.name !== 'OWNER');
+      let successCount = 0;
+
+      for (const r of nonOwnerRoles) {
+        const checkedBoxes = document.querySelectorAll(`.matrix-checkbox[data-role-id="${r.id}"]:checked`);
+        const permissionIds = Array.from(checkedBoxes).map(cb => parseInt(cb.getAttribute('data-perm-id'), 10)).filter(id => !isNaN(id));
+
+        try {
+          const res = await Auth.apiFetch(`/api/admin/roles/${r.id}/permissions`, {
+            method: 'PUT',
+            body: JSON.stringify({ permissionIds }),
+          });
+          const data = await res.json();
+          if (data.success) successCount++;
+        } catch (e) {
+          console.warn(`Failed to save role ${r.name}:`, e);
+        }
+      }
+
+      btn.disabled = false;
+      btn.innerText = '💾 SAVE ROLE MATRIX CHANGES';
+      Admin.toast(`✦ Role matrix saved successfully (${successCount} roles updated).`);
+      broadcastRealtime('permissions_updated', { bulk: true });
+      loadPermissionsData();
+    }
+
+    const realtimeBus = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('lumiere_realtime_bus') : null;
+    function broadcastRealtime(action, payload = {}) {
+      if (realtimeBus) {
+        realtimeBus.postMessage({ action, ...payload, timestamp: Date.now() });
+      }
+    }
+
+    if (realtimeBus) {
+      realtimeBus.onmessage = (e) => {
+        if (e.data?.action === 'permissions_updated' && !e.data?.bulk) {
+          loadPermissionsData();
+        }
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.requireAuth('staff.manage')) return;
+      Admin.init();
+      loadPermissionsData();
+    });
+  </script>
+</body>
+</html>

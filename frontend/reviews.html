@@ -84,207 +84,497 @@
       <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About <span>&rarr;</span></a></li>
       <li><a href="reviews.html" class="mobile-nav-link active" onclick="closeMobileNav()">Reviews <span>&rarr;</span></a></li>
     </ul>
+
+    <!-- Real-Time Shop by Category Section in Side Navbar -->
+    <div class="side-nav-category-section">
+      <div class="side-nav-category-header">
+        <span class="side-nav-category-title">SHOP BY CATEGORY</span>
+        <span class="side-nav-live-badge">LIVE</span>
+      </div>
+      <ul class="side-nav-category-list" id="sideNavCategoriesList">
+        <!-- Rendered dynamically and synchronized in real time -->
+      </ul>
+    </div>
   </aside>
 
-<!-- HERO -->
+  <!-- 1. CINEMATIC HERO WITH INTERACTIVE 24K GOLD STARDUST CANVAS -->
   <header class="rev-hero">
     <div class="rev-hero-bg">
-      <img src="images/reviews_hero.jpg" alt="Happy Customers" />
+      <img src="images/reviews_hero.jpg" alt="Lumière Community & Atelier Collectors" />
+      <canvas id="goldDustCanvas"></canvas>
       <div class="rev-hero-overlay"></div>
     </div>
+    
     <div class="rev-hero-content">
-      <span class="section-label">Real Stories</span>
-      <h1>Loved by Thousands</h1>
-      <p>Honest reviews from our glowing community of 50,000+ beauty lovers.</p>
+      <div class="rev-hero-label-badge">
+        <span>✦</span>
+        <span>VOICE OF THE ATELIER &bull; OVER 50,000 VERIFIED STORIES</span>
+      </div>
+      <h1>Loved by <em>Thousands</em></h1>
+      <p>Honest chronicles, authentic skin transformations, and unfiltered reviews from our global circle of beauty collectors.</p>
     </div>
+
+    <!-- Live Rolling Telemetry Stats -->
     <div class="rev-hero-stats">
       <div class="rev-hero-stat">
-        <span class="rhs-num">4.9</span>
-        <span class="rhs-label">Avg. Rating</span>
+        <span class="rhs-num" id="cntAvgRating">4.95</span>
+        <span class="rhs-label">Average Atelier Rating</span>
       </div>
       <div class="rev-hero-divider"></div>
       <div class="rev-hero-stat">
-        <span class="rhs-num">50K+</span>
-        <span class="rhs-label">Happy Customers</span>
+        <span class="rhs-num" id="cntCollectors">52,480 <span class="rhs-suffix">+</span></span>
+        <span class="rhs-label">Global Collectors</span>
       </div>
       <div class="rev-hero-divider"></div>
       <div class="rev-hero-stat">
-        <span class="rhs-num">2,847</span>
-        <span class="rhs-label">Verified Reviews</span>
+        <span class="rhs-num" id="cntRadiance">99.2 <span class="rhs-suffix">%</span></span>
+        <span class="rhs-label">Skin Radiance Index</span>
+      </div>
+      <div class="rev-hero-divider"></div>
+      <div class="rev-hero-stat">
+        <span class="rhs-num" id="cntPurity">100 <span class="rhs-suffix">%</span></span>
+        <span class="rhs-label">Atelier Formulations</span>
       </div>
     </div>
   </header>
 
-  <!-- OVERALL RATING PANEL -->
+  <!-- 2. OVERALL RATING PANEL & "L'INDEX LUMIÈRE" CLINICAL RADAR -->
   <section class="rating-panel" id="ratingPanel">
     <div class="container">
       <div class="rating-panel-inner">
+        
+        <!-- Score Column -->
         <div class="rp-overall reveal">
           <div class="rp-score-wrap">
             <div class="rp-score">4.9</div>
-            <div class="rp-score-label">out of 5</div>
+            <div class="rp-score-label">out of 5.0</div>
           </div>
           <div class="rp-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
-          <div class="rp-count">Based on 2,847 verified reviews</div>
+          <div class="rp-count">Based on 2,847 verified collector accounts</div>
           <div class="rp-verified-badge">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-            All reviews are verified purchases
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+            100% Verified Purchases Only
           </div>
         </div>
-        <div class="rp-breakdown reveal" style="transition-delay:.12s">
-          <div class="rp-breakdown-title">Rating Breakdown</div>
-          <div class="rp-bar-row"><span class="rp-bar-label">5 &#9733;</span><div class="rp-bar-track"><div class="rp-bar-fill" style="--w:89%"></div></div><span class="rp-bar-pct">89%</span></div>
-          <div class="rp-bar-row"><span class="rp-bar-label">4 &#9733;</span><div class="rp-bar-track"><div class="rp-bar-fill" style="--w:8%"></div></div><span class="rp-bar-pct">8%</span></div>
-          <div class="rp-bar-row"><span class="rp-bar-label">3 &#9733;</span><div class="rp-bar-track"><div class="rp-bar-fill rp-bar-dim" style="--w:2%"></div></div><span class="rp-bar-pct">2%</span></div>
-          <div class="rp-bar-row"><span class="rp-bar-label">2 &#9733;</span><div class="rp-bar-track"><div class="rp-bar-fill rp-bar-dim" style="--w:1%"></div></div><span class="rp-bar-pct">1%</span></div>
-          <div class="rp-bar-row"><span class="rp-bar-label">1 &#9733;</span><div class="rp-bar-track"><div class="rp-bar-fill rp-bar-dim" style="--w:0%"></div></div><span class="rp-bar-pct">0%</span></div>
+
+        <!-- Interactive Clickable Rating Breakdown -->
+        <div class="rp-breakdown reveal" style="transition-delay:.1s">
+          <div class="rp-breakdown-header">
+            <span class="rp-breakdown-title">Rating Distribution</span>
+            <span class="rp-breakdown-hint">✦ Click any tier to filter</span>
+          </div>
+          
+          <div class="rp-bar-row" data-star="5" onclick="filterByRating(5, this)">
+            <span class="rp-bar-label">5 &#9733;</span>
+            <div class="rp-bar-track"><div class="rp-bar-fill" style="--w:89%"></div></div>
+            <span class="rp-bar-pct">89%</span>
+          </div>
+          <div class="rp-bar-row" data-star="4" onclick="filterByRating(4, this)">
+            <span class="rp-bar-label">4 &#9733;</span>
+            <div class="rp-bar-track"><div class="rp-bar-fill" style="--w:8%"></div></div>
+            <span class="rp-bar-pct">8%</span>
+          </div>
+          <div class="rp-bar-row" data-star="3" onclick="filterByRating(3, this)">
+            <span class="rp-bar-label">3 &#9733;</span>
+            <div class="rp-bar-track"><div class="rp-bar-fill rp-bar-dim" style="--w:2%"></div></div>
+            <span class="rp-bar-pct">2%</span>
+          </div>
+          <div class="rp-bar-row" data-star="2" onclick="filterByRating(2, this)">
+            <span class="rp-bar-label">2 &#9733;</span>
+            <div class="rp-bar-track"><div class="rp-bar-fill rp-bar-dim" style="--w:1%"></div></div>
+            <span class="rp-bar-pct">1%</span>
+          </div>
+          <div class="rp-bar-row" data-star="1" onclick="filterByRating(1, this)">
+            <span class="rp-bar-label">1 &#9733;</span>
+            <div class="rp-bar-track"><div class="rp-bar-fill rp-bar-dim" style="--w:0%"></div></div>
+            <span class="rp-bar-pct">0%</span>
+          </div>
         </div>
-        <div class="rp-tags reveal" style="transition-delay:.24s">
-          <div class="rp-breakdown-title">Most Mentioned</div>
+
+        <!-- Clinical Efficacy Radial Gauges -->
+        <div class="rp-clinical-radar reveal" style="transition-delay:.2s">
+          <!-- SVG Gradients Definition -->
+          <svg width="0" height="0" style="position:absolute;">
+            <defs>
+              <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#C8A97E" />
+                <stop offset="100%" stop-color="#FAF7F2" />
+              </linearGradient>
+            </defs>
+          </svg>
+
+          <div class="radar-header">
+            <span class="radar-title">L'Index Lumière Clinical Efficacy</span>
+            <span class="radar-badge">30-Day Client Trial</span>
+          </div>
+
+          <div class="radar-gauges-grid">
+            <!-- Gauge 1 -->
+            <div class="radar-gauge-card">
+              <div class="gauge-circle-wrap">
+                <svg viewBox="0 0 80 80">
+                  <circle class="gauge-bg-circle" cx="40" cy="40" r="36" />
+                  <circle class="gauge-fill-circle" id="gaugeCircle1" cx="40" cy="40" r="36" />
+                </svg>
+                <div class="gauge-pct-text">98%</div>
+              </div>
+              <span class="gauge-label">Reported Immediate Glass-Skin Radiance</span>
+            </div>
+
+            <!-- Gauge 2 -->
+            <div class="radar-gauge-card">
+              <div class="gauge-circle-wrap">
+                <svg viewBox="0 0 80 80">
+                  <circle class="gauge-bg-circle" cx="40" cy="40" r="36" />
+                  <circle class="gauge-fill-circle" id="gaugeCircle2" cx="40" cy="40" r="36" />
+                </svg>
+                <div class="gauge-pct-text">96%</div>
+              </div>
+              <span class="gauge-label">Noticed Visibly Plumper Skin in 14 Days</span>
+            </div>
+
+            <!-- Gauge 3 -->
+            <div class="radar-gauge-card">
+              <div class="gauge-circle-wrap">
+                <svg viewBox="0 0 80 80">
+                  <circle class="gauge-bg-circle" cx="40" cy="40" r="36" />
+                  <circle class="gauge-fill-circle" id="gaugeCircle3" cx="40" cy="40" r="36" />
+                </svg>
+                <div class="gauge-pct-text">99%</div>
+              </div>
+              <span class="gauge-label">Unmatched 12h+ Perfume Hold</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive Sentiment Tag Cloud -->
+        <div class="rp-tags-container reveal" style="transition-delay:.25s">
+          <div class="rp-tags-header">
+            <span class="rp-breakdown-title">Most Praised Attributes</span>
+            <span class="rp-breakdown-hint">✦ Click a sentiment tag to filter reviews</span>
+          </div>
           <div class="rp-tag-cloud">
-            <span class="rp-tag rp-tag-lg">&#10022; Glowing Skin</span>
-            <span class="rp-tag">Long-lasting</span>
-            <span class="rp-tag rp-tag-lg">Worth Every Penny</span>
-            <span class="rp-tag">Luxury Feel</span>
-            <span class="rp-tag">Clean Formula</span>
-            <span class="rp-tag rp-tag-sm">Fast Results</span>
-            <span class="rp-tag">Beautiful Packaging</span>
-            <span class="rp-tag rp-tag-sm">Cruelty-Free</span>
+            <span class="rp-tag" onclick="filterBySentiment('Glowing Skin', this)">✦ Glowing Skin <span class="rp-tag-count">(1,420)</span></span>
+            <span class="rp-tag" onclick="filterBySentiment('Holy Grail', this)">✦ Holy Grail <span class="rp-tag-count">(1,340)</span></span>
+            <span class="rp-tag" onclick="filterBySentiment('24K Molten Pigment', this)">✦ 24K Molten Pigment <span class="rp-tag-count">(890)</span></span>
+            <span class="rp-tag" onclick="filterBySentiment('Clean Formula', this)">✦ Clean Formula <span class="rp-tag-count">(910)</span></span>
+            <span class="rp-tag" onclick="filterBySentiment('Divine Longevity', this)">✦ Divine Longevity <span class="rp-tag-count">(670)</span></span>
+            <span class="rp-tag" onclick="filterBySentiment('Glass Skin', this)">✦ Glass Skin <span class="rp-tag-count">(1,180)</span></span>
+            <span class="rp-tag" onclick="filterBySentiment('Fast Results', this)">✦ Fast Results <span class="rp-tag-count">(820)</span></span>
+            <span class="rp-tag" onclick="filterBySentiment('French Rose', this)">✦ French Rose <span class="rp-tag-count">(450)</span></span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. COMMUNITY UGC: "BEHIND THE GLOW" REAL SKIN RESULTS WALL -->
+  <section class="ugc-section" id="communityUgc">
+    <div class="container">
+      <div class="ugc-section-header reveal">
+        <span class="rev-hero-label-badge">✦ ATELIER COMMUNITY &bull; REAL PORTRAITS ✦</span>
+        <h2 class="ugc-section-title">Behind the Glow</h2>
+        <p class="ugc-section-desc">Client portraits captured in natural daylight and Parisian twilight. Unfiltered beauty, genuine ritual results.</p>
+      </div>
+
+      <div class="ugc-masonry-grid">
+        <!-- UGC 1 -->
+        <div class="ugc-card reveal" onclick="openUgcModal(0)">
+          <img src="images/community/beauty1.jpg" alt="Camille L. - Paris" class="ugc-card-img" />
+          <div class="ugc-card-badge">✦ 14 DAYS OF GLOW</div>
+          <div class="ugc-card-overlay">
+            <div class="ugc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <div class="ugc-quote">“My skin texture before and after 14 days of the ritual. The radiance is real.”</div>
+            <div class="ugc-author-row">
+              <span>Camille L. &bull; Paris</span>
+              <span class="ugc-product-pill">Radiance Glow Serum</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- UGC 2 -->
+        <div class="ugc-card reveal" style="transition-delay:.1s" onclick="openUgcModal(1)">
+          <img src="images/community/beauty2.jpg" alt="Elena R. - Milan" class="ugc-card-img" />
+          <div class="ugc-card-badge">✦ RED CARPET FINISH</div>
+          <div class="ugc-card-overlay">
+            <div class="ugc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <div class="ugc-quote">“Molten 24K gold on cheekbones. Catches ambient candlelight like magic.”</div>
+            <div class="ugc-author-row">
+              <span>Elena R. &bull; Milan</span>
+              <span class="ugc-product-pill">Gold Highlighter</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- UGC 3 -->
+        <div class="ugc-card reveal" style="transition-delay:.15s" onclick="openUgcModal(2)">
+          <img src="images/community/beauty3.jpg" alt="Sophia S. - New York" class="ugc-card-img" />
+          <div class="ugc-card-badge">✦ GLASS SKIN EDIT</div>
+          <div class="ugc-card-overlay">
+            <div class="ugc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <div class="ugc-quote">“Zero filter, zero foundation. Just waking up after applying the night cream.”</div>
+            <div class="ugc-author-row">
+              <span>Sophia S. &bull; New York</span>
+              <span class="ugc-product-pill">Restorative Night Cream</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- UGC 4 -->
+        <div class="ugc-card reveal" style="transition-delay:.2s" onclick="openUgcModal(3)">
+          <img src="images/community/beauty4.jpg" alt="Aurelia D. - Geneva" class="ugc-card-img" />
+          <div class="ugc-card-badge">✦ VELVET ATELIER</div>
+          <div class="ugc-card-overlay">
+            <div class="ugc-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+            <div class="ugc-quote">“The deep berry pigment stayed intact through a 4-course dinner.”</div>
+            <div class="ugc-author-row">
+              <span>Aurelia D. &bull; Geneva</span>
+              <span class="ugc-product-pill">Velvet Lip Collection</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- REVIEWS MAIN -->
-  <section class="reviews-main" id="reviewsMain">
-    <div class="container">
-      <div class="rev-filters reveal">
-        <div class="rev-filter-tabs" id="revFilterTabs">
-          <button class="rev-tab active" data-cat="all" onclick="filterReviews('all',this)" id="revTabAll">All Reviews</button>
-          <button class="rev-tab" data-cat="skincare" onclick="filterReviews('skincare',this)" id="revTabSkincare">Skincare</button>
-          <button class="rev-tab" data-cat="makeup" onclick="filterReviews('makeup',this)" id="revTabMakeup">Makeup</button>
-          <button class="rev-tab" data-cat="fragrance" onclick="filterReviews('fragrance',this)" id="revTabFragrance">Fragrance</button>
-        </div>
-        <div class="rev-sort">
-          <select id="revSort" onchange="renderReviews()" aria-label="Sort reviews">
-            <option value="newest">Newest First</option>
-            <option value="highest">Highest Rated</option>
-            <option value="helpful">Most Helpful</option>
-          </select>
+  <!-- UGC LIGHTBOX MODAL -->
+  <div class="ugc-modal" id="ugcModal" role="dialog" aria-modal="true">
+    <div class="ugc-modal-box">
+      <button type="button" class="ugc-modal-close" onclick="closeUgcModal()" aria-label="Close Lightbox">&times;</button>
+      <img src="images/community/beauty1.jpg" alt="Community Story" class="ugc-modal-img" id="ugcModalImg" />
+      <div class="ugc-modal-body">
+        <span class="rev-hero-label-badge" id="ugcModalTag">✦ 14 DAYS OF GLOW</span>
+        <div style="font-size:1.2rem; color:var(--color-gold); margin:0.8rem 0 0.4rem;">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+        <h3 style="font-family:'Cormorant Garamond',serif; font-size:1.8rem; color:var(--color-cream); line-height:1.2;" id="ugcModalAuthor">Camille L. (Paris)</h3>
+        <p style="font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1.2rem; color:rgba(250,247,242,0.85); line-height:1.7; margin:1rem 0 1.8rem;" id="ugcModalQuote">
+          “My skin texture before and after 14 days of the ritual. The radiance is real.”
+        </p>
+        <div style="display:flex; align-items:center; justify-content:space-between; border-top:1px solid var(--border-gold); padding-top:1.2rem;">
+          <div>
+            <span style="font-size:0.7rem; color:rgba(250,247,242,0.5); text-transform:uppercase; letter-spacing:0.1em; display:block;">Featured Formulation:</span>
+            <strong style="color:var(--color-gold-light); font-size:0.95rem;" id="ugcModalProduct">Radiance Glow Serum</strong>
+            <span style="color:var(--color-gold); font-size:0.85rem; display:block;" id="ugcModalPrice">₹128.00</span>
+          </div>
+          <button type="button" class="btn-luxury-primary" id="ugcModalAddBag" style="padding:0.7rem 1.4rem;">
+            + ADD TO BAG
+          </button>
         </div>
       </div>
-      <div class="featured-review reveal" id="featuredReview"></div>
-      <div class="reviews-grid" id="reviewsGrid"></div>
-      <div class="load-more-wrap">
-        <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">
-          <span>Load More Reviews</span>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
-        </button>
-      </div>
-    </div>
-  </section>
-
-  <!-- FLOATING TESTIMONIAL STRIP -->
-  <div class="testimonial-strip">
-    <div class="ts-track">
-      <span class="ts-item"><em>"The Radiance Serum is a miracle."</em> &mdash; Sophia C., New York</span>
-      <span class="ts-sep">&#10022;</span>
-      <span class="ts-item"><em>"Noir d'Or is my new signature scent."</em> &mdash; Marie D., Paris</span>
-      <span class="ts-sep">&#10022;</span>
-      <span class="ts-item"><em>"Lumi&egrave;re changed my skincare routine forever."</em> &mdash; Priya S., Mumbai</span>
-      <span class="ts-sep">&#10022;</span>
-      <span class="ts-item"><em>"The most beautiful highlighter I own."</em> &mdash; Isabella T., Barcelona</span>
-      <span class="ts-sep">&#10022;</span>
-      <span class="ts-item"><em>"Worth every single penny."</em> &mdash; Amelia R., London</span>
-      <span class="ts-sep">&#10022;</span>
-      <span class="ts-item"><em>"The Radiance Serum is a miracle."</em> &mdash; Sophia C., New York</span>
-      <span class="ts-sep">&#10022;</span>
-      <span class="ts-item"><em>"Noir d'Or is my new signature scent."</em> &mdash; Marie D., Paris</span>
-      <span class="ts-sep">&#10022;</span>
-      <span class="ts-item"><em>"Lumi&egrave;re changed my skincare routine forever."</em> &mdash; Priya S., Mumbai</span>
-      <span class="ts-sep">&#10022;</span>
-      <span class="ts-item"><em>"The most beautiful highlighter I own."</em> &mdash; Isabella T., Barcelona</span>
-      <span class="ts-sep">&#10022;</span>
-      <span class="ts-item"><em>"Worth every single penny."</em> &mdash; Amelia R., London</span>
-      <span class="ts-sep">&#10022;</span>
     </div>
   </div>
 
-  <!-- WRITE A REVIEW -->
-  <section class="write-review-section" id="writeReview">
-    <div class="wr-bg-accent"></div>
+  <!-- 4. REVIEWS MAIN (CONTROLS, SEARCH, SPOTLIGHT, 3D TILT GRID) -->
+  <section class="reviews-main" id="reviewsMain">
     <div class="container">
-      <div class="wr-layout">
-        <div class="wr-left reveal-left">
-          <span class="section-label">Share Your Experience</span>
-          <h2 class="wr-title">Write a<br/><em>Review</em></h2>
-          <p class="wr-desc">Your feedback helps thousands of beauty lovers find their perfect ritual. Every honest voice matters.</p>
-          <div class="wr-trust">
-            <div class="wr-trust-item"><span class="wr-trust-icon">&#128274;</span><span>Verified purchases only</span></div>
-            <div class="wr-trust-item"><span class="wr-trust-icon">&#10022;</span><span>Published within 24 hours</span></div>
-            <div class="wr-trust-item"><span class="wr-trust-icon">&#128155;</span><span>Helps our community</span></div>
+      
+      <!-- Interactive Controls: Search, Tabs & Sorts -->
+      <div class="rev-controls-wrap reveal">
+        <div class="rev-controls-top-row">
+          <!-- Instant Search Box -->
+          <div class="rev-search-box">
+            <span class="rev-search-icon">🔍</span>
+            <input type="text" class="rev-search-input" id="revSearchInput" placeholder="Search reviews by keyword, product, skin concern, or author..." oninput="handleReviewSearch(event)" autocomplete="off" />
+            <button type="button" class="rev-clear-search" id="revClearSearch" onclick="clearSearch()" aria-label="Clear Search">&times;</button>
+          </div>
+
+          <!-- Sort Selector -->
+          <div class="rev-sort-group">
+            <span class="rev-sort-label">Sort:</span>
+            <select class="rev-sort-select" id="revSort" onchange="renderReviews()" aria-label="Sort reviews">
+              <option value="newest">✦ Newest First</option>
+              <option value="highest">★ Highest Rated (5 Stars)</option>
+              <option value="helpful">👍 Most Helpful First</option>
+            </select>
           </div>
         </div>
-        <div class="wr-right reveal-right">
-          <form class="wr-form" id="wrForm" onsubmit="submitReview(event)">
-            <div class="wr-row">
-              <div class="wr-field">
-                <label for="wrName">Your Name</label>
-                <input type="text" id="wrName" placeholder="e.g. Sofia C." required />
-              </div>
-              <div class="wr-field">
-                <label for="wrProduct">Product</label>
-                <select id="wrProduct" required>
-                  <option value="">Select a product&hellip;</option>
-                  <option>Radiance Glow Serum</option>
-                  <option>Velvet Lip Collection</option>
-                  <option>Noir d'Or Eau de Parfum</option>
-                  <option>Restorative Night Cream</option>
-                  <option>Pro Eyeshadow Palette</option>
-                  <option>Rose Bloom Eau de Toilette</option>
-                  <option>Rosehip Facial Oil</option>
-                  <option>Gold Highlighter</option>
-                </select>
-              </div>
-            </div>
-            <div class="wr-field">
-              <label>Your Rating</label>
-              <div class="star-picker" id="starPicker" role="radiogroup" aria-label="Rating">
-                <button type="button" class="sp-star" data-val="1" onclick="setRating(1)" aria-label="1 star">&#9733;</button>
-                <button type="button" class="sp-star" data-val="2" onclick="setRating(2)" aria-label="2 stars">&#9733;</button>
-                <button type="button" class="sp-star" data-val="3" onclick="setRating(3)" aria-label="3 stars">&#9733;</button>
-                <button type="button" class="sp-star" data-val="4" onclick="setRating(4)" aria-label="4 stars">&#9733;</button>
-                <button type="button" class="sp-star" data-val="5" onclick="setRating(5)" aria-label="5 stars">&#9733;</button>
-              </div>
-            </div>
-            <div class="wr-field">
-              <label for="wrTitle">Review Title</label>
-              <input type="text" id="wrTitle" placeholder="Summarise your experience&hellip;" required />
-            </div>
-            <div class="wr-field">
-              <label for="wrBody">Your Review</label>
-              <textarea id="wrBody" rows="5" placeholder="Tell us what you loved (or didn't)&hellip;" required></textarea>
-            </div>
-            <button type="submit" class="btn-primary wr-submit" id="wrSubmitBtn">Submit Review <span class="btn-arrow">&rarr;</span></button>
-          </form>
+
+        <div class="rev-controls-bottom-row">
+          <!-- Category Filter Tabs -->
+          <div class="rev-filter-tabs" id="revFilterTabs">
+            <button type="button" class="rev-tab active" data-cat="all" onclick="filterReviews('all', this)" id="revTabAll">All Formulations</button>
+            <button type="button" class="rev-tab" data-cat="skincare" onclick="filterReviews('skincare', this)" id="revTabSkincare">Skincare</button>
+            <button type="button" class="rev-tab" data-cat="makeup" onclick="filterReviews('makeup', this)" id="revTabMakeup">Couture Makeup</button>
+            <button type="button" class="rev-tab" data-cat="fragrance" onclick="filterReviews('fragrance', this)" id="revTabFragrance">Haute Parfumerie</button>
+          </div>
+
+          <!-- Star Quick Select -->
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <button type="button" class="btn-luxury-outline" style="padding:0.4rem 0.9rem; font-size:0.7rem;" onclick="setStarFilter(5)">5 ★ Only</button>
+            <button type="button" class="btn-luxury-outline" style="padding:0.4rem 0.9rem; font-size:0.7rem;" onclick="setStarFilter(4)">4 ★ Only</button>
+          </div>
         </div>
+
+        <!-- Active Filter Indicator Pills -->
+        <div class="active-filters-bar" id="activeFiltersBar" style="display:none;"></div>
+      </div>
+
+      <!-- Featured Spotlight Review -->
+      <div class="featured-review reveal" id="featuredReview"></div>
+
+      <!-- 3D Gyroscopic Tilt Review Cards Grid -->
+      <div class="reviews-grid" id="reviewsGrid"></div>
+
+      <!-- Load More Button -->
+      <div class="load-more-wrap">
+        <button type="button" class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">
+          <span>Load More Verified Reviews</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </button>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. DUAL-DIRECTION VELOCITY MARQUEE TICKERS -->
+  <section class="velocity-marquee-section">
+    <div class="vm-track-wrap">
+      <!-- Track 1: Scrolls Left -->
+      <div class="vm-row-left">
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“The Radiance Serum gave me true glass skin.”</span><span class="vm-author">Sophia C. &bull; New York</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Noir d'Or is my new signature scent forever.”</span><span class="vm-author">Marie D. &bull; Paris</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Lumière completely changed my morning ritual.”</span><span class="vm-author">Priya S. &bull; Mumbai</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“The most finely milled highlighter in the industry.”</span><span class="vm-author">Isabella T. &bull; Barcelona</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Absorbs instantly, zero greasy sheen.”</span><span class="vm-author">Zoe W. &bull; Sydney</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“The Radiance Serum gave me true glass skin.”</span><span class="vm-author">Sophia C. &bull; New York</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Noir d'Or is my new signature scent forever.”</span><span class="vm-author">Marie D. &bull; Paris</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Lumière completely changed my morning ritual.”</span><span class="vm-author">Priya S. &bull; Mumbai</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“The most finely milled highlighter in the industry.”</span><span class="vm-author">Isabella T. &bull; Barcelona</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Absorbs instantly, zero greasy sheen.”</span><span class="vm-author">Zoe W. &bull; Sydney</span></div>
+      </div>
+
+      <!-- Track 2: Scrolls Right -->
+      <div class="vm-row-right">
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Worth every single cent. French luxury at its highest.”</span><span class="vm-author">Amelia R. &bull; London</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“The packaging alone feels like a museum art piece.”</span><span class="vm-author">Elena R. &bull; Milan</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Survives 14-hour flights without flaking or fading.”</span><span class="vm-author">Nadia H. &bull; Dubai</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Professional pigment quality with clean ingredients.”</span><span class="vm-author">Rachel K. &bull; Los Angeles</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Couture beauty delivered to my doorstep.”</span><span class="vm-author">Kenji M. &bull; Tokyo</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Worth every single cent. French luxury at its highest.”</span><span class="vm-author">Amelia R. &bull; London</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“The packaging alone feels like a museum art piece.”</span><span class="vm-author">Elena R. &bull; Milan</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Survives 14-hour flights without flaking or fading.”</span><span class="vm-author">Nadia H. &bull; Dubai</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Professional pigment quality with clean ingredients.”</span><span class="vm-author">Rachel K. &bull; Los Angeles</span></div>
+        <div class="vm-card"><span class="vm-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</span><span class="vm-quote">“Couture beauty delivered to my doorstep.”</span><span class="vm-author">Kenji M. &bull; Tokyo</span></div>
       </div>
     </div>
   </section>
 
-  <!-- CTA -->
-  <section class="rev-cta">
-    <div class="rev-cta-inner reveal">
-      <div class="rev-cta-eyebrow">&#10022; Join 50,000+ believers &#10022;</div>
-      <h2>Ready to Start Your Ritual?</h2>
-      <p>Experience the products that thousands are raving about.</p>
-      <div class="rev-cta-btns">
-        <a href="shop.html" class="btn-primary" id="revShopBtn">Shop Now</a>
-        <a href="new-arrivals.html" class="btn-ghost" id="revNewBtn">New Arrivals</a>
+  <!-- 6. ATELIER REVIEW STUDIO (LIVE FORM + LIVE CARD HOLOGRAM PREVIEW) -->
+  <section class="write-review-section" id="writeReview">
+    <div class="container">
+      <div class="wr-studio-layout">
+        
+        <!-- Left: Form Box -->
+        <div class="wr-form-box reveal">
+          <span class="rev-hero-label-badge">✦ SHARE YOUR ATELIER RITUAL</span>
+          <h2 class="wr-title">Write a<br/><em>Review</em></h2>
+          <p class="wr-desc">Your voice helps fellow beauty connoisseurs find their ideal ritual. Every review is inspected and verified by our Paris concierge.</p>
+          
+          <form class="wr-form" id="wrForm" onsubmit="submitReview(event)">
+            <div class="wr-row">
+              <div class="wr-field">
+                <label for="wrName">Your Full Name *</label>
+                <input type="text" id="wrName" placeholder="e.g. Camille Laurent" required />
+              </div>
+              <div class="wr-field">
+                <label for="wrLocation">City, Country *</label>
+                <input type="text" id="wrLocation" placeholder="e.g. Paris, France" required />
+              </div>
+            </div>
+
+            <div class="wr-field">
+              <label for="wrProduct">Select Formulation *</label>
+              <select id="wrProduct" required onchange="updateLiveReviewPreview()">
+                <option value="Radiance Glow Serum">Radiance Glow Serum (₹128.00)</option>
+                <option value="Gold Highlighter">Gold Highlighter (₹46.00)</option>
+                <option value="Noir d'Or Eau de Parfum">Noir d'Or Eau de Parfum (₹215.00)</option>
+                <option value="Restorative Night Cream">Restorative Night Cream (₹96.00)</option>
+                <option value="Pro Eyeshadow Palette">Pro Eyeshadow Palette (₹82.00)</option>
+                <option value="Rose Bloom Eau de Toilette">Rose Bloom Eau de Toilette (₹165.00)</option>
+                <option value="Rosehip Facial Oil">Rosehip Facial Oil (₹74.00)</option>
+                <option value="Velvet Lip Collection">Velvet Lip Collection (₹58.00)</option>
+              </select>
+            </div>
+
+            <!-- Molten Gold Star Picker -->
+            <div class="wr-field">
+              <label>Your Rating *</label>
+              <div class="sp-container">
+                <div class="star-picker" id="starPicker" role="radiogroup" aria-label="Rating">
+                  <button type="button" class="sp-star lit" data-val="1" onclick="setRating(1)" aria-label="1 star">&#9733;</button>
+                  <button type="button" class="sp-star lit" data-val="2" onclick="setRating(2)" aria-label="2 stars">&#9733;</button>
+                  <button type="button" class="sp-star lit" data-val="3" onclick="setRating(3)" aria-label="3 stars">&#9733;</button>
+                  <button type="button" class="sp-star lit" data-val="4" onclick="setRating(4)" aria-label="4 stars">&#9733;</button>
+                  <button type="button" class="sp-star lit" data-val="5" onclick="setRating(5)" aria-label="5 stars">&#9733;</button>
+                </div>
+                <span class="sp-rating-desc" id="spRatingDesc">✦ 5 Stars: Pure Holy Grail Luxury!</span>
+              </div>
+            </div>
+
+            <!-- Skin Type / Experience Tags -->
+            <div class="wr-field">
+              <label>Key Attributes (Select all that apply)</label>
+              <div class="wr-tags-group">
+                <span class="wr-selectable-tag selected" onclick="toggleStudioTag('Dry Skin', this)">Dry Skin</span>
+                <span class="wr-selectable-tag selected" onclick="toggleStudioTag('Radiant Finish', this)">Radiant Finish</span>
+                <span class="wr-selectable-tag" onclick="toggleStudioTag('Sensitive Skin', this)">Sensitive Skin</span>
+                <span class="wr-selectable-tag" onclick="toggleStudioTag('Mature Skin', this)">Mature Skin</span>
+                <span class="wr-selectable-tag" onclick="toggleStudioTag('All Day Hold', this)">All Day Hold</span>
+                <span class="wr-selectable-tag" onclick="toggleStudioTag('Fast Absorption', this)">Fast Absorption</span>
+              </div>
+            </div>
+
+            <div class="wr-field">
+              <label for="wrTitle">Review Headline *</label>
+              <input type="text" id="wrTitle" placeholder="Summarise your experience in a headline..." required />
+            </div>
+
+            <div class="wr-field">
+              <label for="wrBody">Your Detailed Experience *</label>
+              <textarea id="wrBody" rows="4" placeholder="Detail your experience with this formulation, texture, fragrance, and skin results..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn-luxury-primary" id="wrSubmitBtn" style="padding:1rem 2.4rem; align-self:flex-start;">
+              <span>✦</span> Broadcast Verified Review &rarr;
+            </button>
+          </form>
+        </div>
+
+        <!-- Right: Sticky Live Card Hologram Preview -->
+        <div class="wr-preview-sticky reveal" style="transition-delay:.15s">
+          <div class="wr-preview-header">
+            <div class="wr-preview-label">
+              <span class="live-pulse-dot"></span>
+              <span>LIVE ATELIER HOLOGRAM PREVIEW</span>
+            </div>
+            <span style="font-size:0.68rem; color:rgba(250,247,242,0.5);">Updates in real-time</span>
+          </div>
+
+          <div class="hologram-card-preview" id="liveReviewPreview">
+            <!-- Dynamically populated via reviews.js -->
+          </div>
+        </div>
+
       </div>
     </div>
   </section>
+
+  <!-- CELEBRATION CONFETTI CANVAS -->
+  <canvas id="celebrationCanvas"></canvas>
+
+  <!-- 7. CTA -->
+  <section class="rev-cta">
+    <div class="rev-cta-inner reveal">
+      <span class="rev-cta-eyebrow">✦ Join Over 50,000 Global Collectors ✦</span>
+      <h2>Ready to Start Your Ritual?</h2>
+      <p>Experience the formulations that Paris critics and luxury collectors revere across the globe.</p>
+      <div class="rev-cta-btns">
+        <a href="shop.html" class="btn-luxury-primary" style="padding:0.95rem 2.4rem;" id="revShopBtn"><span>✦</span> Explore The Boutique &rarr;</a>
+        <a href="collections.html" class="btn-luxury-outline" style="padding:0.95rem 2rem;" id="revNewBtn">View Atelier Collections</a>
+      </div>
+    </div>
+  </section>
+
 
   <!-- FOOTER -->
   <footer class="lumiere-editorial-footer" id="lumiereFooter">
@@ -336,7 +626,7 @@
       <div class="footer-bottom-bar">
         <div class="footer-copyright">&copy; 2026 Lumi&egrave;re. All rights reserved.</div>
         <div class="footer-legal-links"><a href="#" class="legal-link">Privacy</a><span class="legal-dot">&middot;</span><a href="#" class="legal-link">Terms</a><span class="legal-dot">&middot;</span><a href="#" class="legal-link">Cookies</a></div>
-        <div class="footer-currency-picker"><span class="currency-star">&#10022;</span><span>International / USD ($)</span></div>
+        <div class="footer-currency-picker"><span class="currency-star">&#10022;</span><span>India / INR (₹)</span></div>
       </div>
     </div>
   </footer>
@@ -351,7 +641,7 @@
       <button class="drawer-close-btn" onclick="closeCartDrawer()" aria-label="Close Bag">&times;</button>
     </div>
     <div class="shipping-meter-wrap">
-      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>$100.00</strong> more for complimentary delivery.</div>
+      <div class="shipping-meter-text" id="shippingMeterText">Add <strong>₹100.00</strong> more for complimentary delivery.</div>
       <div class="shipping-meter-bar"><div class="shipping-meter-fill" id="shippingMeterFill"></div></div>
     </div>
     <div class="cart-items-container" id="cartItemsList"></div>
@@ -361,7 +651,7 @@
       <span style="font-size:0.8rem;margin-top:0.5rem;display:block;">Discover our luxury edits to get started.</span>
     </div>
     <div class="cart-drawer-footer">
-      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span></div>
+      <div class="cart-subtotal-row"><span>Subtotal</span><span class="cart-subtotal-val" id="cartSubtotalAmount">₹0.00</span></div>
       <button class="btn-luxury-primary" style="width:100%;margin-bottom:0.75rem;" onclick="processCheckout()">CHECKOUT &rarr;</button>
       <button class="btn-luxury-outline" style="width:100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
     </div>
@@ -404,8 +694,8 @@
 
   <!-- Scripts -->
   <script src="js/auth.js"></script>
-  <script src="js/lumiere-cinematic.js"></script>
   <script src="js/shared.js"></script>
+  <script src="js/lumiere-cinematic.js"></script>
   <script src="js/reviews.js"></script>
 
   <script>

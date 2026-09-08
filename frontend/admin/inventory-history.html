@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inventory History &amp; Ledger — Lumière Admin</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Real-Time Headline Banner for Audit Ledger -->
+      <div class="total-stock-header-card" style="background: linear-gradient(135deg, rgba(20, 16, 26, 0.95), rgba(30, 24, 40, 0.95)); border: 1px solid rgba(201, 169, 110, 0.35); border-radius: 6px; padding: 1.1rem 1.6rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35); flex-wrap: wrap; gap: 1.25rem;">
+        <div style="display: flex; align-items: center; gap: 1.25rem;">
+          <div style="width: 48px; height: 48px; border-radius: 8px; background: rgba(201, 169, 110, 0.15); border: 1px solid rgba(201, 169, 110, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.45rem; color: var(--color-gold);">
+            📜
+          </div>
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.6rem;">
+              <span style="font-size: 0.72rem; letter-spacing: 0.14em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Complete Transaction Ledger</span>
+              <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #7bed9f; box-shadow: 0 0 10px #7bed9f;" title="Audit Ledger Active"></span>
+              <span style="font-size: 0.65rem; color: #7bed9f; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 500;">Immutable Audit Trail</span>
+            </div>
+            <div style="font-family: var(--font-serif); font-size: 2.35rem; font-weight: 400; color: #FAF7F2; line-height: 1.1; margin-top: 0.25rem;">
+              <span id="topLedgerCount">0</span> <span style="font-size: 0.9rem; font-family: var(--font-sans, system-ui); color: rgba(250, 247, 242, 0.6); font-weight: 300;">Historical Records</span>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 1.75rem; align-items: center; flex-wrap: wrap;">
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <div style="font-size: 0.68rem; color: rgba(250, 247, 242, 0.55); text-transform: uppercase; letter-spacing: 0.08em;">Total Units Transacted</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: #7bed9f; margin-top: 0.2rem;" id="topTotalUnitsTransacted">0</div>
+          </div>
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <div style="font-size: 0.68rem; color: rgba(250, 247, 242, 0.55); text-transform: uppercase; letter-spacing: 0.08em;">Audit Compliance</div>
+            <div style="font-size: 1.25rem; font-weight: 600; color: var(--color-gold); margin-top: 0.2rem;">100% Traceable</div>
+          </div>
+          <div style="border-left: 1px solid rgba(255,255,255,0.1); padding-left: 1.25rem;">
+            <button onclick="loadHistory(false)" class="btn-outline" style="font-size: 0.72rem; padding: 0.55rem 0.95rem;" title="Immediate Real-Time Ledger Refresh">
+              <span id="histSyncSpinIcon" style="display: inline-block;">⟳</span> REFRESH LEDGER
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Page Title -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+        <div>
+          <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Executive Accounting</span>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0.35rem 0 0;">Inventory History &amp; Audit Ledger</h1>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+          <button onclick="exportLedgerCSV()" class="btn-outline" style="font-size: 0.75rem; padding: 0.55rem 1rem; display: inline-flex; align-items: center; gap: 0.4rem;">
+            <span>📥</span> EXPORT CSV LEDGER
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared Inventory Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="inventory.html" class="subnav-tab">
+          <span>📦</span> Stock Overview
+        </a>
+        <a href="inventory-movements.html" class="subnav-tab">
+          <span>🔄</span> Stock Movements
+        </a>
+        <a href="inventory-low-stock.html" class="subnav-tab">
+          <span>⚠️</span> Low Stock <span class="subnav-badge badge-warn" id="subnavLowStockBadge">-</span>
+        </a>
+        <a href="inventory-out-of-stock.html" class="subnav-tab">
+          <span>🚫</span> Out of Stock <span class="subnav-badge badge-danger" id="subnavOutStockBadge">-</span>
+        </a>
+        <a href="inventory-stock-in.html" class="subnav-tab">
+          <span>📥</span> Purchase / Stock In <span class="subnav-badge badge-accent">Receive</span>
+        </a>
+        <a href="inventory-adjust.html" class="subnav-tab">
+          <span>⚖️</span> Stock Adjustment
+        </a>
+        <a href="inventory-history.html" class="subnav-tab active">
+          <span>📜</span> Inventory History
+        </a>
+      </div>
+
+      <!-- Filters & Controls -->
+      <div class="table-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;">
+        <input type="text" id="historySearch" class="admin-input" placeholder="Search product, SKU, operator, or reason..." style="flex: 2; min-width: 220px;" oninput="debounceHistorySearch()" />
+        <select id="historyProdFilter" class="admin-select" style="flex: 1; min-width: 180px;" onchange="loadHistory()">
+          <option value="">All Products</option>
+        </select>
+        <select id="historyTypeFilter" class="admin-select" style="flex: 1; min-width: 160px;" onchange="loadHistory()">
+          <option value="all">All Types</option>
+          <option value="STOCK_RECEIVED">STOCK_RECEIVED</option>
+          <option value="ORDER_RESERVED">ORDER_RESERVED</option>
+          <option value="ORDER_SHIPPED">ORDER_SHIPPED</option>
+          <option value="ORDER_CANCELLED">ORDER_CANCELLED</option>
+          <option value="MANUAL_ADJUSTMENT">MANUAL_ADJUSTMENT</option>
+          <option value="DAMAGED">DAMAGED</option>
+          <option value="REFUND">REFUND</option>
+        </select>
+        <select id="historyLimitFilter" class="admin-select" style="width: 120px;" onchange="loadHistory()">
+          <option value="50">50 rows</option>
+          <option value="100" selected>100 rows</option>
+          <option value="250">250 rows</option>
+          <option value="500">500 rows</option>
+        </select>
+      </div>
+
+      <!-- Historical Ledger Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="admin-table" id="historyLedgerTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Timestamp</th>
+                <th>Product</th>
+                <th>SKU</th>
+                <th>Event Type</th>
+                <th>Quantity Delta</th>
+                <th>Balance After</th>
+                <th>Reference / Justification</th>
+                <th>Auditor / Performed By</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr><td colspan="9" style="text-align: center;">Loading ledger records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let historyRecords = [];
+    let searchTimeout = null;
+
+    function debounceHistorySearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => renderHistory(), 250);
+    }
+
+    async function loadHistory(isSilent = false) {
+      const type = document.getElementById('historyTypeFilter').value;
+      const limit = document.getElementById('historyLimitFilter').value;
+      const prodId = document.getElementById('historyProdFilter').value;
+
+      try {
+        const q = new URLSearchParams();
+        if (type !== 'all') q.append('type', type);
+        if (prodId) q.append('productId', prodId);
+        q.append('limit', limit);
+
+        const res = await Auth.apiFetch(`/api/admin/inventory/transactions?${q.toString()}`);
+        const data = await res.json();
+
+        if (data.success) {
+          historyRecords = data.transactions || [];
+          updateLedgerStats(historyRecords);
+          renderHistory();
+        }
+      } catch (err) {
+        console.error('Error loading history:', err);
+      }
+    }
+
+    function updateLedgerStats(records) {
+      const topCount = document.getElementById('topLedgerCount');
+      if (topCount) topCount.textContent = records.length.toLocaleString();
+
+      let totalUnits = 0;
+      records.forEach(r => {
+        totalUnits += Math.abs(parseInt(r.quantity_delta, 10) || 0);
+      });
+      const topUnits = document.getElementById('topTotalUnitsTransacted');
+      if (topUnits) topUnits.textContent = totalUnits.toLocaleString();
+    }
+
+    function renderHistory() {
+      const query = (document.getElementById('historySearch')?.value || '').toLowerCase().trim();
+      const tbody = document.getElementById('historyTableBody');
+
+      const filtered = historyRecords.filter(r => {
+        if (!query) return true;
+        const pName = (r.product_name || '').toLowerCase();
+        const sku = (r.sku || '').toLowerCase();
+        const reason = (r.reason || '').toLowerCase();
+        const op = (r.performed_by_first_name || r.performed_by_email || '').toLowerCase();
+        return pName.includes(query) || sku.includes(query) || reason.includes(query) || op.includes(query);
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; color: rgba(250,247,242,0.5);">No ledger entries matched your filter criteria.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(tx => {
+        const delta = parseInt(tx.quantity_delta, 10) || 0;
+        const deltaDisplay = delta > 0 ? `+${delta}` : `${delta}`;
+        const deltaColor = delta > 0 ? '#7bed9f' : '#e74c3c';
+
+        let badgeStyle = 'background: rgba(255,255,255,0.06); color: #FAF7F2;';
+        if (tx.transaction_type === 'STOCK_RECEIVED') {
+          badgeStyle = 'background: rgba(123, 237, 159, 0.15); color: #7bed9f; border: 1px solid rgba(123, 237, 159, 0.4);';
+        } else if (tx.transaction_type === 'ORDER_SHIPPED' || tx.transaction_type === 'DAMAGED') {
+          badgeStyle = 'background: rgba(231, 76, 60, 0.15); color: #e74c3c; border: 1px solid rgba(231, 76, 60, 0.4);';
+        } else if (tx.transaction_type === 'ORDER_RESERVED') {
+          badgeStyle = 'background: rgba(187, 143, 206, 0.15); color: #bb8fce; border: 1px solid rgba(187, 143, 206, 0.4);';
+        } else if (tx.transaction_type === 'REFUND' || tx.transaction_type === 'ORDER_CANCELLED') {
+          badgeStyle = 'background: rgba(201, 169, 110, 0.15); color: var(--color-gold); border: 1px solid rgba(201, 169, 110, 0.4);';
+        }
+
+        const opDisplay = tx.performed_by_first_name
+          ? `${tx.performed_by_first_name} ${tx.performed_by_last_name || ''}`
+          : (tx.performed_by_email || 'Automated Engine');
+
+        return `
+          <tr>
+            <td style="font-family: monospace; font-size: 0.72rem; color: rgba(250,247,242,0.4);">#${tx.id}</td>
+            <td style="font-size: 0.74rem; color: rgba(250,247,242,0.65); white-space: nowrap;">
+              ${new Date(tx.created_at).toLocaleString()}
+            </td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <img src="../${tx.primary_image || 'images/skincare_products_1788328338930.jpg'}" alt="${tx.product_name || 'Product'}" style="width: 36px; height: 36px; object-fit: cover; border-radius: 2px;" />
+                <strong style="color: #fff; font-size: 0.85rem;">${tx.product_name || 'Item #' + tx.inventory_id}</strong>
+              </div>
+            </td>
+            <td style="font-family: monospace; font-size: 0.78rem; color: var(--color-gold);">${tx.sku || '—'}</td>
+            <td>
+              <span class="badge" style="font-size: 0.65rem; padding: 0.25rem 0.5rem; ${badgeStyle}">
+                ${tx.transaction_type}
+              </span>
+            </td>
+            <td style="font-weight: 700; font-size: 0.9rem; color: ${deltaColor};">
+              ${deltaDisplay}
+            </td>
+            <td style="font-weight: 600; color: #fff;">
+              ${tx.balance_after !== null && tx.balance_after !== undefined ? tx.balance_after : '—'}
+            </td>
+            <td style="font-size: 0.78rem; color: rgba(250,247,242,0.8); max-width: 250px;">
+              ${tx.reason || (tx.reference_type ? `${tx.reference_type} #${tx.reference_id}` : '—')}
+            </td>
+            <td style="font-size: 0.75rem; color: var(--color-gold); white-space: nowrap;">
+              ${opDisplay}
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function loadProductFilterOptions() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/inventory');
+        const data = await res.json();
+        if (data.success) {
+          const select = document.getElementById('historyProdFilter');
+          (data.inventory || []).forEach(item => {
+            const opt = document.createElement('option');
+            opt.value = item.product_id;
+            opt.textContent = `${item.product_name} (${item.sku})`;
+            select.appendChild(opt);
+          });
+          if (data.summary) {
+            const lowEl = document.getElementById('subnavLowStockBadge');
+            if (lowEl) lowEl.textContent = data.summary.low_stock_count;
+            const outEl = document.getElementById('subnavOutStockBadge');
+            if (outEl) outEl.textContent = data.summary.out_of_stock_count;
+          }
+        }
+      } catch (e) {}
+    }
+
+    function exportLedgerCSV() {
+      if (historyRecords.length === 0) {
+        alert('No records to export.');
+        return;
+      }
+
+      const headers = ['ID', 'Date', 'Product', 'SKU', 'Type', 'Delta', 'Balance After', 'Reason', 'Operator'];
+      const rows = historyRecords.map(r => [
+        r.id,
+        new Date(r.created_at).toISOString(),
+        `"${(r.product_name || '').replace(/"/g, '""')}"`,
+        `"${r.sku || ''}"`,
+        r.transaction_type,
+        r.quantity_delta,
+        r.balance_after,
+        `"${(r.reason || '').replace(/"/g, '""')}"`,
+        `"${(r.performed_by_first_name || r.performed_by_email || 'System').replace(/"/g, '""')}"`
+      ]);
+
+      const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `lumiere_inventory_ledger_${Date.now()}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadProductFilterOptions();
+      loadHistory(false);
+
+      try {
+        const bc = new BroadcastChannel('lumiere_realtime_bus');
+        bc.onmessage = () => loadHistory(true);
+      } catch {}
+
+      setInterval(() => {
+        const active = document.activeElement;
+        if (!active || (active.tagName !== 'INPUT' && active.tagName !== 'SELECT')) {
+          loadHistory(true);
+        }
+      }, 5000);
+    });
+  </script>
+</body>
+</html>

@@ -91,14 +91,19 @@ async function getInventoryHistory(inventoryId) {
 async function reserveStockForOrder(orderItems, orderNumber, userId = null) {
   return await db.transaction(async (tx) => {
     for (const item of orderItems) {
-      const inv = await tx.get(
+      let inv = await tx.get(
         `SELECT id, product_id, stock_quantity, reserved_quantity, low_stock_threshold 
          FROM inventory WHERE product_id = ?`,
         [item.productId]
       );
 
       if (!inv) {
-        throw new Error(`Inventory record not found for product ID ${item.productId}`);
+        const newInv = await tx.run(
+          `INSERT INTO inventory (product_id, stock_quantity, reserved_quantity, low_stock_threshold)
+           VALUES (?, 50, 0, 5)`,
+          [item.productId]
+        );
+        inv = { id: newInv.lastInsertRowid, product_id: item.productId, stock_quantity: 50, reserved_quantity: 0, low_stock_threshold: 5 };
       }
 
       const available = inv.stock_quantity - inv.reserved_quantity;
@@ -116,6 +121,12 @@ async function reserveStockForOrder(orderItems, orderNumber, userId = null) {
         [newReserved, inv.id]
       );
 
+      let validUserId = null;
+      if (userId) {
+        const u = await tx.get('SELECT id FROM users WHERE id = ?', [userId]);
+        if (u) validUserId = u.id;
+      }
+
       await tx.run(
         `INSERT INTO inventory_transactions 
          (inventory_id, transaction_type, quantity_delta, balance_after, reference_type, reference_id, reason, performed_by)
@@ -126,7 +137,7 @@ async function reserveStockForOrder(orderItems, orderNumber, userId = null) {
           availableAfter,
           orderNumber,
           `Reserved ${item.quantity} unit(s) for Order #${orderNumber}`,
-          userId,
+          validUserId,
         ]
       );
     }

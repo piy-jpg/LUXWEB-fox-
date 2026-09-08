@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Security Audit Log — Lumière Atelier Administration</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Montserrat:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body class="admin-body">
+  <!-- Navigation Sidebar -->
+  <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+  <!-- Main Content Layout -->
+  <div class="admin-main">
+    <header class="admin-topbar" id="adminTopbar"></header>
+
+    <main class="admin-content">
+      <!-- Header & Breadcrumbs -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Governance &amp; Security Compliance</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.68rem; color: #7bed9f;">
+              <span class="live-dot"></span>
+              <span>LIVE AUDIT STREAM</span>
+            </div>
+          </div>
+          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0; color: #FAF7F2;">Staff Operations &amp; Security Audit</h1>
+        </div>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
+          <button onclick="loadAuditLogs()" class="btn-outline" style="font-size: 0.72rem; padding: 0.55rem 0.95rem;">
+            <span>⟳</span> REFRESH AUDIT STREAM
+          </button>
+        </div>
+      </div>
+
+      <!-- Shared Sub-Navbar Tab Strip -->
+      <div class="subnav-strip">
+        <a href="staff.html" class="subnav-tab">
+          <span>👥</span> Staff Directory <span class="subnav-badge" id="subnavStaffBadge">-</span>
+        </a>
+        <a href="roles.html" class="subnav-tab">
+          <span>👑</span> Roles Hierarchy <span class="subnav-badge" id="subnavRolesBadge">4</span>
+        </a>
+        <a href="permissions.html" class="subnav-tab">
+          <span>🛡️</span> Permissions Matrix <span class="subnav-badge" id="subnavPermsBadge">12</span>
+        </a>
+        <a href="audit.html" class="subnav-tab active">
+          <span>📜</span> Security Audit Log <span class="subnav-badge badge-accent" id="subnavAuditBadge">Live</span>
+        </a>
+      </div>
+
+      <!-- Live KPI Strip -->
+      <div class="stat-card-grid" style="margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-title">Total Staff Operations</div>
+          <div class="stat-number" id="statTotalLogs" style="color: var(--color-gold);">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Recorded in security ledger</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Personnel Credentials Created</div>
+          <div class="stat-number" id="statCreatedLogs" style="color: #7bed9f;">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Account provisioning events</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Role Matrix Updates</div>
+          <div class="stat-number" id="statRoleLogs" style="color: #bb8fce;">0</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Privilege reconfiguration events</span>
+        </div>
+        <div class="stat-card">
+          <div class="stat-title">Ledger Integrity</div>
+          <div class="stat-number" style="font-size: 1.35rem; color: #7bed9f; line-height: 1.8;">Tamper-Proof</div>
+          <span style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">Automated actor capture</span>
+        </div>
+      </div>
+
+      <!-- Filters & Search Toolbar -->
+      <div class="table-card" style="padding: 1.25rem; margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+        <input type="text" id="auditSearchInput" class="admin-input" placeholder="Search by operator email, action, or details..." style="flex: 2; min-width: 240px;" oninput="applyAuditFilters()" />
+        <select id="actionFilter" class="admin-select" style="flex: 1; min-width: 180px;" onchange="applyAuditFilters()">
+          <option value="ALL">All Staff &amp; Role Operations</option>
+          <option value="staff.created">Staff Provisioning (staff.created)</option>
+          <option value="staff.updated">Profile &amp; Status (staff.updated)</option>
+          <option value="staff.password_reset">Password Resets (staff.password_reset)</option>
+          <option value="role.permissions_updated">Permissions Updated (role.permissions_updated)</option>
+          <option value="staff.deleted">Revocations (staff.deleted)</option>
+        </select>
+      </div>
+
+      <!-- Audit Stream Table -->
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th style="width: 170px;">Timestamp</th>
+                <th>Operator (Actor)</th>
+                <th>Action Code</th>
+                <th>Target Entity</th>
+                <th>Operation Details</th>
+                <th style="text-align: right; width: 100px;">Inspect</th>
+              </tr>
+            </thead>
+            <tbody id="auditTableBody">
+              <tr><td colspan="6" style="text-align: center; padding: 2.5rem;">Loading audit records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Payload Inspect Modal -->
+  <div class="admin-modal" id="inspectModal">
+    <div class="admin-modal-content" style="max-width: 550px;">
+      <div class="admin-modal-header">
+        <div>
+          <h3 style="font-family: var(--font-serif); font-size: 1.4rem; margin: 0; color: #FAF7F2;">Audit Log Inspection</h3>
+          <p style="margin: 0.25rem 0 0; font-size: 0.74rem; color: var(--color-gold);" id="inspectModalSubtitle">Record details</p>
+        </div>
+        <button class="modal-close-btn" onclick="Admin.closeModal('inspectModal')">&times;</button>
+      </div>
+      <div style="padding: 1.5rem;">
+        <pre id="inspectJsonBox" style="background: rgba(0,0,0,0.5); padding: 1.25rem; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); font-family: monospace; font-size: 0.75rem; color: #FAF7F2; max-height: 320px; overflow-y: auto; white-space: pre-wrap; word-break: break-all;"></pre>
+      </div>
+      <div class="admin-modal-footer">
+        <button class="btn-outline" onclick="Admin.closeModal('inspectModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="../js/auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    let rawAuditLogs = [];
+
+    async function loadAuditLogs() {
+      try {
+        const res = await Auth.apiFetch('/api/admin/staff-audit?limit=150');
+        const data = await res.json();
+        if (data.success) {
+          rawAuditLogs = data.logs || [];
+          updateAuditKPIs();
+          applyAuditFilters();
+        }
+      } catch (err) {
+        console.error('Failed to load audit logs:', err);
+      }
+    }
+
+    function updateAuditKPIs() {
+      document.getElementById('statTotalLogs').innerText = rawAuditLogs.length;
+      document.getElementById('statCreatedLogs').innerText = rawAuditLogs.filter(l => l.action === 'staff.created').length;
+      document.getElementById('statRoleLogs').innerText = rawAuditLogs.filter(l => l.action === 'role.permissions_updated').length;
+
+      // Update Sub-Navbar counts
+      Auth.apiFetch('/api/admin/staff').then(r => r.json()).then(data => {
+        if (data.success) {
+          const sB = document.getElementById('subnavStaffBadge');
+          if (sB) sB.innerText = (data.staff || []).length;
+          const rB = document.getElementById('subnavRolesBadge');
+          if (rB) rB.innerText = (data.roles || []).length;
+          const pB = document.getElementById('subnavPermsBadge');
+          if (pB) pB.innerText = (data.permissions || []).length;
+        }
+      }).catch(() => {});
+    }
+
+    function applyAuditFilters() {
+      const q = (document.getElementById('auditSearchInput').value || '').trim().toLowerCase();
+      const actionFilter = document.getElementById('actionFilter').value;
+      const tbody = document.getElementById('auditTableBody');
+
+      const filtered = rawAuditLogs.filter(log => {
+        const matchesAction = (actionFilter === 'ALL' || log.action === actionFilter);
+        const logText = `${log.user_email || ''} ${log.action || ''} ${log.entity_type || ''} ${log.entity_id || ''} ${typeof log.details === 'object' ? JSON.stringify(log.details) : log.details || ''}`.toLowerCase();
+        const matchesQuery = !q || logText.includes(q);
+        return matchesAction && matchesQuery;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2.5rem;">No matching audit operations found.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(l => {
+        const detailsStr = typeof l.details === 'object' ? JSON.stringify(l.details) : (l.details || '—');
+        const badgeClass = l.action.includes('delete') ? 'badge-danger' : (l.action.includes('created') ? 'badge-active' : 'badge-staff');
+
+        return `
+          <tr>
+            <td style="font-size: 0.72rem; color: rgba(250,247,242,0.65); white-space: nowrap;">
+              ${new Date(l.created_at).toLocaleString()}
+            </td>
+            <td style="font-weight: 500; font-size: 0.78rem;">
+              ${l.user_email || '<span style="color: rgba(250,247,242,0.4);">System Root</span>'}
+            </td>
+            <td>
+              <span class="badge ${badgeClass}" style="font-size: 0.65rem;">${l.action}</span>
+            </td>
+            <td style="font-family: monospace; font-size: 0.72rem; color: var(--color-gold);">
+              ${l.entity_type} #${l.entity_id || '—'}
+            </td>
+            <td style="font-size: 0.72rem; color: rgba(250,247,242,0.7); max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+              ${detailsStr}
+            </td>
+            <td style="text-align: right;">
+              <button class="btn-action-sm" onclick="inspectLog(${l.id})" title="Inspect JSON payload">
+                Inspect ↗
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function inspectLog(logId) {
+      const log = rawAuditLogs.find(l => l.id === logId);
+      if (!log) return;
+
+      document.getElementById('inspectModalSubtitle').innerText = `Log ID #${log.id} — ${log.action}`;
+      document.getElementById('inspectJsonBox').innerText = JSON.stringify(log, null, 2);
+      Admin.openModal('inspectModal');
+    }
+
+    const realtimeBus = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('lumiere_realtime_bus') : null;
+    if (realtimeBus) {
+      realtimeBus.onmessage = (e) => {
+        loadAuditLogs();
+      };
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!Auth.requireAuth('staff.manage')) return;
+      Admin.init();
+      loadAuditLogs();
+
+      setInterval(loadAuditLogs, 5000);
+    });
+  </script>
+</body>
+</html>

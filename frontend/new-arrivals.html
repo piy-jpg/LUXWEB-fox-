@@ -115,6 +115,17 @@
       <li><a href="about.html" class="mobile-nav-link" onclick="closeMobileNav()">About <span>&rarr;</span></a></li>
       <li><a href="reviews.html" class="mobile-nav-link" onclick="closeMobileNav()">Reviews <span>&rarr;</span></a></li>
     </ul>
+
+    <!-- Real-Time Shop by Category Section in Side Navbar -->
+    <div class="side-nav-category-section">
+      <div class="side-nav-category-header">
+        <span class="side-nav-category-title">SHOP BY CATEGORY</span>
+        <span class="side-nav-live-badge">LIVE</span>
+      </div>
+      <ul class="side-nav-category-list" id="sideNavCategoriesList">
+        <!-- Rendered dynamically and synchronized in real time -->
+      </ul>
+    </div>
   </aside>
 
   <main>
@@ -134,7 +145,7 @@
           <span class="na-hero-pill-sep">·</span>
           <span>✦ Small-Batch Paris Harvest</span>
           <span class="na-hero-pill-sep">·</span>
-          <span>✦ Complimentary Discovery Kit With Orders $150+</span>
+          <span>✦ Complimentary Discovery Kit With Orders ₹150+</span>
         </div>
       </div>
     </section>
@@ -372,14 +383,14 @@
             <!-- Price & Action CTA Row -->
             <div class="spotlight-actions-block">
               <div class="spotlight-pricing">
-                <div class="spotlight-price-main">$185.00</div>
+                <div class="spotlight-price-main">₹185.00</div>
                 <div class="spotlight-gift-note">✦ Includes 3 Deluxe Discovery Vials & Presentation Coffret</div>
               </div>
 
               <div class="spotlight-cta-btns">
                 <button class="btn-spotlight-primary" onclick="addToCart(7)" id="spotlightAddBagBtn">
                   <span class="btn-sparkle">✦</span>
-                  <span>ADD TO BAG — $185.00</span>
+                  <span>ADD TO BAG — ₹185.00</span>
                   <span class="btn-arrow">&rarr;</span>
                 </button>
                 <button class="btn-spotlight-quickview" onclick="openQuickView(7)" title="Quick View Product Details">
@@ -610,7 +621,7 @@
         </div>
         <div class="footer-currency-picker">
           <span class="currency-star">✦</span>
-          <span>International / USD ($)</span>
+          <span>India / INR (₹)</span>
         </div>
       </div>
     </div>
@@ -632,7 +643,7 @@
     <!-- Free Shipping Meter -->
     <div class="shipping-meter-wrap">
       <div class="shipping-meter-text" id="shippingMeterText">
-        Add <strong>$100.00</strong> more for complimentary delivery.
+        Add <strong>₹100.00</strong> more for complimentary delivery.
       </div>
       <div class="shipping-meter-bar">
         <div class="shipping-meter-fill" id="shippingMeterFill"></div>
@@ -655,7 +666,7 @@
     <div class="cart-drawer-footer">
       <div class="cart-subtotal-row">
         <span>Subtotal</span>
-        <span class="cart-subtotal-val" id="cartSubtotalAmount">$0.00</span>
+        <span class="cart-subtotal-val" id="cartSubtotalAmount">₹0.00</span>
       </div>
       <button class="btn-luxury-primary" style="width: 100%; margin-bottom: 0.75rem;" onclick="processCheckout()">CHECKOUT &rarr;</button>
       <button class="btn-luxury-outline" style="width: 100%;" onclick="closeCartDrawer()">CONTINUE SHOPPING</button>
@@ -698,7 +709,7 @@
       <div class="quick-modal-details">
         <span class="quick-modal-brand" id="quickModalBrand">LUMIÈRE</span>
         <h2 class="quick-modal-title" id="quickModalTitle">Radiance Glow Serum</h2>
-        <div class="quick-modal-price" id="quickModalPrice">$128.00</div>
+        <div class="quick-modal-price" id="quickModalPrice">₹128.00</div>
         <p class="quick-modal-desc" id="quickModalDesc">Description</p>
         
         <div style="margin-bottom: 1.5rem;">
@@ -732,6 +743,8 @@
 
   <!-- Auth & Session Engine -->
   <script src="js/auth.js"></script>
+  <!-- Shared Catalog & Real-Time Engine -->
+  <script src="js/shared.js"></script>
   <!-- Main Luxury JavaScript Engine -->
   <script src="js/lumiere-cinematic.js?v=26.0"></script>
 
@@ -742,13 +755,18 @@
 
     function renderNewArrivalsPage() {
       const grid = document.getElementById('naProductsGrid');
-      if (!grid || typeof LUMIERE_PRODUCTS === 'undefined') return;
+      if (!grid) return;
 
-      let items = LUMIERE_PRODUCTS.filter(p => p.isNewArrival);
+      const catalog = (typeof window.PRODUCTS !== 'undefined' && window.PRODUCTS.length) 
+        ? window.PRODUCTS 
+        : ((typeof PRODUCTS !== 'undefined' && PRODUCTS.length) ? PRODUCTS : (window.LUMIERE_PRODUCTS || []));
+      if (!catalog.length) return;
+
+      let items = catalog.filter(p => p.isNewArrival || p.isJustAdded || (p.badge && p.badge.toLowerCase().includes('new')));
 
       // Filter by category
       if (currentNewArrivalsCat !== 'all') {
-        items = items.filter(p => p.category === currentNewArrivalsCat);
+        items = items.filter(p => p.category === currentNewArrivalsCat || (p.categoryLabel && p.categoryLabel.toLowerCase() === currentNewArrivalsCat.toLowerCase()));
       }
 
       // Sort
@@ -757,10 +775,10 @@
       } else if (currentNewArrivalsSort === 'price-desc') {
         items.sort((a, b) => b.price - a.price);
       } else if (currentNewArrivalsSort === 'rating') {
-        items.sort((a, b) => b.rating - a.rating);
+        items.sort((a, b) => (b.rating || b.stars || 5) - (a.rating || a.stars || 5));
       } else {
-        // default newest (by ID desc)
-        items.sort((a, b) => b.id - a.id);
+        // default newest: prioritize isJustAdded then newest ID
+        items.sort((a, b) => (b.isJustAdded ? 1 : 0) - (a.isJustAdded ? 1 : 0) || b.id - a.id);
       }
 
       if (items.length === 0) {
@@ -774,9 +792,9 @@
       }
 
       grid.innerHTML = items.map(p => `
-        <article class="na-product-card" id="naCard-${p.id}">
+        <article class="na-product-card ${p.isJustAdded ? 'card-just-added' : ''}" id="naCard-${p.id}" style="${p.isJustAdded ? 'box-shadow: 0 0 0 2px var(--color-gold), 0 0 25px rgba(201,169,110,0.45);' : ''}">
           <div class="na-card-thumb">
-            <span class="na-card-badge">✦ JUST ARRIVED</span>
+            <span class="na-card-badge" style="${p.isJustAdded ? 'background: linear-gradient(135deg, #DFB15B, #9E7D3B); color: #0D0A0E; font-weight:700;' : ''}">${p.isJustAdded ? '✦ JUST ADDED' : '✦ JUST ARRIVED'}</span>
             <button class="na-card-wish-btn ${typeof wishlist !== 'undefined' && wishlist.has(p.id) ? 'active' : ''}" 
                     onclick="toggleWishlist(${p.id}, this)" 
                     aria-label="Wishlist ${p.name}">
@@ -794,16 +812,17 @@
             <h3 class="na-card-name">${p.name}</h3>
             <div class="na-card-rating">
               <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
-              <span class="na-card-rating-count">(${p.reviewsCount})</span>
+              <span class="na-card-rating-count">(${p.reviewsCount || 100})</span>
             </div>
             <div class="na-card-bottom">
-              <span class="na-card-price">$${p.price}.00</span>
+              <span class="na-card-price">₹${typeof p.price === 'number' ? p.price.toFixed(2) : p.price}</span>
               <button class="na-card-add-btn" onclick="addToCart(${p.id})">ADD TO BAG +</button>
             </div>
           </div>
         </article>
       `).join('');
     }
+    window.renderNewArrivalsPage = renderNewArrivalsPage;
 
     function filterNewArrivals(cat, btn) {
       currentNewArrivalsCat = cat;
@@ -819,11 +838,13 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       renderNewArrivalsPage();
+      if (typeof window.LumiereRealtimeCatalog !== 'undefined') {
+        window.LumiereRealtimeCatalog.subscribe(() => {
+          renderNewArrivalsPage();
+        });
+      }
     });
   </script>
-
-
-  <script src="js/shared.js"></script>
 
   <script>
     (function forceReveal() {

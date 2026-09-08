@@ -27,6 +27,8 @@ async function initDatabase() {
   // Migration: Ensure age, location columns and phone_otps table exist
   try { await db.exec('ALTER TABLE users ADD COLUMN age INTEGER;'); } catch {}
   try { await db.exec('ALTER TABLE users ADD COLUMN location VARCHAR(255);'); } catch {}
+  try { await db.exec(db.isPostgres ? 'ALTER TABLE categories ADD COLUMN IF NOT EXISTS is_active BOOLEAN DEFAULT TRUE;' : 'ALTER TABLE categories ADD COLUMN is_active BOOLEAN DEFAULT 1;'); } catch {}
+  try { await db.exec(db.isPostgres ? "ALTER TABLE categories ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'active';" : "ALTER TABLE categories ADD COLUMN status VARCHAR(20) DEFAULT 'active';"); } catch {}
   await db.exec(`
     CREATE TABLE IF NOT EXISTS phone_otps (
       phone VARCHAR(50) PRIMARY KEY,
