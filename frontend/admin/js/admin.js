@@ -48,11 +48,11 @@ const Admin = {
       perm: 'products.view',
       badgeKey: 'products',
       children: [
-        { title: 'All Products', url: 'products.html', badgeKey: 'products' },
-        { title: 'Add Product', url: 'product-add.html', badgeText: '+ New', badgeType: 'accent' },
-        { title: 'Edit Product', url: 'product-edit.html' },
-        { title: 'Categories', url: 'categories.html' },
-        { title: 'Product Variants', url: 'product-variants.html' }
+        { title: 'All Products', url: 'products.html', badgeKey: 'products', perm: 'products.view' },
+        { title: 'Add Product', url: 'product-add.html', badgeText: '+ New', badgeType: 'accent', perm: 'products.create' },
+        { title: 'Edit Product', url: 'product-edit.html', perm: 'products.edit' },
+        { title: 'Categories', url: 'categories.html', perm: 'products.view' },
+        { title: 'Product Variants', url: 'product-variants.html', perm: 'products.view' }
       ]
     },
     {
@@ -64,13 +64,13 @@ const Admin = {
       badgeKey: 'stockAlerts',
       badgeType: 'alert',
       children: [
-        { title: 'Stock Overview', url: 'inventory.html' },
-        { title: 'Stock Movements', url: 'inventory-movements.html' },
-        { title: 'Low Stock', url: 'inventory-low-stock.html', badgeKey: 'lowStock', badgeType: 'warn' },
-        { title: 'Out of Stock', url: 'inventory-out-of-stock.html', badgeKey: 'outStock', badgeType: 'danger' },
-        { title: 'Purchase / Stock In', url: 'inventory-stock-in.html', badgeText: 'Receive', badgeType: 'accent' },
-        { title: 'Stock Adjustment', url: 'inventory-adjust.html' },
-        { title: 'Inventory History', url: 'inventory-history.html' }
+        { title: 'Stock Overview', url: 'inventory.html', perm: 'inventory.view' },
+        { title: 'Stock Movements', url: 'inventory-movements.html', perm: 'inventory.view' },
+        { title: 'Low Stock', url: 'inventory-low-stock.html', badgeKey: 'lowStock', badgeType: 'warn', perm: 'inventory.view' },
+        { title: 'Out of Stock', url: 'inventory-out-of-stock.html', badgeKey: 'outStock', badgeType: 'danger', perm: 'inventory.view' },
+        { title: 'Purchase / Stock In', url: 'inventory-stock-in.html', badgeText: 'Receive', badgeType: 'accent', perm: 'inventory.adjust' },
+        { title: 'Stock Adjustment', url: 'inventory-adjust.html', perm: 'inventory.adjust' },
+        { title: 'Inventory History', url: 'inventory-history.html', perm: 'inventory.view' }
       ]
     },
     {
@@ -82,14 +82,14 @@ const Admin = {
       badgeKey: 'ordersPending',
       badgeType: 'orders',
       children: [
-        { title: 'All Orders', url: 'orders.html', badgeKey: 'orders' },
-        { title: 'Pending', url: 'orders.html?status=Pending', badgeKey: 'status_Pending', badgeType: 'pending' },
-        { title: 'Confirmed', url: 'orders.html?status=Confirmed', badgeKey: 'status_Confirmed' },
-        { title: 'Processing', url: 'orders.html?status=Processing', badgeKey: 'status_Processing' },
-        { title: 'Shipped', url: 'orders.html?status=Shipped', badgeKey: 'status_Shipped' },
-        { title: 'Delivered', url: 'orders.html?status=Delivered', badgeKey: 'status_Delivered' },
-        { title: 'Cancelled', url: 'orders.html?status=Cancelled', badgeKey: 'status_Cancelled' },
-        { title: 'Deleted Orders', url: 'orders.html?status=Deleted', badgeKey: 'status_Deleted', badgeType: 'danger' }
+        { title: 'All Orders', url: 'orders.html', badgeKey: 'orders', perm: 'orders.view' },
+        { title: 'Pending', url: 'orders.html?status=Pending', badgeKey: 'status_Pending', badgeType: 'pending', perm: 'orders.view' },
+        { title: 'Confirmed', url: 'orders.html?status=Confirmed', badgeKey: 'status_Confirmed', perm: 'orders.view' },
+        { title: 'Processing', url: 'orders.html?status=Processing', badgeKey: 'status_Processing', perm: 'orders.view' },
+        { title: 'Shipped', url: 'orders.html?status=Shipped', badgeKey: 'status_Shipped', perm: 'orders.view' },
+        { title: 'Delivered', url: 'orders.html?status=Delivered', badgeKey: 'status_Delivered', perm: 'orders.view' },
+        { title: 'Cancelled', url: 'orders.html?status=Cancelled', badgeKey: 'status_Cancelled', perm: 'orders.view' },
+        { title: 'Deleted Orders', url: 'orders.html?status=Deleted', badgeKey: 'status_Deleted', badgeType: 'danger', perm: 'orders.update' }
       ]
     },
     {
@@ -100,9 +100,9 @@ const Admin = {
       perm: 'customers.view',
       badgeKey: 'customers',
       children: [
-        { title: 'Customers', url: 'customers.html', badgeKey: 'customers' },
-        { title: 'Customer Details', url: 'customer-details.html' },
-        { title: 'Order History', url: 'customer-orders.html' }
+        { title: 'Customers', url: 'customers.html', badgeKey: 'customers', perm: 'customers.view' },
+        { title: 'Customer Details', url: 'customer-details.html', perm: 'customers.view' },
+        { title: 'Order History', url: 'customer-orders.html', perm: 'customers.view' }
       ]
     },
     {
@@ -114,10 +114,10 @@ const Admin = {
       badgeKey: 'staff',
       badgeType: 'accent',
       children: [
-        { title: 'Staff Directory', url: 'staff.html', badgeKey: 'staff' },
-        { title: 'Roles Hierarchy', url: 'roles.html', badgeKey: 'totalRoles' },
-        { title: 'Permissions Matrix', url: 'permissions.html', badgeKey: 'totalPermissions' },
-        { title: 'Security Audit Log', url: 'audit.html' }
+        { title: 'Staff Directory', url: 'staff.html', badgeKey: 'staff', perm: 'staff.manage' },
+        { title: 'Roles Hierarchy', url: 'roles.html', badgeKey: 'totalRoles', perm: 'staff.manage' },
+        { title: 'Permissions Matrix', url: 'permissions.html', badgeKey: 'totalPermissions', perm: 'staff.manage' },
+        { title: 'Security Audit Log', url: 'audit.html', perm: 'staff.manage' }
       ]
     },
     {
@@ -128,10 +128,10 @@ const Admin = {
       perm: 'analytics.view',
       badgeKey: null,
       children: [
-        { title: 'Sales', url: 'analytics.html' },
-        { title: 'Products', url: 'analytics-products.html' },
-        { title: 'Customers', url: 'analytics-customers.html' },
-        { title: 'Inventory', url: 'analytics-inventory.html' }
+        { title: 'Sales', url: 'analytics.html', perm: 'analytics.view' },
+        { title: 'Products', url: 'analytics-products.html', perm: 'analytics.view' },
+        { title: 'Customers', url: 'analytics-customers.html', perm: 'analytics.view' },
+        { title: 'Inventory', url: 'analytics-inventory.html', perm: 'analytics.view' }
       ]
     },
     {
@@ -142,22 +142,22 @@ const Admin = {
       perm: 'settings.manage',
       badgeKey: null,
       children: [
-        { title: 'General Store', url: 'settings.html#general', icon: '🏪' },
-        { title: 'Branding & Appearance', url: 'settings.html#branding', icon: '🎨' },
-        { title: 'Website & Domain', url: 'settings.html#website', icon: '🌐' },
-        { title: 'Storefront', url: 'settings.html#storefront', icon: '🛒' },
-        { title: 'Payments', url: 'settings.html#payments', icon: '💳' },
-        { title: 'Shipping & Delivery', url: 'settings.html#shipping', icon: '📦' },
-        { title: 'Inventory Settings', url: 'settings.html#inventory', icon: '📊' },
-        { title: 'Orders & Checkout', url: 'settings.html#orders', icon: '🧾' },
-        { title: 'Notifications', url: 'settings.html#notifications', icon: '🔔' },
-        { title: 'Email & Communication', url: 'settings.html#email', icon: '📧' },
-        { title: 'Customer Settings', url: 'settings.html#customers', icon: '👥' },
-        { title: 'Taxes', url: 'settings.html#taxes', icon: '🧮' },
-        { title: 'Integrations', url: 'settings.html#integrations', icon: '🔗' },
-        { title: 'Security', url: 'settings.html#security', icon: '🔐' },
-        { title: 'Data & Privacy', url: 'settings.html#privacy', icon: '🗑️' },
-        { title: 'Advanced', url: 'settings.html#advanced', icon: '⚠️' }
+        { title: 'General Store', url: 'settings.html#general', icon: '🏪', perm: 'settings.manage' },
+        { title: 'Branding & Appearance', url: 'settings.html#branding', icon: '🎨', perm: 'settings.manage' },
+        { title: 'Website & Domain', url: 'settings.html#website', icon: '🌐', perm: 'settings.manage' },
+        { title: 'Storefront', url: 'settings.html#storefront', icon: '🛒', perm: 'settings.manage' },
+        { title: 'Payments', url: 'settings.html#payments', icon: '💳', perm: 'settings.manage' },
+        { title: 'Shipping & Delivery', url: 'settings.html#shipping', icon: '📦', perm: 'settings.manage' },
+        { title: 'Inventory Settings', url: 'settings.html#inventory', icon: '📊', perm: 'settings.manage' },
+        { title: 'Orders & Checkout', url: 'settings.html#orders', icon: '🧾', perm: 'settings.manage' },
+        { title: 'Notifications', url: 'settings.html#notifications', icon: '🔔', perm: 'settings.manage' },
+        { title: 'Email & Communication', url: 'settings.html#email', icon: '📧', perm: 'settings.manage' },
+        { title: 'Customer Settings', url: 'settings.html#customers', icon: '👥', perm: 'settings.manage' },
+        { title: 'Taxes', url: 'settings.html#taxes', icon: '🧮', perm: 'settings.manage' },
+        { title: 'Integrations', url: 'settings.html#integrations', icon: '🔗', perm: 'settings.manage' },
+        { title: 'Security', url: 'settings.html#security', icon: '🔐', perm: 'settings.manage' },
+        { title: 'Data & Privacy', url: 'settings.html#privacy', icon: '🗑️', perm: 'settings.manage' },
+        { title: 'Advanced', url: 'settings.html#advanced', icon: '⚠️', perm: 'settings.manage' }
       ]
     },
     {
@@ -165,7 +165,7 @@ const Admin = {
       title: 'Executive Reports',
       icon: '📑',
       url: 'reports.html',
-      perm: 'analytics.view',
+      perm: null, // Accessible if user has permission to view any report register
       badgeKey: null,
       children: [
         { title: 'Overview & Archives', url: 'reports.html', icon: '📋' },
@@ -184,6 +184,7 @@ const Admin = {
     this.currentUser = Auth.getUser();
     this.renderSidebar();
     this.renderTopNav();
+    this.enforceSubnavRoles();
     this.startRealTimeSync();
     this.handlePageActions();
 
@@ -204,6 +205,53 @@ const Admin = {
         const targetPath = href.split('?')[0].split('#')[0];
         if (currentPath === targetPath && window.location.hash === hash) {
           Admin.handlePageActions();
+        }
+      }
+    });
+  },
+
+  enforceSubnavRoles() {
+    const isOwner = Auth.isOwner();
+    if (isOwner) return;
+
+    const permMap = {
+      'product-add.html': 'products.create',
+      'product-edit.html': 'products.edit',
+      'inventory-adjust.html': 'inventory.adjust',
+      'inventory-stock-in.html': 'inventory.adjust',
+      'staff.html': 'staff.manage',
+      'roles.html': 'staff.manage',
+      'permissions.html': 'staff.manage',
+      'audit.html': 'staff.manage',
+      'reports-audit.html': 'settings.manage',
+      'analytics.html': 'analytics.view',
+      'analytics-products.html': 'analytics.view',
+      'analytics-customers.html': 'analytics.view',
+      'analytics-inventory.html': 'analytics.view',
+      'reports-sales.html': 'analytics.view',
+      'reports-tax.html': 'analytics.view',
+      'reports-create.html': 'analytics.view',
+      'orders.html': 'orders.view',
+      'customers.html': 'customers.view',
+      'customer-details.html': 'customers.view',
+      'customer-orders.html': 'customers.view',
+      'categories.html': 'products.view',
+      'product-variants.html': 'products.view',
+      'inventory-movements.html': 'inventory.view',
+      'inventory-low-stock.html': 'inventory.view',
+      'inventory-out-of-stock.html': 'inventory.view',
+      'inventory-history.html': 'inventory.view',
+      'reports-orders.html': 'orders.view',
+      'reports-inventory.html': 'inventory.view',
+      'reports-customers.html': 'customers.view'
+    };
+
+    document.querySelectorAll('.subnav-tab').forEach(tab => {
+      const href = (tab.getAttribute('href') || '').split('?')[0].split('#')[0];
+      if (permMap[href]) {
+        const requiredPerm = permMap[href];
+        if (!Auth.hasPermission(requiredPerm)) {
+          tab.style.display = 'none';
         }
       }
     });
@@ -244,13 +292,16 @@ const Admin = {
     const user = this.currentUser;
     const isOwner = Auth.isOwner();
 
-    const allowedGroups = this.menuTree.filter(item => {
+    const allowedGroups = this.menuTree.filter(group => {
       if (isOwner) return true;
-      if (item.id === 'dashboard') return Auth.isStaff();
-      if (item.id === 'reports') {
-        return Auth.isStaff() || Auth.hasPermission('analytics.view');
+      if (group.id === 'dashboard') return Auth.isStaff();
+      if (!group.perm) {
+        if (group.children && group.children.length > 0) {
+          return group.children.some(sub => !sub.perm || Auth.hasPermission(sub.perm));
+        }
+        return Auth.isStaff();
       }
-      return !item.perm || Auth.hasPermission(item.perm);
+      return Auth.hasPermission(group.perm);
     });
 
     sidebar.innerHTML = `
@@ -478,6 +529,14 @@ const Admin = {
         }
       }
     });
+
+    // Sync subnav badges on current active page
+    const subProd = document.getElementById('subnavProductsBadge');
+    if (subProd && metrics.products !== undefined) subProd.innerText = metrics.products;
+    const subLow = document.getElementById('subnavLowStockBadge');
+    if (subLow && metrics.lowStock !== undefined) subLow.innerText = metrics.lowStock;
+    const subOut = document.getElementById('subnavOutStockBadge');
+    if (subOut && metrics.outStock !== undefined) subOut.innerText = metrics.outStock;
   },
 
   /* ==========================================================
