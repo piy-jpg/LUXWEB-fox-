@@ -1036,6 +1036,92 @@ function openCheckoutModal(items) {
   document.body.style.overflow = 'hidden';
 }
 
+function playBlinkitSuccessChime() {
+  try {
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContext) return;
+    const ctx = new AudioContext();
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+    const now = ctx.currentTime;
+    
+    // Tone 1: Gentle Bell Harmonics (D5 climbing to A5)
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'sine';
+    osc1.frequency.setValueAtTime(587.33, now);
+    osc1.frequency.exponentialRampToValueAtTime(880, now + 0.12);
+    gain1.gain.setValueAtTime(0, now);
+    gain1.gain.linearRampToValueAtTime(0.32, now + 0.03);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.55);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.55);
+
+    // Tone 2: Sparkle Note (D6 chime resonance)
+    const osc2 = ctx.createOscillator();
+    const gain2 = ctx.createGain();
+    osc2.type = 'triangle';
+    osc2.frequency.setValueAtTime(880, now + 0.09);
+    osc2.frequency.exponentialRampToValueAtTime(1174.66, now + 0.22);
+    gain2.gain.setValueAtTime(0, now + 0.09);
+    gain2.gain.linearRampToValueAtTime(0.38, now + 0.15);
+    gain2.gain.exponentialRampToValueAtTime(0.0001, now + 0.85);
+    osc2.connect(gain2);
+    gain2.connect(ctx.destination);
+    osc2.start(now + 0.09);
+    osc2.stop(now + 0.85);
+  } catch (e) {
+    console.log('[Audio] Chime skipped:', e);
+  }
+}
+
+function launchBlinkitConfetti(containerId) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  const colors = ['#C8A97E', '#25D366', '#FAF7F2', '#FFD700', '#00D2D3', '#FF6B6B', '#D4AF37'];
+  for (let i = 0; i < 48; i++) {
+    const p = document.createElement('div');
+    const left = Math.random() * 98;
+    const w = 6 + Math.random() * 6;
+    const h = w * (0.6 + Math.random() * 0.8);
+    const bg = colors[Math.floor(Math.random() * colors.length)];
+    const delay = Math.random() * 0.4;
+    const duration = 1.4 + Math.random() * 1.3;
+    const rot = Math.random() * 360;
+    p.style.cssText = `
+      position: absolute;
+      top: -12px;
+      left: ${left}%;
+      width: ${w}px;
+      height: ${h}px;
+      background: ${bg};
+      border-radius: 2px;
+      transform: rotate(${rot}deg);
+      opacity: 0.95;
+      pointer-events: none;
+      animation: blinkitConfettiFall ${duration}s cubic-bezier(0.25, 0.46, 0.45, 0.94) ${delay}s forwards;
+    `;
+    container.appendChild(p);
+  }
+}
+
+function copyOrderNumber(num) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(num).then(() => {
+      if (typeof showToast === 'function') showToast(`✦ Order #${num} copied to clipboard!`);
+      else alert(`Order #${num} copied!`);
+    }).catch(() => {
+      if (typeof showToast === 'function') showToast(`✦ Order #${num}`);
+    });
+  } else {
+    if (typeof showToast === 'function') showToast(`✦ Order #${num}`);
+  }
+}
+
 function handleCheckoutSuccess(data) {
   // Clear Cart
   localStorage.removeItem('lumiere_cart');
@@ -1052,113 +1138,226 @@ function handleCheckoutSuccess(data) {
     bc.postMessage({ type: 'CART_CLEARED' });
   } catch {}
 
-  // Render Order Confirmation
+  // Play satisfying success chime (Blinkit audio feedback)
+  playBlinkitSuccessChime();
+
   const stepAddr = document.getElementById('chkStepAddress');
   const stepPay = document.getElementById('chkStepPayment');
   const successStep = document.getElementById('checkoutSuccessStep');
-  const successCard = document.getElementById('orderSuccessCard');
-  const subText = document.getElementById('orderSuccessSub');
-
-  if (subText) {
-    subText.textContent = `Thank you, ${currentCheckoutAddress.fullName}. Order #${data.order.orderNumber} is confirmed and scheduled for white-glove dispatch. A confirmation receipt has been dispatched to ${currentCheckoutAddress.email}.`;
-  }
-
-  if (successCard) {
-    const itemsHtml = currentCheckoutItems.map(i => `
-      <div style="display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0; border-bottom:1px solid rgba(255,255,255,0.06); font-size:0.8rem;">
-        <span>${escapeHtml(i.name)} &times; ${i.qty || 1}</span>
-        <strong style="color:var(--color-gold);">₹${((parseFloat(i.price || 0)) * (parseInt(i.qty || 1, 10))).toFixed(2)}</strong>
-      </div>
-    `).join('');
-
-    const pmLabel = data.order.paymentMethod || (currentPaymentMethod === 'RAZORPAY' ? 'Online Payment (Razorpay Verified)' : 'Cash on Delivery (COD)');
-
-    const ownerNotif = data.order.ownerNotification || {};
-    const whatsAppUrl = ownerNotif.whatsAppUrl || `https://api.whatsapp.com/send?phone=917300212948&text=${encodeURIComponent(`New Order #${data.order.orderNumber} (₹${parseFloat(data.order.totalAmount || currentCheckoutTotal).toFixed(2)}) from ${currentCheckoutAddress.fullName}`)}`;
-    const whatsAppTextEncoded = encodeURIComponent(ownerNotif.whatsAppText || `New Order #${data.order.orderNumber}`);
-
-    successCard.innerHTML = `
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1.25rem; border-bottom:1px solid rgba(200,169,126,0.25); padding-bottom:1.25rem;">
-        <div>
-          <div style="font-size:0.68rem; color:rgba(250,247,242,0.5); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.25rem;">Order Number</div>
-          <div style="font-family:var(--font-serif); font-size:1.4rem; color:var(--color-gold); font-weight:600;">#${data.order.orderNumber}</div>
-        </div>
-        <div>
-          <div style="font-size:0.68rem; color:rgba(250,247,242,0.5); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.25rem;">Total Settlement</div>
-          <div style="font-family:var(--font-serif); font-size:1.4rem; color:#FAF7F2; font-weight:600;">₹${parseFloat(data.order.totalAmount || currentCheckoutTotal).toFixed(2)}</div>
-        </div>
-      </div>
-
-      <div style="margin-bottom:1.25rem; padding:0.65rem 0.85rem; background:rgba(0,0,0,0.3); border:1px solid rgba(200,169,126,0.2); border-radius:4px; display:flex; justify-content:space-between; align-items:center;">
-        <div style="text-align:left;">
-          <span style="font-size:0.68rem; color:rgba(250,247,242,0.5); text-transform:uppercase; display:block;">Payment Method</span>
-          <strong style="font-size:0.85rem; color:#FAF7F2;">${escapeHtml(pmLabel)}</strong>
-        </div>
-        <span class="pm-badge" style="background:rgba(123,237,159,0.15); color:#7bed9f; border:1px solid rgba(123,237,159,0.3);">
-          ${data.order.paymentStatus || 'Paid'}
-        </span>
-      </div>
-
-      <div style="margin-bottom:1.25rem;">
-        <div style="font-size:0.7rem; color:rgba(250,247,242,0.6); text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.5rem; text-align:left;">Curated Items</div>
-        ${itemsHtml}
-      </div>
-
-      <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; font-size:0.75rem; color:rgba(250,247,242,0.75); text-align:left;">
-        <div>
-          <strong style="display:block; color:#FAF7F2; margin-bottom:0.2rem;">Dispatch Address:</strong>
-          ${escapeHtml(currentCheckoutAddress.fullName)} (${escapeHtml(currentCheckoutAddress.phone)})<br/>
-          ${escapeHtml(currentCheckoutAddress.address)}<br/>
-          ${escapeHtml(currentCheckoutAddress.city)}, ${escapeHtml(currentCheckoutAddress.state || '')} ${escapeHtml(currentCheckoutAddress.postalCode)}
-        </div>
-        <div>
-          <strong style="display:block; color:#FAF7F2; margin-bottom:0.2rem;">Delivery Service:</strong>
-          Insured White-Glove Courier<br/>Estimated Transit: 2–3 Business Days
-        </div>
-      </div>
-
-      <!-- Owner WhatsApp & Email Notification Dispatch Card -->
-      <div style="margin-top:1.5rem; padding:1.15rem; background:rgba(37,211,102,0.06); border:1px solid rgba(37,211,102,0.3); border-radius:8px; text-align:center;">
-        <div style="display:flex; align-items:center; justify-content:center; gap:0.5rem; color:#25D366; font-size:0.82rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:0.35rem;">
-          <span>📲</span> Owner Instant WhatsApp Dispatch
-        </div>
-        <div style="font-size:0.76rem; color:rgba(250,247,242,0.85); margin-bottom:0.85rem;">
-          Atelier Owner (+91 7300212948) receives real-time order records. Send or view full receipt directly on WhatsApp:
-        </div>
-        <div style="display:flex; flex-wrap:wrap; justify-content:center; gap:0.6rem;">
-          <a href="${whatsAppUrl}" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:0.5rem; background:#25D366; color:#0A050A; font-weight:700; padding:0.65rem 1.25rem; border-radius:24px; text-decoration:none; font-size:0.8rem; box-shadow:0 4px 15px rgba(37,211,102,0.3); transition:transform 0.2s;">
-            <span>💬</span> NOTIFY OWNER ON WHATSAPP (+91 7300212948) &rarr;
-          </a>
-          <button type="button" class="btn-luxury-outline" onclick="copyWhatsAppOrderText('${whatsAppTextEncoded}')" style="padding:0.6rem 1rem; font-size:0.75rem; border-color:rgba(37,211,102,0.5); color:#FAF7F2;">
-            📋 Copy Order Text
-          </button>
-        </div>
-      </div>
-
-      <!-- Email Dispatch Notification -->
-      <div style="margin-top:0.75rem; padding:0.65rem 0.95rem; background:rgba(200,169,126,0.06); border:1px solid rgba(200,169,126,0.25); border-radius:6px; display:flex; align-items:center; justify-content:space-between; font-size:0.74rem;">
-        <div style="display:flex; align-items:center; gap:0.5rem; color:rgba(250,247,242,0.85);">
-          <span>✉️</span>
-          <span>Owner Order Email dispatched to <strong>piyushverma9903@gmail.com</strong></span>
-        </div>
-        <span style="color:#7bed9f; font-weight:600; font-size:0.68rem; background:rgba(123,237,159,0.12); padding:0.15rem 0.5rem; border-radius:10px;">✦ Dispatched</span>
-      </div>
-    `;
-  }
 
   if (stepAddr) stepAddr.style.display = 'none';
   if (stepPay) stepPay.style.display = 'none';
   if (successStep) successStep.style.display = 'block';
 
+  const orderNum = data.order.orderNumber;
+  const totalAmt = parseFloat(data.order.totalAmount || currentCheckoutTotal).toFixed(2);
+  const pmLabel = data.order.paymentMethod || (currentPaymentMethod === 'RAZORPAY' ? 'Online Payment (Razorpay Live)' : 'Cash on Delivery (COD)');
+  const payStatus = data.order.paymentStatus || 'Paid';
+
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  // Items HTML with Blinkit-style compact bill format
+  const itemsHtml = currentCheckoutItems.map(i => `
+    <div class="blinkit-bill-row">
+      <span style="color:#FAF7F2; max-width:70%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+        ${escapeHtml(i.name)} <span style="color:rgba(250,247,242,0.5);">&times; ${i.qty || 1}</span>
+      </span>
+      <strong style="color:#FAF7F2;">₹${((parseFloat(i.price || 0)) * (parseInt(i.qty || 1, 10))).toFixed(2)}</strong>
+    </div>
+  `).join('');
+
+  const ownerNotif = data.order.ownerNotification || {};
+  const whatsAppUrl = ownerNotif.whatsAppUrl || `https://api.whatsapp.com/send?phone=917300212948&text=${encodeURIComponent(`New Order #${orderNum} (₹${totalAmt}) from ${currentCheckoutAddress.fullName}`)}`;
+  const whatsAppTextEncoded = encodeURIComponent(ownerNotif.whatsAppText || `New Order #${orderNum}`);
+
+  successStep.innerHTML = `
+    <div class="blinkit-success-wrap">
+      <!-- Confetti Canvas -->
+      <div id="blinkitConfettiBox" class="blinkit-confetti-container"></div>
+
+      <!-- Hero Animated Green Ripple & Checkmark Badge -->
+      <div class="blinkit-hero-badge">
+        <div class="blinkit-ripple-ring"></div>
+        <div class="blinkit-ripple-ring-2"></div>
+        <div class="blinkit-check-circle">
+          <svg viewBox="0 0 52 52" class="blinkit-check-svg">
+            <path class="blinkit-check-path" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Blinkit Success Heading & Amount Pill -->
+      <h2 class="blinkit-title">Order Placed &amp; Payment Confirmed!</h2>
+      <div>
+        <div class="blinkit-amount-pill">
+          <span>✓</span>
+          <span>₹${totalAmt} ${payStatus === 'Paid' ? 'Paid' : 'To Pay On Delivery'}</span>
+          <span style="font-size:0.75rem; font-weight:500; opacity:0.85;">• ${escapeHtml(pmLabel)}</span>
+        </div>
+      </div>
+      <div class="blinkit-ref-sub">
+        Order ID: <strong style="color:#C8A97E; cursor:pointer;" onclick="copyOrderNumber('${orderNum}')">#${orderNum} 📋</strong> &bull; Placed Today at ${timeStr} &bull; Confirmation sent to <strong style="color:#FAF7F2;">${escapeHtml(currentCheckoutAddress.email)}</strong>
+      </div>
+
+      <!-- Blinkit Live Delivery & Atelier Preparation Tracker -->
+      <div class="blinkit-eta-card">
+        <div class="blinkit-eta-header">
+          <div>
+            <div style="font-size:0.68rem; text-transform:uppercase; letter-spacing:0.1em; color:#C8A97E; font-weight:700; margin-bottom:0.2rem;">
+              DELIVERY TIMELINE
+            </div>
+            <div class="blinkit-eta-time">
+              <span>⏱️</span>
+              <span>Arriving in 2–3 Business Days</span>
+            </div>
+          </div>
+          <div class="blinkit-live-badge">
+            <span class="blinkit-pulse-dot"></span>
+            <span>LIVE PREPARATION</span>
+          </div>
+        </div>
+
+        <!-- 4-Step Visual Stepper -->
+        <div class="blinkit-stepper">
+          <!-- Step 1: Completed -->
+          <div class="blinkit-step-item completed">
+            <div class="blinkit-step-icon">✓</div>
+            <div class="blinkit-step-title">
+              <span>Order Received &amp; Payment Verified</span>
+              <span style="font-size:0.68rem; color:#25D366; font-weight:500;">Just now</span>
+            </div>
+            <div class="blinkit-step-sub">
+              Your transaction was securely verified. Atelier inventory allocated.
+            </div>
+          </div>
+
+          <!-- Step 2: Active / In Progress -->
+          <div class="blinkit-step-item active">
+            <div class="blinkit-step-icon">✦</div>
+            <div class="blinkit-step-title">
+              <span>Atelier Formulation &amp; Wax-Sealing</span>
+              <span style="background:rgba(200,169,126,0.2); color:#C8A97E; font-size:0.65rem; padding:0.1rem 0.45rem; border-radius:10px; font-weight:700;">IN PROGRESS</span>
+            </div>
+            <div class="blinkit-step-sub">
+              Master artisans are preparing your fresh formulation with signature wax seal.
+            </div>
+          </div>
+
+          <!-- Step 3: Pending -->
+          <div class="blinkit-step-item pending">
+            <div class="blinkit-step-icon">3</div>
+            <div class="blinkit-step-title">Olfactory &amp; Purity Quality Inspection</div>
+            <div class="blinkit-step-sub">
+              Audited and certified to Parisian haute parfumerie standards before departure.
+            </div>
+          </div>
+
+          <!-- Step 4: Pending -->
+          <div class="blinkit-step-item pending">
+            <div class="blinkit-step-icon">4</div>
+            <div class="blinkit-step-title">White-Glove Courier Dispatch</div>
+            <div class="blinkit-step-sub">
+              Insured courier pickup. Live tracking link will be sent via SMS &amp; WhatsApp.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Clean 2-Column Info Grid: Delivery Address & Itemized Bill -->
+      <div class="blinkit-details-grid">
+        <!-- Delivery Destination Card -->
+        <div class="blinkit-info-card">
+          <div class="blinkit-card-tag">
+            <span>📍</span>
+            <span>Delivery Destination</span>
+          </div>
+          <div class="blinkit-address-text">
+            <strong style="color:#FAF7F2; display:block; margin-bottom:0.25rem;">
+              ${escapeHtml(currentCheckoutAddress.fullName)}
+            </strong>
+            <div style="color:rgba(250,247,242,0.65); font-size:0.75rem; margin-bottom:0.4rem;">
+              📞 ${escapeHtml(currentCheckoutAddress.phone)}
+            </div>
+            <div style="line-height:1.45;">
+              ${escapeHtml(currentCheckoutAddress.address)}<br/>
+              ${escapeHtml(currentCheckoutAddress.city)}, ${escapeHtml(currentCheckoutAddress.state || '')} ${escapeHtml(currentCheckoutAddress.postalCode)}
+            </div>
+            <div style="margin-top:0.6rem; font-size:0.72rem; color:#C8A97E;">
+              ✦ Complimentary White-Glove Courier Delivery
+            </div>
+          </div>
+        </div>
+
+        <!-- Blinkit-Style Itemized Bill Summary -->
+        <div class="blinkit-info-card">
+          <div class="blinkit-card-tag">
+            <span>🧾</span>
+            <span>Bill Summary &amp; Receipt</span>
+          </div>
+          <div style="margin-bottom:0.6rem;">
+            ${itemsHtml}
+          </div>
+          <div class="blinkit-bill-row" style="border-top:1px dashed rgba(255,255,255,0.08); padding-top:0.5rem;">
+            <span>Atelier Velvet Box &amp; Wax Seal</span>
+            <span style="color:#C8A97E;">FREE (✦)</span>
+          </div>
+          <div class="blinkit-bill-row">
+            <span>Insured Courier Delivery</span>
+            <span style="color:#25D366;">FREE</span>
+          </div>
+          <div class="blinkit-bill-row blinkit-bill-total">
+            <span>Total Paid</span>
+            <span style="color:#7bed9f;">₹${totalAmt}</span>
+          </div>
+          <div style="font-size:0.68rem; color:rgba(250,247,242,0.45); margin-top:0.45rem; text-align:right;">
+            Payment: ${escapeHtml(pmLabel)}
+          </div>
+        </div>
+      </div>
+
+      <!-- Instant WhatsApp Updates Card (Blinkit Style) -->
+      <div class="blinkit-wa-strip">
+        <div>
+          <div style="font-weight:700; font-size:0.86rem; color:#25D366; display:flex; align-items:center; gap:0.4rem; margin-bottom:0.25rem;">
+            <span>💬</span> Get Instant Updates on WhatsApp
+          </div>
+          <div style="font-size:0.75rem; color:rgba(250,247,242,0.8);">
+            Order receipt &amp; real-time dispatch alerts are sent to the Atelier Concierge (+91 7300212948).
+          </div>
+        </div>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+          <a href="${whatsAppUrl}" target="_blank" rel="noopener" class="blinkit-wa-btn">
+            <span>📲</span> Open WhatsApp Updates &rarr;
+          </a>
+          <button type="button" class="btn-luxury-outline" onclick="copyWhatsAppOrderText('${whatsAppTextEncoded}')" style="padding:0.6rem 0.95rem; font-size:0.75rem; border-color:rgba(37,211,102,0.4); color:#FAF7F2;">
+            📋 Copy Receipt
+          </button>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; margin-top:1.5rem;">
+        <button type="button" class="btn-luxury-primary" onclick="continueShoppingFromCheckout()" style="padding:0.85rem 2rem; font-size:0.82rem; letter-spacing:0.08em;">
+          CONTINUE SHOPPING &rarr;
+        </button>
+        <button type="button" class="btn-luxury-outline" onclick="window.location.href='account.html';" style="padding:0.85rem 2rem; font-size:0.82rem; letter-spacing:0.08em; border-color:var(--color-gold); color:var(--color-gold);">
+          TRACK IN MY ACCOUNT
+        </button>
+      </div>
+    </div>
+  `;
+
+  launchBlinkitConfetti('blinkitConfettiBox');
+
   const modalInner = document.querySelector('#checkoutModal .checkout-modal-inner');
   if (modalInner) modalInner.scrollTop = 0;
 
   if (typeof showToast === 'function') {
-    showToast(`✦ Order #${data.order.orderNumber} placed successfully!`);
+    showToast(`✦ Order #${orderNum} placed successfully!`);
   }
 
   // Automatically trigger WhatsApp window to reflect on owner (+91 7300212948)
-  const ownerNotif = data.order.ownerNotification || {};
   if (ownerNotif.whatsAppUrl) {
     try {
       const waWin = window.open(ownerNotif.whatsAppUrl, '_blank');
