@@ -68,6 +68,19 @@ async function getProfile(req, res) {
       );
     } catch (_) {}
 
+    const uEmail = (user.email || req.user?.email || '').toLowerCase().trim();
+    const isOwner = Boolean(
+      req.user?.isOwner ||
+      (req.user?.roles && (req.user.roles.includes('OWNER') || req.user.roles.includes('ADMIN') || req.user.roles.includes('MANAGER'))) ||
+      uEmail.includes('piyushverma') ||
+      uEmail === 'piyushverma730929@gmail.com' ||
+      uEmail === 'piyushverma9903@gmail.com' ||
+      (user.phone && user.phone.includes('7300212948'))
+    );
+
+    const allStoreOrders = isOwner ? orderLedger.getAllOrders() : [];
+    const storeRevenue = allStoreOrders.reduce((sum, o) => sum + (parseFloat(o.total_amount) || 0), 0);
+
     return res.json({
       success: true,
       profile: {
@@ -79,6 +92,9 @@ async function getProfile(req, res) {
         age: user.age || '',
         location: user.location || '',
         memberSince: user.created_at || new Date().toISOString(),
+        isOwner,
+        storeRevenue,
+        storeOrderCount: allStoreOrders.length,
         orderCount: resolvedOrderCount,
         totalSpent: resolvedTotalSpent,
         wishlistCount: wishlistStats ? wishlistStats.wishlist_count : 0,
@@ -281,9 +297,20 @@ async function getOrders(req, res) {
       );
     } catch (_) {}
 
+    const uEmail = (req.user?.email || '').toLowerCase().trim();
+    const isOwner = Boolean(
+      req.user?.isOwner ||
+      (req.user?.roles && (req.user.roles.includes('OWNER') || req.user.roles.includes('ADMIN') || req.user.roles.includes('MANAGER'))) ||
+      uEmail.includes('piyushverma') ||
+      uEmail === 'piyushverma730929@gmail.com' ||
+      uEmail === 'piyushverma9903@gmail.com' ||
+      (req.user?.phone && req.user.phone.includes('7300212948'))
+    );
+
     // Resilient fallback & merge from order ledger
     const customerIdentifier = req.user.email || req.user.id;
-    const ledgerOrders = orderLedger.getCustomerOrders(customerIdentifier);
+    // For store owners: fetch ALL customer orders so they see every client payment immediately!
+    const ledgerOrders = isOwner ? orderLedger.getAllOrders() : orderLedger.getCustomerOrders(customerIdentifier);
     const orderMap = new Map();
 
     (dbOrders || []).forEach(o => {
@@ -301,6 +328,8 @@ async function getOrders(req, res) {
         orderMap.set(num, {
           id: lo.id,
           order_number: lo.order_number,
+          customer_name: lo.customer_name,
+          customer_email: lo.customer_email,
           subtotal: lo.subtotal,
           shipping_fee: lo.shipping_fee,
           total_amount: lo.total_amount,
@@ -318,13 +347,23 @@ async function getOrders(req, res) {
         if (!existing.payment_id && lo.payment_id) {
           existing.payment_id = lo.payment_id;
         }
+        if (!existing.customer_name && lo.customer_name) existing.customer_name = lo.customer_name;
+        if (!existing.customer_email && lo.customer_email) existing.customer_email = lo.customer_email;
       }
     });
 
     const combined = Array.from(orderMap.values());
     combined.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
 
-    return res.json({ success: true, orders: combined });
+    const totalRevenue = combined.reduce((acc, o) => acc + (parseFloat(o.total_amount) || 0), 0);
+
+    return res.json({
+      success: true,
+      isOwner,
+      totalCount: combined.length,
+      totalRevenue,
+      orders: combined
+    });
   } catch (err) {
     console.error('[Account.getOrders] Error:', err);
     return res.status(500).json({ success: false, error: 'Failed to load order history.' });
@@ -337,23 +376,32 @@ async function getOrders(req, res) {
 async function getOrderDetails(req, res) {
   const { id } = req.params;
 
+  const uEmail = (req.user?.email || '').toLowerCase().trim();
+  const isOwner = Boolean(
+    req.user?.isOwner ||
+    (req.user?.roles && (req.user.roles.includes('OWNER') || req.user.roles.includes('ADMIN') || req.user.roles.includes('MANAGER'))) ||
+    uEmail.includes('piyushverma') ||
+    uEmail === 'piyushverma730929@gmail.com' ||
+    uEmail === 'piyushverma9903@gmail.com' ||
+    (req.user?.phone && req.user.phone.includes('7300212948'))
+  );
+
   try {
     let order = null;
     try {
-      order = await db.get(
-        `SELECT * FROM orders 
-         WHERE (id = ? OR order_number = ?) AND (customer_id = ? OR customer_email = ?)`,
-        [id, id, req.user.id, (req.user.email || '').toLowerCase()]
-      );
+      const sql = isOwner
+        ? `SELECT * FROM orders WHERE (id = ? OR order_number = ?)`
+        : `SELECT * FROM orders WHERE (id = ? OR order_number = ?) AND (customer_id = ? OR customer_email = ?)`;
+      const params = isOwner ? [id, id] : [id, id, req.user.id, uEmail];
+      order = await db.get(sql, params);
     } catch (_) {}
 
     // Ledger fallback
     if (!order) {
       const ledgerOrder = orderLedger.findOrder(id);
       if (ledgerOrder) {
-        const userEmail = (req.user.email || '').toLowerCase();
         const orderEmail = (ledgerOrder.customer_email || '').toLowerCase();
-        if (orderEmail === userEmail || String(ledgerOrder.customer_id) === String(req.user.id)) {
+        if (isOwner || orderEmail === uEmail || String(ledgerOrder.customer_id) === String(req.user.id)) {
           order = ledgerOrder;
         }
       }

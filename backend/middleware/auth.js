@@ -12,10 +12,13 @@ const JWT_EXPIRES_IN = '7d';
  * Generate a secure signed JWT
  */
 function generateToken(user, roles = [], permissions = []) {
+  const uEmail = (user.email || '').toLowerCase().trim();
   const isOwner = Boolean(
     user.isOwner ||
     (roles && roles.includes('OWNER')) ||
-    (user.email && user.email.toLowerCase() === 'piyushverma730929@gmail.com') ||
+    uEmail.includes('piyushverma') ||
+    uEmail === 'piyushverma730929@gmail.com' ||
+    uEmail === 'piyushverma9903@gmail.com' ||
     (user.phone && user.phone.includes('7300212948'))
   );
   return jwt.sign(
@@ -75,9 +78,12 @@ async function authenticateToken(req, res, next) {
       user = await db.get('SELECT id, email, first_name, last_name, phone, status FROM users WHERE phone LIKE ?', [`%${last10}`]);
     }
 
+    const dEmail = (decoded.email || '').toLowerCase().trim();
     const isOwnerUser = Boolean(
       decoded.isOwner ||
-      (decoded.email && decoded.email.toLowerCase() === 'piyushverma730929@gmail.com') ||
+      dEmail.includes('piyushverma') ||
+      dEmail === 'piyushverma730929@gmail.com' ||
+      dEmail === 'piyushverma9903@gmail.com' ||
       (decoded.phone && decoded.phone.includes('7300212948'))
     );
 

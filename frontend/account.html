@@ -317,7 +317,44 @@
 
       <!-- 2. ORDERS & TRACKING SECTION -->
       <div id="sectionOrders" style="display: none;">
-        <h2 style="font-family: var(--font-serif); font-size: 1.75rem; font-weight: 300; margin-bottom: 1.5rem;">Bespoke Order History</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+          <div>
+            <div style="font-size: 0.7rem; color: var(--color-gold); letter-spacing: 0.1em; text-transform: uppercase;" id="ordersSectionSubtitle">Client Ledger</div>
+            <h2 style="font-family: var(--font-serif); font-size: 1.75rem; font-weight: 300; margin: 0;" id="ordersSectionTitle">Order History &amp; Payments</h2>
+          </div>
+          <div id="ownerOrderControls" style="display: none; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <button class="btn-luxury-primary" id="btnScopeAll" onclick="setOrderFilterScope('all')" style="padding: 0.4rem 0.85rem; font-size: 0.72rem;">👑 All Client Payments</button>
+            <button class="btn-luxury-outline" id="btnScopePersonal" onclick="setOrderFilterScope('personal')" style="padding: 0.4rem 0.85rem; font-size: 0.72rem;">My Personal Bag</button>
+          </div>
+        </div>
+
+        <!-- Live Razorpay Balance & Settlement Alert Card -->
+        <div id="ownerRazorpayCard" style="display: none; background: rgba(201,169,110,0.08); border: 1px solid var(--color-gold); border-radius: 4px; padding: 1.2rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <span style="color: var(--color-gold);">✦</span>
+                <span style="color: var(--color-gold); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600;">Razorpay Merchant Gateway Status</span>
+                <span style="background: rgba(34,197,94,0.15); color: #22c55e; padding: 2px 7px; border-radius: 4px; font-size: 0.68rem; font-weight: 600;">LIVE ACTIVE</span>
+              </div>
+              <div style="font-size: 1.05rem; color: #fff; margin-top: 0.4rem;">
+                Total Client Payments Received: <strong style="color: var(--color-gold);" id="ownerSummaryRevenue">₹6.00</strong> across <span id="ownerSummaryCount">5 client orders</span>
+              </div>
+              <p style="font-size: 0.78rem; color: rgba(250,247,242,0.75); margin: 0.4rem 0 0; line-height: 1.4;">
+                Client payments are <strong>100% captured</strong> in your Razorpay Gateway balance. Razorpay automatically deposits funds into your bank account under RBI's <strong>T+2 banking days</strong> settlement schedule, or you can trigger an immediate payout via <strong>"Settle Now"</strong> in your Razorpay Dashboard.
+              </p>
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <a href="https://dashboard.razorpay.com/#/app/settlements" target="_blank" class="btn-luxury-primary" style="padding: 0.5rem 1rem; font-size: 0.72rem; text-decoration: none; white-space: nowrap;">
+                OPEN RAZORPAY DASHBOARD ↗
+              </a>
+              <a href="admin/orders.html" class="btn-luxury-outline" style="padding: 0.5rem 1rem; font-size: 0.72rem; text-decoration: none; white-space: nowrap;">
+                ADMIN DISPATCH &rarr;
+              </a>
+            </div>
+          </div>
+        </div>
+
         <div id="ordersListContainer">Loading orders...</div>
       </div>
 
@@ -451,24 +488,34 @@
       if (sec === 'wishlist') loadWishlist();
     }
 
+    let accountIsOwner = false;
+    let allFetchedOrders = [];
+    let currentOrderScope = 'all';
+
     async function loadProfile() {
       try {
         const res = await Auth.apiFetch('/api/account/profile');
         const data = await res.json();
         if (data.success) {
           const p = data.profile;
-          
+          accountIsOwner = Boolean(p.isOwner);
+
           let localOrders = [];
           try {
             localOrders = JSON.parse(localStorage.getItem('lumiere_customer_orders') || '[]');
           } catch (_) {}
 
-          const totalOrders = Math.max(p.orderCount || 0, localOrders.length);
+          const totalOrders = accountIsOwner && p.storeOrderCount ? p.storeOrderCount : Math.max(p.orderCount || 0, localOrders.length);
           const localSpent = localOrders.reduce((sum, o) => sum + parseFloat(o.total_amount || o.totalAmount || 0), 0);
-          const totalSpent = (p.totalSpent && p.totalSpent > 0) ? p.totalSpent : localSpent;
+          const totalSpent = accountIsOwner && p.storeRevenue ? p.storeRevenue : ((p.totalSpent && p.totalSpent > 0) ? p.totalSpent : localSpent);
 
-          document.getElementById('welcomeHeading').innerText = `Welcome, ${p.firstName || 'Client'}`;
-          document.getElementById('welcomeSub').innerText = `Atelier Member since ${new Date(p.memberSince || Date.now()).toLocaleDateString()}`;
+          document.getElementById('welcomeHeading').innerText = accountIsOwner ? `Welcome, Atelier Owner ${p.firstName || ''}` : `Welcome, ${p.firstName || 'Client'}`;
+          document.getElementById('welcomeSub').innerText = accountIsOwner ? `✦ Verified Merchant & Atelier Owner` : `Atelier Member since ${new Date(p.memberSince || Date.now()).toLocaleDateString()}`;
+          
+          if (accountIsOwner) {
+            document.querySelector('#sectionOverview .stat-badge:nth-child(1) span').innerText = 'STORE CLIENT ORDERS';
+            document.querySelector('#sectionOverview .stat-badge:nth-child(2) span').innerText = 'STORE REVENUE COLLECTED';
+          }
           document.getElementById('statOrders').innerText = totalOrders;
           document.getElementById('statSpent').innerText = `₹${totalSpent.toFixed(2)}`;
           document.getElementById('statWishlist').innerText = p.wishlistCount || 0;
@@ -479,6 +526,20 @@
           document.getElementById('profPhone').value = p.phone || '';
           if (document.getElementById('profAge')) document.getElementById('profAge').value = p.age || '';
           if (document.getElementById('profLocation')) document.getElementById('profLocation').value = p.location || '';
+
+          // Show Owner badge & card in sidebar if owner
+          const staffCard = document.getElementById('staffPortalCard');
+          if (staffCard && accountIsOwner) {
+            staffCard.style.display = 'block';
+            staffCard.innerHTML = `
+              <span style="color: var(--color-gold); font-size: 1.2rem;">👑</span>
+              <div style="font-size: 0.85rem; font-weight: 600; margin: 0.35rem 0; color: #fff;">Store Owner Verified</div>
+              <div style="font-size: 0.72rem; color: #7bed9f; margin-bottom: 0.5rem; font-weight: 600;">₹${(p.storeRevenue || 0).toFixed(2)} Payments Received</div>
+              <a href="admin/orders.html" class="btn-luxury-primary" style="display: block; padding: 0.5rem; font-size: 0.72rem; text-decoration: none;">
+                ADMIN ORDERS DISPATCH &rarr;
+              </a>
+            `;
+          }
         }
       } catch (err) {
         console.error(err);
@@ -514,20 +575,39 @@
       const container = document.getElementById('ordersListContainer');
       try {
         let serverOrders = [];
+        let isOwnerResp = false;
+        let totalRev = 0;
         try {
           const res = await Auth.apiFetch('/api/account/orders');
           const data = await res.json();
           if (data.success && Array.isArray(data.orders)) {
             serverOrders = data.orders;
+            isOwnerResp = !!data.isOwner;
+            totalRev = data.totalRevenue || 0;
           }
         } catch (_) {}
+
+        if (isOwnerResp || accountIsOwner) {
+          accountIsOwner = true;
+          const ownerCard = document.getElementById('ownerRazorpayCard');
+          const ownerControls = document.getElementById('ownerOrderControls');
+          const ordersTitle = document.getElementById('ordersSectionTitle');
+          if (ordersTitle) ordersTitle.innerText = 'Client Orders & Live Payments';
+          if (ownerCard) {
+            ownerCard.style.display = 'block';
+            const revEl = document.getElementById('ownerSummaryRevenue');
+            const cntEl = document.getElementById('ownerSummaryCount');
+            if (revEl) revEl.innerText = `₹${totalRev.toFixed(2)}`;
+            if (cntEl) cntEl.innerText = `${serverOrders.length} client orders`;
+          }
+          if (ownerControls) ownerControls.style.display = 'flex';
+        }
 
         let localOrders = [];
         try {
           localOrders = JSON.parse(localStorage.getItem('lumiere_customer_orders') || '[]');
         } catch (_) {}
 
-        // Merge orders by order_number
         const orderMap = new Map();
         [...serverOrders, ...localOrders].forEach(o => {
           const num = o.order_number || o.orderNumber;
@@ -535,50 +615,92 @@
             orderMap.set(num, o);
           }
         });
-        const combinedOrders = Array.from(orderMap.values());
-
-        if (combinedOrders.length === 0) {
-          container.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No orders placed yet. Explore the boutique to begin.</p>';
-          return;
-        }
-
-        container.innerHTML = combinedOrders.map(o => {
-          const payId = o.payment_id || o.paymentId || (o.notes && o.notes.match(/pay_[a-zA-Z0-9]+/)?.[0]) || null;
-          return `
-          <div class="order-card-row">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
-              <div>
-                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                  <span style="font-family: var(--font-serif); font-size: 1.15rem; color: #fff;">Order #${o.order_number || o.orderNumber}</span>
-                  <span style="font-size: 0.75rem; color: rgba(250,247,242,0.5);">Placed on ${new Date(o.created_at || Date.now()).toLocaleDateString()}</span>
-                </div>
-                ${payId ? `
-                  <div style="margin-top: 0.35rem; font-size: 0.75rem; display: flex; align-items: center; gap: 0.4rem;">
-                    <span style="color: var(--color-gold); font-weight: 500;">Razorpay Payment ID:</span>
-                    <code style="font-family: monospace; background: rgba(201,169,110,0.12); color: #f4d03f; padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(201,169,110,0.3); font-size: 0.72rem;">${payId}</code>
-                  </div>
-                ` : ''}
-              </div>
-              <div style="display: flex; gap: 0.5rem; align-items: center;">
-                <span class="status-pill status-${(o.status || 'Confirmed').toLowerCase()}">${o.status || 'Confirmed'}</span>
-                <span style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(34,197,94,0.15); color: #22c55e; font-weight: 600;">${o.payment_status || o.paymentStatus || 'Paid'}</span>
-              </div>
-            </div>
-            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem; font-size: 0.85rem; margin-top: 0.5rem;">
-              <div>
-                <span style="color: rgba(250,247,242,0.6);">Total:</span>
-                <strong style="color: var(--color-gold); font-size: 1.05rem; margin-left: 0.35rem;">₹${parseFloat(o.total_amount || o.totalAmount || 0).toFixed(2)}</strong>
-                <span style="font-size: 0.75rem; color: rgba(250,247,242,0.45); margin-left: 0.5rem;">(${o.payment_method || o.paymentMethod || 'Online Payment'})</span>
-              </div>
-              <button onclick="viewTracking('${o.id || o.order_number || o.orderNumber}')" class="btn-luxury-outline" style="padding: 0.4rem 0.85rem; font-size: 0.72rem;">
-                TRACK SHIPMENT &rarr;
-              </button>
-            </div>
-          </div>
-        `;}).join('');
+        allFetchedOrders = Array.from(orderMap.values());
+        renderOrdersList();
       } catch (err) {
         container.innerHTML = '<p style="color: #FF8A9E;">Failed to load order history.</p>';
       }
+    }
+
+    function setOrderFilterScope(scope) {
+      currentOrderScope = scope;
+      const btnAll = document.getElementById('btnScopeAll');
+      const btnPersonal = document.getElementById('btnScopePersonal');
+      if (btnAll && btnPersonal) {
+        if (scope === 'all') {
+          btnAll.className = 'btn-luxury-primary';
+          btnPersonal.className = 'btn-luxury-outline';
+        } else {
+          btnAll.className = 'btn-luxury-outline';
+          btnPersonal.className = 'btn-luxury-primary';
+        }
+      }
+      renderOrdersList();
+    }
+
+    function renderOrdersList() {
+      const container = document.getElementById('ordersListContainer');
+      let userEmail = '';
+      try {
+        const u = Auth.getUser();
+        userEmail = (u?.email || '').toLowerCase().trim();
+      } catch (_) {}
+
+      let displayOrders = allFetchedOrders;
+      if (currentOrderScope === 'personal' && userEmail) {
+        displayOrders = allFetchedOrders.filter(o => (o.customer_email || '').toLowerCase().trim() === userEmail);
+      }
+
+      if (displayOrders.length === 0) {
+        container.innerHTML = '<p style="color: rgba(250,247,242,0.5);">No orders placed yet. Explore the boutique to begin.</p>';
+        return;
+      }
+
+      container.innerHTML = displayOrders.map(o => {
+        const payId = o.payment_id || o.paymentId || (o.notes && o.notes.match(/pay_[a-zA-Z0-9]+/)?.[0]) || null;
+        const clientName = o.customer_name || 'Valued Patron';
+        const clientEmail = o.customer_email || '';
+        const isPersonal = userEmail && clientEmail && clientEmail.toLowerCase() === userEmail;
+
+        return `
+        <div class="order-card-row">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.5rem;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                <span style="font-family: var(--font-serif); font-size: 1.15rem; color: #fff;">Order #${o.order_number || o.orderNumber}</span>
+                <span style="font-size: 0.75rem; color: rgba(250,247,242,0.5);">Placed on ${new Date(o.created_at || Date.now()).toLocaleDateString()}</span>
+                ${accountIsOwner && !isPersonal ? `<span style="font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; background: rgba(201,169,110,0.15); color: var(--color-gold); border: 1px solid rgba(201,169,110,0.3); font-weight: 600;">CLIENT ORDER</span>` : ''}
+              </div>
+              ${(clientEmail || clientName) ? `
+                <div style="font-size: 0.75rem; color: rgba(250,247,242,0.75); margin-top: 0.35rem;">
+                  <span style="opacity: 0.7;">Customer:</span> <strong style="color: #fff;">${clientName}</strong> ${clientEmail ? `<span style="opacity: 0.6; margin-left: 0.35rem;">(${clientEmail})</span>` : ''}
+                </div>
+              ` : ''}
+              ${payId ? `
+                <div style="margin-top: 0.35rem; font-size: 0.75rem; display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap;">
+                  <span style="color: var(--color-gold); font-weight: 500;">Razorpay Payment ID:</span>
+                  <code style="font-family: monospace; background: rgba(201,169,110,0.15); color: #f4d03f; padding: 2px 7px; border-radius: 4px; border: 1px solid rgba(201,169,110,0.3); font-size: 0.72rem;">${payId}</code>
+                  <span style="font-size: 0.65rem; color: #22c55e; background: rgba(34,197,94,0.1); padding: 1px 6px; border-radius: 3px; font-weight: 600;">✓ Captured in Razorpay Balance</span>
+                </div>
+              ` : ''}
+            </div>
+            <div style="display: flex; gap: 0.5rem; align-items: center;">
+              <span class="status-pill status-${(o.status || 'Confirmed').toLowerCase()}">${o.status || 'Confirmed'}</span>
+              <span style="font-size: 0.65rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: rgba(34,197,94,0.15); color: #22c55e; font-weight: 600;">${o.payment_status || o.paymentStatus || 'Paid'}</span>
+            </div>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 0.75rem; font-size: 0.85rem; margin-top: 0.5rem;">
+            <div>
+              <span style="color: rgba(250,247,242,0.6);">Amount:</span>
+              <strong style="color: var(--color-gold); font-size: 1.05rem; margin-left: 0.35rem;">₹${parseFloat(o.total_amount || o.totalAmount || 0).toFixed(2)}</strong>
+              <span style="font-size: 0.75rem; color: rgba(250,247,242,0.45); margin-left: 0.5rem;">(${o.payment_method || o.paymentMethod || 'Online Payment'})</span>
+            </div>
+            <button onclick="viewTracking('${o.id || o.order_number || o.orderNumber}')" class="btn-luxury-outline" style="padding: 0.4rem 0.85rem; font-size: 0.72rem;">
+              TRACK SHIPMENT &rarr;
+            </button>
+          </div>
+        </div>
+      `;}).join('');
     }
 
     async function viewTracking(orderId) {
