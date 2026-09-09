@@ -290,83 +290,90 @@
           }
           lastOrdersFingerprint = fingerprint;
           ordersList = orders;
-
-          const tbody = document.getElementById('ordersTableBody');
-
-          if (ordersList.length === 0) {
-            tbody.innerHTML = isDeletedView
-              ? '<tr><td colspan="8" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2rem 1rem;">No deleted orders found in the archive.</td></tr>'
-              : '<tr><td colspan="8" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2rem 1rem;">No orders matched your criteria.</td></tr>';
-            return;
-          }
-
-          const canUpdateOrder = Auth.hasPermission('orders.update');
-
-          tbody.innerHTML = ordersList.map(o => {
-            const isOrderDeleted = (o.status === 'Deleted');
-            let statusHtml = '';
-
-            if (isOrderDeleted) {
-              statusHtml = `<span class="badge" style="background: rgba(231, 76, 60, 0.18); color: #ff708f; border: 1px solid rgba(231, 76, 60, 0.4); font-size: 0.72rem; padding: 0.25rem 0.6rem;">Deleted</span>`;
-            } else if (canUpdateOrder) {
-              statusHtml = `
-                <select class="admin-select" style="padding: 0.3rem 0.5rem; font-size: 0.72rem;" onchange="updateStatus(${o.id}, this.value)">
-                  <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                  <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
-                  <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>
-                  <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
-                  <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-                  <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
-                  <option value="Refunded" ${o.status === 'Refunded' ? 'selected' : ''}>Refunded</option>
-                </select>
-              `;
-            } else {
-              statusHtml = `<span class="badge badge-${o.status.toLowerCase()}">${o.status}</span>`;
-            }
-
-            let actionHtml = '';
-            if (isOrderDeleted) {
-              actionHtml = `
-                <div style="display: inline-flex; align-items: center; gap: 0.45rem; justify-content: flex-end;">
-                  <button onclick="openOrderModal(${o.id})" class="btn-outline" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Inspect order details">View &rarr;</button>
-                  <button onclick="restoreOrder(${o.id}, '${o.order_number}')" class="btn-gold" style="padding: 0.32rem 0.65rem; font-size: 0.68rem; background: rgba(201, 169, 110, 0.15);" title="Restore order #${o.order_number} to active dispatch">✓ Restore</button>
-                  <button onclick="deleteOrder(${o.id}, '${o.order_number}', true)" class="btn-danger" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Permanently purge order #${o.order_number}">🗑 Purge</button>
-                </div>
-              `;
-            } else {
-              actionHtml = `
-                <div style="display: inline-flex; align-items: center; gap: 0.45rem; justify-content: flex-end;">
-                  <button onclick="openOrderModal(${o.id})" class="btn-outline" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Inspect order details">View &rarr;</button>
-                  <button onclick="deleteOrder(${o.id}, '${o.order_number}', false)" class="btn-danger" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Move order #${o.order_number} to Deleted archive">🗑 Delete</button>
-                </div>
-              `;
-            }
-
-            return `
-              <tr>
-                <td>
-                  <strong style="color: #fff;">#${o.order_number}</strong>
-                  ${(o.payment_id || o.paymentId) ? `<div style="font-size: 0.65rem; color: var(--color-gold); font-family: monospace; margin-top: 2px;">💳 ${o.payment_id || o.paymentId}</div>` : ''}
-                </td>
-                <td>
-                  <div style="font-weight: 500;">${o.customer_name}</div>
-                  <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email}</div>
-                </td>
-                <td>${o.total_items || 1} item(s)</td>
-                <td style="color: var(--color-gold); font-weight: 600;">₹${parseFloat(o.total_amount).toFixed(2)}</td>
-                <td>${statusHtml}</td>
-                <td style="font-family: monospace; font-size: 0.72rem; color: rgba(250,247,242,0.7);">${o.tracking_number || '—'}</td>
-                <td style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">${new Date(o.created_at).toLocaleDateString()}</td>
-                <td style="text-align: right;">
-                  ${actionHtml}
-                </td>
-              </tr>
-            `;
-          }).join('');
+          renderOrdersTable();
         }
       } catch (err) {
         console.error('Orders error:', err);
       }
+    }
+
+    function renderOrdersTable() {
+      const statusSelect = document.getElementById('statusFilter');
+      const currentStatus = statusSelect ? statusSelect.value : 'all';
+      const isDeletedView = (currentStatus === 'Deleted');
+
+      const tbody = document.getElementById('ordersTableBody');
+
+      if (ordersList.length === 0) {
+        tbody.innerHTML = isDeletedView
+          ? '<tr><td colspan="8" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2rem 1rem;">No deleted orders found in the archive.</td></tr>'
+          : '<tr><td colspan="8" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2rem 1rem;">No orders matched your criteria.</td></tr>';
+        return;
+      }
+
+      const canUpdateOrder = Auth.hasPermission('orders.update');
+
+      tbody.innerHTML = ordersList.map(o => {
+        const isOrderDeleted = (o.status === 'Deleted');
+        let statusHtml = '';
+
+        if (isOrderDeleted) {
+          statusHtml = `<span class="badge" style="background: rgba(231, 76, 60, 0.18); color: #ff708f; border: 1px solid rgba(231, 76, 60, 0.4); font-size: 0.72rem; padding: 0.25rem 0.6rem;">Deleted</span>`;
+        } else if (canUpdateOrder) {
+          statusHtml = `
+            <select class="admin-select" style="padding: 0.3rem 0.5rem; font-size: 0.72rem;" onchange="updateStatus(${o.id}, this.value)">
+              <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
+              <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>
+              <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+              <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+              <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+              <option value="Refunded" ${o.status === 'Refunded' ? 'selected' : ''}>Refunded</option>
+            </select>
+          `;
+        } else {
+          statusHtml = `<span class="badge badge-${o.status.toLowerCase()}">${o.status}</span>`;
+        }
+
+        let actionHtml = '';
+        if (isOrderDeleted) {
+          actionHtml = `
+            <div style="display: inline-flex; align-items: center; gap: 0.45rem; justify-content: flex-end;">
+              <button onclick="openOrderModal(${o.id})" class="btn-outline" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Inspect order details">View &rarr;</button>
+              <button onclick="restoreOrder(${o.id}, '${o.order_number}')" class="btn-gold" style="padding: 0.32rem 0.65rem; font-size: 0.68rem; background: rgba(201, 169, 110, 0.15);" title="Restore order #${o.order_number} to active dispatch">✓ Restore</button>
+              <button onclick="deleteOrder(${o.id}, '${o.order_number}', true)" class="btn-danger" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Permanently purge order #${o.order_number}">🗑 Purge</button>
+            </div>
+          `;
+        } else {
+          actionHtml = `
+            <div style="display: inline-flex; align-items: center; gap: 0.45rem; justify-content: flex-end;">
+              <button onclick="openOrderModal(${o.id})" class="btn-outline" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Inspect order details">View &rarr;</button>
+              <button onclick="deleteOrder(${o.id}, '${o.order_number}', false)" class="btn-danger" style="padding: 0.32rem 0.65rem; font-size: 0.68rem;" title="Move order #${o.order_number} to Deleted archive">🗑 Delete</button>
+            </div>
+          `;
+        }
+
+        return `
+          <tr>
+            <td>
+              <strong style="color: #fff;">#${o.order_number}</strong>
+              ${(o.payment_id || o.paymentId) ? `<div style="font-size: 0.65rem; color: var(--color-gold); font-family: monospace; margin-top: 2px;">💳 ${o.payment_id || o.paymentId}</div>` : ''}
+            </td>
+            <td>
+              <div style="font-weight: 500;">${o.customer_name}</div>
+              <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email}</div>
+            </td>
+            <td>${o.total_items || 1} item(s)</td>
+            <td style="color: var(--color-gold); font-weight: 600;">₹${parseFloat(o.total_amount).toFixed(2)}</td>
+            <td>${statusHtml}</td>
+            <td style="font-family: monospace; font-size: 0.72rem; color: rgba(250,247,242,0.7);">${o.tracking_number || '—'}</td>
+            <td style="font-size: 0.72rem; color: rgba(250,247,242,0.5);">${new Date(o.created_at).toLocaleDateString()}</td>
+            <td style="text-align: right;">
+              ${actionHtml}
+            </td>
+          </tr>
+        `;
+      }).join('');
     }
 
     async function updateStatus(orderId, newStatus) {
@@ -382,6 +389,22 @@
         const data = await res.json();
         if (data.success) {
           Admin.toast(`✦ Order #${orderId} status updated to ${newStatus}`);
+
+          // Optimistically update local order data so table re-renders immediately
+          // without depending on a re-fetch that may hit a stale serverless instance
+          const localOrder = ordersList.find(o => o.id == orderId || o.order_number == orderId);
+          if (localOrder) {
+            localOrder.status = newStatus;
+            if (data.order && data.order.tracking_number) {
+              localOrder.tracking_number = data.order.tracking_number;
+            }
+            // Reset fingerprint so the next loadOrders won't skip due to matching fingerprint
+            lastOrdersFingerprint = '';
+            // Re-render table immediately with updated local data
+            renderOrdersTable();
+          }
+
+          // Also fire a background re-fetch to get fully consistent data from the server
           loadOrders(false);
           if (typeof BroadcastChannel !== 'undefined') {
             try {

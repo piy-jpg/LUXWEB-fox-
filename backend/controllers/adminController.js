@@ -1750,8 +1750,18 @@ async function getOrders(req, res) {
         });
       } else if (num && orderMap.has(num)) {
         const existing = orderMap.get(num);
+        // Always merge payment_id from either source
         if (!existing.payment_id && lo.payment_id) {
           existing.payment_id = lo.payment_id;
+        }
+        // If ledger has a more recent update, prefer its mutable fields (status, tracking)
+        // This fixes stale data on Vercel serverless where DB may have been re-seeded from cold start
+        const ledgerUpdated = new Date(lo.updated_at || lo.created_at || 0).getTime();
+        const dbUpdated = new Date(existing.updated_at || existing.created_at || 0).getTime();
+        if (lo.updated_at && ledgerUpdated > dbUpdated) {
+          existing.status = lo.status;
+          if (lo.tracking_number) existing.tracking_number = lo.tracking_number;
+          if (lo.payment_status) existing.payment_status = lo.payment_status;
         }
       }
     });
