@@ -48,19 +48,19 @@
 
       <!-- Shared Sub-Navbar Tab Strip -->
       <div class="subnav-strip">
-        <a href="products.html" class="subnav-tab active">
-          <span>✨</span> All Products <span class="subnav-badge badge-accent" id="subnavProductsBadge">-</span>
+        <a href="products.html" class="subnav-tab active" id="tabBtnAll">
+          <span>✨</span> All Products <span class="subnav-badge badge-accent" id="subnavProductsBadge"><span id="tabAllBadge">-</span></span>
         </a>
-        <a href="product-add.html" class="subnav-tab">
+        <a href="product-add.html" class="subnav-tab" id="tabBtnRegister">
           <span>➕</span> Add Product <span class="subnav-badge">+ New</span>
         </a>
         <a href="product-edit.html" class="subnav-tab">
           <span>✏️</span> Edit Product
         </a>
-        <a href="categories.html" class="subnav-tab">
+        <a href="categories.html" class="subnav-tab" id="tabBtnCategories">
           <span>🏷️</span> Categories <span class="subnav-badge" id="subnavCategoriesBadge">-</span>
         </a>
-        <a href="product-variants.html" class="subnav-tab">
+        <a href="product-variants.html" class="subnav-tab" id="tabBtnVariants">
           <span>🎨</span> Product Variants <span class="subnav-badge" id="subnavVariantsBadge">-</span>
         </a>
       </div>
@@ -623,28 +623,36 @@
 
     // 2. Tab Switching Engine (Role Protected)
     function switchTab(tabId) {
-      if (tabId === 'tabRegister' && !Auth.hasPermission('products.create')) {
+      if (tabId === 'tabRegister' && typeof Auth !== 'undefined' && Auth.hasPermission && !Auth.hasPermission('products.create')) {
         Admin.toast('⚠️ Product registration is restricted to Atelier Owners and Managers.');
         return;
       }
 
       document.querySelectorAll('.tab-pane').forEach(el => el.style.display = 'none');
-      document.querySelectorAll('.admin-tab').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.admin-tab, .subnav-tab').forEach(el => el.classList.remove('active'));
 
       if (tabId === 'tabAll') {
-        document.getElementById('tabContentAll').style.display = 'block';
-        document.getElementById('tabBtnAll').classList.add('active');
+        const pane = document.getElementById('tabContentAll');
+        if (pane) pane.style.display = 'block';
+        const btn = document.getElementById('tabBtnAll');
+        if (btn) btn.classList.add('active');
       } else if (tabId === 'tabRegister') {
-        document.getElementById('tabContentRegister').style.display = 'block';
-        document.getElementById('tabBtnRegister').classList.add('active');
+        const pane = document.getElementById('tabContentRegister');
+        if (pane) pane.style.display = 'block';
+        const btn = document.getElementById('tabBtnRegister');
+        if (btn) btn.classList.add('active');
         autoGenerateRegSku();
       } else if (tabId === 'tabCategories') {
-        document.getElementById('tabContentCategories').style.display = 'block';
-        document.getElementById('tabBtnCategories').classList.add('active');
+        const pane = document.getElementById('tabContentCategories');
+        if (pane) pane.style.display = 'block';
+        const btn = document.getElementById('tabBtnCategories');
+        if (btn) btn.classList.add('active');
         renderCategoriesTab();
       } else if (tabId === 'tabVariants') {
-        document.getElementById('tabContentVariants').style.display = 'block';
-        document.getElementById('tabBtnVariants').classList.add('active');
+        const pane = document.getElementById('tabContentVariants');
+        if (pane) pane.style.display = 'block';
+        const btn = document.getElementById('tabBtnVariants');
+        if (btn) btn.classList.add('active');
         loadVariantsTab();
       }
     }
@@ -670,33 +678,43 @@
         const res = await Auth.apiFetch(`/api/admin/products?${queryParams.toString()}`);
         const data = await res.json();
 
-        if (data.success) {
-          const newProducts = data.products || [];
-          const fingerprint = `${newProducts.length}_${newProducts.map(p => `${p.id}:${p.stock_quantity}:${p.status}`).join(';')}`;
-
-          if (isSilent && fingerprint === lastProductsFingerprint) {
-            return; // Skip DOM churn if nothing changed
+        if (!data.success) {
+          const tbody = document.getElementById('productsTableBody');
+          if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #e74c3c; padding: 2rem;">${data.message || 'Unable to retrieve catalog products'}. <button onclick="loadProducts()" class="btn-outline" style="margin-left: 0.5rem; font-size: 0.7rem;">Retry</button></td></tr>`;
           }
-          lastProductsFingerprint = fingerprint;
+          return;
+        }
 
-          productsList = newProducts;
-          categoriesList = data.categories || [];
-          collectionsList = data.collections || [];
+        const newProducts = data.products || [];
+        const fingerprint = `${newProducts.length}_${newProducts.map(p => `${p.id}:${p.stock_quantity}:${p.status}`).join(';')}`;
 
-          populateTaxonomySelects();
-          updateExecutiveMetricCards();
-          applySortAndRender();
-          enforceRoleUI();
+        if (isSilent && fingerprint === lastProductsFingerprint) {
+          return; // Skip DOM churn if nothing changed
+        }
+        lastProductsFingerprint = fingerprint;
 
-          // Flash live indicator dot
-          const pulse = document.getElementById('liveCatalogPulse');
-          if (pulse) {
-            pulse.style.transform = 'scale(1.4)';
-            setTimeout(() => { if (pulse) pulse.style.transform = ''; }, 300);
-          }
+        productsList = newProducts;
+        categoriesList = data.categories || [];
+        collectionsList = data.collections || [];
+
+        populateTaxonomySelects();
+        updateExecutiveMetricCards();
+        applySortAndRender();
+        enforceRoleUI();
+
+        // Flash live indicator dot
+        const pulse = document.getElementById('liveCatalogPulse');
+        if (pulse) {
+          pulse.style.transform = 'scale(1.4)';
+          setTimeout(() => { if (pulse) pulse.style.transform = ''; }, 300);
         }
       } catch (err) {
         console.error('Products load error:', err);
+        const tbody = document.getElementById('productsTableBody');
+        if (tbody) {
+          tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: #e74c3c; padding: 2rem;">Failed to load catalog: ${err.message || 'Server error'}. <button onclick="loadProducts()" class="btn-outline" style="margin-left: 0.5rem; font-size: 0.7rem;">Retry</button></td></tr>`;
+        }
       }
     }
 
@@ -716,7 +734,8 @@
         const activeEl = document.activeElement;
         const isTyping = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
         const modalOpen = document.getElementById('productModal') && document.getElementById('productModal').classList.contains('open');
-        const tabAllActive = document.getElementById('tabBtnAll') && document.getElementById('tabBtnAll').classList.contains('active');
+        const tabAllPane = document.getElementById('tabContentAll');
+        const tabAllActive = tabAllPane ? tabAllPane.style.display !== 'none' : true;
         if (!isTyping && !modalOpen && tabAllActive) {
           loadProducts(true);
         }
@@ -730,45 +749,56 @@
       const editCat = document.getElementById('editPCategory');
       const regCol = document.getElementById('regCollection');
 
-      const curFilterVal = catFilter.value;
-      const curRegCatVal = regCat.value;
-      const curColVal = regCol.value;
+      const curFilterVal = catFilter ? catFilter.value : '';
+      const curRegCatVal = regCat ? regCat.value : '';
+      const curColVal = regCol ? regCol.value : '';
 
-      catFilter.innerHTML = '<option value="">All Categories</option>';
-      regCat.innerHTML = '<option value="">-- Select Category --</option>';
-      editCat.innerHTML = '';
+      if (catFilter) catFilter.innerHTML = '<option value="">All Categories</option>';
+      if (regCat) regCat.innerHTML = '<option value="">-- Select Category --</option>';
+      if (editCat) editCat.innerHTML = '';
 
-      categoriesList.forEach(c => {
-        // Filter
-        const opt = document.createElement('option');
-        opt.value = c.slug;
-        opt.innerText = c.name;
-        catFilter.appendChild(opt);
+      if (Array.isArray(categoriesList)) {
+        categoriesList.forEach(c => {
+          if (catFilter) {
+            const opt = document.createElement('option');
+            opt.value = c.slug;
+            opt.innerText = c.name;
+            catFilter.appendChild(opt);
+          }
+          if (regCat) {
+            const rOpt = document.createElement('option');
+            rOpt.value = c.id;
+            rOpt.innerText = c.name;
+            regCat.appendChild(rOpt);
+          }
+          if (editCat) {
+            const eOpt = document.createElement('option');
+            eOpt.value = c.id;
+            eOpt.innerText = c.name;
+            editCat.appendChild(eOpt);
+          }
+        });
+      }
+      if (catFilter && curFilterVal) catFilter.value = curFilterVal;
+      if (regCat && curRegCatVal) regCat.value = curRegCatVal;
 
-        // Register form
-        const rOpt = document.createElement('option');
-        rOpt.value = c.id;
-        rOpt.innerText = c.name;
-        regCat.appendChild(rOpt);
-
-        // Edit form
-        const eOpt = document.createElement('option');
-        eOpt.value = c.id;
-        eOpt.innerText = c.name;
-        editCat.appendChild(eOpt);
-      });
-      catFilter.value = curFilterVal;
-      if (curRegCatVal) regCat.value = curRegCatVal;
+      // Update categories badge if present
+      const subnavCatBadge = document.getElementById('subnavCategoriesBadge');
+      if (subnavCatBadge) subnavCatBadge.innerText = Array.isArray(categoriesList) ? categoriesList.length : '-';
 
       // Collections
-      regCol.innerHTML = '<option value="">None (Standalone Atelier Curation)</option>';
-      collectionsList.forEach(col => {
-        const cOpt = document.createElement('option');
-        cOpt.value = col.id;
-        cOpt.innerText = col.name;
-        regCol.appendChild(cOpt);
-      });
-      if (curColVal) regCol.value = curColVal;
+      if (regCol) {
+        regCol.innerHTML = '<option value="">None (Standalone Atelier Curation)</option>';
+        if (Array.isArray(collectionsList)) {
+          collectionsList.forEach(col => {
+            const cOpt = document.createElement('option');
+            cOpt.value = col.id;
+            cOpt.innerText = col.name;
+            regCol.appendChild(cOpt);
+          });
+        }
+        if (curColVal) regCol.value = curColVal;
+      }
     }
 
     function handleRegCategoryChange(catId) {
@@ -803,52 +833,81 @@
         catalogRetailVal += (parseFloat(p.price) || 0) * (parseInt(p.stock_quantity) || 0);
       });
 
-      document.getElementById('valTotalProds').innerText = total;
-      document.getElementById('valActiveProds').innerText = `${active} active in boutique`;
-      document.getElementById('valCatalogValue').innerText = `₹${catalogRetailVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-      document.getElementById('valStockHealthy').innerText = healthy;
-      document.getElementById('valStockAlerts').innerText = lowStock + outStock;
-      document.getElementById('valOutStockAlert').innerText = `${outStock} completely out of stock`;
+      const elTotal = document.getElementById('valTotalProds');
+      if (elTotal) elTotal.innerText = total;
 
-      document.getElementById('headerProdCountBadge').innerText = `${total} Registered Products`;
-      document.getElementById('tabAllBadge').innerText = `(${total})`;
-      document.getElementById('tableShowingCount').innerText = `Showing ${total} items`;
+      const elActive = document.getElementById('valActiveProds');
+      if (elActive) elActive.innerText = `${active} active in boutique`;
+
+      const elVal = document.getElementById('valCatalogValue');
+      if (elVal) elVal.innerText = `₹${catalogRetailVal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+      const elHealthy = document.getElementById('valStockHealthy');
+      if (elHealthy) elHealthy.innerText = healthy;
+
+      const elAlerts = document.getElementById('valStockAlerts');
+      if (elAlerts) elAlerts.innerText = lowStock + outStock;
+
+      const elOutAlert = document.getElementById('valOutStockAlert');
+      if (elOutAlert) elOutAlert.innerText = `${outStock} completely out of stock`;
+
+      const elHeaderBadge = document.getElementById('headerProdCountBadge');
+      if (elHeaderBadge) elHeaderBadge.innerText = `${total} Registered Products`;
+
+      const elSubnavBadge = document.getElementById('subnavProductsBadge');
+      if (elSubnavBadge) elSubnavBadge.innerText = total;
+
+      const elTabBadge = document.getElementById('tabAllBadge');
+      if (elTabBadge) elTabBadge.innerText = total;
+
+      const elShowingCount = document.getElementById('tableShowingCount');
+      if (elShowingCount) elShowingCount.innerText = `Showing ${total} items`;
     }
 
     function applySortAndRender() {
-      const sortBy = document.getElementById('sortFilter').value;
+      const sortEl = document.getElementById('sortFilter');
+      const sortBy = sortEl ? sortEl.value : 'newest';
       let sorted = [...productsList];
 
       if (sortBy === 'price_desc') {
-        sorted.sort((a, b) => b.price - a.price);
+        sorted.sort((a, b) => (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0));
       } else if (sortBy === 'price_asc') {
-        sorted.sort((a, b) => a.price - b.price);
+        sorted.sort((a, b) => (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0));
       } else if (sortBy === 'stock_asc') {
-        sorted.sort((a, b) => (a.available_quantity || 0) - (b.available_quantity || 0));
+        sorted.sort((a, b) => {
+          const aQ = a.available_quantity !== undefined ? a.available_quantity : a.stock_quantity;
+          const bQ = b.available_quantity !== undefined ? b.available_quantity : b.stock_quantity;
+          return (aQ || 0) - (bQ || 0);
+        });
       } else if (sortBy === 'name_asc') {
-        sorted.sort((a, b) => a.name.localeCompare(b.name));
+        sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
       } else {
         // newest first (id descending)
-        sorted.sort((a, b) => b.id - a.id);
+        sorted.sort((a, b) => (b.id || 0) - (a.id || 0));
       }
+
+      const elShowingCount = document.getElementById('tableShowingCount');
+      if (elShowingCount) elShowingCount.innerText = `Showing ${sorted.length} items`;
 
       renderProductsTable(sorted);
     }
 
     function renderProductsTable(items) {
       const tbody = document.getElementById('productsTableBody');
-      if (items.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(250,247,242,0.5);">No matching products registered in catalog.</td></tr>';
+      if (!tbody) return;
+
+      if (!items || items.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: rgba(250,247,242,0.5); padding: 2.5rem 1rem;">No matching products registered in catalog.</td></tr>';
         return;
       }
 
-      const canEdit = Auth.hasPermission('products.edit');
-      const canArchive = Auth.hasPermission('products.delete');
-      const canRestock = Auth.hasPermission('inventory.adjust');
-      const isOwner = Auth.isOwner();
+      const canEdit = typeof Auth !== 'undefined' && Auth.hasPermission ? Auth.hasPermission('products.edit') : true;
+      const canArchive = typeof Auth !== 'undefined' && Auth.hasPermission ? Auth.hasPermission('products.delete') : true;
+      const canRestock = typeof Auth !== 'undefined' && Auth.hasPermission ? Auth.hasPermission('inventory.adjust') : true;
+      const isOwner = typeof Auth !== 'undefined' && Auth.isOwner ? Auth.isOwner() : true;
 
       tbody.innerHTML = items.map(p => {
-        const avail = p.available_quantity !== undefined ? p.available_quantity : p.stock_quantity;
+        const avail = p.available_quantity !== undefined ? p.available_quantity : (p.stock_quantity || 0);
         const thresh = p.low_stock_threshold || 5;
         let stockBadgeHtml = '';
         if (avail <= 0) {
@@ -884,13 +943,16 @@
           ? `<button onclick="deleteProductPermanently(${p.id})" class="btn-outline" style="padding: 0.3rem 0.45rem; font-size: 0.65rem; color: #e74c3c; border-color: rgba(231,76,60,0.3);" title="Owner-Exclusive Permanent Delete">✕</button>`
           : '';
 
+        const priceNum = (parseFloat(p.price) || 0).toFixed(2);
+        const compareNum = p.compare_at_price ? (parseFloat(p.compare_at_price) || 0).toFixed(2) : null;
+
         return `
           <tr>
             <td>
               <div style="display: flex; align-items: center; gap: 0.85rem;">
                 <img src="../${p.primary_image || 'images/skincare_products_1788328338930.jpg'}" alt="${escapeJs(p.name)}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 3px; border: 1px solid var(--admin-border);" onerror="this.src='../images/skincare_products_1788328338930.jpg'" />
                 <div style="min-width: 0;">
-                  <div style="font-weight: 600; font-size: 0.85rem; color: #FAF7F2;">${p.name}</div>
+                  <div style="font-weight: 600; font-size: 0.85rem; color: #FAF7F2;">${p.name || 'Unnamed Product'}</div>
                   <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5); display: flex; gap: 0.5rem; align-items: center; margin-top: 0.15rem;">
                     ${p.collection_name ? `<span style="color: var(--color-gold);">✦ ${p.collection_name}</span>` : ''}
                     ${p.badge ? `<span style="background: rgba(201,169,110,0.15); color: var(--color-gold); padding: 0.1rem 0.4rem; border-radius: 10px;">${p.badge}</span>` : ''}
@@ -898,18 +960,18 @@
                 </div>
               </div>
             </td>
-            <td style="font-family: monospace; font-size: 0.78rem; color: rgba(250,247,242,0.85);">${p.sku}</td>
+            <td style="font-family: monospace; font-size: 0.78rem; color: rgba(250,247,242,0.85);">${p.sku || '—'}</td>
             <td style="color: rgba(250,247,242,0.75); font-size: 0.8rem;">${p.category_name || '—'}</td>
             <td>
-              <strong style="color: var(--color-gold); font-size: 0.9rem;">₹${parseFloat(p.price).toFixed(2)}</strong>
-              ${p.compare_at_price ? `<div style="font-size: 0.68rem; color: rgba(250,247,242,0.4); text-decoration: line-through;">₹${parseFloat(p.compare_at_price).toFixed(2)}</div>` : ''}
+              <strong style="color: var(--color-gold); font-size: 0.9rem;">₹${priceNum}</strong>
+              ${compareNum ? `<div style="font-size: 0.68rem; color: rgba(250,247,242,0.4); text-decoration: line-through;">₹${compareNum}</div>` : ''}
             </td>
             <td>
               ${stockBadgeHtml}
-              <div style="font-size: 0.68rem; color: rgba(250,247,242,0.45); margin-top: 0.2rem;">Total: ${p.stock_quantity} units</div>
+              <div style="font-size: 0.68rem; color: rgba(250,247,242,0.45); margin-top: 0.2rem;">Total: ${p.stock_quantity || 0} units</div>
             </td>
             <td>
-              <span class="badge badge-${p.status}">${p.status}</span>
+              <span class="badge badge-${p.status || 'active'}">${p.status || 'active'}</span>
             </td>
             <td style="text-align: right; white-space: nowrap;">
               ${restockBtn}
