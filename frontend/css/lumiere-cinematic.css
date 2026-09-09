@@ -3398,7 +3398,7 @@ img {
 /* ------------------- TESTIMONIALS (CONTINUOUS AUTO-SLIDING MARQUEE - COMPACT EDITORIAL) ------------------- */
 /* ------------------- TESTIMONIALS (EDITORIAL CIRCLES SHOWCASE - COMPACT EDITORIAL) ------------------- */
 .testimonials-section {
-  padding: 52px 0 56px; /* Reduced height by 20% */
+  padding: 64px 0 68px; /* Height increased by 20% for refined luxury aesthetic */
   background: radial-gradient(ellipse at 50% 18%, rgba(200, 169, 126, 0.08) 0%, rgba(200, 169, 126, 0.02) 50%, #070507 86%);
   border-top: 1px solid rgba(200, 169, 126, 0.14);
   border-bottom: 1px solid rgba(200, 169, 126, 0.14);
@@ -3428,7 +3428,7 @@ img {
 
 .testimonials-section .test-header-editorial {
   max-width: 760px;
-  margin: 0 auto 1.9rem; /* Reduced margin */
+  margin: 0 auto 2.3rem; /* Height increased by 20% */
   padding: 0 24px;
   text-align: center;
 }
@@ -3508,7 +3508,7 @@ img {
   width: 100%;
   overflow: hidden;
   position: relative;
-  padding: 0.4rem 0 0.8rem; /* Reduced height */
+  padding: 0.6rem 0 1.1rem; /* Height increased by 20% */
   cursor: grab;
   user-select: none;
   -webkit-mask-image: linear-gradient(to right, transparent 0%, black 6%, black 94%, transparent 100%);
@@ -3528,10 +3528,10 @@ img {
   transition: none;
 }
 
-/* 4. Testimonial Item - 20% Reduced Height, Kept Same Vertical Circular Silhouette */
+/* 4. Testimonial Item - Enhanced 20% Height with Elegant Silhouette */
 .test-marquee-card.test-showcase-item {
-  width: 260px;
-  min-width: 260px;
+  width: 275px;
+  min-width: 275px;
   background: transparent;
   border: none;
   border-radius: 0;
@@ -3547,16 +3547,16 @@ img {
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Jewelry-Grade Circular Portrait Photo (20% Height Reduction: 106px) */
+/* Jewelry-Grade Circular Portrait Photo (Increased by 20%: 128px) */
 .test-showcase-frame {
-  width: 106px;
-  height: 106px;
+  width: 128px;
+  height: 128px;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   padding: 3px;
   background: linear-gradient(135deg, #FAF7F2 0%, #E5CCA3 35%, #C8A97E 70%, #8C6239 100%);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.65), 0 0 16px rgba(200, 169, 126, 0.2);
-  margin-bottom: 10px; /* Reduced from 15px */
+  margin-bottom: 14px; /* Increased by 20% */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3609,14 +3609,14 @@ img {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 3px; /* Reduced from 5px */
+  gap: 5px; /* Height increased by 20% */
   width: 100%;
-  max-width: 260px;
+  max-width: 275px;
 }
 
 .test-showcase-name {
   font-family: var(--font-serif);
-  font-size: 1.08rem;
+  font-size: 1.1rem;
   font-weight: 500;
   color: #FAF7F2;
   letter-spacing: 0.03em;
@@ -3628,39 +3628,39 @@ img {
 
 .test-showcase-stars {
   color: #E5CCA3;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   letter-spacing: 0.14em;
   line-height: 1;
-  margin: 1px 0;
+  margin: 2px 0;
   text-shadow: 0 0 8px rgba(200, 169, 126, 0.35);
 }
 
 .test-showcase-quote {
   font-family: var(--font-serif);
-  font-size: 0.92rem;
-  line-height: 1.42;
+  font-size: 0.94rem;
+  line-height: 1.5;
   font-style: italic;
   color: rgba(250, 247, 242, 0.88);
-  margin: 2px 0 4px;
+  margin: 4px 0 6px;
   padding: 0 4px;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  max-width: 250px;
+  max-width: 265px;
 }
 
 .test-showcase-city {
   font-family: var(--font-sans);
-  font-size: 0.6rem;
+  font-size: 0.62rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: #C8A97E;
   font-weight: 600;
-  margin-top: 1px;
+  margin-top: 4px;
   background: rgba(200, 169, 126, 0.08);
   border: 1px solid rgba(200, 169, 126, 0.22);
-  padding: 0.18rem 0.65rem;
+  padding: 0.2rem 0.7rem;
   border-radius: 999px;
   display: inline-flex;
   align-items: center;
@@ -3677,38 +3677,38 @@ img {
 /* Responsive Media Queries */
 @media (max-width: 1199px) {
   .test-marquee-card.test-showcase-item {
-    width: 230px;
-    min-width: 230px;
+    width: 250px;
+    min-width: 250px;
   }
   .test-showcase-frame {
-    width: 96px;
-    height: 96px;
+    width: 115px;
+    height: 115px;
   }
   .test-showcase-quote {
-    font-size: 0.88rem;
-    max-width: 220px;
+    font-size: 0.9rem;
+    max-width: 240px;
   }
 }
 
 @media (max-width: 767px) {
   .testimonials-section {
-    padding: 38px 0 42px;
+    padding: 46px 0 52px;
   }
   .test-marquee-card.test-showcase-item {
-    width: 200px;
-    min-width: 200px;
+    width: 220px;
+    min-width: 220px;
   }
   .test-showcase-frame {
-    width: 88px;
-    height: 88px;
-    margin-bottom: 8px;
+    width: 106px;
+    height: 106px;
+    margin-bottom: 10px;
   }
   .test-showcase-name {
-    font-size: 0.98rem;
+    font-size: 1rem;
   }
   .test-showcase-quote {
-    font-size: 0.84rem;
-    max-width: 195px;
+    font-size: 0.86rem;
+    max-width: 215px;
   }
 }
 /* ------------------- 11. HAUTE MINIMALIST LUXURY SALON (CRISP, JEWEL-COLOURED, 45% COMPACT REFINEMENT) ------------------- */
