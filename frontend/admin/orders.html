@@ -19,26 +19,55 @@
     <header class="admin-topbar" id="adminTopbar"></header>
 
     <main class="admin-content">
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+      <!-- Page Header & Live Telemetry -->
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
         <div>
-          <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem;">
-            <span style="font-size: 0.72rem; letter-spacing: 0.12em; color: var(--color-gold); text-transform: uppercase;">Fulfillment Operations</span>
+          <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.35rem; flex-wrap: wrap;">
+            <span style="font-size: 0.72rem; letter-spacing: 0.14em; color: var(--color-gold); text-transform: uppercase; font-weight: 600;">Fulfillment Operations</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
             <span id="orderViewBadge" class="badge badge-active" style="font-size: 0.65rem;">Active Orders</span>
+            <span style="color: rgba(250,247,242,0.3); font-size: 0.7rem;">•</span>
+            <div class="live-indicator" style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.68rem; color: #7bed9f;">
+              <span class="live-pulse-dot" style="background: #7bed9f; box-shadow: 0 0 8px #7bed9f;"></span>
+              <span id="liveOrdersStatusText">LIVE REAL-TIME SYNC</span>
+            </div>
           </div>
-          <h1 style="font-family: var(--font-serif); font-size: 2.2rem; font-weight: 300; margin: 0;" id="pageHeadingTitle">Customer Orders &amp; Dispatch</h1>
+          <h1 style="font-family: var(--font-serif); font-size: 2.3rem; font-weight: 300; margin: 0; color: #FAF7F2;" id="pageHeadingTitle">Customer Orders &amp; Dispatch</h1>
         </div>
 
         <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-          <a href="orders.html" id="btnActiveOrdersNav" class="btn-outline" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="View all active client orders">
-            🛍️ All Active Orders
-          </a>
-          <a href="orders.html?status=Deleted" id="btnDeletedOrdersNav" class="btn-outline" style="font-size: 0.72rem; padding: 0.45rem 0.85rem; border-color: rgba(231, 76, 60, 0.4); color: #ff708f;" title="View deleted and archived orders">
-            🗑️ Deleted Orders Archive <span class="live-nav-badge badge-danger" data-badge-key="status_Deleted" style="margin-left: 0.35rem; font-size: 0.65rem;">-</span>
-          </a>
-          <a href="orders.html?status=all_orders" id="btnAllOrdersNav" class="btn-outline" style="font-size: 0.72rem; padding: 0.45rem 0.85rem;" title="View all orders including active and deleted">
-            📋 All Orders (Active &amp; Deleted)
-          </a>
+          <button id="btnManualOrdersSync" onclick="manualSyncOrders()" class="btn-outline" style="font-size: 0.72rem; padding: 0.55rem 0.95rem;" title="Immediate Real-Time Orders Sync">
+            <span id="orderSyncSpinIcon" style="display: inline-block;">⟳</span> SYNC NOW
+          </button>
         </div>
+      </div>
+
+      <!-- Shared Orders Sub-Navbar Tab Strip -->
+      <div class="subnav-strip" id="ordersSubnavStrip">
+        <a href="orders.html" class="subnav-tab active" data-subnav-status="all">
+          <span>🛍️</span> All Orders <span class="subnav-badge badge-accent" id="subnavOrdersAllBadge">-</span>
+        </a>
+        <a href="orders.html?status=Pending" class="subnav-tab" data-subnav-status="Pending">
+          <span>⏳</span> Pending <span class="subnav-badge badge-pending" id="subnavOrdersPendingBadge">-</span>
+        </a>
+        <a href="orders.html?status=Confirmed" class="subnav-tab" data-subnav-status="Confirmed">
+          <span>✅</span> Confirmed <span class="subnav-badge badge-orders" id="subnavOrdersConfirmedBadge">-</span>
+        </a>
+        <a href="orders.html?status=Processing" class="subnav-tab" data-subnav-status="Processing">
+          <span>⚙️</span> Processing <span class="subnav-badge" id="subnavOrdersProcessingBadge">-</span>
+        </a>
+        <a href="orders.html?status=Shipped" class="subnav-tab" data-subnav-status="Shipped">
+          <span>🚚</span> Shipped <span class="subnav-badge" id="subnavOrdersShippedBadge">-</span>
+        </a>
+        <a href="orders.html?status=Delivered" class="subnav-tab" data-subnav-status="Delivered">
+          <span>📬</span> Delivered <span class="subnav-badge" id="subnavOrdersDeliveredBadge">-</span>
+        </a>
+        <a href="orders.html?status=Cancelled" class="subnav-tab" data-subnav-status="Cancelled">
+          <span>❌</span> Cancelled <span class="subnav-badge" id="subnavOrdersCancelledBadge">-</span>
+        </a>
+        <a href="orders.html?status=Deleted" class="subnav-tab" data-subnav-status="Deleted">
+          <span>🗑️</span> Deleted Orders <span class="subnav-badge badge-danger" id="subnavOrdersDeletedBadge">-</span>
+        </a>
       </div>
 
       <!-- Deleted Orders Archive Notice Banner -->
@@ -49,7 +78,7 @@
             These orders have been removed from active fulfillment. You can inspect line items, restore them to active dispatch, or permanently purge them.
           </p>
         </div>
-        <a href="orders.html" class="btn-outline" style="font-size: 0.72rem; padding: 0.35rem 0.75rem;">
+        <a href="orders.html" onclick="event.preventDefault(); onFilterStatusChange('all');" class="btn-outline" style="font-size: 0.72rem; padding: 0.35rem 0.75rem;">
           &larr; Return to Active Orders
         </a>
       </div>
@@ -59,14 +88,15 @@
         <input type="text" id="orderSearch" class="admin-input" placeholder="Search order number, client name, or email..." style="flex: 2; min-width: 250px;" oninput="debounceOrderSearch()" />
         <select id="statusFilter" class="admin-select" style="flex: 1; min-width: 160px;" onchange="onFilterStatusChange(this.value)">
           <option value="all">All Active Orders</option>
-          <option value="Deleted">Deleted Orders Archive</option>
-          <option value="all_orders">All Orders (Active + Deleted)</option>
           <option value="Pending">Pending</option>
           <option value="Confirmed">Confirmed</option>
           <option value="Processing">Processing</option>
           <option value="Shipped">Shipped</option>
           <option value="Delivered">Delivered</option>
           <option value="Cancelled">Cancelled</option>
+          <option value="Refunded">Refunded</option>
+          <option value="Deleted">Deleted Orders Archive</option>
+          <option value="all_orders">All Orders (Active + Deleted)</option>
         </select>
       </div>
 
@@ -118,6 +148,20 @@
     let lastOrdersFingerprint = '';
     let realTimeOrdersTimer = null;
 
+    async function manualSyncOrders() {
+      const icon = document.getElementById('orderSyncSpinIcon');
+      if (icon) icon.style.transform = 'rotate(360deg)';
+      try {
+        await Promise.all([
+          loadOrders(false),
+          Admin.syncMetrics ? Admin.syncMetrics() : Promise.resolve()
+        ]);
+        Admin.toast('✦ Orders & Dispatch synchronized in real time.');
+      } finally {
+        setTimeout(() => { if (icon) icon.style.transform = ''; }, 600);
+      }
+    }
+
     function debounceOrderSearch() {
       clearTimeout(orderSearchTimeout);
       orderSearchTimeout = setTimeout(() => loadOrders(false), 300);
@@ -125,26 +169,43 @@
 
     function onFilterStatusChange(newStatus) {
       const statusSelect = document.getElementById('statusFilter');
-      if (statusSelect) statusSelect.dataset.userChanged = 'true';
+      if (statusSelect) {
+        statusSelect.dataset.userChanged = 'true';
+        statusSelect.value = newStatus;
+      }
       const url = new URL(window.location);
       if (newStatus && newStatus !== 'all') {
         url.searchParams.set('status', newStatus);
       } else {
         url.searchParams.delete('status');
       }
-      window.history.replaceState({}, '', url.toString());
+      window.history.pushState({}, '', url.toString());
 
-      // Dynamically highlight matching sub navbar item in sidebar
-      document.querySelectorAll('.nav-sub-item').forEach(el => {
-        const subUrl = el.getAttribute('data-sub-url');
-        if (!subUrl) return;
-        const targetStatus = new URLSearchParams(subUrl.includes('?') ? subUrl.substring(subUrl.indexOf('?')) : '').get('status');
-        if ((newStatus === 'all' && !subUrl.includes('?')) || (targetStatus && targetStatus === newStatus)) {
-          el.classList.add('active');
+      // Update active subnav tab in strip
+      document.querySelectorAll('#ordersSubnavStrip .subnav-tab').forEach(tab => {
+        const tabStatus = tab.getAttribute('data-subnav-status');
+        if ((newStatus === 'all' && tabStatus === 'all') || tabStatus === newStatus) {
+          tab.classList.add('active');
         } else {
-          el.classList.remove('active');
+          tab.classList.remove('active');
         }
       });
+
+      // Dynamically highlight matching sub navbar item in sidebar
+      if (typeof Admin !== 'undefined' && Admin.updateActiveSubItems) {
+        Admin.updateActiveSubItems();
+      } else {
+        document.querySelectorAll('.nav-sub-item').forEach(el => {
+          const subUrl = el.getAttribute('data-sub-url');
+          if (!subUrl) return;
+          const targetStatus = new URLSearchParams(subUrl.includes('?') ? subUrl.substring(subUrl.indexOf('?')) : '').get('status');
+          if ((newStatus === 'all' && !subUrl.includes('?')) || (targetStatus && targetStatus === newStatus)) {
+            el.classList.add('active');
+          } else {
+            el.classList.remove('active');
+          }
+        });
+      }
 
       loadOrders(false);
     }
@@ -158,9 +219,19 @@
       }
 
       const search = document.getElementById('orderSearch').value.trim();
-      const status = statusSelect ? statusSelect.value : 'all';
+      const status = statusSelect ? statusSelect.value : (urlStatus || 'all');
       const isDeletedView = (status === 'Deleted');
       const isAllOrdersView = (status === 'all_orders' || status === 'any');
+
+      // Sync active tab in subnav strip
+      document.querySelectorAll('#ordersSubnavStrip .subnav-tab').forEach(tab => {
+        const tabStatus = tab.getAttribute('data-subnav-status');
+        if ((status === 'all' && tabStatus === 'all') || tabStatus === status) {
+          tab.classList.add('active');
+        } else {
+          tab.classList.remove('active');
+        }
+      });
 
       // Update Header & Badge Context
       const pageHeading = document.getElementById('pageHeadingTitle');
@@ -200,32 +271,6 @@
       const noticeBanner = document.getElementById('deletedOrdersNotice');
       if (noticeBanner) {
         noticeBanner.style.display = isDeletedView ? 'flex' : 'none';
-      }
-
-      const btnActive = document.getElementById('btnActiveOrdersNav');
-      const btnDeleted = document.getElementById('btnDeletedOrdersNav');
-      const btnAll = document.getElementById('btnAllOrdersNav');
-
-      [btnActive, btnDeleted, btnAll].forEach(b => {
-        if (b) {
-          b.style.background = 'transparent';
-          b.style.borderColor = 'rgba(255, 255, 255, 0.15)';
-          b.style.color = 'rgba(250, 247, 242, 0.7)';
-        }
-      });
-
-      if (isDeletedView && btnDeleted) {
-        btnDeleted.style.background = 'rgba(231, 76, 60, 0.15)';
-        btnDeleted.style.borderColor = '#ff708f';
-        btnDeleted.style.color = '#ff708f';
-      } else if (isAllOrdersView && btnAll) {
-        btnAll.style.background = 'rgba(201, 169, 110, 0.15)';
-        btnAll.style.borderColor = 'var(--color-gold)';
-        btnAll.style.color = '#fff';
-      } else if (btnActive) {
-        btnActive.style.background = 'rgba(201, 169, 110, 0.15)';
-        btnActive.style.borderColor = 'var(--color-gold)';
-        btnActive.style.color = '#fff';
       }
 
       try {
@@ -338,6 +383,15 @@
         if (data.success) {
           Admin.toast(`✦ Order #${orderId} status updated to ${newStatus}`);
           loadOrders(false);
+          if (typeof BroadcastChannel !== 'undefined') {
+            try {
+              const bus = new BroadcastChannel('lumiere_realtime_bus');
+              bus.postMessage({ action: 'order_status_updated', orderId, status: newStatus });
+            } catch (_) {}
+          }
+          if (typeof Admin !== 'undefined' && Admin.syncMetrics) {
+            Admin.syncMetrics();
+          }
         } else {
           alert(data.error || 'Failed to update order status');
           loadOrders(false);
@@ -506,6 +560,9 @@
             const bus = new BroadcastChannel('lumiere_realtime_bus');
             bus.postMessage({ action: 'order_deleted', orderId, isPermanent });
           }
+          if (typeof Admin !== 'undefined' && Admin.syncMetrics) {
+            Admin.syncMetrics();
+          }
           loadOrders(false);
         } else {
           alert(data.error || 'Failed to delete order.');
@@ -537,6 +594,9 @@
           if (typeof BroadcastChannel !== 'undefined') {
             const bus = new BroadcastChannel('lumiere_realtime_bus');
             bus.postMessage({ action: 'order_status_updated', orderId, status: 'Confirmed' });
+          }
+          if (typeof Admin !== 'undefined' && Admin.syncMetrics) {
+            Admin.syncMetrics();
           }
           loadOrders(false);
         } else {
@@ -573,8 +633,16 @@
       }, 5000);
       window.addEventListener('focus', () => loadOrders(true));
 
-      // Seamless sub navbar item clicks without full page reloading
+      // Seamless sub navbar & subnav tab strip clicks without full page reloading
       document.addEventListener('click', (e) => {
+        const subnavTab = e.target.closest('#ordersSubnavStrip .subnav-tab');
+        if (subnavTab) {
+          e.preventDefault();
+          const targetStatus = subnavTab.getAttribute('data-subnav-status') || 'all';
+          onFilterStatusChange(targetStatus);
+          return;
+        }
+
         const link = e.target.closest('.nav-sub-item');
         if (link) {
           const href = link.getAttribute('href');
@@ -582,10 +650,6 @@
             e.preventDefault();
             const targetParams = new URLSearchParams(href.includes('?') ? href.substring(href.indexOf('?')) : '');
             const newStatus = targetParams.get('status') || 'all';
-            const statusSelect = document.getElementById('statusFilter');
-            if (statusSelect) {
-              statusSelect.value = newStatus;
-            }
             onFilterStatusChange(newStatus);
           }
         }
@@ -595,6 +659,17 @@
         const status = urlParams.get('status') || 'all';
         const statusSelect = document.getElementById('statusFilter');
         if (statusSelect) statusSelect.value = status;
+        document.querySelectorAll('#ordersSubnavStrip .subnav-tab').forEach(tab => {
+          const tabStatus = tab.getAttribute('data-subnav-status');
+          if ((status === 'all' && tabStatus === 'all') || tabStatus === status) {
+            tab.classList.add('active');
+          } else {
+            tab.classList.remove('active');
+          }
+        });
+        if (typeof Admin !== 'undefined' && Admin.updateActiveSubItems) {
+          Admin.updateActiveSubItems();
+        }
         loadOrders(false);
       });
     });

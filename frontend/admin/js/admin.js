@@ -79,7 +79,7 @@ const Admin = {
       icon: '🛍️',
       url: 'orders.html',
       perm: 'orders.view',
-      badgeKey: 'ordersPending',
+      badgeKey: 'orders',
       badgeType: 'orders',
       children: [
         { title: 'All Orders', url: 'orders.html', badgeKey: 'orders', perm: 'orders.view' },
@@ -449,52 +449,82 @@ const Admin = {
   },
 
   /* ==========================================================
-     REAL-TIME SYNC ENGINE (8-Second Polling & Live DOM Injection)
+     REAL-TIME SYNC ENGINE (Polling & Live DOM Injection)
      ========================================================== */
+  async syncMetrics() {
+    try {
+      const res = await Auth.apiFetch('/api/admin/overview');
+      const data = await res.json();
+      if (data.success && data.metrics) {
+        const m = data.metrics;
+        const map = {
+          revenue: `₹${Math.round(m.totalRevenue || 0).toLocaleString('en-IN')}`,
+          orders: m.totalOrders || 0,
+          todayOrders: m.todayOrders || 0,
+          todayRev: `₹${(m.todayRevenue || 0).toFixed(0)}`,
+          customers: m.totalCustomers || 0,
+          staff: m.totalStaff || 0,
+          totalRoles: 4,
+          totalPermissions: 12,
+          products: m.totalProducts || 0,
+          lowStock: m.lowStockCount || 0,
+          outStock: m.outOfStockCount || 0,
+          stockAlerts: (m.lowStockCount || 0) + (m.outOfStockCount || 0),
+          ordersPending: m.pendingOrdersCount || 0,
+        };
+
+        // Initialize all known order statuses
+        const knownStatuses = ['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Refunded', 'Deleted'];
+        knownStatuses.forEach(st => {
+          map[`status_${st}`] = 0;
+        });
+
+        // Map order status counts from statusBreakdown
+        if (Array.isArray(data.statusBreakdown)) {
+          data.statusBreakdown.forEach(st => {
+            map[`status_${st.status}`] = Number(st.count) || 0;
+          });
+          map['ordersPending'] = map['status_Pending'] || 0;
+        }
+
+        // Direct fallback from metrics if present
+        if (m.pendingOrdersCount !== undefined) map['status_Pending'] = m.pendingOrdersCount;
+        if (m.confirmedOrdersCount !== undefined) map['status_Confirmed'] = m.confirmedOrdersCount;
+        if (m.processingOrdersCount !== undefined) map['status_Processing'] = m.processingOrdersCount;
+        if (m.shippedOrdersCount !== undefined) map['status_Shipped'] = m.shippedOrdersCount;
+        if (m.deliveredOrdersCount !== undefined) map['status_Delivered'] = m.deliveredOrdersCount;
+        if (m.cancelledOrdersCount !== undefined) map['status_Cancelled'] = m.cancelledOrdersCount;
+        if (m.deletedOrdersCount !== undefined) map['status_Deleted'] = m.deletedOrdersCount;
+        if (m.refundedOrdersCount !== undefined) map['status_Refunded'] = m.refundedOrdersCount;
+
+        this.realTimeMetrics = map;
+        this.applyLiveBadges(map);
+      }
+    } catch (err) {
+      console.warn('[Admin Live Sync] Polling offline:', err.message);
+    }
+  },
+
   async startRealTimeSync() {
     if (this.realTimeTimer) clearInterval(this.realTimeTimer);
 
-    const syncMetrics = async () => {
+    // Initial immediate sync
+    this.syncMetrics();
+    // 6-second continuous real-time sync
+    this.realTimeTimer = setInterval(() => this.syncMetrics(), 6000);
+
+    // BroadcastChannel sync across open tabs
+    if (typeof BroadcastChannel !== 'undefined' && !this._busSubscribed) {
+      this._busSubscribed = true;
       try {
-        const res = await Auth.apiFetch('/api/admin/overview');
-        const data = await res.json();
-        if (data.success && data.metrics) {
-          const m = data.metrics;
-          const map = {
-            revenue: `₹${Math.round(m.totalRevenue || 0).toLocaleString('en-IN')}`,
-            orders: m.totalOrders || 0,
-            todayOrders: m.todayOrders || 0,
-            todayRev: `₹${(m.todayRevenue || 0).toFixed(0)}`,
-            customers: m.totalCustomers || 0,
-            staff: m.totalStaff || 0,
-            totalRoles: 4,
-            totalPermissions: 12,
-            products: m.totalProducts || 0,
-            lowStock: m.lowStockCount || 0,
-            outStock: m.outOfStockCount || 0,
-            stockAlerts: (m.lowStockCount || 0) + (m.outOfStockCount || 0),
-          };
-
-          // Map order status counts from statusBreakdown
-          if (Array.isArray(data.statusBreakdown)) {
-            data.statusBreakdown.forEach(st => {
-              map[`status_${st.status}`] = st.count || 0;
-            });
-            map['ordersPending'] = map['status_Pending'] || 0;
+        const bus = new BroadcastChannel('lumiere_realtime_bus');
+        bus.onmessage = (e) => {
+          if (e.data && ['order_placed', 'order_status_changed', 'order_status_updated', 'order_deleted'].includes(e.data.action)) {
+            this.syncMetrics();
           }
-
-          this.realTimeMetrics = map;
-          this.applyLiveBadges(map);
-        }
-      } catch (err) {
-        console.warn('[Admin Live Sync] Polling offline:', err.message);
-      }
-    };
-
-    // Initial immediate call
-    syncMetrics();
-    // 8-second continuous real-time sync
-    this.realTimeTimer = setInterval(syncMetrics, 8000);
+        };
+      } catch (_) {}
+    }
   },
 
   applyLiveBadges(metrics) {
@@ -527,6 +557,17 @@ const Admin = {
             badgeEl.style.display = 'none';
           }
         }
+        // Style order status sub-items: dimmed when 0, full opacity when > 0
+        if (key.startsWith('status_') && key !== 'status_Deleted') {
+          badgeEl.style.display = 'inline-flex';
+          if (Number(val) > 0) {
+            badgeEl.style.opacity = '1';
+            badgeEl.style.fontWeight = '700';
+          } else {
+            badgeEl.style.opacity = '0.5';
+            badgeEl.style.fontWeight = '500';
+          }
+        }
       }
     });
 
@@ -537,6 +578,31 @@ const Admin = {
     if (subLow && metrics.lowStock !== undefined) subLow.innerText = metrics.lowStock;
     const subOut = document.getElementById('subnavOutStockBadge');
     if (subOut && metrics.outStock !== undefined) subOut.innerText = metrics.outStock;
+
+    // Sync orders subnav badges on orders.html
+    const subOrdersAll = document.getElementById('subnavOrdersAllBadge');
+    if (subOrdersAll && metrics.orders !== undefined) subOrdersAll.innerText = metrics.orders;
+    const subOrdersPending = document.getElementById('subnavOrdersPendingBadge');
+    if (subOrdersPending && metrics.status_Pending !== undefined) subOrdersPending.innerText = metrics.status_Pending;
+    const subOrdersConfirmed = document.getElementById('subnavOrdersConfirmedBadge');
+    if (subOrdersConfirmed && metrics.status_Confirmed !== undefined) subOrdersConfirmed.innerText = metrics.status_Confirmed;
+    const subOrdersProcessing = document.getElementById('subnavOrdersProcessingBadge');
+    if (subOrdersProcessing && metrics.status_Processing !== undefined) subOrdersProcessing.innerText = metrics.status_Processing;
+    const subOrdersShipped = document.getElementById('subnavOrdersShippedBadge');
+    if (subOrdersShipped && metrics.status_Shipped !== undefined) subOrdersShipped.innerText = metrics.status_Shipped;
+    const subOrdersDelivered = document.getElementById('subnavOrdersDeliveredBadge');
+    if (subOrdersDelivered && metrics.status_Delivered !== undefined) subOrdersDelivered.innerText = metrics.status_Delivered;
+    const subOrdersCancelled = document.getElementById('subnavOrdersCancelledBadge');
+    if (subOrdersCancelled && metrics.status_Cancelled !== undefined) subOrdersCancelled.innerText = metrics.status_Cancelled;
+    const subOrdersDeleted = document.getElementById('subnavOrdersDeletedBadge');
+    if (subOrdersDeleted && metrics.status_Deleted !== undefined) {
+      subOrdersDeleted.innerText = metrics.status_Deleted;
+      if (Number(metrics.status_Deleted) === 0) {
+        subOrdersDeleted.style.opacity = '0.6';
+      } else {
+        subOrdersDeleted.style.opacity = '1';
+      }
+    }
   },
 
   /* ==========================================================

@@ -37,65 +37,111 @@ async function getOverview(req, res) {
     let finalRecentOrders = [];
     let statusBreakdown = [];
 
+    let orderCounts = {
+      Pending: 0,
+      Confirmed: 0,
+      Processing: 0,
+      Shipped: 0,
+      Delivered: 0,
+      Cancelled: 0,
+      Refunded: 0,
+      Deleted: 0
+    };
+
     if (canViewOrders || canViewAnalytics) {
-      let revRow = null;
-      let ordersRow = null;
-      let todayRow = null;
+      let dbOrders = [];
       try {
-        revRow = await db.get(
-          "SELECT COALESCE(SUM(total_amount), 0) as total_revenue FROM orders WHERE status NOT IN ('Cancelled', 'Deleted')"
-        );
-        ordersRow = await db.get("SELECT COUNT(*) as total_orders FROM orders WHERE status != 'Deleted'");
-        todayRow = await db.get(
-          "SELECT COUNT(*) as today_orders, COALESCE(SUM(total_amount), 0) as today_revenue FROM orders WHERE DATE(created_at) = DATE('now') AND status NOT IN ('Cancelled', 'Deleted')"
+        dbOrders = await db.query(
+          "SELECT id, order_number, customer_name, customer_email, total_amount, status, payment_status, created_at FROM orders"
         );
       } catch (_) {}
 
-      finalTotalOrders = parseInt(ordersRow?.total_orders || 0, 10);
-      finalTotalRev = parseFloat(revRow?.total_revenue || 0);
-      finalTodayOrders = parseInt(todayRow?.today_orders || 0, 10);
-      finalTodayRev = parseFloat(todayRow?.today_revenue || 0);
+      const ledgerOrders = orderLedger.getAllOrders();
+      const allOrdersMap = new Map();
 
-      const ledgerList = orderLedger.getAllOrders();
-      if (finalTotalOrders === 0 && ledgerList.length > 0) {
-        finalRecentOrders = ledgerList.slice(0, 6);
-        finalTotalOrders = ledgerList.length;
-        finalTotalRev = ledgerList.reduce((acc, o) => acc + parseFloat(o.total_amount || 0), 0);
-        finalTodayOrders = finalTotalOrders > 0 ? 1 : 0;
-        finalTodayRev = finalTotalRev;
-      } else {
-        try {
-          const recentOrders = await db.query(
-            `SELECT id, order_number, customer_name, customer_email, total_amount, status, payment_status, created_at 
-             FROM orders 
-             WHERE status != 'Deleted'
-             ORDER BY created_at DESC LIMIT 6`
-          );
-          finalRecentOrders = (recentOrders && recentOrders.length > 0) ? recentOrders : ledgerList.slice(0, 6);
-        } catch (_) {
-          finalRecentOrders = ledgerList.slice(0, 6);
+      (dbOrders || []).forEach(o => {
+        const num = o.order_number || o.orderNumber || String(o.id);
+        if (num) allOrdersMap.set(num, o);
+      });
+
+      (ledgerOrders || []).forEach(lo => {
+        const num = lo.order_number || lo.orderNumber || String(lo.id);
+        if (num && !allOrdersMap.has(num)) {
+          allOrdersMap.set(num, lo);
         }
-      }
+      });
 
-      if (canViewAnalytics) {
-        try {
-          statusBreakdown = await db.query(
-            "SELECT status, COUNT(*) as count, COALESCE(SUM(total_amount), 0) as value FROM orders GROUP BY status"
-          );
-        } catch (_) {}
-      }
+      const mergedOrders = Array.from(allOrdersMap.values());
+
+      const values = {
+        Pending: 0,
+        Confirmed: 0,
+        Processing: 0,
+        Shipped: 0,
+        Delivered: 0,
+        Cancelled: 0,
+        Refunded: 0,
+        Deleted: 0
+      };
+
+      let totalActiveOrders = 0;
+      let totalActiveRev = 0;
+      let todayOrders = 0;
+      let todayRev = 0;
+      const todayStr = new Date().toISOString().slice(0, 10);
+
+      mergedOrders.forEach(o => {
+        const st = o.status || 'Pending';
+        const amt = parseFloat(o.total_amount || 0);
+
+        if (orderCounts[st] !== undefined) {
+          orderCounts[st]++;
+          values[st] += amt;
+        } else {
+          orderCounts[st] = 1;
+          values[st] = amt;
+        }
+
+        if (st !== 'Deleted') {
+          totalActiveOrders++;
+        }
+        if (st !== 'Cancelled' && st !== 'Deleted') {
+          totalActiveRev += amt;
+        }
+
+        const oDate = (o.created_at || '').slice(0, 10);
+        if (oDate === todayStr && st !== 'Cancelled' && st !== 'Deleted') {
+          todayOrders++;
+          todayRev += amt;
+        }
+      });
+
+      finalTotalOrders = totalActiveOrders;
+      finalTotalRev = totalActiveRev;
+      finalTodayOrders = todayOrders;
+      finalTodayRev = todayRev;
+
+      const nonDeleted = mergedOrders.filter(o => o.status !== 'Deleted');
+      nonDeleted.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      finalRecentOrders = nonDeleted.slice(0, 6);
+
+      statusBreakdown = Object.keys(orderCounts).map(st => ({
+        status: st,
+        count: orderCounts[st],
+        value: canViewAnalytics ? values[st] : 0
+      }));
     }
 
     // Role restriction: hide financial metrics if no analytics permission
     if (!canViewAnalytics) {
       finalTotalRev = 0;
       finalTodayRev = 0;
-      statusBreakdown = [];
     }
     if (!canViewOrders) {
       finalTotalOrders = 0;
       finalTodayOrders = 0;
       finalRecentOrders = [];
+      statusBreakdown = [];
     }
 
     // 2. Customers
@@ -222,6 +268,14 @@ async function getOverview(req, res) {
         totalProducts: finalTotalProducts,
         lowStockCount: finalLowStock,
         outOfStockCount: finalOutOfStock,
+        deletedOrdersCount: orderCounts.Deleted || 0,
+        pendingOrdersCount: orderCounts.Pending || 0,
+        confirmedOrdersCount: orderCounts.Confirmed || 0,
+        processingOrdersCount: orderCounts.Processing || 0,
+        shippedOrdersCount: orderCounts.Shipped || 0,
+        deliveredOrdersCount: orderCounts.Delivered || 0,
+        cancelledOrdersCount: orderCounts.Cancelled || 0,
+        refundedOrdersCount: orderCounts.Refunded || 0,
       },
       recentOrders: finalRecentOrders,
       bestSellers: finalBestSellers,
@@ -1591,6 +1645,8 @@ async function getOrders(req, res) {
       // Filter check
       if (status && status !== 'all' && status !== 'all_orders' && status !== 'any') {
         if (lo.status !== status) return;
+      } else if (status !== 'all_orders' && status !== 'any' && status !== 'Deleted') {
+        if (lo.status === 'Deleted') return;
       }
       if (search) {
         const sLower = search.toLowerCase();
