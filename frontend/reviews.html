@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/lumiere-cinematic.css" />
-  <link rel="stylesheet" href="css/shared.css" /><link rel="stylesheet" href="css/reviews.css" />
+  <link rel="stylesheet" href="css/shared.css" /><link rel="stylesheet" href="css/reviews.css?v=2.0" />
 </head>
 <body>
     <!-- NAVBAR (same as home) -->
@@ -97,7 +97,7 @@
     </div>
   </aside>
 
-  <!-- 1. CINEMATIC HERO WITH INTERACTIVE 24K GOLD STARDUST CANVAS -->
+  <!-- 1. CINEMATIC HAUTE HERO WITH INTERACTIVE 24K GOLD STARDUST CANVAS -->
   <header class="rev-hero">
     <div class="rev-hero-bg">
       <img src="images/reviews_hero.jpg" alt="Lumière Community & Atelier Collectors" />
@@ -107,33 +107,118 @@
     
     <div class="rev-hero-content">
       <div class="rev-hero-label-badge">
-        <span>✦</span>
+        <span class="badge-gem">✦</span>
         <span>VOICE OF THE ATELIER &bull; OVER 50,000 VERIFIED STORIES</span>
+        <span class="badge-live-pulse" title="Live Telemetry Verified"></span>
       </div>
+      <div class="rev-hero-kicker">CHRONIQUES DE BEAUTÉ · VOL. IV</div>
       <h1>Loved by <em>Thousands</em></h1>
       <p>Honest chronicles, authentic skin transformations, and unfiltered reviews from our global circle of beauty collectors.</p>
+
+      <!-- Action Buttons & Trust Strip -->
+      <div class="rev-hero-actions-row">
+        <a href="#ratingPanel" class="rev-hero-btn rev-hero-btn--primary">
+          <span class="btn-sparkle">✦</span>
+          <span>EXPLORE VERIFIED REVIEWS</span>
+          <span class="btn-arrow" aria-hidden="true">&darr;</span>
+        </a>
+        <a href="#writeReview" class="rev-hero-btn rev-hero-btn--secondary">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"></path>
+            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+          </svg>
+          <span>WRITE A REVIEW</span>
+        </a>
+      </div>
+
+      <div class="rev-hero-trust-strip">
+        <div class="trust-item">
+          <span class="trust-gem">✦</span>
+          <span>100% Verified Purchases</span>
+        </div>
+        <span class="trust-sep">·</span>
+        <div class="trust-item">
+          <span class="trust-gem">✦</span>
+          <span>Zero Paid Inclusions</span>
+        </div>
+        <span class="trust-sep">·</span>
+        <div class="trust-item">
+          <span class="trust-gem">✦</span>
+          <span>Clinical Efficacy Audited</span>
+        </div>
+      </div>
     </div>
 
-    <!-- Live Rolling Telemetry Stats -->
+    <!-- Live Rolling Telemetry Stats Bar -->
     <div class="rev-hero-stats">
-      <div class="rev-hero-stat">
-        <span class="rhs-num" id="cntAvgRating">4.95</span>
+      <!-- Stat 1: Rating -->
+      <div class="rev-hero-stat rev-hero-stat--rating">
+        <div class="rhs-card-top">
+          <span class="rhs-card-pill">
+            <span class="rhs-pill-dot">★</span> 4.95 / 5.0
+          </span>
+          <span class="rhs-stars-mini">★★★★★</span>
+        </div>
+        <div class="rhs-num-wrap">
+          <span class="rhs-num" id="cntAvgRating">4.95</span>
+        </div>
         <span class="rhs-label">Average Atelier Rating</span>
+        <span class="rhs-sub">Based on 2,840+ verified client ratings</span>
       </div>
+
       <div class="rev-hero-divider"></div>
-      <div class="rev-hero-stat">
-        <span class="rhs-num" id="cntCollectors">52,480 <span class="rhs-suffix">+</span></span>
+
+      <!-- Stat 2: Collectors -->
+      <div class="rev-hero-stat rev-hero-stat--collectors">
+        <div class="rhs-card-top">
+          <span class="rhs-card-pill rhs-card-pill--green">
+            <span class="rhs-live-dot"></span> LIVE COLLECTORS
+          </span>
+        </div>
+        <div class="rhs-num-wrap">
+          <span class="rhs-num" id="cntCollectors">52,480 <span class="rhs-suffix">+</span></span>
+        </div>
         <span class="rhs-label">Global Collectors</span>
+        <div class="rhs-collectors-strip">
+          <div class="rhs-avatars-cluster">
+            <img src="images/clients/client1.jpg" alt="Camille L." class="rhs-mini-avatar" />
+            <img src="images/clients/client2.jpg" alt="Amelia R." class="rhs-mini-avatar" />
+            <img src="images/clients/client3.jpg" alt="Marie D." class="rhs-mini-avatar" />
+          </div>
+          <span class="rhs-sub">Spanning 48 nations</span>
+        </div>
       </div>
+
       <div class="rev-hero-divider"></div>
-      <div class="rev-hero-stat">
-        <span class="rhs-num" id="cntRadiance">99.2 <span class="rhs-suffix">%</span></span>
+
+      <!-- Stat 3: Radiance Index -->
+      <div class="rev-hero-stat rev-hero-stat--radiance">
+        <div class="rhs-card-top">
+          <span class="rhs-card-pill">
+            <span class="rhs-pill-dot">✦</span> CLINICAL INDEX
+          </span>
+        </div>
+        <div class="rhs-num-wrap">
+          <span class="rhs-num" id="cntRadiance">99.2 <span class="rhs-suffix">%</span></span>
+        </div>
         <span class="rhs-label">Skin Radiance Index</span>
+        <span class="rhs-sub">Visible luminosity in 14 days</span>
       </div>
+
       <div class="rev-hero-divider"></div>
-      <div class="rev-hero-stat">
-        <span class="rhs-num" id="cntPurity">100 <span class="rhs-suffix">%</span></span>
+
+      <!-- Stat 4: Atelier Formulations -->
+      <div class="rev-hero-stat rev-hero-stat--purity">
+        <div class="rhs-card-top">
+          <span class="rhs-card-pill rhs-card-pill--gold">
+            <span class="rhs-pill-dot">✦</span> HAUTE BOTANICALS
+          </span>
+        </div>
+        <div class="rhs-num-wrap">
+          <span class="rhs-num" id="cntPurity">100 <span class="rhs-suffix">%</span></span>
+        </div>
         <span class="rhs-label">Atelier Formulations</span>
+        <span class="rhs-sub">Clean, vegan &amp; paraben-free</span>
       </div>
     </div>
   </header>
