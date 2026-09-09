@@ -134,7 +134,10 @@
           <div class="table-header-wrap" style="display: flex; justify-content: space-between; align-items: center;">
             <div style="display: flex; align-items: center; gap: 0.6rem;">
               <h3 style="font-family: var(--font-serif); font-size: 1.3rem; font-weight: 400; margin: 0;">Recent Orders & In-Line Dispatch</h3>
-              <span id="ordersLiveCountBadge" class="badge badge-owner" style="font-size: 0.62rem;">Live Sync</span>
+              <button id="ordersLiveCountBadge" onclick="forceSync()" class="badge badge-owner" style="font-size: 0.62rem; cursor: pointer; border: 1px solid rgba(212,175,55,0.4); background: rgba(212,175,55,0.12); display: inline-flex; align-items: center; gap: 0.35rem; transition: all 0.2s ease;" title="Click to instantly sync orders and telemetrics">
+                <span class="live-dot" style="width: 6px; height: 6px; background: #2ecc71; border-radius: 50%; box-shadow: 0 0 8px #2ecc71;"></span>
+                <span>Live Sync</span>
+              </button>
             </div>
             <a href="orders.html" class="btn-outline" style="padding: 0.35rem 0.75rem; font-size: 0.68rem;">VIEW ALL &rarr;</a>
           </div>
@@ -575,7 +578,9 @@
     let lastOwnerProductsFingerprint = '';
 
     // 1. Initial Load & Telemetry Polling
-    async function loadDashboard() {
+    let lastOrdersFingerprint = '';
+
+    async function loadDashboard(isBackground = false) {
       try {
         const res = await Auth.apiFetch('/api/admin/overview');
         const data = await res.json();
@@ -584,6 +589,9 @@
           renderLowStockAlert(data.metrics);
           renderRecentOrders(data.recentOrders || []);
           renderBestSellers(data.bestSellers || []);
+          if (Array.isArray(data.recentActivity)) {
+            renderActivityFeed(data.recentActivity);
+          }
           
           document.getElementById('lastSyncedTime').innerText = `Synced: ${new Date().toLocaleTimeString()}`;
         }
@@ -647,37 +655,55 @@
       const orderBody = document.getElementById('recentOrdersTableBody');
       if (!orderBody) return;
 
+      const badge = document.getElementById('ordersLiveCountBadge');
+      if (badge) {
+        const span = badge.querySelector('span:last-child') || badge;
+        span.innerText = `Live Sync (${orders.length})`;
+      }
+
       if (orders.length === 0) {
         orderBody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: rgba(250,247,242,0.5);">No orders recorded yet.</td></tr>';
+        lastOrdersFingerprint = 'empty';
         return;
       }
 
-      const getStatusClass = (st) => {
-        switch(st) {
-          case 'Pending': return 'badge-pending';
-          case 'Confirmed': return 'badge-confirmed';
-          case 'Processing': return 'badge-processing';
-          case 'Shipped': return 'badge-shipped';
-          case 'Delivered': return 'badge-delivered';
-          case 'Cancelled': return 'badge-cancelled';
-          default: return 'badge-active';
-        }
-      };
+      // Check if user is currently interacting inside table
+      const activeEl = document.activeElement;
+      const isInteractingInTable = activeEl && orderBody.contains(activeEl);
+
+      const currentFingerprint = JSON.stringify(orders.map(o => ({
+        id: o.id,
+        num: o.order_number,
+        st: o.status,
+        amt: o.total_amount,
+        cust: o.customer_name,
+        date: o.created_at
+      })));
+
+      if (currentFingerprint === lastOrdersFingerprint) {
+        return;
+      }
+
+      if (isInteractingInTable) {
+        return;
+      }
+
+      lastOrdersFingerprint = currentFingerprint;
 
       orderBody.innerHTML = orders.map(o => `
-        <tr>
+        <tr data-order-id="${o.id}">
           <td>
             <a href="javascript:void(0)" onclick="openOrderDispatchModal(${o.id})" style="color: #fff; font-weight: 600; text-decoration: underline;">
-              #${o.order_number}
+              #${escapeHtml(o.order_number)}
             </a>
           </td>
           <td>
-            <div style="font-weight: 500;">${o.customer_name}</div>
-            <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${o.customer_email}</div>
+            <div style="font-weight: 500;">${escapeHtml(o.customer_name || 'Anonymous Client')}</div>
+            <div style="font-size: 0.7rem; color: rgba(250,247,242,0.5);">${escapeHtml(o.customer_email || 'No email')}</div>
           </td>
-          <td style="color: var(--color-gold); font-weight: 600;">₹${parseFloat(o.total_amount).toFixed(2)}</td>
+          <td style="color: var(--color-gold); font-weight: 600;">₹${parseFloat(o.total_amount || 0).toFixed(2)}</td>
           <td>
-            <select class="admin-table-select" onchange="inlineUpdateOrderStatus(${o.id}, this.value, '${o.order_number}')">
+            <select class="admin-table-select" data-order-id="${o.id}" data-current-val="${escapeHtml(o.status || 'Pending')}" onchange="inlineUpdateOrderStatus(${o.id}, this.value, '${escapeJs(o.order_number)}', this)" oninput="inlineUpdateOrderStatus(${o.id}, this.value, '${escapeJs(o.order_number)}', this)">
               <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
               <option value="Confirmed" ${o.status === 'Confirmed' ? 'selected' : ''}>Confirmed</option>
               <option value="Processing" ${o.status === 'Processing' ? 'selected' : ''}>Processing</option>
@@ -687,7 +713,7 @@
               <option value="Refunded" ${o.status === 'Refunded' ? 'selected' : ''}>Refunded</option>
             </select>
           </td>
-          <td style="color: rgba(250,247,242,0.6); font-size: 0.75rem;">${new Date(o.created_at).toLocaleDateString()}</td>
+          <td style="color: rgba(250,247,242,0.6); font-size: 0.75rem;">${o.created_at ? new Date(o.created_at).toLocaleDateString() : 'Today'}</td>
           <td style="text-align: right;">
             <button onclick="openOrderDispatchModal(${o.id})" class="btn-outline" style="padding: 0.25rem 0.55rem; font-size: 0.65rem;">
               Dispatch &rarr;
@@ -715,15 +741,25 @@
           </div>
           <div style="text-align: right;">
             <div style="color: var(--color-gold); font-size: 0.85rem; font-weight: 600;">₹${parseFloat(p.revenue_generated).toFixed(2)}</div>
-            <button onclick="triggerQuickStockForProduct(${p.id}, '${escapeHtml(p.name)}')" class="btn-outline" style="padding: 0.2rem 0.45rem; font-size: 0.62rem; margin-top: 0.25rem;">+ Restock</button>
+            <button onclick="triggerQuickStockForProduct(${p.id}, '${escapeJs(p.name)}')" class="btn-outline" style="padding: 0.2rem 0.45rem; font-size: 0.62rem; margin-top: 0.25rem;">+ Restock</button>
           </div>
         </div>
       `).join('');
     }
 
     function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      if (!str && str !== 0) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeJs(str) {
+      if (!str && str !== 0) return '';
+      return String(str).replace(/'/g, "\\'").replace(/"/g, '\\"');
     }
 
     // 2. Real-Time Heartbeat Toggle
@@ -759,50 +795,121 @@
       if (realTimeInterval) clearInterval(realTimeInterval);
       realTimeInterval = setInterval(() => {
         if (!isRealTimePaused) {
-          loadDashboard();
+          loadDashboard(true);
         }
       }, 5000);
     }
 
     function forceSync() {
+      lastOrdersFingerprint = '';
       loadDashboard();
       loadExecutiveProducts(false);
+      if (typeof Admin !== 'undefined' && Admin.syncMetrics) {
+        Admin.syncMetrics();
+      }
       Admin.toast('Telemetrics & Executive Catalog synchronized in real time.');
-      addActivity('Owner triggered immediate telemetrics & catalog synchronization.');
+      addActivity('Owner triggered immediate telemetrics & catalog synchronization.', 'sync');
     }
 
-    // 3. Activity Feed Logger
-    function addActivity(msg) {
-      const feed = document.getElementById('activityFeedList');
-      if (!feed) return;
+    // 3. Activity Feed Engine (Local + Backend Telemetry)
+    let localActivities = [];
 
-      const item = document.createElement('div');
-      item.className = 'activity-item';
-      item.innerHTML = `
-        <div class="activity-item-main">
-          <span class="activity-dot"></span>
-          <span>${msg}</span>
-        </div>
-        <span class="activity-time">${new Date().toLocaleTimeString()}</span>
-      `;
-      feed.insertBefore(item, feed.firstChild);
-
-      // Trim feed to 20 items
-      while (feed.children.length > 20) {
-        feed.removeChild(feed.lastChild);
+    function formatTimeAgo(dateStr) {
+      if (!dateStr) return 'Just now';
+      try {
+        const d = new Date(dateStr);
+        const now = new Date();
+        const sec = Math.floor((now - d) / 1000);
+        if (isNaN(sec) || sec < 30) return 'Just now';
+        if (sec < 60) return `${sec}s ago`;
+        const min = Math.floor(sec / 60);
+        if (min < 60) return `${min}m ago`;
+        const hr = Math.floor(min / 60);
+        if (hr < 24) return `${hr}h ago`;
+        const days = Math.floor(hr / 24);
+        if (days < 7) return `${days}d ago`;
+        return d.toLocaleDateString();
+      } catch (_) {
+        return 'Recently';
       }
     }
 
+    function renderActivityFeed(backendActivities = []) {
+      const feed = document.getElementById('activityFeedList');
+      if (!feed) return;
+
+      const combined = [];
+      const seen = new Set();
+
+      localActivities.forEach(item => {
+        const k = item.id || item.message;
+        if (!seen.has(k)) {
+          seen.add(k);
+          combined.push(item);
+        }
+      });
+
+      (backendActivities || []).forEach(item => {
+        const k = item.id || item.message;
+        if (!seen.has(k)) {
+          seen.add(k);
+          combined.push(item);
+        }
+      });
+
+      if (combined.length === 0) {
+        feed.innerHTML = `
+          <div class="activity-item">
+            <div class="activity-item-main">
+              <span class="activity-dot"></span>
+              <span>Executive Owner Telemetry Engine active. Awaiting events.</span>
+            </div>
+            <span class="activity-time">Just now</span>
+          </div>`;
+        return;
+      }
+
+      feed.innerHTML = combined.slice(0, 15).map(a => {
+        const timeStr = a.time ? formatTimeAgo(a.time) : 'Just now';
+        const act = String(a.action || '');
+        const dotColor = act.includes('deleted') ? '#ff7675' : 
+                         act.includes('created') ? '#55efc4' : 
+                         act.includes('stock') ? '#74b9ff' : '#d4af37';
+        return `
+          <div class="activity-item" style="animation: fadeIn 0.25s ease;">
+            <div class="activity-item-main">
+              <span class="activity-dot" style="background: ${dotColor};"></span>
+              <span>${escapeHtml(a.message || a.desc || 'Activity logged')}</span>
+            </div>
+            <span class="activity-time" title="${a.time || ''}">${timeStr}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function addActivity(msg, action = 'general') {
+      const item = {
+        id: 'local_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+        action: action,
+        message: msg,
+        time: new Date().toISOString()
+      };
+      localActivities.unshift(item);
+      if (localActivities.length > 25) localActivities.pop();
+      renderActivityFeed();
+    }
+
     function clearActivityFeed() {
+      localActivities = [];
       const feed = document.getElementById('activityFeedList');
       if (feed) {
         feed.innerHTML = `
           <div class="activity-item">
             <div class="activity-item-main">
               <span class="activity-dot"></span>
-              <span>Activity feed reset.</span>
+              <span>Activity feed cleared by owner.</span>
             </div>
-            <span class="activity-time">${new Date().toLocaleTimeString()}</span>
+            <span class="activity-time">Just now</span>
           </div>
         `;
       }
@@ -1192,24 +1299,73 @@
     }
 
     // 10. In-Line Order Status Updater
-    async function inlineUpdateOrderStatus(orderId, newStatus, orderNumber) {
+    async function inlineUpdateOrderStatus(orderId, newStatus, orderNumber, selectEl) {
+      if (selectEl && selectEl.dataset.currentVal === newStatus) {
+        return; // Avoid duplicate firing from simultaneous onchange & oninput
+      }
+      
+      const previousStatus = selectEl ? selectEl.dataset.currentVal : '';
+      if (selectEl) {
+        selectEl.dataset.currentVal = newStatus;
+        selectEl.disabled = true;
+        selectEl.style.opacity = '0.6';
+      }
+
+      addActivity(`🚚 Order #${orderNumber} marked as ${newStatus}.`, 'order.status_changed');
+
       try {
         const res = await Auth.apiFetch(`/api/admin/orders/${orderId}/status`, {
           method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: newStatus })
         });
         const data = await res.json();
         if (data.success) {
-          Admin.toast(`Order #${orderNumber} status updated to ${newStatus}.`);
-          addActivity(`✦ Order Status Dispatched: #${orderNumber} &rarr; ${newStatus}.`);
-          loadDashboard();
+          Admin.toast(`Order #${orderNumber} updated to "${newStatus}"!`);
+
+          // Cross-tab broadcast
+          try {
+            if (typeof BroadcastChannel !== 'undefined') {
+              const bus = new BroadcastChannel('lumiere_realtime_bus');
+              bus.postMessage({
+                action: 'order_status_updated',
+                orderId: orderId,
+                orderNumber: orderNumber,
+                newStatus: newStatus,
+                timestamp: Date.now()
+              });
+            }
+            localStorage.setItem('lumiere_orders_last_updated', Date.now().toString());
+          } catch (_) {}
+
+          if (typeof Admin !== 'undefined' && Admin.syncMetrics) {
+            Admin.syncMetrics();
+          }
+
+          lastOrdersFingerprint = '';
+          await loadDashboard();
         } else {
-          alert('Update failed: ' + (data.error || 'Unknown error'));
-          loadDashboard(); // revert UI
+          Admin.toast('Update failed: ' + (data.error || 'Unknown error'));
+          if (selectEl && previousStatus) {
+            selectEl.value = previousStatus;
+            selectEl.dataset.currentVal = previousStatus;
+          }
+          lastOrdersFingerprint = '';
+          await loadDashboard();
         }
       } catch (err) {
-        alert('Network Error: ' + err.message);
-        loadDashboard();
+        Admin.toast('Network Error: ' + err.message);
+        if (selectEl && previousStatus) {
+          selectEl.value = previousStatus;
+          selectEl.dataset.currentVal = previousStatus;
+        }
+        lastOrdersFingerprint = '';
+        await loadDashboard();
+      } finally {
+        if (selectEl) {
+          selectEl.disabled = false;
+          selectEl.style.opacity = '1';
+        }
       }
     }
 
@@ -1295,8 +1451,28 @@
         if (data.success) {
           Admin.closeModal('orderDispatchModal');
           Admin.toast(`Dispatch updated for Order #${currentDispatchOrder ? currentDispatchOrder.order_number : orderId}!`);
-          addActivity(`🚚 Dispatch Updated: Order #${currentDispatchOrder ? currentDispatchOrder.order_number : orderId} marked as ${status}${trackingNumber ? ` (Tracking: ${trackingNumber})` : ''}.`);
-          loadDashboard();
+          addActivity(`🚚 Dispatch Updated: Order #${currentDispatchOrder ? currentDispatchOrder.order_number : orderId} marked as ${status}${trackingNumber ? ` (Tracking: ${trackingNumber})` : ''}.`, 'order.status_changed');
+
+          // Cross-tab broadcast
+          try {
+            if (typeof BroadcastChannel !== 'undefined') {
+              const bus = new BroadcastChannel('lumiere_realtime_bus');
+              bus.postMessage({
+                action: 'order_status_updated',
+                orderId: orderId,
+                newStatus: status,
+                timestamp: Date.now()
+              });
+            }
+            localStorage.setItem('lumiere_orders_last_updated', Date.now().toString());
+          } catch (_) {}
+
+          if (typeof Admin !== 'undefined' && Admin.syncMetrics) {
+            Admin.syncMetrics();
+          }
+
+          lastOrdersFingerprint = '';
+          await loadDashboard();
         } else {
           alert('Error: ' + (data.error || 'Failed to update order status.'));
         }
@@ -1826,6 +2002,37 @@
         Admin.closeModal(id);
       });
     }
+
+    // Real-Time Event Bus across open tabs & pages
+    const realtimeBus = (typeof BroadcastChannel !== 'undefined') ? new BroadcastChannel('lumiere_realtime_bus') : null;
+    if (realtimeBus) {
+      realtimeBus.onmessage = (event) => {
+        const msg = event.data;
+        if (!msg) return;
+        if (['order_placed', 'order_status_changed', 'order_status_updated', 'order_deleted'].includes(msg.action)) {
+          lastOrdersFingerprint = '';
+          loadDashboard(true);
+        }
+        if (['product_created', 'product_updated', 'product_deleted', 'stock_updated', 'CATALOG_MUTATED'].includes(msg.action) || msg.type === 'CATALOG_MUTATED') {
+          loadExecutiveProducts(true);
+        }
+      };
+    }
+
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'lumiere_orders_last_updated') {
+        lastOrdersFingerprint = '';
+        loadDashboard(true);
+      }
+      if (e.key === 'lumiere_catalog_last_updated') {
+        loadExecutiveProducts(true);
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      lastOrdersFingerprint = '';
+      loadDashboard(true);
+    });
 
     // Initialize Telemetry Engine upon DOM Load
     document.addEventListener('DOMContentLoaded', () => {

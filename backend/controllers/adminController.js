@@ -256,6 +256,75 @@ async function getOverview(req, res) {
       }
     }
 
+    // Fetch or synthesize recent activity logs for live feed
+    let recentActivity = [];
+    try {
+      const logs = await db.query(
+        `SELECT id, user_email, user_role, action, entity_type, entity_id, details_json, created_at 
+         FROM audit_logs 
+         ORDER BY created_at DESC LIMIT 10`
+      );
+      if (logs && logs.length > 0) {
+        recentActivity = logs.map(l => {
+          let desc = l.action;
+          try {
+            const d = JSON.parse(l.details_json || '{}');
+            if (l.action === 'order.status_changed') {
+              desc = `Order #${d.orderNumber || l.entity_id} status updated to ${d.newStatus || ''}`;
+            } else if (l.action === 'order.placed') {
+              desc = `New Order placed: #${d.orderNumber || l.entity_id} (${d.customerName || ''})`;
+            } else if (l.action === 'order.deleted') {
+              desc = `Order #${d.orderNumber || l.entity_id} moved to deleted archive`;
+            } else if (l.action === 'order.restored') {
+              desc = `Order #${d.orderNumber || l.entity_id} restored to ${d.restoredStatus || 'active'}`;
+            } else if (l.action === 'order.permanently_deleted') {
+              desc = `Order #${d.orderNumber || l.entity_id} permanently purged`;
+            } else if (l.action === 'product.created') {
+              desc = `New Product registered: "${d.name || l.entity_id}"`;
+            } else if (l.action === 'product.edited') {
+              desc = `Product updated: "${d.name || l.entity_id}"`;
+            } else if (l.action === 'product.archived') {
+              desc = `Product archived: "${d.name || l.entity_id}"`;
+            } else if (l.action === 'product.restored') {
+              desc = `Product restored: "${d.name || l.entity_id}"`;
+            } else if (l.action === 'inventory.adjusted' || l.action === 'product.stock_updated' || l.action === 'inventory.quick_restock') {
+              const delta = d.quantityDelta !== undefined ? d.quantityDelta : (d.quantity || 25);
+              desc = `Inventory restocked: ${d.productName || 'Catalog item'} (${delta > 0 ? '+' : ''}${delta} units)`;
+            } else if (l.action.startsWith('customer.')) {
+              desc = `Client event: ${d.email || d.name || l.entity_id} (${l.action.replace('customer.', '')})`;
+            } else if (l.action.startsWith('auth.')) {
+              desc = `User session: ${l.user_email || 'Staff'} (${l.action.replace('auth.', '')})`;
+            }
+          } catch (_) {}
+          return {
+            id: l.id,
+            action: l.action,
+            message: desc,
+            time: l.created_at
+          };
+        });
+      }
+    } catch (_) {}
+
+    if (recentActivity.length === 0 && finalRecentOrders.length > 0) {
+      recentActivity = finalRecentOrders.map(o => {
+        let msg = `Order #${o.order_number} confirmed for dispatch (${o.customer_name})`;
+        if (o.status === 'Delivered') {
+          msg = `Order #${o.order_number} marked Delivered to ${o.customer_name}`;
+        } else if (o.status === 'Shipped') {
+          msg = `Order #${o.order_number} dispatched & tracking updated (${o.customer_name})`;
+        } else if (o.status === 'Refunded') {
+          msg = `Order #${o.order_number} refund processed (${o.customer_name})`;
+        }
+        return {
+          id: `ord_${o.id}`,
+          action: 'order.status_changed',
+          message: msg,
+          time: o.created_at || new Date().toISOString()
+        };
+      });
+    }
+
     return res.json({
       success: true,
       metrics: {
@@ -280,6 +349,7 @@ async function getOverview(req, res) {
       recentOrders: finalRecentOrders,
       bestSellers: finalBestSellers,
       statusBreakdown,
+      recentActivity,
     });
   } catch (err) {
     console.error('[Admin.getOverview] Error:', err);
