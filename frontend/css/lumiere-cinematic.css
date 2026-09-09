@@ -4023,6 +4023,50 @@ img {
   margin: 0;
 }
 
+/* Wing 1: Live Telemetry Status Pill */
+.concierge-live-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 32, 22, 0.75);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  padding: 0.16rem 0.55rem;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #6EE7B7;
+  text-transform: uppercase;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.16);
+}
+
+.concierge-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10B981;
+  position: relative;
+  box-shadow: 0 0 8px #10B981;
+}
+
+.concierge-live-dot::after {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  bottom: -3px;
+  border-radius: 50%;
+  border: 1px solid #10B981;
+  animation: liveRadar 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+@keyframes liveRadar {
+  0% { transform: scale(0.8); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
 /* Wing 1: Channels Stack */
 .salon-channels-stack {
   display: flex;
@@ -4666,6 +4710,29 @@ img {
   animation: pillGlow 3.5s ease-in-out infinite alternate;
 }
 
+.salon-slots-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, rgba(223, 177, 91, 0.18) 0%, rgba(30, 18, 25, 0.8) 100%);
+  border: 1px solid rgba(223, 177, 91, 0.45);
+  padding: 0.15rem 0.62rem;
+  border-radius: 999px;
+  font-family: var(--font-sans);
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: #FFF4DC;
+  text-transform: uppercase;
+  box-shadow: 0 0 14px rgba(223, 177, 91, 0.2);
+}
+
+.slots-gem {
+  color: #DFB15B;
+  font-size: 0.56rem;
+  animation: starSparkleSpin 3.5s ease-in-out infinite;
+}
+
 .salon-booking-form {
   display: flex;
   flex-direction: column;
@@ -4808,6 +4875,12 @@ img {
   letter-spacing: 0.02em;
 }
 
+.salon-security-lock {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
 /* Date input styling */
 .salon-form-date {
   color-scheme: dark;
@@ -4862,6 +4935,20 @@ img {
   border-color: #DFB15B;
   color: #FFF8E0;
   box-shadow: 0 0 12px rgba(223, 177, 91, 0.3);
+}
+
+.chip-sparkle {
+  color: #DFB15B;
+  font-size: 0.52rem;
+  margin-right: 2px;
+  opacity: 0.85;
+  transition: transform 0.25s ease;
+}
+
+.focus-chip:hover .chip-sparkle,
+.focus-chip.active .chip-sparkle {
+  transform: scale(1.2) rotate(12deg);
+  opacity: 1;
 }
 
 /* Luxury Direct Email Confirmation Banner */
